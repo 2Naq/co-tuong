@@ -1,6 +1,4 @@
-/* overlay.css - Premium Glassmorphism UI for Ziga Chinese Chess Mod */
-
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
 a {
   text-decoration: none;
@@ -22,7 +20,7 @@ a:hover {
   border: 1px solid rgba(212, 175, 55, 0.45);
   border-radius: 14px;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75), 0 0 20px rgba(212, 175, 55, 0.25);
-  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: #f0f3f6;
   user-select: none;
   overflow: hidden;
@@ -160,7 +158,7 @@ iframe[id^="google_ads"],
   letter-spacing: 0.6px;
   text-transform: uppercase;
   color: #f7df94;
-  font-family: 'Cinzel', 'Nunito', sans-serif;
+  font-family: "Inter", sans-serif;
   line-height: 1;
   display: inline-flex;
   align-items: center;
@@ -374,17 +372,56 @@ iframe[id^="google_ads"],
 
 /* Material Advantage Bar */
 .ziga-material-bar-wrapper {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   background: rgba(212, 175, 55, 0.08);
   border: 1px solid rgba(212, 175, 55, 0.2);
-  padding: 5px 9px;
+  padding: 6px 10px;
   border-radius: 6px;
   font-size: 11.5px;
 }
 
+.ziga-material-left {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
 .ziga-material-label {
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.ziga-help-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  color: #ffd700;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  line-height: 1;
+  margin: 0 1px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.ziga-help-btn:hover {
+  background: rgba(212, 175, 55, 0.45);
+  border-color: #ffd700;
+  color: #fff;
+  transform: scale(1.15);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+}
+
+.ziga-material-colon {
   color: #cbd5e1;
   font-weight: 600;
 }
@@ -402,6 +439,267 @@ iframe[id^="google_ads"],
 .ziga-material-val.advantage-negative {
   color: #f87171;
   text-shadow: 0 0 6px rgba(248, 113, 113, 0.4);
+}
+
+/* Material Tooltip Popover */
+.ziga-material-tooltip {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 0;
+  right: 0;
+  z-index: 99999;
+  background: rgba(18, 22, 28, 0.98);
+  border: 1px solid rgba(212, 175, 55, 0.55);
+  border-radius: 8px;
+  padding: 10px 11px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.85), 0 0 16px rgba(212, 175, 55, 0.25);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  animation: tooltip-fadein 0.18s ease-out;
+  box-sizing: border-box;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.ziga-material-tooltip::-webkit-scrollbar {
+  width: 4px;
+}
+
+.ziga-material-tooltip::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.3);
+  border-radius: 2px;
+}
+
+.ziga-material-tooltip::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 102px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid rgba(212, 175, 55, 0.7);
+}
+
+@keyframes tooltip-fadein {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ziga-mat-tt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+  padding-bottom: 5px;
+  margin-bottom: 8px;
+}
+
+.ziga-mat-tt-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #f7df94;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.ziga-mat-tt-close {
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 4px;
+  border-radius: 3px;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.ziga-mat-tt-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Live calculation breakdown section */
+.ziga-mat-tt-live-section {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 9px;
+}
+
+.ziga-mat-tt-live-title {
+  font-size: 10px;
+  font-weight: 800;
+  color: #ffd700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.ziga-mat-tt-live-calc {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 5px;
+  padding: 6px 8px;
+  margin-bottom: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ziga-mat-tt-score-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 11px;
+}
+
+.ziga-mat-tt-player-sc.my {
+  color: #38bdf8;
+}
+
+.ziga-mat-tt-player-sc.opp {
+  color: #fca5a5;
+}
+
+.ziga-mat-tt-vs {
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: bold;
+}
+
+.ziga-mat-tt-diff-row {
+  font-size: 10.5px;
+  color: #cbd5e1;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  padding-top: 4px;
+}
+
+.ziga-mat-tt-diff-row .green,
+.ziga-mat-col-diff .green {
+  color: #34d399;
+}
+
+.ziga-mat-tt-diff-row .red,
+.ziga-mat-col-diff .red {
+  color: #f87171;
+}
+
+.ziga-mat-tt-diff-row .neutral {
+  color: #e2e8f0;
+}
+
+.ziga-mat-tt-table-wrap {
+  width: 100%;
+}
+
+.ziga-mat-tt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5px;
+}
+
+.ziga-mat-tt-table th {
+  padding: 3px 4px;
+  color: #94a3b8;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.ziga-mat-tt-table td {
+  padding: 3px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #e2e8f0;
+}
+
+.ziga-mat-col-name {
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ziga-mat-col-num {
+  text-align: center;
+  font-weight: 600;
+}
+
+.ziga-mat-col-num.bold-green {
+  color: #34d399;
+  font-weight: 800;
+}
+
+.ziga-mat-col-num.bold-red {
+  color: #f87171;
+  font-weight: 800;
+}
+
+.ziga-mat-col-diff {
+  text-align: right;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ziga-mat-row-total td {
+  border-top: 1px solid rgba(212, 175, 55, 0.35);
+  border-bottom: none;
+  padding-top: 5px;
+  color: #ffd700;
+}
+
+.ziga-mat-row-total td:nth-child(2),
+.ziga-mat-row-total td:nth-child(3) {
+  text-align: center;
+}
+
+.ziga-mat-row-total td:nth-child(4) {
+  text-align: right;
+}
+
+/* Reference points section */
+.ziga-mat-tt-ref-section {
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+  padding-top: 7px;
+}
+
+.ziga-mat-tt-ref-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.ziga-mat-tt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 6px;
+}
+
+.ziga-mat-tt-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 3px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 10.5px;
+}
+
+.ziga-mat-tt-name {
+  color: #cbd5e1;
+}
+
+.ziga-mat-tt-pts {
+  color: #ffd700;
+  font-weight: 700;
 }
 
 /* Section Styling */
@@ -571,7 +869,7 @@ iframe[id^="google_ads"],
   color: #f7df94;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  font-family: 'Cinzel', 'Nunito', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .ziga-btn-clear-select {
@@ -796,7 +1094,7 @@ iframe[id^="google_ads"],
   color: #f7df94;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  font-family: 'Cinzel', 'Nunito', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .ziga-settings-close-btn {
@@ -1018,7 +1316,8 @@ iframe[id^="google_ads"],
   color: #fca5a5;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  font-family: 'Cinzel', 'Nunito', sans-serif;
+  font-family: "Inter", sans-serif;
+  padding-top: 5px
 }
 
 .ziga-threat-list {
@@ -1117,7 +1416,7 @@ iframe[id^="google_ads"],
   color: #c4b5fd;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  font-family: 'Cinzel', 'Nunito', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .ziga-coup-content {
@@ -1194,7 +1493,7 @@ iframe[id^="google_ads"],
 
 /* Board Row Numbers (Fallback DOM) */
 .ziga-board-row-num {
-  font-family: Arial, 'Nunito', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 700;
   font-size: 16px;
   color: rgb(114, 51, 20);

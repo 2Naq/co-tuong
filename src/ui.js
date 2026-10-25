@@ -30,6 +30,10 @@
         if (settingsBtn) settingsBtn.classList.remove('active');
       }
 
+      // Close material tooltip if open
+      const matTooltip = document.getElementById('ziga-material-tooltip');
+      if (matTooltip) matTooltip.style.display = 'none';
+
       widgetEl.classList.add('minimized');
       widgetEl.setAttribute('title', 'Bấm để mở rộng bảng công cụ | Kéo để di chuyển');
       if (minBtn) {
@@ -271,8 +275,56 @@
 
         <!-- Material Advantage Indicator -->
         <div class="ziga-material-bar-wrapper" id="ziga-material-wrapper" style="display:none;">
-          <div class="ziga-material-label">Chênh lệch quân:</div>
+          <div class="ziga-material-left">
+            <span class="ziga-material-label">Chênh lệch quân</span>
+            <span class="ziga-material-colon">:</span>
+            <span class="ziga-help-btn" id="ziga-material-help-btn" title="Bấm hoặc rê chuột để xem quy tắc tính điểm">?</span>
+          </div>
           <div class="ziga-material-val" id="ziga-material-score">Bằng điểm</div>
+
+          <!-- Material Tooltip Popover -->
+          <div class="ziga-material-tooltip" id="ziga-material-tooltip" style="display:none;">
+            <div class="ziga-mat-tt-header">
+              <span class="ziga-mat-tt-title">⚖️ TÍNH ĐIỂM CHÊNH LỆCH</span>
+              <span class="ziga-mat-tt-close" id="ziga-mat-tt-close" title="Đóng">✕</span>
+            </div>
+
+            <!-- Live breakdown section -->
+            <div class="ziga-mat-tt-live-section">
+              <div class="ziga-mat-tt-live-title">CHI TIẾT VÁN ĐẤU HIỆN TẠI</div>
+              <div class="ziga-mat-tt-live-calc" id="ziga-mat-tt-live-calc">
+                <div style="text-align: center; color: #94a3b8; font-style: italic;">Chờ vào ván cờ (Mỗi bên xuất phát với 50.5đ)</div>
+              </div>
+              <div class="ziga-mat-tt-table-wrap">
+                <table class="ziga-mat-tt-table">
+                  <thead>
+                    <tr>
+                      <th style="text-align: left;">Quân cờ</th>
+                      <th>Bạn</th>
+                      <th>Địch</th>
+                      <th style="text-align: right;">± Điểm</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ziga-mat-tt-tbody">
+                    <tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 6px; font-style: italic;">Chưa bắt đầu ván đấu</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Reference points section -->
+            <div class="ziga-mat-tt-ref-section">
+              <div class="ziga-mat-tt-ref-title">HỆ SỐ ĐIỂM QUY CHUẨN</div>
+              <div class="ziga-mat-tt-grid">
+                <div class="ziga-mat-tt-item"><span class="ziga-mat-tt-name">Xe (俥/車)</span><span class="ziga-mat-tt-pts">+9.0đ</span></div>
+                <div class="ziga-mat-tt-item"><span class="ziga-mat-tt-name">Pháo (炮/砲)</span><span class="ziga-mat-tt-pts">+4.5đ</span></div>
+                <div class="ziga-mat-tt-item"><span class="ziga-mat-tt-name">Mã (傌/馬)</span><span class="ziga-mat-tt-pts">+4.0đ</span></div>
+                <div class="ziga-mat-tt-item"><span class="ziga-mat-tt-name">Sĩ (仕/士)</span><span class="ziga-mat-tt-pts">+2.0đ</span></div>
+                <div class="ziga-mat-tt-item"><span class="ziga-mat-tt-name">Tượng (相/象)</span><span class="ziga-mat-tt-pts">+2.0đ</span></div>
+                <div class="ziga-mat-tt-item"><span class="ziga-mat-tt-name">Tốt (兵/卒)</span><span class="ziga-mat-tt-pts">+1.5đ</span></div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Co Up Hidden Pieces Probability Box (Cờ Úp Only) -->
@@ -437,6 +489,56 @@
           gameLayer.ij.setPosition(-100, -100);
         }
         clearTacticalHud();
+      });
+    }
+
+    // Material Advantage Help Tooltip (Hover & Click toggle)
+    const matHelpBtn = document.getElementById('ziga-material-help-btn');
+    const matTooltip = document.getElementById('ziga-material-tooltip');
+    const matCloseBtn = document.getElementById('ziga-mat-tt-close');
+    let isMatPinned = false;
+    let matTimer = null;
+
+    function showMatTip() {
+      clearTimeout(matTimer);
+      if (matTooltip) matTooltip.style.display = 'block';
+    }
+
+    function hideMatTip(force) {
+      clearTimeout(matTimer);
+      if (force) isMatPinned = false;
+      if (!isMatPinned) {
+        matTimer = setTimeout(() => {
+          if (!isMatPinned && matTooltip) matTooltip.style.display = 'none';
+        }, 180);
+      }
+    }
+
+    if (matHelpBtn && matTooltip) {
+      matHelpBtn.addEventListener('mouseenter', showMatTip);
+      matHelpBtn.addEventListener('mouseleave', () => hideMatTip(false));
+
+      matTooltip.addEventListener('mouseenter', showMatTip);
+      matTooltip.addEventListener('mouseleave', () => hideMatTip(false));
+
+      matHelpBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        isMatPinned = !isMatPinned;
+        if (isMatPinned) showMatTip();
+        else hideMatTip(true);
+      });
+
+      if (matCloseBtn) {
+        matCloseBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          hideMatTip(true);
+        });
+      }
+
+      document.addEventListener('click', (e) => {
+        if (matTooltip.style.display !== 'none' && !matTooltip.contains(e.target) && e.target !== matHelpBtn) {
+          hideMatTip(true);
+        }
       });
     }
 
@@ -719,9 +821,85 @@
     return html;
   }
 
+  const PIECE_TYPES_ORDER = [3, 4, 5, 1, 2, 6]; // Xe, Pháo, Mã, Sĩ, Tượng, Tốt
+
+  function updateMaterialTooltipLive(mat, myName, oppName) {
+    const calcEl = document.getElementById('ziga-mat-tt-live-calc');
+    const tbody = document.getElementById('ziga-mat-tt-tbody');
+    if (!calcEl || !tbody) return;
+
+    if (!mat) {
+      calcEl.innerHTML = `<div style="text-align: center; color: #94a3b8; font-style: italic;">Chờ vào ván cờ (Mỗi bên xuất phát với 50.5đ)</div>`;
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #94a3b8; padding: 6px; font-style: italic;">Chưa bắt đầu ván đấu</td></tr>`;
+      return;
+    }
+
+    const myNameShort = myName ? myName.slice(0, 10) : 'Bạn';
+    const oppNameShort = oppName ? oppName.slice(0, 10) : 'Địch';
+
+    let diffClass = 'neutral';
+    let diffText = '0đ (Cân bằng)';
+    if (mat.diff > 0) {
+      diffClass = 'green';
+      diffText = `+${mat.diff}đ (Bạn ưu thế)`;
+    } else if (mat.diff < 0) {
+      diffClass = 'red';
+      diffText = `${mat.diff}đ (Đối thủ ưu thế)`;
+    }
+
+    calcEl.innerHTML = `
+      <div class="ziga-mat-tt-score-row">
+        <span class="ziga-mat-tt-player-sc my">[${myNameShort}]: <strong>${mat.myScore}đ</strong></span>
+        <span class="ziga-mat-tt-vs">vs</span>
+        <span class="ziga-mat-tt-player-sc opp">[${oppNameShort}]: <strong>${mat.oppScore}đ</strong></span>
+      </div>
+      <div class="ziga-mat-tt-diff-row">
+        <span>Phép tính: <strong>${mat.myScore}</strong> − <strong>${mat.oppScore}</strong> = </span>
+        <strong class="${diffClass}">${diffText}</strong>
+      </div>
+    `;
+
+    let rowsHtml = '';
+    PIECE_TYPES_ORDER.forEach(type => {
+      const def = ZigaMod.PIECE_DEFS[type];
+      if (!def) return;
+      const myC = (mat.myCounts && mat.myCounts[type]) || 0;
+      const oppC = (mat.oppCounts && mat.oppCounts[type]) || 0;
+      const pointDiff = (myC - oppC) * def.value;
+
+      let diffTag = '<span style="color:#94a3b8;">=</span>';
+      if (pointDiff > 0) {
+        diffTag = `<span class="green">+${pointDiff}đ</span>`;
+      } else if (pointDiff < 0) {
+        diffTag = `<span class="red">${pointDiff}đ</span>`;
+      }
+
+      rowsHtml += `
+        <tr>
+          <td class="ziga-mat-col-name">${def.name} <small style="color:#94a3b8;">(${def.value}đ)</small></td>
+          <td class="ziga-mat-col-num ${myC > oppC ? 'bold-green' : ''}">${myC}</td>
+          <td class="ziga-mat-col-num ${oppC > myC ? 'bold-red' : ''}">${oppC}</td>
+          <td class="ziga-mat-col-diff">${diffTag}</td>
+        </tr>
+      `;
+    });
+
+    rowsHtml += `
+      <tr class="ziga-mat-row-total">
+        <td><strong>Tổng điểm</strong></td>
+        <td><strong>${mat.myScore}đ</strong></td>
+        <td><strong>${mat.oppScore}đ</strong></td>
+        <td><strong class="${diffClass}">${mat.diff > 0 ? '+' + mat.diff : mat.diff}đ</strong></td>
+      </tr>
+    `;
+
+    tbody.innerHTML = rowsHtml;
+  }
+
   // Export to namespace
   ZigaMod.createOverlay = createOverlay;
   ZigaMod.toggleMinimize = toggleMinimize;
+  ZigaMod.updateMaterialTooltipLive = updateMaterialTooltipLive;
   ZigaMod.applySettingsVisibility = applySettingsVisibility;
   ZigaMod.setupDraggable = setupDraggable;
   ZigaMod.setupResizable = setupResizable;

@@ -95,19 +95,27 @@
   function computeMaterialScore(aliveMy, aliveOpp) {
     let myScore = 0;
     let oppScore = 0;
+    const myCounts = { 3: 0, 4: 0, 5: 0, 1: 0, 2: 0, 6: 0 };
+    const oppCounts = { 3: 0, 4: 0, 5: 0, 1: 0, 2: 0, 6: 0 };
 
     aliveMy.forEach(p => {
       const def = ZigaMod.PIECE_DEFS[p.type];
-      if (def) myScore += def.value;
+      if (def) {
+        myScore += def.value;
+        if (myCounts[p.type] !== undefined) myCounts[p.type]++;
+      }
     });
 
     aliveOpp.forEach(p => {
       const def = ZigaMod.PIECE_DEFS[p.type];
-      if (def) oppScore += def.value;
+      if (def) {
+        oppScore += def.value;
+        if (oppCounts[p.type] !== undefined) oppCounts[p.type]++;
+      }
     });
 
     const diff = myScore - oppScore;
-    return { myScore, oppScore, diff };
+    return { myScore, oppScore, diff, myCounts, oppCounts };
   }
 
   function countKeyPieces(alivePieces) {
@@ -220,6 +228,9 @@
         ZigaMod.clearTacticalHud();
         ZigaMod.updateThreatUi([]);
         ZigaMod.updateCoUpUi(null);
+        if (ZigaMod.updateMaterialTooltipLive) {
+          ZigaMod.updateMaterialTooltipLive(null);
+        }
       }
       ZigaMod.applySettingsVisibility();
       return;
@@ -281,6 +292,9 @@
           materialScore.className = 'ziga-material-val';
           materialScore.textContent = 'Cân bằng lực lượng';
         }
+      }
+      if (ZigaMod.updateMaterialTooltipLive) {
+        ZigaMod.updateMaterialTooltipLive(mat, data.myName, data.oppName);
       }
     } else if (materialWrapper) {
       materialWrapper.style.display = 'none';
