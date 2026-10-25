@@ -1,6 +1,10 @@
-// injected.js - Runs in MAIN world of zigavn.com
+﻿// injected.js - Unified bundle built from src/ modules
 (function () {
-  console.log('[Ziga Mod] Xiangqi Helper with Capture Highlight injected successfully.');
+
+// ===== Module: src/constants.js =====
+// src/constants.js - Chess piece definitions, display order, and default settings
+(function (ZigaMod) {
+  'use strict';
 
   // Chess piece definitions
   // Type ID in Ziga: 0: Tướng, 1: Sĩ, 2: Tượng, 3: Xe, 4: Pháo, 5: Mã, 6: Tốt
@@ -14,27 +18,82 @@
     6: { name: 'Tốt', redChar: '兵', blackChar: '卒', value: 1.5, total: 5, short: 'B' }
   };
 
-  // Desired display order for tactical awareness (Xe -> Pháo -> Mã -> Tốt -> Sĩ -> Tượng -> Tướng)
   const DISPLAY_ORDER = [3, 4, 5, 6, 1, 2, 0];
 
-  let widgetEl = null;
-  let isMinimized = false;
-  let lastStateHash = '';
+  // Default Settings configuration
+  const DEFAULT_SETTINGS = {
+    showLostPieces: true,        // Hiển thị danh sách quân đã bị ăn
+    highlightTactics: true,      // Highlight tầm ăn trên bàn cờ khi chọn quân
+    showTacticalHud: true,       // Hiển thị bảng phân tích tầm ăn trên HUD
+    showCoUpTracker: true,       // Thống kê cờ úp & tính xác suất lật quân
+    threatAlert: true,           // Cảnh báo quân của bạn đang bị đe dọa / bắt quân
+    materialAdvantage: true,     // Thanh chênh lệch điểm quân
+    showKeyPieces: true,         // Thống kê Xe-Pháo-Mã còn lại
+    vietnameseLabels: false,     // Hiển thị chữ tiếng Việt (X, P, M...) thay vì chữ Hán
+    cleanAdView: true            // Ẩn bớt quảng cáo che vướng bàn cờ
+  };
 
-  // Capture highlight state
-  let selectedPieceIndex = -1;
-  let currentCapturablePieces = [];
-  let svgOverlay = null;
-  let canvasListenerAttached = false;
-  let lastBoardPositionsHash = '';
+  // Coordinate converter according to standard Vietnamese Xiangqi notation:
+  // - Bên Đỏ: Cột 1..9 từ PHẢI sang TRÁI (9 - col), Hàng 1..10 từ DƯỚI lên TRÊN (row + 1)
+  // - Bên Đen: Cột 1..9 từ PHẢI sang TRÁI của Đen (col + 1), Hàng 1..10 từ TRÊN xuống DƯỚI (10 - row)
+  function formatXiangqiCoord(col, row, color) {
+    if (color === 0) {
+      const c = 9 - col;
+      const r = row + 1;
+      return { col: c, row: r, text: `C${c}·H${r}`, fullText: `Cột ${c}, Hàng ${r}` };
+    } else {
+      const c = col + 1;
+      const r = 10 - row;
+      return { col: c, row: r, text: `C${c}·H${r}`, fullText: `Cột ${c}, Hàng ${r}` };
+    }
+  }
 
-  // Load saved position
+  // Export to namespace
+  ZigaMod.PIECE_DEFS = PIECE_DEFS;
+  ZigaMod.DISPLAY_ORDER = DISPLAY_ORDER;
+  ZigaMod.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
+  ZigaMod.formatXiangqiCoord = formatXiangqiCoord;
+
+})(window.ZigaMod = window.ZigaMod || {});
+
+
+// ===== Module: src/storage.js =====
+// src/storage.js - User settings, piece character formatter, and position/size persistence
+(function (ZigaMod) {
+  'use strict';
+
+  let userSettings = Object.assign({}, ZigaMod.DEFAULT_SETTINGS);
+
+  function loadSettings() {
+    try {
+      const saved = localStorage.getItem('ziga_mod_settings');
+      if (saved) {
+        userSettings = Object.assign({}, ZigaMod.DEFAULT_SETTINGS, JSON.parse(saved));
+      }
+    } catch (e) { }
+  }
+
+  function saveSettings() {
+    try {
+      localStorage.setItem('ziga_mod_settings', JSON.stringify(userSettings));
+    } catch (e) { }
+  }
+
+  // Load initially
+  loadSettings();
+
+  function getPieceChar(type, color) {
+    const def = ZigaMod.PIECE_DEFS[type] || { name: 'Quân', redChar: '?', blackChar: '?', short: '?' };
+    if (userSettings.vietnameseLabels) {
+      return def.short;
+    }
+    return color === 0 ? def.redChar : def.blackChar;
+  }
+
   function loadSavedPosition() {
     try {
       const saved = localStorage.getItem('ziga_mod_pos');
-      if (saved) {
-        return JSON.parse(saved);
-      }
+      if (saved) return JSON.parse(saved);
     } catch (e) { }
     return null;
   }
@@ -45,47 +104,490 @@
     } catch (e) { }
   }
 
-  // Create or get SVG overlay over canvas
-  function getOrCreateSvgOverlay() {
-    if (svgOverlay && document.body.contains(svgOverlay)) {
-      return svgOverlay;
-    }
-
-    svgOverlay = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svgOverlay.id = 'ziga-board-svg';
-    svgOverlay.setAttribute('class', 'ziga-svg-overlay');
-    svgOverlay.innerHTML = `
-      <defs>
-        <marker id="ziga-arrow-red" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M 0 1 L 10 5 L 0 9 z" fill="#ef4444" />
-        </marker>
-        <filter id="ziga-glow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="3" result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
-      </defs>
-      <g id="ziga-svg-content"></g>
-    `;
-
-    document.body.appendChild(svgOverlay);
-    return svgOverlay;
+  function loadSavedSize() {
+    try {
+      const saved = localStorage.getItem('ziga_mod_size');
+      if (saved) return JSON.parse(saved);
+    } catch (e) { }
+    return null;
   }
 
-  // Create UI overlay
+  function saveSize(w, h) {
+    try {
+      localStorage.setItem('ziga_mod_size', JSON.stringify({ w, h }));
+    } catch (e) { }
+  }
+
+  // Export to namespace
+  ZigaMod.getUserSettings = function () { return userSettings; };
+  ZigaMod.setUserSettings = function (newSettings) { userSettings = newSettings; };
+  ZigaMod.loadSettings = loadSettings;
+  ZigaMod.saveSettings = saveSettings;
+  ZigaMod.getPieceChar = getPieceChar;
+  ZigaMod.loadSavedPosition = loadSavedPosition;
+  ZigaMod.savePosition = savePosition;
+  ZigaMod.loadSavedSize = loadSavedSize;
+  ZigaMod.saveSize = saveSize;
+
+  // Convenient direct reference
+  Object.defineProperty(ZigaMod, 'userSettings', {
+    get: function () { return userSettings; },
+    set: function (val) { userSettings = val; },
+    configurable: true
+  });
+
+})(window.ZigaMod = window.ZigaMod || {});
+
+
+// ===== Module: src/threat_scanner.js =====
+// src/threat_scanner.js - Under-attack threat scanner and threat alert UI
+(function (ZigaMod) {
+  'use strict';
+
+  function scanThreats(gameLayer, myColor, oppColor) {
+    const threats = [];
+    if (!gameLayer || !gameLayer.V || !ZigaMod.userSettings.threatAlert) return threats;
+
+    // Build 9x10 grid of piece indices
+    const grid = Array.from({ length: 9 }, () => Array(10).fill(-1));
+    for (let i = 0; i < 32; i++) {
+      const p = gameLayer.V[i];
+      if (p && !p.pa) {
+        grid[p.fa][p.rowIndex] = i;
+      }
+    }
+
+    // Loop through living opponent pieces
+    for (let i = 0; i < 32; i++) {
+      const oppPiece = gameLayer.V[i];
+      if (!oppPiece || oppPiece.pa || oppPiece.ka !== oppColor) continue;
+
+      const pieceHelper = gameLayer.hq ? gameLayer.hq(i) : null;
+      if (!pieceHelper || !gameLayer.IM) continue;
+
+      for (let sq = 0; sq < 90; sq++) {
+        const c = sq % 9;
+        const r = Math.floor(sq / 9);
+        const targetIdx = grid[c][r];
+
+        if (targetIdx >= 0) {
+          const myPiece = gameLayer.V[targetIdx];
+          if (myPiece && !myPiece.pa && myPiece.ka === myColor) {
+            try {
+              if (gameLayer.IM(pieceHelper, i, sq, grid)) {
+                if (!gameLayer.BM || !gameLayer.BM(pieceHelper, i, c, r, grid)) {
+                  const coord = ZigaMod.formatXiangqiCoord
+                    ? ZigaMod.formatXiangqiCoord(c, r, myPiece.ka)
+                    : { col: (myPiece.ka === 0 ? 9 - c : c + 1), row: (myPiece.ka === 0 ? r + 1 : 10 - r), text: `C${myPiece.ka === 0 ? 9 - c : c + 1}·H${myPiece.ka === 0 ? r + 1 : 10 - r}`, fullText: `Cột ${myPiece.ka === 0 ? 9 - c : c + 1}, Hàng ${myPiece.ka === 0 ? r + 1 : 10 - r}` };
+
+                  threats.push({
+                    attacker: oppPiece,
+                    target: myPiece,
+                    attackerName: ZigaMod.PIECE_DEFS[oppPiece.Ga] ? ZigaMod.PIECE_DEFS[oppPiece.Ga].name : 'Quân',
+                    targetName: ZigaMod.PIECE_DEFS[myPiece.Ga] ? ZigaMod.PIECE_DEFS[myPiece.Ga].name : 'Quân',
+                    attackerChar: ZigaMod.getPieceChar(oppPiece.Ga, oppPiece.ka),
+                    targetChar: ZigaMod.getPieceChar(myPiece.Ga, myPiece.ka),
+                    targetValue: ZigaMod.PIECE_DEFS[myPiece.Ga] ? ZigaMod.PIECE_DEFS[myPiece.Ga].value : 0,
+                    col: c,
+                    row: r,
+                    displayCol: coord.col,
+                    displayRow: coord.row,
+                    coordText: coord.text,
+                    fullCoordText: coord.fullText
+                  });
+                }
+              }
+            } catch (e) { }
+          }
+        }
+      }
+    }
+
+    // Sort by threatened piece value descending (Xe -> Pháo -> Mã...)
+    threats.sort((a, b) => b.targetValue - a.targetValue);
+    return threats;
+  }
+
+  function updateThreatUi(threats) {
+    const wrapper = document.getElementById('ziga-threat-wrapper');
+    const itemsContainer = document.getElementById('ziga-threat-items');
+    if (!wrapper || !itemsContainer) return;
+
+    if (!ZigaMod.userSettings.threatAlert || !threats || threats.length === 0) {
+      wrapper.style.display = 'none';
+      itemsContainer.innerHTML = '';
+      return;
+    }
+
+    wrapper.style.display = 'flex';
+    let html = '';
+    threats.slice(0, 5).forEach(t => {
+      html += `
+        <div class="ziga-threat-pill">
+          <div class="ziga-threat-combat">
+            <span class="ziga-threat-enemy">[Địch] ${t.attackerName} [${t.attackerChar}]</span>
+            <span class="ziga-threat-arrow">➔</span>
+            <span class="ziga-threat-my">[Bạn] ${t.targetName} [${t.targetChar}]</span>
+          </div>
+          <span class="ziga-threat-coord" title="Vị trí bị đe dọa: ${t.fullCoordText}">${t.coordText}</span>
+        </div>
+      `;
+    });
+    itemsContainer.innerHTML = html;
+  }
+
+  // Export to namespace
+  ZigaMod.scanThreats = scanThreats;
+  ZigaMod.updateThreatUi = updateThreatUi;
+
+})(window.ZigaMod = window.ZigaMod || {});
+
+
+// ===== Module: src/coup_tracker.js =====
+// src/coup_tracker.js - Cờ Úp face-down pieces remaining probability tracker
+(function (ZigaMod) {
+  'use strict';
+
+  function isCoUpGame(gameLayer) {
+    if (!gameLayer) return false;
+    // Check if layer is BkCoUpGameLayer or has face-down pieces (ac === 0)
+    if (window.BkCoUpGameLayer && gameLayer instanceof window.BkCoUpGameLayer) return true;
+    if (gameLayer.V && Array.isArray(gameLayer.V)) {
+      return gameLayer.V.some(p => p && p.ac === 0);
+    }
+    return false;
+  }
+
+  function computeCoUpStats(gameLayer, myColor, oppColor) {
+    if (!gameLayer || !gameLayer.V) return null;
+
+    function getStatsForSide(color) {
+      let unopenedCount = 0;
+      const revealed = { 3: 0, 4: 0, 5: 0, 1: 0, 2: 0, 6: 0 };
+
+      for (let i = 0; i < 32; i++) {
+        const p = gameLayer.V[i];
+        if (!p) continue;
+        const pColor = p.ka !== undefined ? p.ka : Math.floor(i / 16);
+        if (pColor !== color) continue;
+
+        if (p.ac === 0) {
+          unopenedCount++;
+        } else if (p.ac === 1 && p.Ga !== 0) { // revealed non-king piece
+          revealed[p.Ga] = (revealed[p.Ga] || 0) + 1;
+        }
+      }
+
+      // Initial non-king counts: 2 Xe, 2 Pháo, 2 Mã, 2 Sĩ, 2 Tượng, 5 Tốt
+      const hiddenXe = Math.max(0, 2 - (revealed[3] || 0));
+      const hiddenPhao = Math.max(0, 2 - (revealed[4] || 0));
+      const hiddenMa = Math.max(0, 2 - (revealed[5] || 0));
+      const hiddenPhe = Math.max(0, 4 - ((revealed[1] || 0) + (revealed[2] || 0))); // Sĩ + Tượng
+      const hiddenTot = Math.max(0, 5 - (revealed[6] || 0));
+
+      const probXe = unopenedCount > 0 ? ((hiddenXe / unopenedCount) * 100).toFixed(0) : 0;
+      const probPhao = unopenedCount > 0 ? ((hiddenPhao / unopenedCount) * 100).toFixed(0) : 0;
+      const probMa = unopenedCount > 0 ? ((hiddenMa / unopenedCount) * 100).toFixed(0) : 0;
+      const probPhe = unopenedCount > 0 ? ((hiddenPhe / unopenedCount) * 100).toFixed(0) : 0;
+
+      return {
+        unopenedCount,
+        hiddenXe, hiddenPhao, hiddenMa, hiddenPhe, hiddenTot,
+        probXe, probPhao, probMa, probPhe
+      };
+    }
+
+    return {
+      opp: getStatsForSide(oppColor),
+      self: getStatsForSide(myColor)
+    };
+  }
+
+  function updateCoUpUi(stats, oppName, myName) {
+    const wrapper = document.getElementById('ziga-coup-wrapper');
+    const content = document.getElementById('ziga-coup-content');
+    if (!wrapper || !content) return;
+
+    if (!ZigaMod.userSettings.showCoUpTracker || !stats || (stats.opp.unopenedCount === 0 && stats.self.unopenedCount === 0)) {
+      wrapper.style.display = 'none';
+      content.innerHTML = '';
+      return;
+    }
+
+    const safeOpp = (oppName || 'Đối thủ').slice(0, 10);
+    const safeSelf = (myName || 'Bạn').slice(0, 10);
+
+    wrapper.style.display = 'flex';
+    content.innerHTML = `
+      <div class="ziga-coup-row">
+        <div class="ziga-coup-side-head">
+          <span>🔴 ${safeOpp}</span>
+          <span class="ziga-coup-unopened">Còn ${stats.opp.unopenedCount} quân úp</span>
+        </div>
+        <div class="ziga-coup-chips">
+          <span class="ziga-prob-badge xe" title="Xác suất mở Xe">Xe: ${stats.opp.hiddenXe} (${stats.opp.probXe}%)</span>
+          <span class="ziga-prob-badge phao" title="Xác suất mở Pháo">Pháo: ${stats.opp.hiddenPhao} (${stats.opp.probPhao}%)</span>
+          <span class="ziga-prob-badge ma" title="Xác suất mở Mã">Mã: ${stats.opp.hiddenMa} (${stats.opp.probMa}%)</span>
+          <span class="ziga-prob-badge phe" title="Xác suất mở Sĩ/Tượng">Sĩ-Tượng: ${stats.opp.hiddenPhe} (${stats.opp.probPhe}%)</span>
+        </div>
+      </div>
+      <div class="ziga-coup-row">
+        <div class="ziga-coup-side-head">
+          <span>⚫ ${safeSelf} (Bạn)</span>
+          <span class="ziga-coup-unopened">Còn ${stats.self.unopenedCount} quân úp</span>
+        </div>
+        <div class="ziga-coup-chips">
+          <span class="ziga-prob-badge xe" title="Xác suất mở Xe">Xe: ${stats.self.hiddenXe} (${stats.self.probXe}%)</span>
+          <span class="ziga-prob-badge phao" title="Xác suất mở Pháo">Pháo: ${stats.self.hiddenPhao} (${stats.self.probPhao}%)</span>
+          <span class="ziga-prob-badge ma" title="Xác suất mở Mã">Mã: ${stats.self.hiddenMa} (${stats.self.probMa}%)</span>
+          <span class="ziga-prob-badge phe" title="Xác suất mở Sĩ/Tượng">Sĩ-Tượng: ${stats.self.hiddenPhe} (${stats.self.probPhe}%)</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // Export to namespace
+  ZigaMod.isCoUpGame = isCoUpGame;
+  ZigaMod.computeCoUpStats = computeCoUpStats;
+  ZigaMod.updateCoUpUi = updateCoUpUi;
+
+})(window.ZigaMod = window.ZigaMod || {});
+
+
+// ===== Module: src/engine_hook.js =====
+// src/engine_hook.js - Cocos2d in-engine hooks for piece sprite enhancement and click handling
+(function (ZigaMod) {
+  'use strict';
+
+  function enhancePieceSprite(piece) {
+    if (!piece || piece.__zigaEnhancedKj) return;
+    piece.__zigaEnhancedKj = true;
+
+    piece.kj = function (show) {
+      if (!this.rd) return;
+
+      // Honor user setting for in-engine highlight
+      if (!ZigaMod.userSettings.highlightTactics) {
+        this.rd.setVisible(false);
+        this.rd.stopAllActions();
+        return;
+      }
+
+      this.rd.setVisible(!!show);
+
+      if (show) {
+        this.rd.stopAllActions();
+        if (this.rd.WT) this.rd.WT.stopAllActions();
+
+        // Scale to 0.95 to embrace piece diameter perfectly
+        this.rd.setScale(0.95);
+
+        // Pulse animation
+        var fadeOut = cc.fadeTo(0.35, 60);
+        var fadeIn = cc.fadeTo(0.35, 255);
+        var pulse = cc.sequence(fadeOut, fadeIn).repeatForever();
+        this.rd.runAction(pulse);
+
+        if (this.rd.WT) {
+          var targetH = this.rd.getContentSize().height;
+          var wtH = this.rd.WT.getContentSize().height;
+          if (wtH > 0) {
+            this.rd.WT.setScale(targetH / wtH);
+          }
+          this.rd.WT.runAction(pulse.clone());
+        }
+      } else {
+        this.rd.stopAllActions();
+        if (this.rd.WT) this.rd.WT.stopAllActions();
+        this.rd.setScale(0.5);
+      }
+    };
+  }
+
+  function hookGameLayer(gameLayer) {
+    if (!gameLayer || gameLayer.__zigaInEngineHooked) return;
+    gameLayer.__zigaInEngineHooked = true;
+
+    console.log('[Ziga Mod] In-engine hooks active (nT, pA, fU).');
+
+    if (gameLayer.V && Array.isArray(gameLayer.V)) {
+      for (let i = 0; i < gameLayer.V.length; i++) {
+        enhancePieceSprite(gameLayer.V[i]);
+      }
+    }
+
+    // 1. OVERRIDE nT (checks all 32 pieces for captures)
+    gameLayer.nT = function (pieceIndex) {
+      if (pieceIndex < 0 || pieceIndex >= 32 || !this.V[pieceIndex]) return;
+
+      var b = Array(9);
+      for (var c = 0; 10 > c; c++) b[c] = Array(10);
+      this.ZC(b);
+
+      var pieceHelper = this.hq(pieceIndex);
+      this.Vp = [];
+      var attacker = this.V[pieceIndex];
+      var attackerColor = attacker.ka;
+      var capturableList = [];
+
+      for (var d = 0, e = 0; 90 > e; e++) {
+        if (this.IM(pieceHelper, pieceIndex, e, b)) {
+          var f = e % 9, g = Math.floor(e / 9);
+
+          if (this.BM(pieceHelper, pieceIndex, f, g, b) || this.DM(0, pieceHelper, pieceIndex, f, g, b)) {
+            if (this.tc[d]) {
+              this.tc[d].setPosition(this.Pb(f), this.Qb(g));
+              this.tc[d].Ir = g;
+              this.tc[d].cq = f;
+              this.tc[d].setVisible(false);
+            }
+          } else {
+            var isEnemyCapture = false;
+
+            for (var k = 0; k < 32; k++) {
+              var targetPiece = this.V[k];
+              if (targetPiece && !targetPiece.pa && targetPiece.ka !== attackerColor && targetPiece.fa === f && targetPiece.rowIndex === g) {
+                isEnemyCapture = true;
+                if (ZigaMod.userSettings.highlightTactics) {
+                  targetPiece.kj(true);
+                }
+                this.Vp.push([f, g]);
+
+                capturableList.push({
+                  piece: targetPiece,
+                  type: targetPiece.Ga,
+                  color: targetPiece.ka,
+                  col: f,
+                  row: g,
+                  name: ZigaMod.PIECE_DEFS[targetPiece.Ga] ? ZigaMod.PIECE_DEFS[targetPiece.Ga].name : 'Quân',
+                  char: ZigaMod.getPieceChar(targetPiece.Ga, targetPiece.ka),
+                  value: ZigaMod.PIECE_DEFS[targetPiece.Ga] ? ZigaMod.PIECE_DEFS[targetPiece.Ga].value : 0
+                });
+                break;
+              }
+            }
+
+            if (!isEnemyCapture && this.tc[d]) {
+              this.tc[d].setPosition(this.Pb(f), this.Qb(g));
+              this.tc[d].Ir = g;
+              this.tc[d].cq = f;
+              this.tc[d].setVisible(true);
+            }
+          }
+          d++;
+        }
+      }
+
+      ZigaMod.selectedAttackerIndex = pieceIndex;
+      if (ZigaMod.userSettings.showTacticalHud) {
+        ZigaMod.updateTacticalHud(attacker, capturableList);
+      }
+    };
+
+    // 2. OVERRIDE pA (clears highlights across all 32 pieces)
+    gameLayer.pA = function () {
+      for (var a = 0; a < 20; a++) {
+        if (this.tc[a]) {
+          this.tc[a].setPosition(-100, -100);
+          this.tc[a].Ir = -1;
+          this.tc[a].cq = -1;
+        }
+      }
+
+      for (var a = 0; a < 32; a++) {
+        if (this.V[a] && typeof this.V[a].kj === 'function') {
+          this.V[a].kj(false);
+        }
+      }
+
+      ZigaMod.selectedAttackerIndex = -1;
+      ZigaMod.clearTacticalHud();
+    };
+
+    // 3. HOOK fU (handles click on opponent pieces)
+    const origFU = gameLayer.fU;
+    gameLayer.fU = function (touchX, touchY) {
+      const col = this.xq(touchX);
+      const row = this.Cq(touchY);
+      const clickedIdx = this.QK(col, row);
+
+      if (clickedIdx >= 0) {
+        const clickedPiece = this.V[clickedIdx];
+        const myColor = (this.Nj !== undefined && this.Nj >= 0) ? this.Nj : 0;
+        const isMyTurn = (this.T && this.T().Fb === 2 && this.Yc === this.Nj);
+
+        if (this.le >= 0 && isMyTurn && this.HM && this.HM(col, row)) {
+          origFU.call(this, touchX, touchY);
+          return;
+        }
+
+        if (clickedPiece && (clickedPiece.ka !== myColor || !isMyTurn)) {
+          if (this.le === clickedIdx) {
+            this.fp();
+          } else {
+            this.pA();
+            this.le = clickedIdx;
+
+            this.ij.setPosition(this.Pb(clickedPiece.fa), this.Qb(clickedPiece.rowIndex) + 1);
+            if (!this.Fr) {
+              this.Fr = cc.rotateBy(2, 360).repeatForever();
+            }
+            this.ij.stopAllActions();
+            this.ij.runAction(this.Fr);
+            this.ij.setVisible(true);
+
+            this.nT(clickedIdx);
+          }
+          return;
+        }
+      }
+
+      origFU.call(this, touchX, touchY);
+    };
+  }
+
+  // Export to namespace
+  ZigaMod.enhancePieceSprite = enhancePieceSprite;
+  ZigaMod.hookGameLayer = hookGameLayer;
+
+})(window.ZigaMod = window.ZigaMod || {});
+
+
+// ===== Module: src/ui.js =====
+// src/ui.js - HUD DOM creation, dragging, resizing, tactical target cards, and settings visibility
+(function (ZigaMod) {
+  'use strict';
+
+  let widgetEl = null;
+  let isMinimized = false;
+  let isSettingsOpen = false;
+
   function createOverlay() {
-    if (document.getElementById('ziga-mod-widget')) return;
+    if (document.getElementById('ziga-mod-widget')) {
+      widgetEl = document.getElementById('ziga-mod-widget');
+      return widgetEl;
+    }
 
     widgetEl = document.createElement('div');
     widgetEl.id = 'ziga-mod-widget';
     widgetEl.className = 'ziga-mod-container';
+    widgetEl.style.zIndex = '2147483647';
 
-    // Position widget next to canvas or saved pos
-    const savedPos = loadSavedPosition();
+    const savedSize = ZigaMod.loadSavedSize();
+    if (savedSize && savedSize.w) {
+      widgetEl.style.width = Math.max(270, Math.min(window.innerWidth - 20, savedSize.w)) + 'px';
+    } else {
+      widgetEl.style.width = '320px';
+    }
+    if (savedSize && savedSize.h) {
+      widgetEl.style.height = Math.max(220, Math.min(window.innerHeight - 20, savedSize.h)) + 'px';
+    }
+
+    const savedPos = ZigaMod.loadSavedPosition();
     if (savedPos && savedPos.x !== undefined && savedPos.y !== undefined) {
       widgetEl.style.left = savedPos.x + 'px';
       widgetEl.style.top = savedPos.y + 'px';
     } else {
-      // Default position docked near canvas
       const canvas = document.getElementById('gameCanvas');
       if (canvas) {
         const rect = canvas.getBoundingClientRect();
@@ -97,14 +599,115 @@
       }
     }
 
+    const userSettings = ZigaMod.userSettings;
+
     widgetEl.innerHTML = `
       <div class="ziga-mod-header" id="ziga-mod-drag-handle">
         <div class="ziga-mod-title">
-          <span class="ziga-mod-badge-icon">♟</span>
-          <span class="ziga-mod-title-text">Cờ tướng trợ thủ</span>
+          <span class="ziga-mod-badge-icon">
+            <svg viewBox="0 0 512 512" width="20" height="20" style="border-radius: 4px; vertical-align: middle; display: inline-block; box-shadow: 0 0 6px rgba(212, 175, 55, 0.4); border: 1px solid rgba(212, 175, 55, 0.5);">
+              <rect width="512" height="512" rx="64" fill="#000000"></rect>
+              <path d="M118.141 347H76.9482L139.714 165.182H189.253L251.93 347H210.737L165.194 206.73H163.773L118.141 347ZM115.567 275.533H212.868V305.54H115.567V275.533ZM425.892 165.182V347H392.689L313.587 232.565H312.255V347H273.814V165.182H307.55L386.03 279.528H387.628V165.182H425.892Z" fill="#ffffff"></path>
+            </svg>
+          </span>
+          <span class="ziga-mod-title-text">TOOL trợ thủ</span>
         </div>
         <div class="ziga-mod-actions">
+          <button class="ziga-mod-btn-icon" id="ziga-mod-btn-settings" title="Cài đặt tính năng">⚙</button>
           <button class="ziga-mod-btn-icon" id="ziga-mod-btn-min" title="Thu gọn / Mở rộng">_</button>
+        </div>
+      </div>
+
+      <!-- Settings Drawer Panel -->
+      <div class="ziga-settings-drawer" id="ziga-settings-panel" style="display:none;">
+        <div class="ziga-settings-header">
+          <span class="ziga-settings-heading">⚙️ CÀI ĐẶT TÍNH NĂNG</span>
+          <button class="ziga-settings-close-btn" id="ziga-settings-close">✕</button>
+        </div>
+        <div class="ziga-settings-list">
+          <label class="ziga-setting-row">
+            <span class="ziga-setting-text">
+              <strong>Quân đã bị ăn</strong>
+              <small>Thống kê quân đã mất của 2 bên</small>
+            </span>
+            <input type="checkbox" id="set-showLostPieces" ${userSettings.showLostPieces ? 'checked' : ''} />
+            <span class="ziga-switch-slider"></span>
+          </label>
+
+          <label class="ziga-setting-row">
+            <span class="ziga-setting-text">
+              <strong>Highlight tầm ăn trên bàn cờ</strong>
+              <small>Bấm vào quân để nhấp nháy quân ăn được</small>
+            </span>
+            <input type="checkbox" id="set-highlightTactics" ${userSettings.highlightTactics ? 'checked' : ''} />
+            <span class="ziga-switch-slider"></span>
+          </label>
+
+          <label class="ziga-setting-row">
+            <span class="ziga-setting-text">
+              <strong>Bảng tầm ăn trên HUD</strong>
+              <small>Hiển thị chi tiết quân đang chọn & mục tiêu</small>
+            </span>
+            <input type="checkbox" id="set-showTacticalHud" ${userSettings.showTacticalHud ? 'checked' : ''} />
+            <span class="ziga-switch-slider"></span>
+          </label>
+
+          <label class="ziga-setting-row">
+            <span class="ziga-setting-text">
+              <strong>Thống kê & Xác suất Cờ Úp</strong>
+              <small>Đếm quân úp còn lại và tính % mở Xe, Pháo...</small>
+            </span>
+            <input type="checkbox" id="set-showCoUpTracker" ${userSettings.showCoUpTracker ? 'checked' : ''} />
+            <span class="ziga-switch-slider"></span>
+          </label>
+
+          <label class="ziga-setting-row">
+            <span class="ziga-setting-text">
+              <strong>Cảnh báo quân bị đe dọa</strong>
+              <small>Báo động khi quân của bạn đang bị nhắm ăn</small>
+            </span>
+            <input type="checkbox" id="set-threatAlert" ${userSettings.threatAlert ? 'checked' : ''} />
+            <span class="ziga-switch-slider"></span>
+          </label>
+
+          <label class="ziga-setting-row">
+            <span class="ziga-setting-text">
+              <strong>Thanh chênh lệch điểm quân</strong>
+              <small>Đo lường ưu thế lực lượng (+9 Xe, +4.5 Pháo...)</small>
+            </span>
+            <input type="checkbox" id="set-materialAdvantage" ${userSettings.materialAdvantage ? 'checked' : ''} />
+            <span class="ziga-switch-slider"></span>
+          </label>
+
+          <label class="ziga-setting-row">
+            <span class="ziga-setting-text">
+              <strong>Đếm Xe - Pháo - Mã còn lại</strong>
+              <small>Thống kê số lượng chủ lực còn sống</small>
+            </span>
+            <input type="checkbox" id="set-showKeyPieces" ${userSettings.showKeyPieces ? 'checked' : ''} />
+            <span class="ziga-switch-slider"></span>
+          </label>
+
+          <label class="ziga-setting-row">
+            <span class="ziga-setting-text">
+              <strong>Ký hiệu tiếng Việt (X, P, M...)</strong>
+              <small>Hiển thị chữ quốc ngữ thay cho chữ Hán</small>
+            </span>
+            <input type="checkbox" id="set-vietnameseLabels" ${userSettings.vietnameseLabels ? 'checked' : ''} />
+            <span class="ziga-switch-slider"></span>
+          </label>
+
+          <label class="ziga-setting-row">
+            <span class="ziga-setting-text">
+              <strong>Ẩn quảng cáo che khuất</strong>
+              <small>Xóa các banner quảng cáo nổi vướng bàn cờ</small>
+            </span>
+            <input type="checkbox" id="set-cleanAdView" ${userSettings.cleanAdView ? 'checked' : ''} />
+            <span class="ziga-switch-slider"></span>
+          </label>
+        </div>
+        <div class="ziga-settings-footer">
+          <button class="ziga-btn-reset-settings" id="ziga-btn-reset-default">Khôi phục mặc định</button>
         </div>
       </div>
 
@@ -114,14 +717,32 @@
           <span id="ziga-status-text">Đang kết nối game...</span>
         </div>
 
+        <!-- Threat Warning Alert Box -->
+        <div class="ziga-threat-box" id="ziga-threat-wrapper" style="display:none;">
+          <div class="ziga-threat-header">
+            <span class="ziga-threat-icon">⚠️</span>
+            <span class="ziga-threat-title" id="ziga-threat-title">CẢNH BÁO BỊ LỤM</span>
+          </div>
+          <div class="ziga-threat-list" id="ziga-threat-items"></div>
+        </div>
+
         <!-- Material Advantage Indicator -->
         <div class="ziga-material-bar-wrapper" id="ziga-material-wrapper" style="display:none;">
           <div class="ziga-material-label">Chênh lệch quân:</div>
           <div class="ziga-material-val" id="ziga-material-score">Bằng điểm</div>
         </div>
 
+        <!-- Co Up Hidden Pieces Probability Box (Cờ Úp Only) -->
+        <div class="ziga-coup-box" id="ziga-coup-wrapper" style="display:none;">
+          <div class="ziga-coup-header">
+            <span class="ziga-coup-icon">🎲</span>
+            <span class="ziga-coup-title">XÁC SUẤT QUÂN CỜ ÚP</span>
+          </div>
+          <div class="ziga-coup-content" id="ziga-coup-content"></div>
+        </div>
+
         <!-- Section 1: Opponent Captured Pieces (quân đối thủ đã mất) -->
-        <div class="ziga-player-section opponent-section">
+        <div class="ziga-player-section opponent-section" id="ziga-opp-lost-section">
           <div class="ziga-section-header">
             <span class="ziga-player-label" id="ziga-opp-label">🔴 ĐỐI THỦ ĐÃ MẤT</span>
             <span class="ziga-count-tag" id="ziga-opp-dead-count">0/16</span>
@@ -131,10 +752,10 @@
           </div>
         </div>
 
-        <div class="ziga-divider"></div>
+        <div class="ziga-divider" id="ziga-lost-divider"></div>
 
         <!-- Section 2: Player Lost Pieces (quân mình đã mất) -->
-        <div class="ziga-player-section self-section">
+        <div class="ziga-player-section self-section" id="ziga-self-lost-section">
           <div class="ziga-section-header">
             <span class="ziga-player-label" id="ziga-self-label">⚫ BẠN ĐÃ MẤT</span>
             <span class="ziga-count-tag" id="ziga-self-dead-count">0/16</span>
@@ -144,24 +765,22 @@
           </div>
         </div>
 
-        <!-- Section 3: Tactical Target Inspector (Highlight quân có thể ăn) -->
-        <div class="ziga-divider"></div>
+        <!-- Section 3: Tactical Target Inspector -->
+        <div class="ziga-divider" id="ziga-tactical-divider"></div>
         <div class="ziga-tactical-section" id="ziga-tactical-box">
           <div class="ziga-tactical-header">
             <span class="ziga-tactical-title">🎯 TẦM ĂN & CHIẾN THUẬT</span>
             <button class="ziga-btn-clear-select" id="ziga-btn-clear-highlight" title="Xóa highlight">✕ Bỏ chọn</button>
           </div>
           <div class="ziga-selected-display" id="ziga-selected-piece-info">
-            <span class="ziga-empty-note">Bấm vào bất kỳ quân nào trên bàn cờ (của mình hoặc đối thủ) để xem nó ăn được những quân nào!</span>
+            <span class="ziga-empty-note">Bấm vào bất kỳ quân nào trên bàn cờ (của mình hoặc đối thủ) để xem quân đó ăn được quân nào!</span>
           </div>
-          <div class="ziga-targets-container" id="ziga-targets-list" style="display:none;">
-            <!-- Target piece items dynamically added -->
-          </div>
+          <div class="ziga-targets-container" id="ziga-targets-list" style="display:none;"></div>
         </div>
 
         <!-- Section 4: Remaining Key Pieces Tracker -->
-        <div class="ziga-divider"></div>
-        <div class="ziga-summary-section">
+        <div class="ziga-divider" id="ziga-summary-divider"></div>
+        <div class="ziga-summary-section" id="ziga-summary-box">
           <div class="ziga-summary-title">LỰC LƯỢNG CHÍNH CÒN LẠI (Xe - Pháo - Mã)</div>
           <div class="ziga-summary-stats" id="ziga-remaining-stats">
             <div class="ziga-stat-col">
@@ -176,14 +795,36 @@
           </div>
         </div>
       </div>
+
+      <!-- Resize Grips -->
+      <div class="ziga-mod-resize-edge-r" id="ziga-mod-resize-edge-r" title="Kéo mép để chỉnh chiều rộng"></div>
+      <div class="ziga-mod-resize-edge-b" id="ziga-mod-resize-edge-b" title="Kéo mép để chỉnh chiều cao"></div>
+      <div class="ziga-mod-resize-handle" id="ziga-mod-resize-handle" title="Kéo góc để phóng to / thu nhỏ (Click đúp để về mặc định)"></div>
     `;
 
     document.body.appendChild(widgetEl);
 
-    // Make Draggable
+    if (savedSize && savedSize.h) {
+      const body = document.getElementById('ziga-mod-body');
+      if (body) {
+        const headerH = document.getElementById('ziga-mod-drag-handle')?.offsetHeight || 42;
+        body.style.maxHeight = Math.max(120, savedSize.h - headerH) + 'px';
+        body.style.height = Math.max(120, savedSize.h - headerH) + 'px';
+      }
+    }
+
+    // Draggable
     setupDraggable(widgetEl, document.getElementById('ziga-mod-drag-handle'));
 
-    // Setup Minimize
+    // Resizable
+    setupResizable(
+      widgetEl,
+      document.getElementById('ziga-mod-resize-handle'),
+      document.getElementById('ziga-mod-resize-edge-r'),
+      document.getElementById('ziga-mod-resize-edge-b')
+    );
+
+    // Minimize toggle
     const minBtn = document.getElementById('ziga-mod-btn-min');
     minBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -192,41 +833,104 @@
       minBtn.textContent = isMinimized ? '▢' : '_';
     });
 
+    // Settings panel toggle
+    const settingsBtn = document.getElementById('ziga-mod-btn-settings');
+    const settingsPanel = document.getElementById('ziga-settings-panel');
+    const settingsClose = document.getElementById('ziga-settings-close');
+
+    settingsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isSettingsOpen = !isSettingsOpen;
+      settingsPanel.style.display = isSettingsOpen ? 'block' : 'none';
+      settingsBtn.classList.toggle('active', isSettingsOpen);
+    });
+
+    settingsClose.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isSettingsOpen = false;
+      settingsPanel.style.display = 'none';
+      settingsBtn.classList.remove('active');
+    });
+
+    // Bind settings toggles
+    Object.keys(ZigaMod.DEFAULT_SETTINGS).forEach(key => {
+      const checkbox = document.getElementById(`set-${key}`);
+      if (checkbox) {
+        checkbox.addEventListener('change', (e) => {
+          ZigaMod.userSettings[key] = e.target.checked;
+          ZigaMod.saveSettings();
+          applySettingsVisibility();
+          ZigaMod.lastStateHash = ''; // Force immediate UI refresh
+        });
+      }
+    });
+
+    // Reset default settings
+    const resetBtn = document.getElementById('ziga-btn-reset-default');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        ZigaMod.userSettings = Object.assign({}, ZigaMod.DEFAULT_SETTINGS);
+        ZigaMod.saveSettings();
+        Object.keys(ZigaMod.DEFAULT_SETTINGS).forEach(key => {
+          const checkbox = document.getElementById(`set-${key}`);
+          if (checkbox) checkbox.checked = ZigaMod.userSettings[key];
+        });
+        applySettingsVisibility();
+        ZigaMod.lastStateHash = '';
+      });
+    }
+
     // Clear highlight button
     const clearBtn = document.getElementById('ziga-btn-clear-highlight');
     if (clearBtn) {
       clearBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const gameLayer = getActiveGameLayer();
-        clearCaptureHighlights(gameLayer);
+        const gameLayer = ZigaMod.getActiveGameLayer ? ZigaMod.getActiveGameLayer() : null;
+        if (gameLayer && typeof gameLayer.pA === 'function') {
+          gameLayer.pA();
+        }
+        if (gameLayer && gameLayer.ij) {
+          gameLayer.ij.setPosition(-100, -100);
+        }
+        clearTacticalHud();
       });
     }
 
-    // Attach canvas click listener for piece interaction
-    attachCanvasClickListener();
+    applySettingsVisibility();
+    return widgetEl;
   }
 
-  // Get active game layer
-  function getActiveGameLayer() {
-    if (!window.BkGlobal || !window.BkGlobal.Yj) return null;
-    return window.BkGlobal.Yj.ja ? window.BkGlobal.Yj.ja() : null;
+  function applySettingsVisibility() {
+    const userSettings = ZigaMod.userSettings;
+    const lostOpp = document.getElementById('ziga-opp-lost-section');
+    const lostSelf = document.getElementById('ziga-self-lost-section');
+    const lostDiv = document.getElementById('ziga-lost-divider');
+    const matWrapper = document.getElementById('ziga-material-wrapper');
+    const tacticalBox = document.getElementById('ziga-tactical-box');
+    const tacticalDiv = document.getElementById('ziga-tactical-divider');
+    const summaryBox = document.getElementById('ziga-summary-box');
+    const summaryDiv = document.getElementById('ziga-summary-divider');
+
+    if (lostOpp) lostOpp.style.display = userSettings.showLostPieces ? 'flex' : 'none';
+    if (lostSelf) lostSelf.style.display = userSettings.showLostPieces ? 'flex' : 'none';
+    if (lostDiv) lostDiv.style.display = userSettings.showLostPieces ? 'block' : 'none';
+
+    if (matWrapper && !userSettings.materialAdvantage) matWrapper.style.display = 'none';
+
+    if (tacticalBox) tacticalBox.style.display = userSettings.showTacticalHud ? 'flex' : 'none';
+    if (tacticalDiv) tacticalDiv.style.display = userSettings.showTacticalHud ? 'block' : 'none';
+
+    if (summaryBox) summaryBox.style.display = userSettings.showKeyPieces ? 'flex' : 'none';
+    if (summaryDiv) summaryDiv.style.display = userSettings.showKeyPieces ? 'block' : 'none';
+
+    if (userSettings.cleanAdView) {
+      document.body.classList.add('ziga-clean-ads-active');
+    } else {
+      document.body.classList.remove('ziga-clean-ads-active');
+    }
   }
 
-  // Attach click listener to gameCanvas
-  function attachCanvasClickListener() {
-    if (canvasListenerAttached) return;
-    const canvas = document.getElementById('gameCanvas');
-    if (!canvas) return;
-
-    canvas.addEventListener('mousedown', (e) => {
-      handleCanvasClick(e, canvas);
-    }, true);
-
-    canvasListenerAttached = true;
-    console.log('[Ziga Mod] Canvas click listener attached for tactical piece highlight.');
-  }
-
-  // Dragging logic
   function setupDraggable(container, handle) {
     let isDragging = false;
     let startX, startY, initX, initY;
@@ -259,348 +963,91 @@
         isDragging = false;
         handle.style.cursor = 'grab';
         const rect = container.getBoundingClientRect();
-        savePosition(rect.left, rect.top);
+        ZigaMod.savePosition(rect.left, rect.top);
       }
     });
   }
 
-  // Coordinate conversion: Piece (Cocos coordinates) to Viewport (Screen)
-  function pieceToScreen(piece, canvas) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = rect.width / canvas.width;
-    const scaleY = rect.height / canvas.height;
-    // Cocos Y is 0 at bottom, canvas DOM Y is 0 at top
-    const screenX = rect.left + piece.x * scaleX;
-    const screenY = rect.top + (canvas.height - piece.y) * scaleY;
-    return { x: screenX, y: screenY };
-  }
+  function setupResizable(container, cornerHandle, rightHandle, bottomHandle) {
+    let isResizing = false;
+    let resizeType = '';
+    let startX, startY, initW, initH;
 
-  // ==========================================
-  // CHINESE CHESS CAPTURE ENGINE & TACTICAL ANALYSIS
-  // ==========================================
-
-  // Check if attacker can capture target on standard Xiangqi board
-  function canPieceCaptureXiangqi(attacker, target, grid) {
-    if (attacker.color === target.color) return false;
-    if (attacker.col === target.col && attacker.row === target.row) return false;
-
-    const dx = target.col - attacker.col;
-    const dy = target.row - attacker.row;
-    const absDx = Math.abs(dx);
-    const absDy = Math.abs(dy);
-
-    switch (attacker.type) {
-      case 3: { // Xe (Rook/Chariot)
-        if (dx !== 0 && dy !== 0) return false;
-        let obstacles = 0;
-        if (dx === 0) {
-          const step = dy > 0 ? 1 : -1;
-          for (let r = attacker.row + step; r !== target.row; r += step) {
-            if (grid[attacker.col][r] >= 0) obstacles++;
-          }
-        } else {
-          const step = dx > 0 ? 1 : -1;
-          for (let c = attacker.col + step; c !== target.col; c += step) {
-            if (grid[c][attacker.row] >= 0) obstacles++;
-          }
-        }
-        return obstacles === 0;
-      }
-
-      case 4: { // Pháo (Cannon)
-        if (dx !== 0 && dy !== 0) return false;
-        // Pháo eats ONLY when jumping over exactly 1 piece (ngòi pháo)
-        let obstacles = 0;
-        if (dx === 0) {
-          const step = dy > 0 ? 1 : -1;
-          for (let r = attacker.row + step; r !== target.row; r += step) {
-            if (grid[attacker.col][r] >= 0) obstacles++;
-          }
-        } else {
-          const step = dx > 0 ? 1 : -1;
-          for (let c = attacker.col + step; c !== target.col; c += step) {
-            if (grid[c][attacker.row] >= 0) obstacles++;
-          }
-        }
-        return obstacles === 1;
-      }
-
-      case 5: { // Mã (Horse/Knight)
-        // L-shape: (1, 2) or (2, 1)
-        if (!((absDx === 1 && absDy === 2) || (absDx === 2 && absDy === 1))) return false;
-        let legCol = attacker.col;
-        let legRow = attacker.row;
-        if (absDx === 2) {
-          legCol += (dx > 0 ? 1 : -1);
-        } else {
-          legRow += (dy > 0 ? 1 : -1);
-        }
-        // Horse leg must be free
-        return grid[legCol][legRow] < 0;
-      }
-
-      case 2: { // Tượng (Elephant)
-        if (absDx !== 2 || absDy !== 2) return false;
-        // Cannot cross river:
-        // Rows 0-4 is bottom side, rows 5-9 is top side
-        if (attacker.row <= 4 && target.row > 4) return false;
-        if (attacker.row >= 5 && target.row < 5) return false;
-        // Elephant eye must be free
-        const eyeCol = attacker.col + dx / 2;
-        const eyeRow = attacker.row + dy / 2;
-        return grid[eyeCol][eyeRow] < 0;
-      }
-
-      case 1: { // Sĩ (Advisor)
-        if (absDx !== 1 || absDy !== 1) return false;
-        // Must stay in palace (col 3-5, row 0-2 or row 7-9)
-        if (target.col < 3 || target.col > 5) return false;
-        if (attacker.row <= 2) {
-          return target.row >= 0 && target.row <= 2;
-        } else if (attacker.row >= 7) {
-          return target.row >= 7 && target.row <= 9;
-        }
-        return false;
-      }
-
-      case 0: { // Tướng (King/General)
-        // Orthogonal 1 step in palace
-        if ((absDx === 1 && absDy === 0) || (absDx === 0 && absDy === 1)) {
-          if (target.col >= 3 && target.col <= 5) {
-            if (attacker.row <= 2 && target.row >= 0 && target.row <= 2) return true;
-            if (attacker.row >= 7 && target.row >= 7 && target.row <= 9) return true;
-          }
-        }
-        // Flying General (Face-to-face King capture)
-        if (dx === 0 && target.type === 0) {
-          let obstacles = 0;
-          const step = dy > 0 ? 1 : -1;
-          for (let r = attacker.row + step; r !== target.row; r += step) {
-            if (grid[attacker.col][r] >= 0) obstacles++;
-          }
-          if (obstacles === 0) return true;
-        }
-        return false;
-      }
-
-      case 6: { // Tốt (Pawn/Soldier)
-        let forwardDir = 1;
-        if (attacker.row <= 4) {
-          forwardDir = 1; // Moving towards row 9
-        } else {
-          forwardDir = -1; // Moving towards row 0
-        }
-
-        const hasCrossedRiver = (forwardDir > 0 && attacker.row >= 5) || (forwardDir < 0 && attacker.row <= 4);
-
-        // Step forward
-        if (dx === 0 && dy === forwardDir) return true;
-
-        // Step sideways (after river)
-        if (hasCrossedRiver && absDx === 1 && dy === 0) return true;
-
-        return false;
-      }
-
-      default:
-        return false;
-    }
-  }
-
-  // Calculate all capturable enemy pieces for a given piece index
-  function getCapturablePieces(gameLayer, pieceIndex) {
-    const results = [];
-    if (!gameLayer || !gameLayer.V || pieceIndex < 0 || pieceIndex >= 32) return results;
-
-    const attacker = gameLayer.V[pieceIndex];
-    if (!attacker || attacker.pa) return results;
-
-    // Build 9x10 grid
-    const grid = Array.from({ length: 9 }, () => Array(10).fill(-1));
-    for (let i = 0; i < 32; i++) {
-      const p = gameLayer.V[i];
-      if (p && !p.pa) {
-        grid[p.fa][p.rowIndex] = i;
-      }
+    function startResize(e, type) {
+      isResizing = true;
+      resizeType = type;
+      startX = e.clientX;
+      startY = e.clientY;
+      initW = container.offsetWidth;
+      initH = container.offsetHeight;
+      document.body.style.userSelect = 'none';
+      e.preventDefault();
+      e.stopPropagation();
     }
 
-    const attackerColor = attacker.ka !== undefined ? attacker.ka : Math.floor(pieceIndex / 16);
-    const attackerType = attacker.Ga !== undefined ? attacker.Ga : 6;
-    const attackerData = {
-      col: attacker.fa,
-      row: attacker.rowIndex,
-      type: attackerType,
-      color: attackerColor
-    };
-
-    // Helper piece instance from game layer if available
-    const pieceHelper = gameLayer.hq ? gameLayer.hq(pieceIndex) : null;
-
-    for (let i = 0; i < 32; i++) {
-      const target = gameLayer.V[i];
-      if (!target || target.pa) continue;
-
-      const targetColor = target.ka !== undefined ? target.ka : Math.floor(i / 16);
-      if (targetColor === attackerColor) continue; // Only enemy pieces
-
-      const targetType = target.Ga !== undefined ? target.Ga : 6;
-      const targetData = {
-        col: target.fa,
-        row: target.rowIndex,
-        type: targetType,
-        color: targetColor
-      };
-
-      let canCapture = false;
-
-      // Try game engine's native calculation first
-      if (pieceHelper && gameLayer.IM) {
-        try {
-          const square = target.fa + 9 * target.rowIndex;
-          canCapture = !!gameLayer.IM(pieceHelper, pieceIndex, square, grid);
-        } catch (e) {
-          canCapture = false;
+    if (cornerHandle) {
+      cornerHandle.addEventListener('mousedown', (e) => startResize(e, 'both'));
+      cornerHandle.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        container.style.width = '320px';
+        container.style.height = 'auto';
+        const body = document.getElementById('ziga-mod-body');
+        if (body) {
+          body.style.maxHeight = '560px';
+          body.style.height = 'auto';
         }
-      }
-
-      // Fallback Xiangqi rule validator if engine is inconclusive
-      if (!canCapture) {
-        canCapture = canPieceCaptureXiangqi(attackerData, targetData, grid);
-      }
-
-      // Verify King safety / Lộ mặt tướng if engine method is available
-      if (canCapture && gameLayer.BM) {
-        try {
-          if (gameLayer.BM(pieceHelper || attackerData, pieceIndex, target.fa, target.rowIndex, grid)) {
-            canCapture = false;
-          }
-        } catch (e) { }
-      }
-
-      if (canCapture) {
-        const def = PIECE_DEFS[targetType] || { name: 'Quân', redChar: '?', blackChar: '?' };
-        const char = targetColor === 0 ? def.redChar : def.blackChar;
-        results.push({
-          index: i,
-          piece: target,
-          type: targetType,
-          color: targetColor,
-          col: target.fa,
-          row: target.rowIndex,
-          x: target.x,
-          y: target.y,
-          name: def.name,
-          char: char,
-          value: def.value
-        });
-      }
+        ZigaMod.saveSize(320, null);
+      });
     }
 
-    return results;
-  }
-
-  // Handle click on canvas to select ANY piece (User's OR Opponent's!)
-  function handleCanvasClick(e, canvas) {
-    const gameLayer = getActiveGameLayer();
-    if (!gameLayer || !gameLayer.V || !Array.isArray(gameLayer.V) || gameLayer.V.length !== 32) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-
-    // Convert DOM click to internal Cocos canvas coordinates
-    const clickCanvasX = (e.clientX - rect.left) * scaleX;
-    const clickCanvasY = canvas.height - ((e.clientY - rect.top) * scaleY); // Cocos Y inverted
-
-    // Find closest piece
-    let clickedIndex = -1;
-    let minDistance = 50; // Touch radius threshold
-
-    for (let i = 0; i < 32; i++) {
-      const p = gameLayer.V[i];
-      if (!p || p.pa) continue;
-      const dist = Math.hypot(p.x - clickCanvasX, p.y - clickCanvasY);
-      if (dist < minDistance) {
-        minDistance = dist;
-        clickedIndex = i;
-      }
+    if (rightHandle) {
+      rightHandle.addEventListener('mousedown', (e) => startResize(e, 'width'));
     }
 
-    if (clickedIndex >= 0) {
-      if (selectedPieceIndex === clickedIndex) {
-        // Toggle off if clicking same piece again
-        clearCaptureHighlights(gameLayer);
-      } else {
-        selectPieceAndHighlight(gameLayer, clickedIndex);
+    if (bottomHandle) {
+      bottomHandle.addEventListener('mousedown', (e) => startResize(e, 'height'));
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      let newW = initW;
+      let newH = initH;
+
+      if (resizeType === 'both' || resizeType === 'width') {
+        newW = Math.max(270, Math.min(window.innerWidth - container.offsetLeft - 10, initW + dx));
+        container.style.width = newW + 'px';
       }
-    } else {
-      // Clicked on empty space: clear highlight after small delay (unless moving)
-      setTimeout(() => {
-        const currentLayer = getActiveGameLayer();
-        if (currentLayer && (!currentLayer.le || currentLayer.le < 0)) {
-          clearCaptureHighlights(currentLayer);
+
+      if (resizeType === 'both' || resizeType === 'height') {
+        newH = Math.max(220, Math.min(window.innerHeight - container.offsetTop - 10, initH + dy));
+        container.style.height = newH + 'px';
+        const body = document.getElementById('ziga-mod-body');
+        if (body) {
+          const headerEl = document.getElementById('ziga-mod-drag-handle');
+          const headerH = headerEl ? headerEl.offsetHeight : 42;
+          body.style.maxHeight = Math.max(120, newH - headerH) + 'px';
+          body.style.height = Math.max(120, newH - headerH) + 'px';
         }
-      }, 150);
-    }
-  }
-
-  // Select a piece and highlight its capture targets
-  function selectPieceAndHighlight(gameLayer, pieceIndex) {
-    clearCaptureHighlights(gameLayer);
-
-    selectedPieceIndex = pieceIndex;
-    const attacker = gameLayer.V[pieceIndex];
-    if (!attacker || attacker.pa) return;
-
-    currentCapturablePieces = getCapturablePieces(gameLayer, pieceIndex);
-
-    const canvas = document.getElementById('gameCanvas');
-    if (!canvas) return;
-
-    // 1. Activate Cocos native pulsing animation on capturable target pieces
-    currentCapturablePieces.forEach(targetItem => {
-      if (targetItem.piece && typeof targetItem.piece.kj === 'function') {
-        try {
-          targetItem.piece.kj(true);
-        } catch (e) { }
       }
     });
 
-    // 2. Render SVG overlay (Golden selected aura, Pulsing Red target reticles, Animated attack arrows)
-    renderSvgHighlights(gameLayer, attacker, currentCapturablePieces, canvas);
-
-    // 3. Update HUD Assistant panel with detailed info
-    updateTacticalHud(attacker, currentCapturablePieces);
+    document.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false;
+        document.body.style.userSelect = '';
+        ZigaMod.saveSize(container.offsetWidth, container.offsetHeight);
+      }
+    });
   }
 
-  // Clear all capture highlights
-  function clearCaptureHighlights(gameLayer) {
-    // Stop Cocos native pulsing
-    if (gameLayer && gameLayer.V) {
-      for (let i = 0; i < 32; i++) {
-        const p = gameLayer.V[i];
-        if (p && typeof p.kj === 'function') {
-          try {
-            p.kj(false);
-          } catch (e) { }
-        }
-      }
-    }
-
-    // Clear SVG overlay content
-    if (svgOverlay) {
-      const content = svgOverlay.querySelector('#ziga-svg-content');
-      if (content) content.innerHTML = '';
-    }
-
-    selectedPieceIndex = -1;
-    currentCapturablePieces = [];
-
-    // Reset HUD section
+  function clearTacticalHud() {
     const selectedDisplay = document.getElementById('ziga-selected-piece-info');
     const targetsList = document.getElementById('ziga-targets-list');
     if (selectedDisplay) {
-      selectedDisplay.innerHTML = `<span class="ziga-empty-note">Bấm vào bất kỳ quân nào trên bàn cờ (của mình hoặc đối thủ) để xem nó ăn được những quân nào!</span>`;
+      selectedDisplay.innerHTML = `<span class="ziga-empty-note">Bấm vào bất kỳ quân nào trên bàn cờ (của mình hoặc đối thủ) để xem quân đó ăn được quân nào!</span>`;
     }
     if (targetsList) {
       targetsList.style.display = 'none';
@@ -608,47 +1055,6 @@
     }
   }
 
-  // Render SVG highlights (rings, crosshairs, attack arrows)
-  function renderSvgHighlights(gameLayer, attacker, capturableList, canvas) {
-    const overlay = getOrCreateSvgOverlay();
-    const content = overlay.querySelector('#ziga-svg-content');
-    if (!content) return;
-
-    let svgHtml = '';
-
-    const attackerPos = pieceToScreen(attacker, canvas);
-    const attackerColor = attacker.ka !== undefined ? attacker.ka : 0;
-    const ringColor = attackerColor === 0 ? '#ef4444' : '#60a5fa';
-
-    // 1. Golden aura around the selected piece
-    svgHtml += `
-      <circle cx="${attackerPos.x}" cy="${attackerPos.y}" r="26" class="ziga-svg-selected-ring" />
-      <circle cx="${attackerPos.x}" cy="${attackerPos.y}" r="31" class="ziga-svg-selected-pulse" />
-    `;
-
-    // 2. Red target reticles & attack lines to each capturable enemy piece
-    capturableList.forEach(target => {
-      const targetPos = pieceToScreen(target.piece, canvas);
-
-      // Attack arrow line
-      svgHtml += `
-        <line x1="${attackerPos.x}" y1="${attackerPos.y}" x2="${targetPos.x}" y2="${targetPos.y}"
-              class="ziga-svg-attack-line" marker-end="url(#ziga-arrow-red)" />
-      `;
-
-      // Target pulsing reticle & crosshair
-      svgHtml += `
-        <circle cx="${targetPos.x}" cy="${targetPos.y}" r="27" class="ziga-svg-target-ring" />
-        <circle cx="${targetPos.x}" cy="${targetPos.y}" r="34" class="ziga-svg-target-pulse" />
-        <line x1="${targetPos.x - 12}" y1="${targetPos.y}" x2="${targetPos.x + 12}" y2="${targetPos.y}" class="ziga-svg-crosshair" />
-        <line x1="${targetPos.x}" y1="${targetPos.y - 12}" x2="${targetPos.x}" y2="${targetPos.y + 12}" class="ziga-svg-crosshair" />
-      `;
-    });
-
-    content.innerHTML = svgHtml;
-  }
-
-  // Update Tactical Inspector in HUD Assistant
   function updateTacticalHud(attacker, capturableList) {
     const selectedDisplay = document.getElementById('ziga-selected-piece-info');
     const targetsList = document.getElementById('ziga-targets-list');
@@ -656,10 +1062,14 @@
 
     const attackerColor = attacker.ka !== undefined ? attacker.ka : 0;
     const attackerType = attacker.Ga !== undefined ? attacker.Ga : 6;
-    const def = PIECE_DEFS[attackerType] || { name: 'Quân', redChar: '?', blackChar: '?' };
-    const char = attackerColor === 0 ? def.redChar : def.blackChar;
+    const def = ZigaMod.PIECE_DEFS[attackerType] || { name: 'Quân', redChar: '?', blackChar: '?' };
+    const char = ZigaMod.getPieceChar(attackerType, attackerColor);
     const colorLabel = attackerColor === 0 ? '🔴 Phe Đỏ' : '⚫ Phe Đen';
     const colorClass = attackerColor === 0 ? 'red-piece' : 'black-piece';
+
+    const attackerCoord = ZigaMod.formatXiangqiCoord
+      ? ZigaMod.formatXiangqiCoord(attacker.fa, attacker.rowIndex, attackerColor)
+      : { col: (attackerColor === 0 ? 9 - attacker.fa : attacker.fa + 1), row: (attackerColor === 0 ? attacker.rowIndex + 1 : 10 - attacker.rowIndex) };
 
     selectedDisplay.innerHTML = `
       <div class="ziga-inspect-card">
@@ -669,7 +1079,7 @@
           </div>
           <div class="ziga-piece-info">
             <span class="ziga-piece-name">${colorLabel} - ${def.name}</span>
-            <span class="ziga-pos-badge">(Cột ${attacker.fa + 1}, Hàng ${attacker.rowIndex + 1})</span>
+            <span class="ziga-pos-badge">(Cột ${attackerCoord.col}, Hàng ${attackerCoord.row})</span>
           </div>
         </div>
       </div>
@@ -677,10 +1087,10 @@
 
     targetsList.style.display = 'flex';
 
-    if (capturableList.length === 0) {
+    if (!capturableList || capturableList.length === 0) {
       targetsList.innerHTML = `
         <div class="ziga-tactical-empty">
-          <span>⚔️ Hiện tại <strong>không có quân nào</strong> của đối phương nằm trong tầm ăn.</span>
+          <span>⚔️ Hiện tại <strong>không có quân đối phương nào</strong> nằm trong tầm ăn.</span>
         </div>
       `;
     } else {
@@ -693,11 +1103,15 @@
 
       capturableList.forEach(item => {
         const targetColorClass = item.color === 0 ? 'red-piece' : 'black-piece';
+        const targetCoord = ZigaMod.formatXiangqiCoord
+          ? ZigaMod.formatXiangqiCoord(item.col, item.row, item.color)
+          : { col: (item.color === 0 ? 9 - item.col : item.col + 1), row: (item.color === 0 ? item.row + 1 : 10 - item.row) };
+
         targetsHtml += `
           <div class="ziga-target-item ${targetColorClass}">
             <span class="ziga-target-token">${item.char}</span>
             <span class="ziga-target-name">${item.name}</span>
-            <span class="ziga-target-pos">(C${item.col + 1}, H${item.row + 1})</span>
+            <span class="ziga-target-pos">(C${targetCoord.col}, H${targetCoord.row})</span>
             <span class="ziga-target-val">+${item.value}đ</span>
           </div>
         `;
@@ -708,11 +1122,75 @@
     }
   }
 
-  // ==========================================
-  // GAME DATA EXTRACTION & GENERAL MOD UPDATER
-  // ==========================================
+  function renderPieceList(deadPieces, color) {
+    if (!deadPieces || deadPieces.length === 0) {
+      return '<div class="ziga-empty-note">Chưa bị ăn quân nào</div>';
+    }
 
-  // Extract active game data
+    const counts = {};
+    ZigaMod.DISPLAY_ORDER.forEach(type => { counts[type] = 0; });
+    deadPieces.forEach(p => {
+      counts[p.type] = (counts[p.type] || 0) + 1;
+    });
+
+    let html = '';
+    ZigaMod.DISPLAY_ORDER.forEach(type => {
+      const count = counts[type];
+      if (count > 0) {
+        const def = ZigaMod.PIECE_DEFS[type] || { name: '?', total: 1 };
+        const char = ZigaMod.getPieceChar(type, color);
+        const colorClass = color === 0 ? 'red-piece' : 'black-piece';
+
+        html += `
+          <div class="ziga-piece-chip ${colorClass}" title="${def.name} (${count}/${def.total} đã bị ăn)">
+            <div class="ziga-piece-token">
+              <span class="ziga-token-char">${char}</span>
+            </div>
+            <div class="ziga-piece-info">
+              <span class="ziga-piece-name">${def.name}</span>
+              <span class="ziga-piece-count">×${count}</span>
+            </div>
+          </div>
+        `;
+      }
+    });
+
+    return html;
+  }
+
+  // Export to namespace
+  ZigaMod.createOverlay = createOverlay;
+  ZigaMod.applySettingsVisibility = applySettingsVisibility;
+  ZigaMod.setupDraggable = setupDraggable;
+  ZigaMod.setupResizable = setupResizable;
+  ZigaMod.clearTacticalHud = clearTacticalHud;
+  ZigaMod.updateTacticalHud = updateTacticalHud;
+  ZigaMod.renderPieceList = renderPieceList;
+  ZigaMod.getWidgetEl = function () { return widgetEl; };
+
+  Object.defineProperty(ZigaMod, 'widgetEl', {
+    get: function () { return widgetEl; },
+    set: function (val) { widgetEl = val; },
+    configurable: true
+  });
+
+})(window.ZigaMod = window.ZigaMod || {});
+
+
+// ===== Module: src/main.js =====
+// src/main.js - Game data extraction, material calculation, ad cleaner, and main update loop
+(function (ZigaMod) {
+  'use strict';
+
+  console.log('[Ziga Mod] Main module initializing...');
+
+  let lastStateHash = '';
+
+  function getActiveGameLayer() {
+    if (!window.BkGlobal || !window.BkGlobal.Yj) return null;
+    return window.BkGlobal.Yj.ja ? window.BkGlobal.Yj.ja() : null;
+  }
+
   function getActiveGameData() {
     if (!window.BkGlobal || !window.BkGlobal.Yj) return null;
     const gameLayer = window.BkGlobal.Yj.ja ? window.BkGlobal.Yj.ja() : null;
@@ -723,8 +1201,7 @@
     const logicMgr = window.BkLogicManager ? window.BkLogicManager.na() : null;
     const myPlayer = logicMgr && logicMgr.Ba ? logicMgr.Ba() : null;
 
-    // Determine colors
-    let myColor = 0; // 0 = Red, 1 = Black
+    let myColor = 0;
     let isSpectator = false;
 
     if (myPlayer) {
@@ -740,7 +1217,6 @@
 
     const oppColor = 1 - myColor;
 
-    // Player names
     let myName = myPlayer && myPlayer.getName ? myPlayer.getName() : (myColor === 0 ? 'Bên Đỏ' : 'Bên Đen');
     let oppName = (oppColor === 0 ? 'Bên Đỏ' : 'Bên Đen');
 
@@ -753,7 +1229,6 @@
       else oppName = gameLayer.dc.Z.userName || oppName;
     }
 
-    // Process 32 pieces
     const deadMyPieces = [];
     const deadOppPieces = [];
     const aliveMyPieces = [];
@@ -797,55 +1272,17 @@
     };
   }
 
-  // Build HTML for a list of pieces
-  function renderPieceList(deadPieces, color) {
-    if (!deadPieces || deadPieces.length === 0) {
-      return '<div class="ziga-empty-note">Chưa bị ăn quân nào</div>';
-    }
-
-    const counts = {};
-    DISPLAY_ORDER.forEach(type => { counts[type] = 0; });
-    deadPieces.forEach(p => {
-      counts[p.type] = (counts[p.type] || 0) + 1;
-    });
-
-    let html = '';
-    DISPLAY_ORDER.forEach(type => {
-      const count = counts[type];
-      if (count > 0) {
-        const def = PIECE_DEFS[type] || { name: '?', redChar: '?', blackChar: '?', total: 1 };
-        const char = color === 0 ? def.redChar : def.blackChar;
-        const colorClass = color === 0 ? 'red-piece' : 'black-piece';
-
-        html += `
-          <div class="ziga-piece-chip ${colorClass}" title="${def.name} (${count}/${def.total} đã bị ăn)">
-            <div class="ziga-piece-token">
-              <span class="ziga-token-char">${char}</span>
-            </div>
-            <div class="ziga-piece-info">
-              <span class="ziga-piece-name">${def.name}</span>
-              <span class="ziga-piece-count">×${count}</span>
-            </div>
-          </div>
-        `;
-      }
-    });
-
-    return html;
-  }
-
-  // Calculate material difference
   function computeMaterialScore(aliveMy, aliveOpp) {
     let myScore = 0;
     let oppScore = 0;
 
     aliveMy.forEach(p => {
-      const def = PIECE_DEFS[p.type];
+      const def = ZigaMod.PIECE_DEFS[p.type];
       if (def) myScore += def.value;
     });
 
     aliveOpp.forEach(p => {
-      const def = PIECE_DEFS[p.type];
+      const def = ZigaMod.PIECE_DEFS[p.type];
       if (def) oppScore += def.value;
     });
 
@@ -853,7 +1290,6 @@
     return { myScore, oppScore, diff };
   }
 
-  // Count Xe, Pháo, Mã remaining
   function countKeyPieces(alivePieces) {
     let xe = 0, phao = 0, ma = 0;
     alivePieces.forEach(p => {
@@ -864,9 +1300,70 @@
     return `${xe}X · ${phao}P · ${ma}M`;
   }
 
-  // Main update tick
+  function cleanObstructingAds() {
+    const adSelectors = [
+      'ins.adsbygoogle',
+      '.google-auto-placed',
+      'iframe[id^="aswift"]',
+      'iframe[name^="aswift"]',
+      'div[id^="aswift"]',
+      'div[id^="google_ads"]',
+      'iframe[id^="google_ads"]',
+      '.ads-frame',
+      '[id*="banner_left"]',
+      '[id*="banner_right"]',
+      '[class*="banner-left"]',
+      '[class*="banner-right"]'
+    ];
+
+    for (let i = 0; i < adSelectors.length; i++) {
+      const nodes = document.querySelectorAll(adSelectors[i]);
+      for (let j = 0; j < nodes.length; j++) {
+        const el = nodes[j];
+        el.style.setProperty('display', 'none', 'important');
+        el.style.setProperty('visibility', 'hidden', 'important');
+        el.style.setProperty('pointer-events', 'none', 'important');
+        el.style.setProperty('z-index', '-9999', 'important');
+        el.style.setProperty('width', '0', 'important');
+        el.style.setProperty('height', '0', 'important');
+      }
+    }
+
+    if (document.body) {
+      const children = document.body.children;
+      for (let i = 0; i < children.length; i++) {
+        const el = children[i];
+        if (!el || el.id === 'ziga-mod-widget' || el.id === 'gameCanvas' || el.id === 'Cocos2dGameContainer' || el.classList.contains('modal')) {
+          continue;
+        }
+        try {
+          const comp = window.getComputedStyle(el);
+          if (comp.position === 'fixed') {
+            if (el.querySelector('iframe') || el.querySelector('ins') || el.tagName === 'IFRAME' || el.tagName === 'INS' || (el.className && typeof el.className === 'string' && el.className.includes('google')) || (comp.zIndex && Number(comp.zIndex) > 1000)) {
+              el.style.setProperty('display', 'none', 'important');
+              el.style.setProperty('z-index', '-9999', 'important');
+            }
+          }
+        } catch (e) { }
+      }
+    }
+
+    const widgetEl = ZigaMod.widgetEl || document.getElementById('ziga-mod-widget');
+    if (widgetEl) {
+      widgetEl.style.setProperty('z-index', '2147483647', 'important');
+      widgetEl.style.setProperty('position', 'fixed', 'important');
+      if (document.body && document.body.lastElementChild !== widgetEl) {
+        document.body.appendChild(widgetEl);
+      }
+    }
+  }
+
   function updateMod() {
-    createOverlay();
+    ZigaMod.createOverlay();
+    cleanObstructingAds();
+
+    const widgetEl = ZigaMod.widgetEl || document.getElementById('ziga-mod-widget');
+    if (!widgetEl) return;
 
     const data = getActiveGameData();
 
@@ -891,84 +1388,109 @@
     if (!data) {
       if (lastStateHash !== 'waiting') {
         lastStateHash = 'waiting';
-        statusDot.className = 'ziga-mod-dot waiting';
-        statusText.textContent = 'Chờ vào ván cờ...';
-        materialWrapper.style.display = 'none';
-        oppDeadCount.textContent = '0/16';
-        selfDeadCount.textContent = '0/16';
-        oppPiecesContainer.innerHTML = '<div class="ziga-empty-note">Chờ bắt đầu ván đấu...</div>';
-        selfPiecesContainer.innerHTML = '<div class="ziga-empty-note">Chờ bắt đầu ván đấu...</div>';
-        statOppVal.textContent = '-';
-        statSelfVal.textContent = '-';
-        clearCaptureHighlights(null);
+        if (statusDot) statusDot.className = 'ziga-mod-dot waiting';
+        if (statusText) statusText.textContent = 'Chờ vào ván cờ...';
+        if (materialWrapper) materialWrapper.style.display = 'none';
+        if (oppDeadCount) oppDeadCount.textContent = '0/16';
+        if (selfDeadCount) selfDeadCount.textContent = '0/16';
+        if (oppPiecesContainer) oppPiecesContainer.innerHTML = '<div class="ziga-empty-note">Chờ bắt đầu ván đấu...</div>';
+        if (selfPiecesContainer) selfPiecesContainer.innerHTML = '<div class="ziga-empty-note">Chờ bắt đầu ván đấu...</div>';
+        if (statOppVal) statOppVal.textContent = '-';
+        if (statSelfVal) statSelfVal.textContent = '-';
+        ZigaMod.clearTacticalHud();
+        ZigaMod.updateThreatUi([]);
+        ZigaMod.updateCoUpUi(null);
       }
+      ZigaMod.applySettingsVisibility();
       return;
     }
 
-    // Attach click listener if not attached yet
-    attachCanvasClickListener();
+    // Hook game engine for native highlights
+    ZigaMod.hookGameLayer(data.gameLayer);
 
-    // Check if board positions changed (a move was played) -> clear stale highlight
-    const positionsHash = data.gameLayer.V.map(p => `${p.fa},${p.rowIndex},${p.pa ? 1 : 0}`).join('|');
-    if (lastBoardPositionsHash && positionsHash !== lastBoardPositionsHash) {
-      // Board changed, refresh highlights if a piece was selected
-      if (selectedPieceIndex >= 0) {
-        selectPieceAndHighlight(data.gameLayer, selectedPieceIndex);
-      }
+    // Threat Scanner (Under-Attack Alert)
+    const threats = ZigaMod.scanThreats(data.gameLayer, data.myColor, data.oppColor);
+    ZigaMod.updateThreatUi(threats);
+
+    // Co Up Probability Tracker
+    if (ZigaMod.isCoUpGame(data.gameLayer)) {
+      const coUpStats = ZigaMod.computeCoUpStats(data.gameLayer, data.myColor, data.oppColor);
+      ZigaMod.updateCoUpUi(coUpStats, data.oppName, data.myName);
+    } else {
+      ZigaMod.updateCoUpUi(null);
     }
-    lastBoardPositionsHash = positionsHash;
 
-    // State hash check to avoid redundant DOM re-rendering
-    const currentHash = `${data.myColor}_${data.deadMyPieces.length}_${data.deadOppPieces.length}_${data.deadMyPieces.map(p => p.index).join(',')}_${data.deadOppPieces.map(p => p.index).join(',')}`;
+    const userSettings = ZigaMod.userSettings;
+    const currentHash = `${data.myColor}_${data.deadMyPieces.length}_${data.deadOppPieces.length}_${userSettings.vietnameseLabels}_${threats.length}`;
     if (currentHash === lastStateHash) {
       return;
     }
     lastStateHash = currentHash;
 
-    // In game
-    statusDot.className = 'ziga-mod-dot active';
-    statusText.textContent = data.isSpectator ? `Đang xem ván (${data.myName} vs ${data.oppName})` : `Trận đấu: Bạn vs ${data.oppName}`;
+    // In game status
+    if (statusDot) statusDot.className = 'ziga-mod-dot active';
+    if (statusText) statusText.textContent = data.isSpectator ? `Đang xem ván (${data.myName} vs ${data.oppName})` : `Trận đấu: Bạn vs ${data.oppName}`;
 
-    // Color indicators
     const oppColorName = data.oppColor === 0 ? 'Đỏ 🔴' : 'Đen ⚫';
     const selfColorName = data.myColor === 0 ? 'Đỏ 🔴' : 'Đen ⚫';
 
-    oppLabel.textContent = `${oppColorName} ${data.oppName} ĐÃ MẤT`;
-    oppDeadCount.textContent = `${data.deadOppPieces.length}/16`;
+    if (oppLabel) oppLabel.textContent = `${oppColorName} ${data.oppName} ĐÃ MẤT`;
+    if (oppDeadCount) oppDeadCount.textContent = `${data.deadOppPieces.length}/16`;
 
-    selfLabel.textContent = `${selfColorName} ${data.myName} ĐÃ MẤT`;
-    selfDeadCount.textContent = `${data.deadMyPieces.length}/16`;
+    if (selfLabel) selfLabel.textContent = `${selfColorName} ${data.myName} ĐÃ MẤT`;
+    if (selfDeadCount) selfDeadCount.textContent = `${data.deadMyPieces.length}/16`;
 
-    // Render piece grids
-    oppPiecesContainer.innerHTML = renderPieceList(data.deadOppPieces, data.oppColor);
-    selfPiecesContainer.innerHTML = renderPieceList(data.deadMyPieces, data.myColor);
+    if (oppPiecesContainer) oppPiecesContainer.innerHTML = ZigaMod.renderPieceList(data.deadOppPieces, data.oppColor);
+    if (selfPiecesContainer) selfPiecesContainer.innerHTML = ZigaMod.renderPieceList(data.deadMyPieces, data.myColor);
 
-    // Compute material advantage
-    const mat = computeMaterialScore(data.aliveMyPieces, data.aliveOppPieces);
-    materialWrapper.style.display = 'flex';
-    if (mat.diff > 0) {
-      materialScore.className = 'ziga-material-val advantage-positive';
-      materialScore.textContent = `+${mat.diff} điểm (Bạn ưu thế)`;
-    } else if (mat.diff < 0) {
-      materialScore.className = 'ziga-material-val advantage-negative';
-      materialScore.textContent = `${mat.diff} điểm (Đối thủ ưu thế)`;
-    } else {
-      materialScore.className = 'ziga-material-val';
-      materialScore.textContent = 'Cân bằng lực lượng';
+    // Material Advantage
+    if (userSettings.materialAdvantage) {
+      const mat = computeMaterialScore(data.aliveMyPieces, data.aliveOppPieces);
+      if (materialWrapper) materialWrapper.style.display = 'flex';
+      if (materialScore) {
+        if (mat.diff > 0) {
+          materialScore.className = 'ziga-material-val advantage-positive';
+          materialScore.textContent = `+${mat.diff} điểm (Bạn ưu thế)`;
+        } else if (mat.diff < 0) {
+          materialScore.className = 'ziga-material-val advantage-negative';
+          materialScore.textContent = `${mat.diff} điểm (Đối thủ ưu thế)`;
+        } else {
+          materialScore.className = 'ziga-material-val';
+          materialScore.textContent = 'Cân bằng lực lượng';
+        }
+      }
+    } else if (materialWrapper) {
+      materialWrapper.style.display = 'none';
     }
 
-    // Key remaining pieces summary
-    statOppName.textContent = `${data.oppName.slice(0, 10)}`;
-    statOppVal.textContent = countKeyPieces(data.aliveOppPieces);
-    statSelfName.textContent = `${data.myName.slice(0, 10)}`;
-    statSelfVal.textContent = countKeyPieces(data.aliveMyPieces);
+    if (statOppName) statOppName.textContent = `${data.oppName.slice(0, 10)}`;
+    if (statOppVal) statOppVal.textContent = countKeyPieces(data.aliveOppPieces);
+    if (statSelfName) statSelfName.textContent = `${data.myName.slice(0, 10)}`;
+    if (statSelfVal) statSelfVal.textContent = countKeyPieces(data.aliveMyPieces);
+
+    ZigaMod.applySettingsVisibility();
   }
 
-  // Start polling loop (every 300ms)
+  // Export to namespace
+  ZigaMod.getActiveGameLayer = getActiveGameLayer;
+  ZigaMod.getActiveGameData = getActiveGameData;
+  ZigaMod.computeMaterialScore = computeMaterialScore;
+  ZigaMod.countKeyPieces = countKeyPieces;
+  ZigaMod.cleanObstructingAds = cleanObstructingAds;
+  ZigaMod.updateMod = updateMod;
+  ZigaMod.lastStateHash = lastStateHash;
+
+  // Start polling loop
   setInterval(updateMod, 300);
 
   // Initial trigger
   window.addEventListener('load', () => {
     setTimeout(updateMod, 1000);
   });
+
+  console.log('[Ziga Mod] Advanced Xiangqi & Co Up Helper initialized.');
+
+})(window.ZigaMod = window.ZigaMod || {});
+
+
 })();

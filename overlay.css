@@ -3,20 +3,115 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap');
 
 .ziga-mod-container {
-  position: fixed;
-  z-index: 999999;
-  width: 295px;
-  background: rgba(18, 22, 28, 0.88);
+  position: fixed !important;
+  z-index: 2147483647 !important;
+  width: 320px;
+  min-width: 270px;
+  max-width: 750px;
+  background: rgba(18, 22, 28, 0.94);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(212, 175, 55, 0.35);
+  border: 1px solid rgba(212, 175, 55, 0.45);
   border-radius: 14px;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55), 0 0 15px rgba(212, 175, 55, 0.15);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75), 0 0 20px rgba(212, 175, 55, 0.25);
   font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: #f0f3f6;
   user-select: none;
   overflow: hidden;
   transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  box-sizing: border-box;
+}
+
+/* =================================================== */
+/* RESIZE HANDLES (KÉO TO / THU NHỎ POPUP)             */
+/* =================================================== */
+
+.ziga-mod-resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  height: 18px;
+  cursor: nwse-resize;
+  z-index: 99999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 3px;
+  opacity: 0.65;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.ziga-mod-resize-handle:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.ziga-mod-resize-handle::after {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-right: 2.5px solid #ffd700;
+  border-bottom: 2.5px solid #ffd700;
+  border-radius: 1px;
+}
+
+/* Right border resizer */
+.ziga-mod-resize-edge-r {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 18px;
+  width: 7px;
+  cursor: ew-resize;
+  z-index: 99998;
+}
+
+.ziga-mod-resize-edge-r:hover {
+  background: rgba(212, 175, 55, 0.2);
+}
+
+/* Bottom border resizer */
+.ziga-mod-resize-edge-b {
+  position: absolute;
+  left: 0;
+  right: 18px;
+  bottom: 0;
+  height: 7px;
+  cursor: ns-resize;
+  z-index: 99998;
+}
+
+.ziga-mod-resize-edge-b:hover {
+  background: rgba(212, 175, 55, 0.2);
+}
+
+.ziga-mod-container.minimized .ziga-mod-resize-handle,
+.ziga-mod-container.minimized .ziga-mod-resize-edge-r,
+.ziga-mod-container.minimized .ziga-mod-resize-edge-b {
+  display: none !important;
+}
+
+/* Completely hide all floating AdSense side rails, anchor banners, and obstructing ads */
+ins.adsbygoogle,
+.google-auto-placed,
+iframe[id^="aswift"],
+iframe[name^="aswift"],
+div[id^="aswift"],
+div[id^="google_ads"],
+iframe[id^="google_ads"],
+.ads-frame,
+[id*="banner_left"],
+[id*="banner_right"],
+[class*="banner-left"],
+[class*="banner-right"] {
+  display: none !important;
+  visibility: hidden !important;
+  z-index: -9999 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
 }
 
 .ziga-mod-container:hover {
@@ -58,6 +153,9 @@
   text-transform: uppercase;
   color: #f7df94;
   font-family: 'Cinzel', 'Nunito', sans-serif;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
 }
 
 .ziga-mod-actions {
@@ -103,6 +201,7 @@
 .ziga-mod-content::-webkit-scrollbar {
   width: 5px;
 }
+
 .ziga-mod-content::-webkit-scrollbar-thumb {
   background: rgba(212, 175, 55, 0.2);
   border-radius: 3px;
@@ -112,6 +211,7 @@
 .ziga-mod-container.minimized .ziga-mod-content {
   display: none;
 }
+
 .ziga-mod-container.minimized {
   width: auto;
 }
@@ -148,9 +248,20 @@
 }
 
 @keyframes pulse-dot {
-  0% { transform: scale(0.9); opacity: 0.8; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(0.9); opacity: 0.8; }
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
 }
 
 /* Material Advantage Bar */
@@ -356,6 +467,7 @@
 }
 
 .ziga-btn-clear-select {
+  flex: none;
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.35);
   color: #fca5a5;
@@ -424,9 +536,17 @@
 }
 
 @keyframes pulse-border {
-  0% { border-color: rgba(239, 68, 68, 0.35); }
-  50% { border-color: rgba(239, 68, 68, 0.8); }
-  100% { border-color: rgba(239, 68, 68, 0.35); }
+  0% {
+    border-color: rgba(239, 68, 68, 0.35);
+  }
+
+  50% {
+    border-color: rgba(239, 68, 68, 0.8);
+  }
+
+  100% {
+    border-color: rgba(239, 68, 68, 0.35);
+  }
 }
 
 .ziga-target-token {
@@ -476,86 +596,6 @@
   line-height: 1.4;
 }
 
-/* =================================================== */
-/* SVG BOARD HIGHLIGHT OVERLAY (DRAWN ON TOP OF CANVAS)*/
-/* =================================================== */
-
-.ziga-svg-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 9998;
-}
-
-/* Golden aura on selected piece */
-.ziga-svg-selected-ring {
-  fill: rgba(255, 215, 0, 0.18);
-  stroke: #ffd700;
-  stroke-width: 3.5px;
-  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.85));
-}
-
-.ziga-svg-selected-pulse {
-  fill: none;
-  stroke: rgba(255, 215, 0, 0.5);
-  stroke-width: 2px;
-  animation: select-pulse 1.8s infinite ease-out;
-}
-
-@keyframes select-pulse {
-  0% { transform-origin: center; r: 26; opacity: 1; }
-  100% { r: 38; opacity: 0; }
-}
-
-/* Pulsing red reticle on capturable enemy pieces */
-.ziga-svg-target-ring {
-  fill: rgba(239, 68, 68, 0.22);
-  stroke: #ef4444;
-  stroke-width: 3.5px;
-  filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.95));
-  animation: target-ring-pulse 1s infinite alternate ease-in-out;
-}
-
-@keyframes target-ring-pulse {
-  0% { stroke-width: 2.5px; fill: rgba(239, 68, 68, 0.15); }
-  100% { stroke-width: 4.5px; fill: rgba(239, 68, 68, 0.35); }
-}
-
-.ziga-svg-target-pulse {
-  fill: none;
-  stroke: rgba(239, 68, 68, 0.6);
-  stroke-width: 2px;
-  animation: target-pulse 1.4s infinite ease-out;
-}
-
-@keyframes target-pulse {
-  0% { r: 27; opacity: 1; }
-  100% { r: 42; opacity: 0; }
-}
-
-.ziga-svg-crosshair {
-  stroke: #fee2e2;
-  stroke-width: 2.5px;
-  stroke-linecap: round;
-  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.8));
-}
-
-/* Attack Arrow line connecting attacker to target */
-.ziga-svg-attack-line {
-  stroke: #ef4444;
-  stroke-width: 3px;
-  stroke-dasharray: 7, 5;
-  filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.85));
-  animation: attack-flow 0.8s linear infinite;
-}
-
-@keyframes attack-flow {
-  from { stroke-dashoffset: 24; }
-  to { stroke-dashoffset: 0; }
-}
 
 /* Summary Section */
 .ziga-summary-section {
@@ -607,4 +647,439 @@
   padding: 2px 6px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
+}
+
+/* =================================================== */
+/* SETTINGS DRAWER & TOGGLE SWITCHES                   */
+/* =================================================== */
+
+.ziga-settings-drawer {
+  background: rgba(15, 23, 42, 0.98);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 12px 14px;
+  box-shadow: inset 0 -2px 8px rgba(0, 0, 0, 0.4);
+  animation: ziga-slide-down 0.22s ease-out;
+}
+
+@keyframes ziga-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ziga-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(212, 175, 55, 0.25);
+}
+
+.ziga-settings-heading {
+  font-size: 11px;
+  font-weight: 800;
+  color: #f7df94;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  font-family: 'Cinzel', 'Nunito', sans-serif;
+}
+
+.ziga-settings-close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.ziga-settings-close-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: #ef4444;
+  color: #fff;
+}
+
+.ziga-settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-height: 310px;
+  overflow-y: auto;
+  padding-right: 3px;
+}
+
+.ziga-settings-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.ziga-settings-list::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.25);
+  border-radius: 2px;
+}
+
+.ziga-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+  position: relative;
+}
+
+.ziga-setting-row:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.ziga-setting-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-right: 12px;
+}
+
+.ziga-setting-text strong {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.ziga-setting-text small {
+  font-size: 9.5px;
+  color: #94a3b8;
+  line-height: 1.25;
+}
+
+/* Custom iOS-style Switch Toggle */
+.ziga-setting-row input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.ziga-switch-slider {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  background-color: #475569;
+  border-radius: 20px;
+  transition: background-color 0.25s ease;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.ziga-switch-slider::after {
+  content: "";
+  position: absolute;
+  height: 12px;
+  width: 12px;
+  left: 2px;
+  top: 2px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.ziga-setting-row input[type="checkbox"]:checked+.ziga-switch-slider {
+  background-color: #10b981;
+  border-color: #059669;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.ziga-setting-row input[type="checkbox"]:checked+.ziga-switch-slider::after {
+  transform: translateX(16px);
+}
+
+.ziga-settings-footer {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: center;
+}
+
+.ziga-btn-reset-settings {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ziga-btn-reset-settings:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+.ziga-mod-btn-icon.active {
+  background: rgba(212, 175, 55, 0.35);
+  border-color: #ffd700;
+  color: #ffd700;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+/* =================================================== */
+/* THREAT SCANNER ALERT (CẢNH BÁO BỊ ĐE DỌA)            */
+/* =================================================== */
+
+.ziga-threat-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  border-radius: 8px;
+  padding: 8px 10px;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.15);
+  animation: threat-pulse 2s infinite ease-in-out;
+}
+
+@keyframes threat-pulse {
+  0% {
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.15);
+  }
+
+  50% {
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
+    border-color: rgba(239, 68, 68, 0.7);
+  }
+
+  100% {
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.15);
+  }
+}
+
+.ziga-threat-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ziga-threat-icon {
+  font-size: 13px;
+  animation: threat-shake 1.5s infinite;
+}
+
+@keyframes threat-shake {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  20%,
+  60% {
+    transform: rotate(-8deg);
+  }
+
+  40%,
+  80% {
+    transform: rotate(8deg);
+  }
+}
+
+.ziga-threat-title {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #fca5a5;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-family: 'Cinzel', 'Nunito', sans-serif;
+}
+
+.ziga-threat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ziga-threat-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 5px 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  font-size: 11px;
+  border-left: 3px solid #ef4444;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
+}
+
+.ziga-threat-combat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.ziga-threat-enemy {
+  font-weight: 700;
+  color: #f87171;
+  white-space: nowrap;
+}
+
+.ziga-threat-arrow {
+  font-weight: 900;
+  color: #fbbf24;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.ziga-threat-my {
+  font-weight: 700;
+  color: #60a5fa;
+  white-space: nowrap;
+}
+
+.ziga-threat-coord {
+  font-size: 10px;
+  font-weight: 800;
+  color: #f7df94;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+  margin-left: auto;
+  font-family: monospace;
+  letter-spacing: 0.3px;
+}
+
+/* =================================================== */
+/* CỜ ÚP PROBABILITY BOX                               */
+/* =================================================== */
+
+.ziga-coup-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  border-radius: 8px;
+  padding: 8px 10px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.ziga-coup-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ziga-coup-icon {
+  font-size: 13px;
+}
+
+.ziga-coup-title {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #c4b5fd;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-family: 'Cinzel', 'Nunito', sans-serif;
+}
+
+.ziga-coup-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ziga-coup-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ziga-coup-side-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.ziga-coup-unopened {
+  font-size: 10px;
+  color: #a78bfa;
+  font-weight: 800;
+}
+
+.ziga-coup-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ziga-prob-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.ziga-prob-badge.xe {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.ziga-prob-badge.phao {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.ziga-prob-badge.ma {
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.ziga-prob-badge.phe {
+  background: rgba(148, 163, 184, 0.18);
+  color: #cbd5e1;
+  border-color: rgba(148, 163, 184, 0.35);
 }
