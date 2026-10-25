@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Ziga Cờ Tướng - Mod Quân Đã Ăn",
-  "version": "1.0.0",
-  "description": "Hiển thị quân đã bị ăn & highlight tầm ăn quân cờ trên Ziga (zigavn.com). Không can thiệp logic game.",
+  "name": "Công cụ Cờ Tướng Ziga",
+  "version": "0.0.1",
+  "description": "Hiển thị quân đã bị ăn & highlight tầm đánh",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -11,16 +11,29 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://zigavn.com/*"],
-      "css": ["overlay.css"],
-      "js": ["content_loader.js"],
+      "matches": [
+        "*://zigavn.com/*"
+      ],
+      "css": [
+        "overlay.css"
+      ],
+      "js": [
+        "content_loader.js"
+      ],
       "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["src/*", "injected.js", "overlay.css", "icons/*"],
-      "matches": ["*://zigavn.com/*"]
+      "resources": [
+        "src/*",
+        "injected.js",
+        "overlay.css",
+        "icons/*"
+      ],
+      "matches": [
+        "*://zigavn.com/*"
+      ]
     }
   ]
 }

@@ -225,8 +225,11 @@
       return;
     }
 
-    // Hook game engine for native highlights
+    // Hook game engine for native highlights & row numbers
     ZigaMod.hookGameLayer(data.gameLayer);
+    if (ZigaMod.setupRowNumbers) {
+      ZigaMod.setupRowNumbers(data.gameLayer);
+    }
 
     // Threat Scanner (Under-Attack Alert)
     const threats = ZigaMod.scanThreats(data.gameLayer, data.myColor, data.oppColor);
@@ -254,10 +257,10 @@
     const oppColorName = data.oppColor === 0 ? 'Đỏ 🔴' : 'Đen ⚫';
     const selfColorName = data.myColor === 0 ? 'Đỏ 🔴' : 'Đen ⚫';
 
-    if (oppLabel) oppLabel.textContent = `${oppColorName} ${data.oppName} ĐÃ MẤT`;
+    if (oppLabel) oppLabel.textContent = `${oppColorName} [${data.oppName}] ĐÃ MẤT`;
     if (oppDeadCount) oppDeadCount.textContent = `${data.deadOppPieces.length}/16`;
 
-    if (selfLabel) selfLabel.textContent = `${selfColorName} ${data.myName} ĐÃ MẤT`;
+    if (selfLabel) selfLabel.textContent = `${selfColorName} [${data.myName}] ĐÃ MẤT`;
     if (selfDeadCount) selfDeadCount.textContent = `${data.deadMyPieces.length}/16`;
 
     if (oppPiecesContainer) oppPiecesContainer.innerHTML = ZigaMod.renderPieceList(data.deadOppPieces, data.oppColor);

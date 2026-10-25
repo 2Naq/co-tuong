@@ -23,13 +23,14 @@
   // Default Settings configuration
   const DEFAULT_SETTINGS = {
     showLostPieces: true,        // Hiển thị danh sách quân đã bị ăn
-    highlightTactics: true,      // Highlight tầm ăn trên bàn cờ khi chọn quân
-    showTacticalHud: true,       // Hiển thị bảng phân tích tầm ăn trên HUD
+    highlightTactics: true,      // Highlight tầm đánh trên bàn cờ khi chọn quân
+    showTacticalHud: true,       // Hiển thị bảng phân tích tầm đánh trên HUD
     showCoUpTracker: true,       // Thống kê cờ úp & tính xác suất lật quân
     threatAlert: true,           // Cảnh báo quân của bạn đang bị đe dọa / bắt quân
     materialAdvantage: true,     // Thanh chênh lệch điểm quân
     showKeyPieces: true,         // Thống kê Xe-Pháo-Mã còn lại
     vietnameseLabels: false,     // Hiển thị chữ tiếng Việt (X, P, M...) thay vì chữ Hán
+    showRowNumbers: true,        // Đánh số hàng (1-10) ở 2 bên mép bàn cờ
     cleanAdView: true            // Ẩn bớt quảng cáo che vướng bàn cờ
   };
 
@@ -227,7 +228,7 @@
           <div class="ziga-threat-combat">
             <span class="ziga-threat-enemy">[Địch] ${t.attackerName} [${t.attackerChar}]</span>
             <span class="ziga-threat-arrow">➔</span>
-            <span class="ziga-threat-my">[Bạn] ${t.targetName} [${t.targetChar}]</span>
+            <span class="ziga-threat-my">[Ní] ${t.targetName} [${t.targetChar}]</span>
           </div>
           <span class="ziga-threat-coord" title="Vị trí bị đe dọa: ${t.fullCoordText}">${t.coordText}</span>
         </div>
@@ -416,6 +417,9 @@
       }
     }
 
+    // Initialize board row numbers (1-10 on left and right wooden rims)
+    setupRowNumbers(gameLayer);
+
     // 1. OVERRIDE nT (checks all 32 pieces for captures)
     gameLayer.nT = function (pieceIndex) {
       if (pieceIndex < 0 || pieceIndex >= 32 || !this.V[pieceIndex]) return;
@@ -546,9 +550,188 @@
     };
   }
 
+  // ==========================================
+  // BOARD ROW NUMBERS (1 to 10 on Wooden Rims)
+  // ==========================================
+
+  function setupRowNumbers(gameLayer) {
+    if (!gameLayer || typeof gameLayer.Pb !== 'function' || typeof gameLayer.Qb !== 'function') return;
+
+    const ROW_FONT_SIZE = 16;
+
+    // Nếu đã tạo nhãn với đúng cỡ chữ này thì chỉ cập nhật ẩn/hiện
+    if (gameLayer.__zigaRowLabels && gameLayer.__zigaRowLabels.length > 0 && gameLayer.__zigaRowLabelsFontSize === ROW_FONT_SIZE) {
+      updateRowLabelsVisibility(gameLayer);
+      return;
+    }
+
+    // Nếu cỡ chữ thay đổi hoặc cần tạo mới, gỡ bỏ nhãn cũ trước
+    if (gameLayer.__zigaRowLabels && Array.isArray(gameLayer.__zigaRowLabels)) {
+      for (let i = 0; i < gameLayer.__zigaRowLabels.length; i++) {
+        const lbl = gameLayer.__zigaRowLabels[i];
+        if (lbl && typeof lbl.removeFromParent === 'function') {
+          lbl.removeFromParent(true);
+        }
+      }
+      gameLayer.__zigaRowLabels = [];
+    }
+
+    gameLayer.__zigaRowLabelsFontSize = ROW_FONT_SIZE;
+    gameLayer.__zigaRowLabelsAdded = true;
+
+    const p0 = gameLayer.Pb(0);
+    const p1 = gameLayer.Pb(1);
+    const p8 = gameLayer.Pb(8);
+    const dx = Math.abs(p1 - p0) || 57;
+
+    const leftX = p0 - dx * 0.44;
+    const rightX = p8 + dx * 0.44;
+
+    const labels = [];
+    let cocosSuccess = false;
+
+    if (window.cc) {
+      try {
+        for (let r = 0; r < 10; r++) {
+          const y = gameLayer.Qb(r);
+          const numText = (10 - r).toString();
+          const numTextRight = (r + 1).toString();
+
+          let lblL = null;
+          let lblR = null;
+
+          if (typeof cc.LabelTTF === 'function') {
+            try {
+              lblL = new cc.LabelTTF(numText, "Arial", ROW_FONT_SIZE);
+              lblR = new cc.LabelTTF(numTextRight, "Arial", ROW_FONT_SIZE);
+            } catch (e) {
+              if (cc.LabelTTF.create) {
+                lblL = cc.LabelTTF.create(numText, "Arial", ROW_FONT_SIZE);
+                lblR = cc.LabelTTF.create(numTextRight, "Arial", ROW_FONT_SIZE);
+              }
+            }
+          }
+
+          if (lblL && lblR) {
+            // Wood carved tone matching bottom column numbers exactly
+            const textColor = cc.color ? cc.color(114, 51, 20) : null;
+            if (textColor) {
+              if (lblL.setColor) {
+                lblL.setColor(textColor);
+                lblR.setColor(textColor);
+              }
+            }
+            if (lblL.setOpacity) {
+              lblL.setOpacity(220);
+              lblR.setOpacity(220);
+            }
+            lblL.setPosition(leftX, y);
+            lblR.setPosition(rightX, y);
+            if (lblL.setAnchorPoint) {
+              lblL.setAnchorPoint(0.5, 0.5);
+              lblR.setAnchorPoint(0.5, 0.5);
+            }
+
+            // Add at z-index 5 (below pieces at z=10, above board background at z=0)
+            gameLayer.addChild(lblL, 5);
+            gameLayer.addChild(lblR, 5);
+
+            labels.push(lblL);
+            labels.push(lblR);
+            cocosSuccess = true;
+          }
+        }
+      } catch (err) {
+        console.warn('[Ziga Mod] Cocos2d LabelTTF init failed:', err);
+      }
+    }
+
+    gameLayer.__zigaRowLabels = labels;
+
+    // Fallback: If Cocos labels could not be created, use DOM overlay
+    if (!cocosSuccess) {
+      setupDomRowNumbers(gameLayer);
+    }
+
+    updateRowLabelsVisibility(gameLayer);
+  }
+
+  function setupDomRowNumbers(gameLayer) {
+    let overlay = document.getElementById('ziga-dom-row-numbers');
+    const canvas = document.getElementById('gameCanvas');
+    if (!canvas) return;
+
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'ziga-dom-row-numbers';
+      overlay.style.position = 'absolute';
+      overlay.style.pointerEvents = 'none';
+      overlay.style.zIndex = '50';
+      const parent = canvas.parentElement || document.body;
+      if (window.getComputedStyle(parent).position === 'static') {
+        parent.style.position = 'relative';
+      }
+      parent.appendChild(overlay);
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    const parentRect = overlay.parentElement.getBoundingClientRect();
+    const scaleX = rect.width / (canvas.width || 1);
+    const scaleY = rect.height / (canvas.height || 1);
+
+    const dx = Math.abs(gameLayer.Pb(1) - gameLayer.Pb(0)) || 57;
+    const leftX = gameLayer.Pb(0) - dx * 0.44;
+    const rightX = gameLayer.Pb(8) + dx * 0.44;
+
+    overlay.innerHTML = '';
+    for (let r = 0; r < 10; r++) {
+      const cocosY = gameLayer.Qb(r);
+      const domY = (canvas.height - cocosY) * scaleY + (rect.top - parentRect.top);
+      const domLeftX = leftX * scaleX + (rect.left - parentRect.left);
+      const domRightX = rightX * scaleX + (rect.left - parentRect.left);
+      const numText = (r + 1).toString();
+
+      const spanL = document.createElement('span');
+      spanL.className = 'ziga-board-row-num';
+      spanL.textContent = numText;
+      spanL.style.position = 'absolute';
+      spanL.style.left = domLeftX + 'px';
+      spanL.style.top = domY + 'px';
+      spanL.style.transform = 'translate(-50%, -50%)';
+      overlay.appendChild(spanL);
+
+      const spanR = document.createElement('span');
+      spanR.className = 'ziga-board-row-num';
+      spanR.textContent = numText;
+      spanR.style.position = 'absolute';
+      spanR.style.left = domRightX + 'px';
+      spanR.style.top = domY + 'px';
+      spanR.style.transform = 'translate(-50%, -50%)';
+      overlay.appendChild(spanR);
+    }
+  }
+
+  function updateRowLabelsVisibility(gameLayer) {
+    const show = !!ZigaMod.userSettings.showRowNumbers;
+    if (gameLayer && gameLayer.__zigaRowLabels) {
+      for (let i = 0; i < gameLayer.__zigaRowLabels.length; i++) {
+        const lbl = gameLayer.__zigaRowLabels[i];
+        if (lbl && typeof lbl.setVisible === 'function') {
+          lbl.setVisible(show);
+        }
+      }
+    }
+    const domOverlay = document.getElementById('ziga-dom-row-numbers');
+    if (domOverlay) {
+      domOverlay.style.display = show ? 'block' : 'none';
+    }
+  }
+
   // Export to namespace
   ZigaMod.enhancePieceSprite = enhancePieceSprite;
   ZigaMod.hookGameLayer = hookGameLayer;
+  ZigaMod.setupRowNumbers = setupRowNumbers;
+  ZigaMod.updateRowLabelsVisibility = updateRowLabelsVisibility;
 
 })(window.ZigaMod = window.ZigaMod || {});
 
@@ -561,6 +744,91 @@
   let widgetEl = null;
   let isMinimized = false;
   let isSettingsOpen = false;
+  let savedExpandedWidth = '';
+  let savedExpandedHeight = '';
+
+  function toggleMinimize(forceState) {
+    const nextState = forceState !== undefined ? !!forceState : !isMinimized;
+    if (nextState === isMinimized && forceState !== undefined) return;
+    isMinimized = nextState;
+
+    if (!widgetEl) return;
+    const minBtn = document.getElementById('ziga-mod-btn-min');
+
+    if (isMinimized) {
+      // Save current expanded dimensions before minimizing
+      savedExpandedWidth = widgetEl.style.width;
+      savedExpandedHeight = widgetEl.style.height;
+
+      // Close settings drawer if open
+      if (isSettingsOpen) {
+        isSettingsOpen = false;
+        const settingsPanel = document.getElementById('ziga-settings-panel');
+        const settingsBtn = document.getElementById('ziga-mod-btn-settings');
+        if (settingsPanel) settingsPanel.style.display = 'none';
+        if (settingsBtn) settingsBtn.classList.remove('active');
+      }
+
+      widgetEl.classList.add('minimized');
+      widgetEl.setAttribute('title', 'Bấm để mở rộng bảng công cụ | Kéo để di chuyển');
+      if (minBtn) {
+        minBtn.textContent = '⤢';
+        minBtn.title = 'Mở rộng bảng công cụ';
+      }
+
+      // Clear inline width & height so docking bubble CSS takes full control
+      widgetEl.style.width = '';
+      widgetEl.style.height = '';
+    } else {
+      widgetEl.classList.remove('minimized');
+      widgetEl.removeAttribute('title');
+      if (minBtn) {
+        minBtn.textContent = '_';
+        minBtn.title = 'Thu nhỏ thành bong bóng';
+      }
+
+      // Restore saved dimensions
+      if (savedExpandedWidth) {
+        widgetEl.style.width = savedExpandedWidth;
+      } else {
+        const savedSize = ZigaMod.loadSavedSize ? ZigaMod.loadSavedSize() : null;
+        widgetEl.style.width = (savedSize && savedSize.w ? savedSize.w : 320) + 'px';
+      }
+
+      if (savedExpandedHeight) {
+        widgetEl.style.height = savedExpandedHeight;
+        const body = document.getElementById('ziga-mod-body');
+        if (body) {
+          const headerH = document.getElementById('ziga-mod-drag-handle')?.offsetHeight || 42;
+          const hVal = parseInt(savedExpandedHeight, 10);
+          if (!isNaN(hVal)) {
+            body.style.maxHeight = Math.max(120, hVal - headerH) + 'px';
+            body.style.height = Math.max(120, hVal - headerH) + 'px';
+          }
+        }
+      }
+
+      // Ensure widget doesn't clip outside viewport after expanding
+      const rect = widgetEl.getBoundingClientRect();
+      const curW = widgetEl.offsetWidth || 320;
+      const curH = widgetEl.offsetHeight || 420;
+      let adjLeft = rect.left;
+      let adjTop = rect.top;
+
+      if (adjLeft + curW > window.innerWidth - 10) {
+        adjLeft = Math.max(10, window.innerWidth - curW - 10);
+      }
+      if (adjTop + curH > window.innerHeight - 10) {
+        adjTop = Math.max(10, window.innerHeight - curH - 10);
+      }
+
+      widgetEl.style.left = adjLeft + 'px';
+      widgetEl.style.top = adjTop + 'px';
+      if (ZigaMod.savePosition) {
+        ZigaMod.savePosition(adjLeft, adjTop);
+      }
+    }
+  }
 
   function createOverlay() {
     if (document.getElementById('ziga-mod-widget')) {
@@ -610,9 +878,14 @@
               <path d="M118.141 347H76.9482L139.714 165.182H189.253L251.93 347H210.737L165.194 206.73H163.773L118.141 347ZM115.567 275.533H212.868V305.54H115.567V275.533ZM425.892 165.182V347H392.689L313.587 232.565H312.255V347H273.814V165.182H307.55L386.03 279.528H387.628V165.182H425.892Z" fill="#ffffff"></path>
             </svg>
           </span>
-          <span class="ziga-mod-title-text">TOOL trợ thủ</span>
+          <span class="ziga-mod-title-text">TOOLS SUPPORT</span>
         </div>
         <div class="ziga-mod-actions">
+          <button class="ziga-mod-btn-icon" title="Truy cập tài liệu về Industrial Automation (PLC, Investor, Robot công nghiệp ...) tại [Automation Note]">
+           <a  href="https://2naq.github.io/shareme/about" target="_blank" style="cursor: pointer;  text-decoration: none !important">
+           🔗
+          </a>
+          </button>
           <button class="ziga-mod-btn-icon" id="ziga-mod-btn-settings" title="Cài đặt tính năng">⚙</button>
           <button class="ziga-mod-btn-icon" id="ziga-mod-btn-min" title="Thu gọn / Mở rộng">_</button>
         </div>
@@ -636,7 +909,7 @@
 
           <label class="ziga-setting-row">
             <span class="ziga-setting-text">
-              <strong>Highlight tầm ăn trên bàn cờ</strong>
+              <strong>Highlight tầm đánh trên bàn cờ</strong>
               <small>Bấm vào quân để nhấp nháy quân ăn được</small>
             </span>
             <input type="checkbox" id="set-highlightTactics" ${userSettings.highlightTactics ? 'checked' : ''} />
@@ -645,7 +918,7 @@
 
           <label class="ziga-setting-row">
             <span class="ziga-setting-text">
-              <strong>Bảng tầm ăn trên HUD</strong>
+              <strong>Bảng tầm đánh trên HUD</strong>
               <small>Hiển thị chi tiết quân đang chọn & mục tiêu</small>
             </span>
             <input type="checkbox" id="set-showTacticalHud" ${userSettings.showTacticalHud ? 'checked' : ''} />
@@ -699,6 +972,15 @@
 
           <label class="ziga-setting-row">
             <span class="ziga-setting-text">
+              <strong>Đánh số hàng (1-10) bàn cờ</strong>
+              <small>Hiển thị số hàng ở 2 mép gỗ bàn cờ</small>
+            </span>
+            <input type="checkbox" id="set-showRowNumbers" ${userSettings.showRowNumbers ? 'checked' : ''} />
+            <span class="ziga-switch-slider"></span>
+          </label>
+
+          <label class="ziga-setting-row">
+            <span class="ziga-setting-text">
               <strong>Ẩn quảng cáo che khuất</strong>
               <small>Xóa các banner quảng cáo nổi vướng bàn cờ</small>
             </span>
@@ -720,8 +1002,8 @@
         <!-- Threat Warning Alert Box -->
         <div class="ziga-threat-box" id="ziga-threat-wrapper" style="display:none;">
           <div class="ziga-threat-header">
-            <span class="ziga-threat-icon">⚠️</span>
-            <span class="ziga-threat-title" id="ziga-threat-title">CẢNH BÁO BỊ LỤM</span>
+            <span class="ziga-threat-icon__">⚠️</span>
+            <span class="ziga-threat-title" id="ziga-threat-title">CẢNH BÁO NÍ SẮP BỊ LỤM</span>
           </div>
           <div class="ziga-threat-list" id="ziga-threat-items"></div>
         </div>
@@ -769,7 +1051,7 @@
         <div class="ziga-divider" id="ziga-tactical-divider"></div>
         <div class="ziga-tactical-section" id="ziga-tactical-box">
           <div class="ziga-tactical-header">
-            <span class="ziga-tactical-title">🎯 TẦM ĂN & CHIẾN THUẬT</span>
+            <span class="ziga-tactical-title">🎯 TẦM đánh</span>
             <button class="ziga-btn-clear-select" id="ziga-btn-clear-highlight" title="Xóa highlight">✕ Bỏ chọn</button>
           </div>
           <div class="ziga-selected-display" id="ziga-selected-piece-info">
@@ -826,12 +1108,12 @@
 
     // Minimize toggle
     const minBtn = document.getElementById('ziga-mod-btn-min');
-    minBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      isMinimized = !isMinimized;
-      widgetEl.classList.toggle('minimized', isMinimized);
-      minBtn.textContent = isMinimized ? '▢' : '_';
-    });
+    if (minBtn) {
+      minBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleMinimize();
+      });
+    }
 
     // Settings panel toggle
     const settingsBtn = document.getElementById('ziga-mod-btn-settings');
@@ -929,15 +1211,22 @@
     } else {
       document.body.classList.remove('ziga-clean-ads-active');
     }
+
+    if (ZigaMod.updateRowLabelsVisibility) {
+      const gameLayer = ZigaMod.getActiveGameLayer ? ZigaMod.getActiveGameLayer() : null;
+      ZigaMod.updateRowLabelsVisibility(gameLayer);
+    }
   }
 
   function setupDraggable(container, handle) {
     let isDragging = false;
+    let hasMoved = false;
     let startX, startY, initX, initY;
 
     handle.addEventListener('mousedown', (e) => {
-      if (e.target.tagName === 'BUTTON') return;
+      if (e.target.closest('button') || e.target.closest('a')) return;
       isDragging = true;
+      hasMoved = false;
       startX = e.clientX;
       startY = e.clientY;
       const rect = container.getBoundingClientRect();
@@ -951,6 +1240,9 @@
       if (!isDragging) return;
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        hasMoved = true;
+      }
       const newX = Math.max(10, Math.min(window.innerWidth - container.offsetWidth - 10, initX + dx));
       const newY = Math.max(10, Math.min(window.innerHeight - container.offsetHeight - 10, initY + dy));
       container.style.left = newX + 'px';
@@ -962,8 +1254,15 @@
       if (isDragging) {
         isDragging = false;
         handle.style.cursor = 'grab';
-        const rect = container.getBoundingClientRect();
-        ZigaMod.savePosition(rect.left, rect.top);
+        if (hasMoved) {
+          const rect = container.getBoundingClientRect();
+          if (ZigaMod.savePosition) {
+            ZigaMod.savePosition(rect.left, rect.top);
+          }
+        } else if (isMinimized) {
+          // Clicked bubble without dragging -> expand back
+          toggleMinimize(false);
+        }
       }
     });
   }
@@ -974,6 +1273,7 @@
     let startX, startY, initW, initH;
 
     function startResize(e, type) {
+      if (isMinimized) return;
       isResizing = true;
       resizeType = type;
       startX = e.clientX;
@@ -1090,7 +1390,7 @@
     if (!capturableList || capturableList.length === 0) {
       targetsList.innerHTML = `
         <div class="ziga-tactical-empty">
-          <span>⚔️ Hiện tại <strong>không có quân đối phương nào</strong> nằm trong tầm ăn.</span>
+          <span>⚔️ Hiện tại <strong>không có quân đối phương nào</strong> nằm trong tầm đánh.</span>
         </div>
       `;
     } else {
@@ -1160,6 +1460,7 @@
 
   // Export to namespace
   ZigaMod.createOverlay = createOverlay;
+  ZigaMod.toggleMinimize = toggleMinimize;
   ZigaMod.applySettingsVisibility = applySettingsVisibility;
   ZigaMod.setupDraggable = setupDraggable;
   ZigaMod.setupResizable = setupResizable;
@@ -1405,8 +1706,11 @@
       return;
     }
 
-    // Hook game engine for native highlights
+    // Hook game engine for native highlights & row numbers
     ZigaMod.hookGameLayer(data.gameLayer);
+    if (ZigaMod.setupRowNumbers) {
+      ZigaMod.setupRowNumbers(data.gameLayer);
+    }
 
     // Threat Scanner (Under-Attack Alert)
     const threats = ZigaMod.scanThreats(data.gameLayer, data.myColor, data.oppColor);
@@ -1434,10 +1738,10 @@
     const oppColorName = data.oppColor === 0 ? 'Đỏ 🔴' : 'Đen ⚫';
     const selfColorName = data.myColor === 0 ? 'Đỏ 🔴' : 'Đen ⚫';
 
-    if (oppLabel) oppLabel.textContent = `${oppColorName} ${data.oppName} ĐÃ MẤT`;
+    if (oppLabel) oppLabel.textContent = `${oppColorName} [${data.oppName}] ĐÃ MẤT`;
     if (oppDeadCount) oppDeadCount.textContent = `${data.deadOppPieces.length}/16`;
 
-    if (selfLabel) selfLabel.textContent = `${selfColorName} ${data.myName} ĐÃ MẤT`;
+    if (selfLabel) selfLabel.textContent = `${selfColorName} [${data.myName}] ĐÃ MẤT`;
     if (selfDeadCount) selfDeadCount.textContent = `${data.deadMyPieces.length}/16`;
 
     if (oppPiecesContainer) oppPiecesContainer.innerHTML = ZigaMod.renderPieceList(data.deadOppPieces, data.oppColor);

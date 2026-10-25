@@ -59,6 +59,9 @@
       }
     }
 
+    // Initialize board row numbers (1-10 on left and right wooden rims)
+    setupRowNumbers(gameLayer);
+
     // 1. OVERRIDE nT (checks all 32 pieces for captures)
     gameLayer.nT = function (pieceIndex) {
       if (pieceIndex < 0 || pieceIndex >= 32 || !this.V[pieceIndex]) return;
@@ -189,8 +192,187 @@
     };
   }
 
+  // ==========================================
+  // BOARD ROW NUMBERS (1 to 10 on Wooden Rims)
+  // ==========================================
+
+  function setupRowNumbers(gameLayer) {
+    if (!gameLayer || typeof gameLayer.Pb !== 'function' || typeof gameLayer.Qb !== 'function') return;
+
+    const ROW_FONT_SIZE = 16;
+
+    // Nếu đã tạo nhãn với đúng cỡ chữ này thì chỉ cập nhật ẩn/hiện
+    if (gameLayer.__zigaRowLabels && gameLayer.__zigaRowLabels.length > 0 && gameLayer.__zigaRowLabelsFontSize === ROW_FONT_SIZE) {
+      updateRowLabelsVisibility(gameLayer);
+      return;
+    }
+
+    // Nếu cỡ chữ thay đổi hoặc cần tạo mới, gỡ bỏ nhãn cũ trước
+    if (gameLayer.__zigaRowLabels && Array.isArray(gameLayer.__zigaRowLabels)) {
+      for (let i = 0; i < gameLayer.__zigaRowLabels.length; i++) {
+        const lbl = gameLayer.__zigaRowLabels[i];
+        if (lbl && typeof lbl.removeFromParent === 'function') {
+          lbl.removeFromParent(true);
+        }
+      }
+      gameLayer.__zigaRowLabels = [];
+    }
+
+    gameLayer.__zigaRowLabelsFontSize = ROW_FONT_SIZE;
+    gameLayer.__zigaRowLabelsAdded = true;
+
+    const p0 = gameLayer.Pb(0);
+    const p1 = gameLayer.Pb(1);
+    const p8 = gameLayer.Pb(8);
+    const dx = Math.abs(p1 - p0) || 57;
+
+    const leftX = p0 - dx * 0.44;
+    const rightX = p8 + dx * 0.44;
+
+    const labels = [];
+    let cocosSuccess = false;
+
+    if (window.cc) {
+      try {
+        for (let r = 0; r < 10; r++) {
+          const y = gameLayer.Qb(r);
+          const numText = (10 - r).toString();
+          const numTextRight = (r + 1).toString();
+
+          let lblL = null;
+          let lblR = null;
+
+          if (typeof cc.LabelTTF === 'function') {
+            try {
+              lblL = new cc.LabelTTF(numText, "Arial", ROW_FONT_SIZE);
+              lblR = new cc.LabelTTF(numTextRight, "Arial", ROW_FONT_SIZE);
+            } catch (e) {
+              if (cc.LabelTTF.create) {
+                lblL = cc.LabelTTF.create(numText, "Arial", ROW_FONT_SIZE);
+                lblR = cc.LabelTTF.create(numTextRight, "Arial", ROW_FONT_SIZE);
+              }
+            }
+          }
+
+          if (lblL && lblR) {
+            // Wood carved tone matching bottom column numbers exactly
+            const textColor = cc.color ? cc.color(114, 51, 20) : null;
+            if (textColor) {
+              if (lblL.setColor) {
+                lblL.setColor(textColor);
+                lblR.setColor(textColor);
+              }
+            }
+            if (lblL.setOpacity) {
+              lblL.setOpacity(220);
+              lblR.setOpacity(220);
+            }
+            lblL.setPosition(leftX, y);
+            lblR.setPosition(rightX, y);
+            if (lblL.setAnchorPoint) {
+              lblL.setAnchorPoint(0.5, 0.5);
+              lblR.setAnchorPoint(0.5, 0.5);
+            }
+
+            // Add at z-index 5 (below pieces at z=10, above board background at z=0)
+            gameLayer.addChild(lblL, 5);
+            gameLayer.addChild(lblR, 5);
+
+            labels.push(lblL);
+            labels.push(lblR);
+            cocosSuccess = true;
+          }
+        }
+      } catch (err) {
+        console.warn('[Ziga Mod] Cocos2d LabelTTF init failed:', err);
+      }
+    }
+
+    gameLayer.__zigaRowLabels = labels;
+
+    // Fallback: If Cocos labels could not be created, use DOM overlay
+    if (!cocosSuccess) {
+      setupDomRowNumbers(gameLayer);
+    }
+
+    updateRowLabelsVisibility(gameLayer);
+  }
+
+  function setupDomRowNumbers(gameLayer) {
+    let overlay = document.getElementById('ziga-dom-row-numbers');
+    const canvas = document.getElementById('gameCanvas');
+    if (!canvas) return;
+
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'ziga-dom-row-numbers';
+      overlay.style.position = 'absolute';
+      overlay.style.pointerEvents = 'none';
+      overlay.style.zIndex = '50';
+      const parent = canvas.parentElement || document.body;
+      if (window.getComputedStyle(parent).position === 'static') {
+        parent.style.position = 'relative';
+      }
+      parent.appendChild(overlay);
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    const parentRect = overlay.parentElement.getBoundingClientRect();
+    const scaleX = rect.width / (canvas.width || 1);
+    const scaleY = rect.height / (canvas.height || 1);
+
+    const dx = Math.abs(gameLayer.Pb(1) - gameLayer.Pb(0)) || 57;
+    const leftX = gameLayer.Pb(0) - dx * 0.44;
+    const rightX = gameLayer.Pb(8) + dx * 0.44;
+
+    overlay.innerHTML = '';
+    for (let r = 0; r < 10; r++) {
+      const cocosY = gameLayer.Qb(r);
+      const domY = (canvas.height - cocosY) * scaleY + (rect.top - parentRect.top);
+      const domLeftX = leftX * scaleX + (rect.left - parentRect.left);
+      const domRightX = rightX * scaleX + (rect.left - parentRect.left);
+      const numText = (r + 1).toString();
+
+      const spanL = document.createElement('span');
+      spanL.className = 'ziga-board-row-num';
+      spanL.textContent = numText;
+      spanL.style.position = 'absolute';
+      spanL.style.left = domLeftX + 'px';
+      spanL.style.top = domY + 'px';
+      spanL.style.transform = 'translate(-50%, -50%)';
+      overlay.appendChild(spanL);
+
+      const spanR = document.createElement('span');
+      spanR.className = 'ziga-board-row-num';
+      spanR.textContent = numText;
+      spanR.style.position = 'absolute';
+      spanR.style.left = domRightX + 'px';
+      spanR.style.top = domY + 'px';
+      spanR.style.transform = 'translate(-50%, -50%)';
+      overlay.appendChild(spanR);
+    }
+  }
+
+  function updateRowLabelsVisibility(gameLayer) {
+    const show = !!ZigaMod.userSettings.showRowNumbers;
+    if (gameLayer && gameLayer.__zigaRowLabels) {
+      for (let i = 0; i < gameLayer.__zigaRowLabels.length; i++) {
+        const lbl = gameLayer.__zigaRowLabels[i];
+        if (lbl && typeof lbl.setVisible === 'function') {
+          lbl.setVisible(show);
+        }
+      }
+    }
+    const domOverlay = document.getElementById('ziga-dom-row-numbers');
+    if (domOverlay) {
+      domOverlay.style.display = show ? 'block' : 'none';
+    }
+  }
+
   // Export to namespace
   ZigaMod.enhancePieceSprite = enhancePieceSprite;
   ZigaMod.hookGameLayer = hookGameLayer;
+  ZigaMod.setupRowNumbers = setupRowNumbers;
+  ZigaMod.updateRowLabelsVisibility = updateRowLabelsVisibility;
 
 })(window.ZigaMod = window.ZigaMod || {});

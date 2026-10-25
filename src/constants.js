@@ -19,13 +19,14 @@
   // Default Settings configuration
   const DEFAULT_SETTINGS = {
     showLostPieces: true,        // Hiển thị danh sách quân đã bị ăn
-    highlightTactics: true,      // Highlight tầm ăn trên bàn cờ khi chọn quân
-    showTacticalHud: true,       // Hiển thị bảng phân tích tầm ăn trên HUD
+    highlightTactics: true,      // Highlight tầm đánh trên bàn cờ khi chọn quân
+    showTacticalHud: true,       // Hiển thị bảng phân tích tầm đánh trên HUD
     showCoUpTracker: true,       // Thống kê cờ úp & tính xác suất lật quân
     threatAlert: true,           // Cảnh báo quân của bạn đang bị đe dọa / bắt quân
     materialAdvantage: true,     // Thanh chênh lệch điểm quân
     showKeyPieces: true,         // Thống kê Xe-Pháo-Mã còn lại
     vietnameseLabels: false,     // Hiển thị chữ tiếng Việt (X, P, M...) thay vì chữ Hán
+    showRowNumbers: true,        // Đánh số hàng (1-10) ở 2 bên mép bàn cờ
     cleanAdView: true            // Ẩn bớt quảng cáo che vướng bàn cờ
   };
 

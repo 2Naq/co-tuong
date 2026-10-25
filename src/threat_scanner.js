@@ -85,7 +85,7 @@
           <div class="ziga-threat-combat">
             <span class="ziga-threat-enemy">[Địch] ${t.attackerName} [${t.attackerChar}]</span>
             <span class="ziga-threat-arrow">➔</span>
-            <span class="ziga-threat-my">[Bạn] ${t.targetName} [${t.targetChar}]</span>
+            <span class="ziga-threat-my">[Ní] ${t.targetName} [${t.targetChar}]</span>
           </div>
           <span class="ziga-threat-coord" title="Vị trí bị đe dọa: ${t.fullCoordText}">${t.coordText}</span>
         </div>
