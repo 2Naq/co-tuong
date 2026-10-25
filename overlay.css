@@ -1,0 +1,610 @@
+/* overlay.css - Premium Glassmorphism UI for Ziga Chinese Chess Mod */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+.ziga-mod-container {
+  position: fixed;
+  z-index: 999999;
+  width: 295px;
+  background: rgba(18, 22, 28, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 14px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55), 0 0 15px rgba(212, 175, 55, 0.15);
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #f0f3f6;
+  user-select: none;
+  overflow: hidden;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.ziga-mod-container:hover {
+  border-color: rgba(212, 175, 55, 0.6);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.65), 0 0 22px rgba(212, 175, 55, 0.25);
+}
+
+/* Header */
+.ziga-mod-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(38, 44, 56, 0.95), rgba(24, 28, 36, 0.95));
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+  cursor: grab;
+}
+
+.ziga-mod-header:active {
+  cursor: grabbing;
+}
+
+.ziga-mod-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ziga-mod-badge-icon {
+  font-size: 18px;
+  color: #ffd700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+.ziga-mod-title-text {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #f7df94;
+  font-family: 'Cinzel', 'Nunito', sans-serif;
+}
+
+.ziga-mod-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ziga-mod-btn-icon {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #d1d5db;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.ziga-mod-btn-icon:hover {
+  background: rgba(212, 175, 55, 0.25);
+  border-color: #ffd700;
+  color: #fff;
+}
+
+/* Content Body */
+.ziga-mod-content {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+/* Scrollbar */
+.ziga-mod-content::-webkit-scrollbar {
+  width: 5px;
+}
+.ziga-mod-content::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.2);
+  border-radius: 3px;
+}
+
+/* Minimized Mode */
+.ziga-mod-container.minimized .ziga-mod-content {
+  display: none;
+}
+.ziga-mod-container.minimized {
+  width: auto;
+}
+
+/* Status Indicator */
+.ziga-mod-match-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.ziga-mod-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ziga-mod-dot.waiting {
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+.ziga-mod-dot.active {
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+  animation: pulse-dot 1.8s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+/* Material Advantage Bar */
+.ziga-material-bar-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  padding: 5px 9px;
+  border-radius: 6px;
+  font-size: 11.5px;
+}
+
+.ziga-material-label {
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.ziga-material-val {
+  font-weight: 800;
+  color: #e2e8f0;
+}
+
+.ziga-material-val.advantage-positive {
+  color: #34d399;
+  text-shadow: 0 0 6px rgba(52, 211, 153, 0.4);
+}
+
+.ziga-material-val.advantage-negative {
+  color: #f87171;
+  text-shadow: 0 0 6px rgba(248, 113, 113, 0.4);
+}
+
+/* Section Styling */
+.ziga-player-section {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ziga-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ziga-player-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.opponent-section .ziga-player-label {
+  color: #fca5a5;
+}
+
+.self-section .ziga-player-label {
+  color: #93c5fd;
+}
+
+.ziga-count-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: #cbd5e1;
+}
+
+/* Pieces Grid */
+.ziga-pieces-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-height: 40px;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.ziga-empty-note {
+  font-size: 11.5px;
+  color: #94a3b8;
+  font-style: italic;
+  width: 100%;
+  text-align: center;
+  padding: 4px 0;
+  line-height: 1.4;
+}
+
+/* Piece Token (Cờ) */
+.ziga-piece-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 3px 6px 3px 4px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.ziga-piece-chip:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.ziga-piece-token {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  font-family: "KaiTi", "BiauKai", "STKaiti", "SimSun", "Cinzel", serif;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* Red Piece Styling */
+.ziga-piece-chip.red-piece .ziga-piece-token {
+  background: radial-gradient(circle at 35% 35%, #fff2dc, #e8cfa1 60%, #bd9f67 100%);
+  border: 1.5px solid #bd302b;
+  color: #c92a2a;
+  text-shadow: 0 0 1px rgba(201, 42, 42, 0.5);
+}
+
+.ziga-piece-chip.red-piece {
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+/* Black Piece Styling */
+.ziga-piece-chip.black-piece .ziga-piece-token {
+  background: radial-gradient(circle at 35% 35%, #fff2dc, #ded0be 60%, #a89a87 100%);
+  border: 1.5px solid #2d3748;
+  color: #1a202c;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+.ziga-piece-chip.black-piece {
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
+.ziga-piece-info {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.ziga-piece-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.ziga-piece-count {
+  font-size: 12px;
+  font-weight: 900;
+  color: #ffd700;
+}
+
+/* Divider */
+.ziga-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.25), transparent);
+  margin: 2px 0;
+}
+
+/* =================================================== */
+/* TACTICAL TARGET INSPECTOR SECTION (HIGHLIGHT QUÂN)  */
+/* =================================================== */
+
+.ziga-tactical-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 10px;
+  padding: 10px 11px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.ziga-tactical-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ziga-tactical-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #f7df94;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-family: 'Cinzel', 'Nunito', sans-serif;
+}
+
+.ziga-btn-clear-select {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ziga-btn-clear-select:hover {
+  background: rgba(239, 68, 68, 0.3);
+  color: #fff;
+  border-color: #ef4444;
+}
+
+.ziga-inspect-card {
+  display: flex;
+  align-items: center;
+}
+
+.ziga-piece-chip.inspect-active {
+  width: 100%;
+  background: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+}
+
+.ziga-pos-badge {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-left: auto;
+  font-family: monospace;
+}
+
+.ziga-targets-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.ziga-target-subhead {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #f87171;
+  letter-spacing: 0.3px;
+}
+
+.ziga-target-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.ziga-target-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px 3px 5px;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  animation: pulse-border 1.5s infinite;
+}
+
+@keyframes pulse-border {
+  0% { border-color: rgba(239, 68, 68, 0.35); }
+  50% { border-color: rgba(239, 68, 68, 0.8); }
+  100% { border-color: rgba(239, 68, 68, 0.35); }
+}
+
+.ziga-target-token {
+  font-family: "KaiTi", "BiauKai", "STKaiti", "SimSun", serif;
+  font-size: 14px;
+  font-weight: 900;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: #b91c1c;
+  line-height: 1;
+}
+
+.ziga-target-item.black-piece .ziga-target-token {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.ziga-target-name {
+  font-size: 11px;
+  font-weight: 800;
+  color: #f1f5f9;
+}
+
+.ziga-target-pos {
+  font-size: 9.5px;
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+.ziga-target-val {
+  font-size: 10px;
+  font-weight: 800;
+  color: #34d399;
+}
+
+.ziga-tactical-empty {
+  font-size: 11px;
+  color: #94a3b8;
+  padding: 4px 6px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  line-height: 1.4;
+}
+
+/* =================================================== */
+/* SVG BOARD HIGHLIGHT OVERLAY (DRAWN ON TOP OF CANVAS)*/
+/* =================================================== */
+
+.ziga-svg-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* Golden aura on selected piece */
+.ziga-svg-selected-ring {
+  fill: rgba(255, 215, 0, 0.18);
+  stroke: #ffd700;
+  stroke-width: 3.5px;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.85));
+}
+
+.ziga-svg-selected-pulse {
+  fill: none;
+  stroke: rgba(255, 215, 0, 0.5);
+  stroke-width: 2px;
+  animation: select-pulse 1.8s infinite ease-out;
+}
+
+@keyframes select-pulse {
+  0% { transform-origin: center; r: 26; opacity: 1; }
+  100% { r: 38; opacity: 0; }
+}
+
+/* Pulsing red reticle on capturable enemy pieces */
+.ziga-svg-target-ring {
+  fill: rgba(239, 68, 68, 0.22);
+  stroke: #ef4444;
+  stroke-width: 3.5px;
+  filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.95));
+  animation: target-ring-pulse 1s infinite alternate ease-in-out;
+}
+
+@keyframes target-ring-pulse {
+  0% { stroke-width: 2.5px; fill: rgba(239, 68, 68, 0.15); }
+  100% { stroke-width: 4.5px; fill: rgba(239, 68, 68, 0.35); }
+}
+
+.ziga-svg-target-pulse {
+  fill: none;
+  stroke: rgba(239, 68, 68, 0.6);
+  stroke-width: 2px;
+  animation: target-pulse 1.4s infinite ease-out;
+}
+
+@keyframes target-pulse {
+  0% { r: 27; opacity: 1; }
+  100% { r: 42; opacity: 0; }
+}
+
+.ziga-svg-crosshair {
+  stroke: #fee2e2;
+  stroke-width: 2.5px;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.8));
+}
+
+/* Attack Arrow line connecting attacker to target */
+.ziga-svg-attack-line {
+  stroke: #ef4444;
+  stroke-width: 3px;
+  stroke-dasharray: 7, 5;
+  filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.85));
+  animation: attack-flow 0.8s linear infinite;
+}
+
+@keyframes attack-flow {
+  from { stroke-dashoffset: 24; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Summary Section */
+.ziga-summary-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+.ziga-summary-title {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.ziga-summary-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ziga-stat-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ziga-stat-head {
+  font-size: 11px;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.ziga-stat-val {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #ffd700;
+  font-family: monospace;
+}
+
+.ziga-stat-vs {
+  font-size: 11px;
+  font-weight: 900;
+  color: #64748b;
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
