@@ -2,7 +2,7 @@
 (function (ZigaMod) {
   'use strict';
 
-  console.log('[Ziga Mod] Main module initializing...');
+  console.log('[AN Mod] Main module initializing...');
 
   let lastStateHash = '';
 
@@ -161,7 +161,15 @@
       const children = document.body.children;
       for (let i = 0; i < children.length; i++) {
         const el = children[i];
-        if (!el || el.id === 'ziga-mod-widget' || el.id === 'gameCanvas' || el.id === 'Cocos2dGameContainer' || el.classList.contains('modal')) {
+        if (!el || 
+            el.id === 'ziga-mod-widget' || 
+            el.id === 'ziga-sandbox-modal' || 
+            (el.id && el.id.startsWith('ziga-')) ||
+            el.classList.contains('ziga-sandbox-overlay') || 
+            el.classList.contains('ziga-mod-container') ||
+            el.id === 'gameCanvas' || 
+            el.id === 'Cocos2dGameContainer' || 
+            el.classList.contains('modal')) {
           continue;
         }
         try {
@@ -177,12 +185,13 @@
     }
 
     const widgetEl = ZigaMod.widgetEl || document.getElementById('ziga-mod-widget');
+    const sbModal = document.getElementById('ziga-sandbox-modal');
     if (widgetEl) {
       widgetEl.style.setProperty('z-index', '2147483647', 'important');
       widgetEl.style.setProperty('position', 'fixed', 'important');
-      if (document.body && document.body.lastElementChild !== widgetEl) {
-        document.body.appendChild(widgetEl);
-      }
+    }
+    if (sbModal) {
+      sbModal.style.setProperty('z-index', '2147483647', 'important');
     }
   }
 
@@ -325,6 +334,6 @@
     setTimeout(updateMod, 1000);
   });
 
-  console.log('[Ziga Mod] Advanced Xiangqi & Co Up Helper initialized.');
+  console.log('[AN Mod] Advanced Xiangqi & Co Up Helper initialized.');
 
 })(window.ZigaMod = window.ZigaMod || {});

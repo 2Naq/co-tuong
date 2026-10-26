@@ -1,6 +1,15 @@
 // content_loader.js - Bridge script to inject CSS and JS into MAIN world & neutralize ads
 (function() {
-  console.log('[Ziga Mod] Content loader initializing...');
+  // Prevent running inside ad iframes or Google Vignette subframes
+  if (window.top !== window.self) return;
+
+  console.log('[Ziga Mod] Content loader initializing in top frame...');
+
+  // Expose extension assets to main page context via documentElement dataset
+  try {
+    document.documentElement.dataset.zigaLogoUrl = chrome.runtime.getURL('icons/favicon.svg');
+    document.documentElement.dataset.zigaExtensionUrl = chrome.runtime.getURL('');
+  } catch (e) {}
 
   // Inject CSS
   const link = document.createElement('link');
@@ -15,6 +24,7 @@
     'src/storage.js',
     'src/threat_scanner.js',
     'src/coup_tracker.js',
+    'src/tactical_sandbox.js',
     'src/engine_hook.js',
     'src/ui.js',
     'src/main.js'
@@ -85,7 +95,15 @@
       const children = document.body.children;
       for (let i = 0; i < children.length; i++) {
         const el = children[i];
-        if (!el || el.id === 'ziga-mod-widget' || el.id === 'gameCanvas' || el.id === 'Cocos2dGameContainer' || el.classList.contains('modal')) {
+        if (!el || 
+            el.id === 'ziga-mod-widget' || 
+            el.id === 'ziga-sandbox-modal' || 
+            (el.id && el.id.startsWith('ziga-')) ||
+            el.classList.contains('ziga-sandbox-overlay') || 
+            el.classList.contains('ziga-mod-container') ||
+            el.id === 'gameCanvas' || 
+            el.id === 'Cocos2dGameContainer' || 
+            el.classList.contains('modal')) {
           continue;
         }
         try {
@@ -100,14 +118,15 @@
       }
     }
 
-    // Keep HUD at top
+    // Keep HUD at top if sandbox is not open
     const widget = document.getElementById('ziga-mod-widget');
+    const sbModal = document.getElementById('ziga-sandbox-modal');
     if (widget) {
       widget.style.setProperty('z-index', '2147483647', 'important');
       widget.style.setProperty('position', 'fixed', 'important');
-      if (document.body && document.body.lastElementChild !== widget) {
-        document.body.appendChild(widget);
-      }
+    }
+    if (sbModal) {
+      sbModal.style.setProperty('z-index', '2147483647', 'important');
     }
   }
 

@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Công cụ Cờ Tướng Ziga",
+  "name": "Công cụ Cờ Tướng",
   "version": "0.0.1",
   "description": "Hiển thị quân đã bị ăn & highlight tầm đánh",
   "icons": {
@@ -9,6 +9,14 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "*://zigavn.com/*",
+    "https://raw.githubusercontent.com/*",
+    "https://cdn.jsdelivr.net/*"
+  ],
   "content_scripts": [
     {
       "matches": [

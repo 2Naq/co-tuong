@@ -51,7 +51,7 @@
     if (!gameLayer || gameLayer.__zigaInEngineHooked) return;
     gameLayer.__zigaInEngineHooked = true;
 
-    console.log('[Ziga Mod] In-engine hooks active (nT, pA, fU).');
+    console.log('[AN Mod] In-engine hooks active (nT, pA, fU).');
 
     if (gameLayer.V && Array.isArray(gameLayer.V)) {
       for (let i = 0; i < gameLayer.V.length; i++) {
@@ -284,7 +284,7 @@
           }
         }
       } catch (err) {
-        console.warn('[Ziga Mod] Cocos2d LabelTTF init failed:', err);
+        console.warn('[AN Mod] Cocos2d LabelTTF init failed:', err);
       }
     }
 

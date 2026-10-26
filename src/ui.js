@@ -96,6 +96,10 @@
   }
 
   function createOverlay() {
+    if (!document.body) {
+      return null;
+    }
+
     if (document.getElementById('ziga-mod-widget')) {
       widgetEl = document.getElementById('ziga-mod-widget');
       return widgetEl;
@@ -138,7 +142,8 @@
       <div class="ziga-mod-header" id="ziga-mod-drag-handle">
         <div class="ziga-mod-title">
           <span class="ziga-mod-badge-icon">
-            <svg viewBox="0 0 512 512" width="20" height="20" style="border-radius: 4px; vertical-align: middle; display: inline-block; box-shadow: 0 0 6px rgba(212, 175, 55, 0.4); border: 1px solid rgba(212, 175, 55, 0.5);">
+            <img src="${(document.documentElement && document.documentElement.dataset && document.documentElement.dataset.zigaLogoUrl) || ''}" class="ziga-mod-badge-img" alt="Logo" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';" />
+            <svg viewBox="0 0 512 512" width="20" height="20" style="display:none; border-radius: 4px; vertical-align: middle; box-shadow: 0 0 6px rgba(212, 175, 55, 0.4); border: 1px solid rgba(212, 175, 55, 0.5);">
               <rect width="512" height="512" rx="64" fill="#000000"></rect>
               <path d="M118.141 347H76.9482L139.714 165.182H189.253L251.93 347H210.737L165.194 206.73H163.773L118.141 347ZM115.567 275.533H212.868V305.54H115.567V275.533ZM425.892 165.182V347H392.689L313.587 232.565H312.255V347H273.814V165.182H307.55L386.03 279.528H387.628V165.182H425.892Z" fill="#ffffff"></path>
             </svg>
@@ -151,6 +156,7 @@
            🔗
           </a>
           </button>
+          <button class="ziga-mod-btn-icon" id="ziga-mod-btn-sandbox" title="Mô phỏng nước đi (Sandbox)">♟️</button>
           <button class="ziga-mod-btn-icon" id="ziga-mod-btn-settings" title="Cài đặt tính năng">⚙</button>
           <button class="ziga-mod-btn-icon" id="ziga-mod-btn-min" title="Thu gọn / Mở rộng">_</button>
         </div>
@@ -264,11 +270,23 @@
           <span id="ziga-status-text">Đang kết nối game...</span>
         </div>
 
+        <!-- Tactical Sandbox Launcher Button -->
+        <button class="ziga-sandbox-launcher-btn" id="ziga-btn-sandbox-launcher" title="Mở bàn cờ mô phỏng để tự do đi thử 2 bên Đỏ & Đen thử chiến thuật">
+          <div class="ziga-sb-launcher-left">
+            <span class="ziga-sb-launcher-icon">♟️</span>
+            <span class="ziga-sb-launcher-title">MÔ PHỎNG NƯỚC ĐI</span>
+          </div>
+          <span class="ziga-sb-launcher-badge">THỬ CHIẾN THUẬT</span>
+        </button>
+
         <!-- Threat Warning Alert Box -->
         <div class="ziga-threat-box" id="ziga-threat-wrapper" style="display:none;">
           <div class="ziga-threat-header">
-            <span class="ziga-threat-icon__">⚠️</span>
-            <span class="ziga-threat-title" id="ziga-threat-title">CẢNH BÁO NÍ SẮP BỊ LỤM</span>
+            <div class="ziga-threat-title-group">
+              <span class="ziga-threat-icon__">⚠️</span>
+              <span class="ziga-threat-title" id="ziga-threat-title">CẢNH BÁO NÍ SẮP BỊ LỤM</span>
+            </div>
+            <span class="ziga-threat-count-pill" id="ziga-threat-count" style="display:none;"></span>
           </div>
           <div class="ziga-threat-list" id="ziga-threat-items"></div>
         </div>
@@ -397,7 +415,9 @@
       <div class="ziga-mod-resize-handle" id="ziga-mod-resize-handle" title="Kéo góc để phóng to / thu nhỏ (Click đúp để về mặc định)"></div>
     `;
 
-    document.body.appendChild(widgetEl);
+    if (document.body) {
+      document.body.appendChild(widgetEl);
+    }
 
     if (savedSize && savedSize.h) {
       const body = document.getElementById('ziga-mod-body');
@@ -425,6 +445,35 @@
       minBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         toggleMinimize();
+      });
+    }
+
+    // Sandbox simulation launcher
+    const launchSbBtn = document.getElementById('ziga-btn-sandbox-launcher');
+    if (launchSbBtn) {
+      launchSbBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('[AN Mod] Sandbox launcher button clicked');
+        if (ZigaMod.openTacticalSandbox) {
+          ZigaMod.openTacticalSandbox();
+        } else {
+          console.warn('[AN Mod] ZigaMod.openTacticalSandbox is not ready');
+        }
+      });
+    }
+
+    const sbHeaderBtn = document.getElementById('ziga-mod-btn-sandbox');
+    if (sbHeaderBtn) {
+      sbHeaderBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('[AN Mod] Sandbox header icon clicked');
+        if (ZigaMod.openTacticalSandbox) {
+          ZigaMod.openTacticalSandbox();
+        } else {
+          console.warn('[AN Mod] ZigaMod.openTacticalSandbox is not ready');
+        }
       });
     }
 

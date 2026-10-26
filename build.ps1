@@ -4,12 +4,14 @@ $files = @(
     "src/storage.js",
     "src/threat_scanner.js",
     "src/coup_tracker.js",
+    "src/tactical_sandbox.js",
     "src/engine_hook.js",
     "src/ui.js",
     "src/main.js"
 )
 
-$bundle = "// injected.js - Unified bundle built from src/ modules`n(function () {`n"
+$dateStr = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+$bundle = "// injected.js - Unified bundle built from src/ modules [$dateStr]`n(function () {`n"
 
 foreach ($f in $files) {
     $path = Join-Path $PSScriptRoot $f
