@@ -27,7 +27,26 @@
     showKeyPieces: true,         // Thống kê Xe-Pháo-Mã còn lại
     vietnameseLabels: false,     // Hiển thị chữ tiếng Việt (X, P, M...) thay vì chữ Hán
     showRowNumbers: true,        // Đánh số hàng (1-10) ở 2 bên mép bàn cờ
-    cleanAdView: true            // Ẩn bớt quảng cáo che vướng bàn cờ
+    cleanAdView: true,           // Ẩn bớt quảng cáo che vướng bàn cờ
+    showMoveHistory: true,       // Ghi biên bản ván đấu chuẩn tiếng Việt & xuất FEN/PGN
+    liveBoardAura: true,         // Tự động hiển thị viền xanh/đỏ focus quân có thể ăn trực tiếp trên bàn cờ
+    liveAuraMode: 'targets',     // 'targets': Chỉ quân cờ có thể ăn được (chuẩn xác, gọn gàng), 'all': Cả quân ăn và bị ăn
+    auraCustom: {
+      mode: 'neon',              // 'neon' hoặc 'image'
+      theme: 'default',          // 'default', 'ice_fire', 'gold_purple', 'cyberpunk', 'custom'
+      myColor: '#39ff14',        // Màu viền lượt tôi
+      oppColor: '#ff1744',       // Màu viền lượt đối thủ
+      customImageMy: '',         // Base64 DataURL ảnh PNG tùy chọn lượt tôi
+      customImageOpp: '',        // Base64 DataURL ảnh PNG tùy chọn lượt đối thủ
+      scale: 1.0                 // Tỷ lệ độ lớn vòng Aura (0.7 đến 1.3, mặc định 1.0)
+    }
+  };
+
+  const AURA_THEMES = {
+    default: { id: 'default', name: 'JJ Xiangqi Stream', myColor: '#39ff14', oppColor: '#ff1744', desc: 'Xanh Lá Neon & Đỏ Neon (Mặc định)' },
+    ice_fire: { id: 'ice_fire', name: 'Băng & Lửa', myColor: '#00e5ff', oppColor: '#ff3d00', desc: 'Xanh Băng Tuyết & Đỏ Cam Lửa' },
+    gold_purple: { id: 'gold_purple', name: 'Hoàng Kim & Hắc Ám', myColor: '#ffd700', oppColor: '#d500f9', desc: 'Vàng Kim & Tím Thần Bí' },
+    cyberpunk: { id: 'cyberpunk', name: 'Cyberpunk Neon', myColor: '#ff007f', oppColor: '#00f0ff', desc: 'Hồng Neon & Xanh Cyan' }
   };
 
   // Coordinate converter according to standard Vietnamese Xiangqi notation:
@@ -49,6 +68,7 @@
   ZigaMod.PIECE_DEFS = PIECE_DEFS;
   ZigaMod.DISPLAY_ORDER = DISPLAY_ORDER;
   ZigaMod.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
+  ZigaMod.AURA_THEMES = AURA_THEMES;
   ZigaMod.formatXiangqiCoord = formatXiangqiCoord;
 
 })(window.ZigaMod = window.ZigaMod || {});

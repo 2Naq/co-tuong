@@ -4,7 +4,6 @@
 
   let widgetEl = null;
   let isMinimized = false;
-  let isSettingsOpen = false;
   let savedExpandedWidth = '';
   let savedExpandedHeight = '';
 
@@ -21,13 +20,9 @@
       savedExpandedWidth = widgetEl.style.width;
       savedExpandedHeight = widgetEl.style.height;
 
-      // Close settings drawer if open
-      if (isSettingsOpen) {
-        isSettingsOpen = false;
-        const settingsPanel = document.getElementById('ziga-settings-panel');
-        const settingsBtn = document.getElementById('ziga-mod-btn-settings');
-        if (settingsPanel) settingsPanel.style.display = 'none';
-        if (settingsBtn) settingsBtn.classList.remove('active');
+      // Close settings modal if open
+      if (ZigaMod.closeSettingsModal) {
+        ZigaMod.closeSettingsModal();
       }
 
       // Close material tooltip if open
@@ -157,110 +152,8 @@
           </a>
           </button>
           <button class="ziga-mod-btn-icon" id="ziga-mod-btn-sandbox" title="Mô phỏng nước đi (Sandbox)">♟️</button>
-          <button class="ziga-mod-btn-icon" id="ziga-mod-btn-settings" title="Cài đặt tính năng">⚙</button>
+          <button class="ziga-mod-btn-icon" id="ziga-mod-btn-settings" title="Cài đặt tính năng & Aura">⚙</button>
           <button class="ziga-mod-btn-icon" id="ziga-mod-btn-min" title="Thu gọn / Mở rộng">_</button>
-        </div>
-      </div>
-
-      <!-- Settings Drawer Panel -->
-      <div class="ziga-settings-drawer" id="ziga-settings-panel" style="display:none;">
-        <div class="ziga-settings-header">
-          <span class="ziga-settings-heading">⚙️ CÀI ĐẶT TÍNH NĂNG</span>
-          <button class="ziga-settings-close-btn" id="ziga-settings-close">✕</button>
-        </div>
-        <div class="ziga-settings-list">
-          <label class="ziga-setting-row">
-            <span class="ziga-setting-text">
-              <strong>Quân đã bị ăn</strong>
-              <small>Thống kê quân đã mất của 2 bên</small>
-            </span>
-            <input type="checkbox" id="set-showLostPieces" ${userSettings.showLostPieces ? 'checked' : ''} />
-            <span class="ziga-switch-slider"></span>
-          </label>
-
-          <label class="ziga-setting-row">
-            <span class="ziga-setting-text">
-              <strong>Highlight tầm đánh trên bàn cờ</strong>
-              <small>Bấm vào quân để nhấp nháy quân ăn được</small>
-            </span>
-            <input type="checkbox" id="set-highlightTactics" ${userSettings.highlightTactics ? 'checked' : ''} />
-            <span class="ziga-switch-slider"></span>
-          </label>
-
-          <label class="ziga-setting-row">
-            <span class="ziga-setting-text">
-              <strong>Bảng tầm đánh trên HUD</strong>
-              <small>Hiển thị chi tiết quân đang chọn & mục tiêu</small>
-            </span>
-            <input type="checkbox" id="set-showTacticalHud" ${userSettings.showTacticalHud ? 'checked' : ''} />
-            <span class="ziga-switch-slider"></span>
-          </label>
-
-          <label class="ziga-setting-row">
-            <span class="ziga-setting-text">
-              <strong>Thống kê & Xác suất Cờ Úp</strong>
-              <small>Đếm quân úp còn lại và tính % mở Xe, Pháo...</small>
-            </span>
-            <input type="checkbox" id="set-showCoUpTracker" ${userSettings.showCoUpTracker ? 'checked' : ''} />
-            <span class="ziga-switch-slider"></span>
-          </label>
-
-          <label class="ziga-setting-row">
-            <span class="ziga-setting-text">
-              <strong>Cảnh báo quân bị đe dọa</strong>
-              <small>Báo động khi quân của bạn đang bị nhắm ăn</small>
-            </span>
-            <input type="checkbox" id="set-threatAlert" ${userSettings.threatAlert ? 'checked' : ''} />
-            <span class="ziga-switch-slider"></span>
-          </label>
-
-          <label class="ziga-setting-row">
-            <span class="ziga-setting-text">
-              <strong>Thanh chênh lệch điểm quân</strong>
-              <small>Đo lường ưu thế lực lượng (+9 Xe, +4.5 Pháo...)</small>
-            </span>
-            <input type="checkbox" id="set-materialAdvantage" ${userSettings.materialAdvantage ? 'checked' : ''} />
-            <span class="ziga-switch-slider"></span>
-          </label>
-
-          <label class="ziga-setting-row">
-            <span class="ziga-setting-text">
-              <strong>Đếm Xe - Pháo - Mã còn lại</strong>
-              <small>Thống kê số lượng chủ lực còn sống</small>
-            </span>
-            <input type="checkbox" id="set-showKeyPieces" ${userSettings.showKeyPieces ? 'checked' : ''} />
-            <span class="ziga-switch-slider"></span>
-          </label>
-
-          <label class="ziga-setting-row">
-            <span class="ziga-setting-text">
-              <strong>Ký hiệu tiếng Việt (X, P, M...)</strong>
-              <small>Hiển thị chữ quốc ngữ thay cho chữ Hán</small>
-            </span>
-            <input type="checkbox" id="set-vietnameseLabels" ${userSettings.vietnameseLabels ? 'checked' : ''} />
-            <span class="ziga-switch-slider"></span>
-          </label>
-
-          <label class="ziga-setting-row">
-            <span class="ziga-setting-text">
-              <strong>Đánh số hàng (1-10) bàn cờ</strong>
-              <small>Hiển thị số hàng ở 2 mép gỗ bàn cờ</small>
-            </span>
-            <input type="checkbox" id="set-showRowNumbers" ${userSettings.showRowNumbers ? 'checked' : ''} />
-            <span class="ziga-switch-slider"></span>
-          </label>
-
-          <label class="ziga-setting-row">
-            <span class="ziga-setting-text">
-              <strong>Ẩn quảng cáo che khuất</strong>
-              <small>Xóa các banner quảng cáo nổi vướng bàn cờ</small>
-            </span>
-            <input type="checkbox" id="set-cleanAdView" ${userSettings.cleanAdView ? 'checked' : ''} />
-            <span class="ziga-switch-slider"></span>
-          </label>
-        </div>
-        <div class="ziga-settings-footer">
-          <button class="ziga-btn-reset-settings" id="ziga-btn-reset-default">Khôi phục mặc định</button>
         </div>
       </div>
 
@@ -407,6 +300,31 @@
             </div>
           </div>
         </div>
+
+        <!-- Section 5: Move History & FEN/PGN Exporter -->
+        <div class="ziga-divider" id="ziga-history-divider"></div>
+        <div class="ziga-history-section" id="ziga-history-box">
+          <div class="ziga-history-header">
+            <div class="ziga-history-title-wrap">
+              <span class="ziga-history-icon">📜</span>
+              <span class="ziga-history-title">BIÊN BẢN TRẬN ĐẤU</span>
+              <span class="ziga-history-count-badge" id="ziga-move-count-badge">0 nước</span>
+            </div>
+            <div class="ziga-history-tools">
+              <button class="ziga-btn-tool-sub" id="ziga-btn-copy-fen" type="button" title="Sao chép chuỗi FEN thế cờ hiện tại">📋 FEN</button>
+              <button class="ziga-btn-tool-sub" id="ziga-btn-copy-pgn" type="button" title="Sao chép toàn bộ biên bản ván đấu PGN">📜 PGN</button>
+              <button class="ziga-btn-tool-sub ziga-btn-tool-reset" id="ziga-btn-reset-history" type="button" title="Đặt lại biên bản ván đấu">🔄</button>
+            </div>
+          </div>
+          <div class="ziga-move-history-table-header">
+            <span class="ziga-col-header-num">#</span>
+            <span class="ziga-col-header-player red">Đỏ 🔴</span>
+            <span class="ziga-col-header-player black">Đen ⚫</span>
+          </div>
+          <div class="ziga-move-history-scroll" id="ziga-move-history-list">
+            <div class="ziga-empty-moves">Đang theo dõi... Các nước đi sẽ tự động xuất hiện tại đây.</div>
+          </div>
+        </div>
       </div>
 
       <!-- Resize Grips -->
@@ -477,51 +395,14 @@
       });
     }
 
-    // Settings panel toggle
+    // Settings button launches the clean Settings Modal
     const settingsBtn = document.getElementById('ziga-mod-btn-settings');
-    const settingsPanel = document.getElementById('ziga-settings-panel');
-    const settingsClose = document.getElementById('ziga-settings-close');
-
-    settingsBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      isSettingsOpen = !isSettingsOpen;
-      settingsPanel.style.display = isSettingsOpen ? 'block' : 'none';
-      settingsBtn.classList.toggle('active', isSettingsOpen);
-    });
-
-    settingsClose.addEventListener('click', (e) => {
-      e.stopPropagation();
-      isSettingsOpen = false;
-      settingsPanel.style.display = 'none';
-      settingsBtn.classList.remove('active');
-    });
-
-    // Bind settings toggles
-    Object.keys(ZigaMod.DEFAULT_SETTINGS).forEach(key => {
-      const checkbox = document.getElementById(`set-${key}`);
-      if (checkbox) {
-        checkbox.addEventListener('change', (e) => {
-          ZigaMod.userSettings[key] = e.target.checked;
-          ZigaMod.saveSettings();
-          applySettingsVisibility();
-          ZigaMod.lastStateHash = ''; // Force immediate UI refresh
-        });
-      }
-    });
-
-    // Reset default settings
-    const resetBtn = document.getElementById('ziga-btn-reset-default');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', (e) => {
+    if (settingsBtn) {
+      settingsBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        ZigaMod.userSettings = Object.assign({}, ZigaMod.DEFAULT_SETTINGS);
-        ZigaMod.saveSettings();
-        Object.keys(ZigaMod.DEFAULT_SETTINGS).forEach(key => {
-          const checkbox = document.getElementById(`set-${key}`);
-          if (checkbox) checkbox.checked = ZigaMod.userSettings[key];
-        });
-        applySettingsVisibility();
-        ZigaMod.lastStateHash = '';
+        if (ZigaMod.openSettingsModal) {
+          ZigaMod.openSettingsModal('features');
+        }
       });
     }
 
@@ -591,6 +472,48 @@
       });
     }
 
+    // Move History & FEN/PGN Exporter buttons
+    const copyFenBtn = document.getElementById('ziga-btn-copy-fen');
+    if (copyFenBtn) {
+      copyFenBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const data = ZigaMod.getActiveGameData ? ZigaMod.getActiveGameData() : null;
+        if (!data || !data.gameLayer) {
+          if (ZigaMod.copyToClipboard) {
+            ZigaMod.copyToClipboard('', '⚠️ Hãy vào một ván cờ trước khi sao chép FEN!');
+          }
+          return;
+        }
+        const activeColor = (data.gameLayer.Yc !== undefined) ? data.gameLayer.Yc : 0;
+        const fen = ZigaMod.generateFen ? ZigaMod.generateFen(data.gameLayer, activeColor) : '';
+        if (fen && ZigaMod.copyToClipboard) {
+          ZigaMod.copyToClipboard(fen, '✅ Đã sao chép chuỗi FEN thế cờ hiện tại!');
+        }
+      });
+    }
+
+    const copyPgnBtn = document.getElementById('ziga-btn-copy-pgn');
+    if (copyPgnBtn) {
+      copyPgnBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const data = ZigaMod.getActiveGameData ? ZigaMod.getActiveGameData() : null;
+        const pgn = ZigaMod.generatePgn ? ZigaMod.generatePgn(data) : '';
+        if (ZigaMod.copyToClipboard) {
+          ZigaMod.copyToClipboard(pgn, '✅ Đã sao chép toàn bộ biên bản ván đấu PGN!');
+        }
+      });
+    }
+
+    const resetHistBtn = document.getElementById('ziga-btn-reset-history');
+    if (resetHistBtn) {
+      resetHistBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (ZigaMod.resetHistory) {
+          ZigaMod.resetHistory();
+        }
+      });
+    }
+
     applySettingsVisibility();
     return widgetEl;
   }
@@ -605,6 +528,8 @@
     const tacticalDiv = document.getElementById('ziga-tactical-divider');
     const summaryBox = document.getElementById('ziga-summary-box');
     const summaryDiv = document.getElementById('ziga-summary-divider');
+    const historyBox = document.getElementById('ziga-history-box');
+    const historyDiv = document.getElementById('ziga-history-divider');
 
     if (lostOpp) lostOpp.style.display = userSettings.showLostPieces ? 'flex' : 'none';
     if (lostSelf) lostSelf.style.display = userSettings.showLostPieces ? 'flex' : 'none';
@@ -618,6 +543,9 @@
     if (summaryBox) summaryBox.style.display = userSettings.showKeyPieces ? 'flex' : 'none';
     if (summaryDiv) summaryDiv.style.display = userSettings.showKeyPieces ? 'block' : 'none';
 
+    if (historyBox) historyBox.style.display = userSettings.showMoveHistory ? 'flex' : 'none';
+    if (historyDiv) historyDiv.style.display = userSettings.showMoveHistory ? 'block' : 'none';
+
     if (userSettings.cleanAdView) {
       document.body.classList.add('ziga-clean-ads-active');
     } else {
@@ -627,6 +555,10 @@
     if (ZigaMod.updateRowLabelsVisibility) {
       const gameLayer = ZigaMod.getActiveGameLayer ? ZigaMod.getActiveGameLayer() : null;
       ZigaMod.updateRowLabelsVisibility(gameLayer);
+    }
+
+    if (!userSettings.liveBoardAura && ZigaMod.clearBoardAura) {
+      ZigaMod.clearBoardAura();
     }
   }
 

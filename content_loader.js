@@ -15,34 +15,48 @@
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.type = 'text/css';
-  link.href = chrome.runtime.getURL('overlay.css');
+  link.href = chrome.runtime.getURL('styles/overlay.css');
+  link.onerror = function() {
+    // Fallback to root overlay.css if needed
+    this.href = chrome.runtime.getURL('overlay.css');
+  };
   (document.head || document.documentElement).appendChild(link);
 
-  // Modular scripts to inject sequentially into MAIN world
+  // Modular scripts to inject sequentially into MAIN world (Clean Architecture)
   const MODULES = [
-    'src/constants.js',
-    'src/storage.js',
-    'src/threat_scanner.js',
-    'src/coup_tracker.js',
-    'src/tactical_sandbox.js',
-    'src/engine_hook.js',
-    'src/ui.js',
-    'src/main.js'
+    'src/core/constants.js',
+    'src/core/storage.js',
+    'src/features/threat_scanner.js',
+    'src/features/coup_tracker.js',
+    'src/features/tactical_sandbox.js',
+    'src/core/engine_hook.js',
+    'src/aura/board_aura.js',
+    'src/aura/aura_presets.js',
+    'src/ui/settings_modal.js',
+    'src/features/move_recorder.js',
+    'src/ui/ui.js',
+    'src/core/main.js'
   ];
 
   function fallbackToInjected() {
     if (window.__zigaModInjectedFallback) return;
     window.__zigaModInjectedFallback = true;
-    console.warn('[Ziga Mod] Falling back to unified injected.js bundle...');
+    console.warn('[Ziga Mod] Falling back to unified dist/injected.js bundle...');
     const script = document.createElement('script');
-    script.src = chrome.runtime.getURL('injected.js');
+    script.src = chrome.runtime.getURL('dist/injected.js');
+    script.onerror = function() {
+      const fallbackScript = document.createElement('script');
+      fallbackScript.src = chrome.runtime.getURL('injected.js');
+      fallbackScript.onload = function() { this.remove(); };
+      (document.head || document.documentElement).appendChild(fallbackScript);
+    };
     script.onload = function() { this.remove(); };
     (document.head || document.documentElement).appendChild(script);
   }
 
   function injectModules(index) {
     if (index >= MODULES.length) {
-      console.log('[Ziga Mod] All modular scripts loaded into page context successfully.');
+      console.log('[Ziga Mod] All 12 modular scripts loaded into page context successfully.');
       return;
     }
     const script = document.createElement('script');

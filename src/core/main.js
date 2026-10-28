@@ -240,6 +240,9 @@
         if (ZigaMod.updateMaterialTooltipLive) {
           ZigaMod.updateMaterialTooltipLive(null);
         }
+        if (ZigaMod.clearBoardAura) {
+          ZigaMod.clearBoardAura();
+        }
       }
       ZigaMod.applySettingsVisibility();
       return;
@@ -249,6 +252,11 @@
     ZigaMod.hookGameLayer(data.gameLayer);
     if (ZigaMod.setupRowNumbers) {
       ZigaMod.setupRowNumbers(data.gameLayer);
+    }
+
+    // Live Board Aura (Green for my turn, Red for opponent turn)
+    if (ZigaMod.updateBoardAura) {
+      ZigaMod.updateBoardAura(data);
     }
 
     // Threat Scanner (Under-Attack Alert)
@@ -261,6 +269,11 @@
       ZigaMod.updateCoUpUi(coUpStats, data.oppName, data.myName);
     } else {
       ZigaMod.updateCoUpUi(null);
+    }
+
+    // Move Recorder (Vietnamese notation & FEN/PGN history)
+    if (ZigaMod.checkAndRecordMove) {
+      ZigaMod.checkAndRecordMove(data);
     }
 
     const userSettings = ZigaMod.userSettings;

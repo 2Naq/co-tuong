@@ -2680,3 +2680,1335 @@ iframe[id^="google_ads"],
     color: #ffffff;
     box-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
 }
+
+/* =================================================== */
+/* LIVE IN-BOARD GLOWING AURA RINGS (VIỀN XANH / ĐỎ)   */
+/* =================================================== */
+
+.ziga-board-aura-layer {
+    display: none !important;
+}
+
+/* Individual piece aura ring container */
+.ziga-aura-ring {
+    position: absolute;
+    border-radius: 50%;
+    box-sizing: border-box;
+    transform: translate(-50%, -50%);
+    pointer-events: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    will-change: transform, box-shadow, opacity;
+    transition: opacity 0.25s ease-out;
+}
+
+/* =================================================== */
+/* 1. GREEN AURA (LƯỢT TÔI ĐI - QUÂN CÓ THỂ ĂN)        */
+/* =================================================== */
+
+.ziga-aura-ring.ziga-aura-green {
+    border: 2.5px solid #39ff14;
+    background: radial-gradient(circle, rgba(57, 255, 20, 0.04) 0%, rgba(57, 255, 20, 0.14) 70%, rgba(57, 255, 20, 0.3) 100%);
+    box-shadow: 
+        0 0 8px #39ff14,
+        0 0 18px rgba(57, 255, 20, 0.75),
+        inset 0 0 8px rgba(57, 255, 20, 0.45);
+    animation: zigaAuraPulseGreen 1.8s ease-in-out infinite;
+}
+
+/* Quân mục tiêu có thể ăn (Target) trong lượt xanh: Viền đậm hơn, tỏa sáng mạnh hơn */
+.ziga-aura-ring.ziga-aura-green.ziga-aura-role-target {
+    border-width: 3px;
+    border-color: #00ff66;
+    box-shadow: 
+        0 0 12px #00ff66,
+        0 0 24px rgba(0, 255, 102, 0.85),
+        0 0 36px rgba(57, 255, 20, 0.4),
+        inset 0 0 10px rgba(0, 255, 102, 0.5);
+}
+
+/* Quân ta có nước ăn (Attacker) trong lượt xanh: Viền sáng thanh thoát */
+.ziga-aura-ring.ziga-aura-green.ziga-aura-role-attacker {
+    border-width: 2px;
+    border-color: #4ade80;
+    box-shadow: 
+        0 0 8px #4ade80,
+        0 0 16px rgba(74, 222, 128, 0.65),
+        inset 0 0 6px rgba(74, 222, 128, 0.35);
+}
+
+/* =================================================== */
+/* 2. RED AURA (LƯỢT ĐỐI THỦ - QUÂN ĐỐI THỦ CÓ THỂ ĂN) */
+/* =================================================== */
+
+.ziga-aura-ring.ziga-aura-red {
+    border: 2.5px solid #ff1744;
+    background: radial-gradient(circle, rgba(255, 23, 68, 0.05) 0%, rgba(255, 23, 68, 0.16) 70%, rgba(255, 23, 68, 0.35) 100%);
+    box-shadow: 
+        0 0 8px #ff1744,
+        0 0 18px rgba(255, 23, 68, 0.75),
+        inset 0 0 8px rgba(255, 23, 68, 0.45);
+    animation: zigaAuraPulseRed 1.6s ease-in-out infinite;
+}
+
+/* Quân ta có nguy cơ bị ăn (Target của đối thủ): Cảnh báo nguy hiểm cao độ */
+.ziga-aura-ring.ziga-aura-red.ziga-aura-role-target {
+    border-width: 3px;
+    border-color: #ff1744;
+    box-shadow: 
+        0 0 14px #ff1744,
+        0 0 28px rgba(255, 23, 68, 0.9),
+        0 0 40px rgba(239, 68, 68, 0.45),
+        inset 0 0 12px rgba(255, 23, 68, 0.55);
+}
+
+/* Quân đối thủ đang đe dọa (Attacker của đối thủ) */
+.ziga-aura-ring.ziga-aura-red.ziga-aura-role-attacker {
+    border-width: 2px;
+    border-color: #f87171;
+    box-shadow: 
+        0 0 8px #f87171,
+        0 0 16px rgba(248, 113, 113, 0.65),
+        inset 0 0 6px rgba(248, 113, 113, 0.35);
+}
+
+/* =================================================== */
+/* DECORATIVE INNER WAVE & CORE GLOW                   */
+/* =================================================== */
+
+.ziga-aura-inner-wave {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    box-sizing: border-box;
+    pointer-events: none !important;
+}
+
+.ziga-aura-green .ziga-aura-inner-wave {
+    border: 1px dashed rgba(57, 255, 20, 0.55);
+    animation: zigaAuraSpin 8s linear infinite;
+}
+
+.ziga-aura-red .ziga-aura-inner-wave {
+    border: 1px dashed rgba(255, 23, 68, 0.6);
+    animation: zigaAuraSpin 8s linear infinite reverse;
+}
+
+.ziga-aura-glow-core {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    pointer-events: none !important;
+}
+
+.ziga-aura-green .ziga-aura-glow-core {
+    background: radial-gradient(circle, rgba(57, 255, 20, 0.15) 0%, transparent 75%);
+}
+
+.ziga-aura-red .ziga-aura-glow-core {
+    background: radial-gradient(circle, rgba(255, 23, 68, 0.15) 0%, transparent 75%);
+}
+
+/* Keyframe animations */
+@keyframes zigaAuraPulseGreen {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(0.97);
+        opacity: 0.84;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.05);
+        opacity: 1;
+        box-shadow: 
+            0 0 16px #39ff14,
+            0 0 32px rgba(57, 255, 20, 0.95),
+            0 0 45px rgba(57, 255, 20, 0.45),
+            inset 0 0 12px rgba(57, 255, 20, 0.6);
+    }
+}
+
+@keyframes zigaAuraPulseRed {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(0.97);
+        opacity: 0.84;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.06);
+        opacity: 1;
+        box-shadow: 
+            0 0 18px #ff1744,
+            0 0 34px rgba(255, 23, 68, 0.95),
+            0 0 48px rgba(255, 23, 68, 0.45),
+            inset 0 0 14px rgba(255, 23, 68, 0.6);
+    }
+}
+
+@keyframes zigaAuraSpin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =================================================== */
+/* AURA CUSTOMIZER MODAL & SETTING LAUNCHER BUTTON     */
+/* =================================================== */
+
+.ziga-setting-action-row {
+    padding: 4px 10px 10px;
+}
+
+.ziga-btn-customize-aura {
+    width: 100%;
+    padding: 7px 12px;
+    background: linear-gradient(135deg, rgba(57, 255, 20, 0.12) 0%, rgba(0, 255, 102, 0.22) 100%);
+    border: 1px solid rgba(57, 255, 20, 0.45);
+    border-radius: 8px;
+    color: #4ade80;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.15);
+}
+
+.ziga-btn-customize-aura:hover {
+    background: linear-gradient(135deg, rgba(57, 255, 20, 0.25) 0%, rgba(0, 255, 102, 0.38) 100%);
+    border-color: #39ff14;
+    color: #ffffff;
+    box-shadow: 0 0 16px rgba(57, 255, 20, 0.35);
+    transform: translateY(-1px);
+}
+
+/* Modal Overlay */
+.ziga-aura-modal-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(8, 10, 15, 0.82) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    z-index: 2147483647 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+    animation: zigaFadeIn 0.2s ease-out;
+}
+
+/* Dialog Container */
+.ziga-aura-modal-dialog {
+    width: 100%;
+    max-width: 580px;
+    max-height: 92vh;
+    background: rgba(18, 22, 28, 0.98);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    animation: zigaScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes zigaFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zigaScaleUp {
+    from { transform: scale(0.94); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Header */
+.ziga-aura-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: rgba(12, 15, 20, 0.95);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ziga-aura-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ziga-aura-modal-badge {
+    font-size: 20px;
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    padding: 5px 8px;
+}
+
+.ziga-aura-modal-title-text h3 {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #ffd700;
+}
+
+.ziga-aura-modal-title-text small {
+    display: block;
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+.ziga-aura-modal-close {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+}
+
+.ziga-aura-modal-close:hover {
+    color: #ffffff;
+    background: rgba(239, 68, 68, 0.25);
+}
+
+/* Live Preview Stage */
+.ziga-aura-preview-stage {
+    margin: 14px 18px 8px;
+    background: radial-gradient(circle at center, rgba(30, 36, 46, 0.9) 0%, rgba(14, 18, 24, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px 16px;
+}
+
+.ziga-aura-preview-header {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: #ffd700;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.ziga-aura-preview-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.ziga-preview-piece-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.ziga-preview-piece-container {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Mock wooden chess piece */
+.ziga-mock-piece {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #f3cf99 0%, #d89e57 85%, #b2732a 100%);
+    border: 2px solid #844c12;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Kaiti", "STKaiti", "SimSun", serif;
+    font-size: 28px;
+    font-weight: 900;
+    user-select: none;
+    z-index: 2;
+}
+
+.ziga-mock-piece.red-piece {
+    color: #c92a2a;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.ziga-mock-piece.black-piece {
+    color: #1a1a1a;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+/* Mock aura ring surrounding the preview piece */
+.ziga-mock-aura {
+    position: absolute;
+    width: calc(60px * var(--aura-scale, 1));
+    height: calc(60px * var(--aura-scale, 1));
+    border-radius: 50%;
+    box-sizing: border-box;
+    z-index: 3;
+    pointer-events: none;
+    transition: width 0.15s ease, height 0.15s ease;
+    animation: zigaMockPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes zigaMockPulse {
+    0%, 100% {
+        transform: scale(0.97);
+        opacity: 0.85;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+}
+
+.ziga-preview-divider-vs {
+    font-size: 14px;
+    font-weight: 900;
+    color: #64748b;
+    letter-spacing: 1px;
+}
+
+.ziga-preview-role-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #e2e8f0;
+}
+
+.ziga-preview-subtag {
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+}
+
+.ziga-preview-subtag.my-subtag {
+    background: rgba(57, 255, 20, 0.15);
+    border: 1px solid rgba(57, 255, 20, 0.4);
+    color: #4ade80;
+}
+
+.ziga-preview-subtag.opp-subtag {
+    background: rgba(255, 23, 68, 0.15);
+    border: 1px solid rgba(255, 23, 68, 0.4);
+    color: #f87171;
+}
+
+/* Size Scale Control Bar */
+.ziga-aura-scale-control-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    background: rgba(0, 0, 0, 0.4);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ziga-scale-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #cbd5e1;
+    white-space: nowrap;
+}
+
+.ziga-scale-slider {
+    flex: 1;
+    accent-color: #ffd700;
+    height: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.ziga-scale-val-badge {
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffd700;
+    min-width: 36px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.ziga-btn-reset-scale {
+    padding: 3px 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    color: #cbd5e1;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ziga-btn-reset-scale:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: #ffd700;
+    color: #ffd700;
+}
+
+/* Tabs Navigation */
+.ziga-aura-tabs-nav {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0 18px;
+    gap: 8px;
+}
+
+.ziga-aura-tab-btn {
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ziga-aura-tab-btn:hover {
+    color: #e2e8f0;
+}
+
+.ziga-aura-tab-btn.active {
+    color: #ffd700;
+    border-bottom-color: #ffd700;
+}
+
+/* Tab Panes */
+.ziga-aura-tab-pane {
+    padding: 16px 18px;
+    overflow-y: auto;
+    max-height: 48vh;
+}
+
+.ziga-aura-pane-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ziga-pane-section-title {
+    font-size: 10px;
+    font-weight: 800;
+    color: #94a3b8;
+    letter-spacing: 0.6px;
+}
+
+/* Themes Grid */
+.ziga-aura-themes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+}
+
+.ziga-theme-card {
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.18s ease;
+}
+
+.ziga-theme-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(212, 175, 55, 0.4);
+    transform: translateY(-1px);
+}
+
+.ziga-theme-card.selected {
+    background: rgba(212, 175, 55, 0.12);
+    border-color: #ffd700;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
+}
+
+.ziga-theme-swatches {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.ziga-theme-color-circle {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.ziga-theme-vs-small {
+    font-size: 8px;
+    font-weight: 800;
+    color: #64748b;
+}
+
+.ziga-theme-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.ziga-theme-name {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #f1f5f9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ziga-theme-desc {
+    font-size: 9.5px;
+    color: #94a3b8;
+    margin-top: 1px;
+}
+
+/* Color Pickers */
+.ziga-aura-color-pickers-box {
+    display: flex;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+.ziga-color-pick-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ziga-color-pick-item label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #cbd5e1;
+}
+
+.ziga-pick-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ziga-color-input {
+    width: 38px;
+    height: 34px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: transparent;
+    padding: 0;
+}
+
+.ziga-hex-text {
+    flex: 1;
+    padding: 6px 10px;
+    background: rgba(10, 12, 16, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    color: #f8fafc;
+    font-family: monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.ziga-hex-text:focus {
+    border-color: #ffd700;
+    outline: none;
+}
+
+/* Guidelines Card */
+.ziga-aura-guideline-card {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+}
+
+.ziga-guide-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #38bdf8;
+    margin-bottom: 6px;
+}
+
+.ziga-aura-guideline-card ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 10.5px;
+    color: #cbd5e1;
+    line-height: 1.5;
+}
+
+.ziga-aura-guideline-card code {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: #fde047;
+    font-family: monospace;
+}
+
+/* Upload Columns */
+.ziga-aura-upload-columns {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.ziga-upload-column-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+}
+
+.ziga-upload-card-heading {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #cbd5e1;
+    letter-spacing: 0.4px;
+}
+
+.ziga-upload-thumbnail-box {
+    width: 80px;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.ziga-upload-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.ziga-thumb-placeholder {
+    font-size: 9px;
+    color: #64748b;
+    text-align: center;
+    padding: 6px;
+}
+
+.ziga-upload-action-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.ziga-btn-choose-file {
+    flex: 1;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #e2e8f0;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+}
+
+.ziga-btn-choose-file:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: #ffd700;
+    color: #ffd700;
+}
+
+.ziga-btn-clear-img {
+    padding: 6px 10px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 6px;
+    color: #fca5a5;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ziga-btn-clear-img:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: #ef4444;
+    color: #ffffff;
+}
+
+/* Modal Footer */
+.ziga-aura-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: rgba(12, 15, 20, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ziga-modal-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ziga-modal-btn.secondary {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #cbd5e1;
+}
+
+.ziga-modal-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+
+.ziga-modal-btn.primary {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.4) 0%, rgba(180, 140, 20, 0.6) 100%);
+    border: 1px solid #ffd700;
+    color: #ffffff;
+    box-shadow: 0 0 14px rgba(212, 175, 55, 0.35);
+}
+
+.ziga-modal-btn.primary:hover {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.6) 0%, rgba(180, 140, 20, 0.8) 100%);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.55);
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   AURA PRESETS GALLERY (1-CLICK TEST & PREVIEWS)
+   ========================================================================== */
+.ziga-aura-presets-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.ziga-presets-header {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 10px;
+}
+
+.ziga-presets-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffd700;
+    letter-spacing: 0.4px;
+}
+
+.ziga-presets-subtitle {
+    font-size: 10px;
+    color: #94a3b8;
+}
+
+.ziga-aura-presets-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.ziga-preset-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
+    transition: all 0.2s ease;
+}
+
+.ziga-preset-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.ziga-preset-card.active-my {
+    border-color: #39ff14;
+    background: rgba(57, 255, 20, 0.06);
+    box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.15);
+}
+
+.ziga-preset-card.active-opp {
+    border-color: #ff1744;
+    background: rgba(255, 23, 68, 0.06);
+    box-shadow: inset 0 0 10px rgba(255, 23, 68, 0.15);
+}
+
+.ziga-preset-card.active-my.active-opp {
+    border-color: #ffd700;
+    background: rgba(212, 175, 55, 0.08);
+    box-shadow: inset 0 0 12px rgba(212, 175, 55, 0.2);
+}
+
+.ziga-preset-preview-wrap {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ziga-mock-piece-preset {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #e6be8a 0%, #b8864e 60%, #855726 100%);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.4);
+    border: 1.5px solid #5a3813;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.ziga-mock-preset-char {
+    font-size: 17px;
+    font-weight: 900;
+    color: #b91c1c;
+    text-shadow: 0 1px 1px rgba(255,255,255,0.6);
+    font-family: 'Kaiti', 'STKaiti', 'SimSun', 'Songti SC', serif;
+    z-index: 1;
+}
+
+.ziga-preset-aura-circle {
+    position: absolute;
+    width: 46px;
+    height: 46px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 2;
+    animation: ziga-aura-spin-slow 12s linear infinite;
+}
+
+@keyframes ziga-aura-spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.ziga-preset-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.ziga-preset-name {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #f1f5f9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ziga-preset-badge {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 4px;
+    width: fit-content;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.ziga-preset-badge.my {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.ziga-preset-badge.opp {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.ziga-preset-badge.both {
+    background: rgba(168, 85, 247, 0.15);
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.ziga-preset-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 3px;
+}
+
+.ziga-preset-btn {
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.ziga-preset-btn.my {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: #86efac;
+}
+
+.ziga-preset-btn.my:hover {
+    background: rgba(34, 197, 94, 0.3);
+    border-color: #22c55e;
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+}
+
+.ziga-preset-btn.opp {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+.ziga-preset-btn.opp:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
+/* ==========================================================================
+   SETTINGS MODAL: TAB 1 FEATURES GROUPS & CARDS
+   ========================================================================== */
+.ziga-settings-groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.ziga-settings-group-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ziga-group-title {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #ffd700;
+    letter-spacing: 0.5px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed rgba(212, 175, 55, 0.25);
+    margin-bottom: 2px;
+}
+
+.ziga-group-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.ziga-setting-row-box {
+    display: flex;
+    flex-direction: column;
+    border-radius: 7px;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    background: rgba(212, 175, 55, 0.04);
+}
+
+.ziga-setting-sublink-bar {
+    padding: 5px 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px dashed rgba(212, 175, 55, 0.2);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.ziga-btn-goto-aura {
+    padding: 3px 9px;
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 5px;
+    color: #ffd700;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ziga-btn-goto-aura:hover {
+    background: rgba(212, 175, 55, 0.3);
+    border-color: #ffd700;
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.35);
+}
+
+/* ==========================================
+   MOVE HISTORY & FEN/PGN EXPORTER
+   ========================================== */
+.ziga-history-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.ziga-history-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.ziga-history-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #e2e8f0;
+}
+
+.ziga-history-icon {
+    font-size: 13px;
+}
+
+.ziga-history-count-badge {
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 1px 6px;
+    background: rgba(56, 189, 248, 0.18);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 10px;
+}
+
+.ziga-history-tools {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ziga-btn-tool-sub {
+    padding: 2.5px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #cbd5e1;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ziga-btn-tool-sub:hover {
+    background: rgba(212, 175, 55, 0.25);
+    border-color: #ffd700;
+    color: #ffffff;
+    box-shadow: 0 0 6px rgba(212, 175, 55, 0.3);
+}
+
+.ziga-btn-tool-sub.ziga-btn-tool-reset {
+    padding: 2.5px 5px;
+    color: #94a3b8;
+}
+
+.ziga-btn-tool-sub.ziga-btn-tool-reset:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: #ef4444;
+    color: #fca5a5;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.3);
+}
+
+.ziga-move-history-table-header {
+    display: grid;
+    grid-template-columns: 28px 1fr 1fr;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+    padding: 3px 6px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 4px;
+    text-align: center;
+}
+
+.ziga-move-history-table-header .red {
+    color: #f87171;
+}
+
+.ziga-move-history-table-header .black {
+    color: #94a3b8;
+}
+
+.ziga-move-history-scroll {
+    max-height: 140px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-right: 2px;
+}
+
+.ziga-move-history-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+
+.ziga-move-history-scroll::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 3px;
+}
+
+.ziga-move-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 1fr;
+    gap: 4px;
+    font-size: 11px;
+    align-items: center;
+    padding: 2.5px 4px;
+    border-radius: 4px;
+    transition: background 0.12s ease;
+}
+
+.ziga-move-row:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.ziga-move-row:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.ziga-move-row.latest {
+    background: rgba(56, 189, 248, 0.1);
+    border-left: 2px solid #38bdf8;
+}
+
+.ziga-move-num {
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+    text-align: center;
+}
+
+.ziga-move-cell {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    padding: 2px 4px;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.ziga-move-cell.red {
+    color: #fca5a5;
+}
+
+.ziga-move-cell.black {
+    color: #e2e8f0;
+}
+
+.ziga-move-cell.is-capture {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #fecaca;
+    font-weight: 800;
+}
+
+.ziga-move-cell.empty {
+    color: #475569;
+    font-weight: normal;
+}
+
+.ziga-empty-moves {
+    text-align: center;
+    padding: 14px 6px;
+    font-size: 11px;
+    font-style: italic;
+    color: #64748b;
+}
+
+/* Toast Notification */
+.ziga-recorder-toast {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: linear-gradient(135deg, rgba(20, 20, 28, 0.96) 0%, rgba(10, 10, 15, 0.98) 100%);
+    border: 1px solid #ffd700;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(212, 175, 55, 0.35);
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 9px 18px;
+    border-radius: 20px;
+    z-index: 2147483647;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.ziga-recorder-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+

@@ -1,0 +1,4014 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+.ziga-mod-container {
+    position: fixed !important;
+    z-index: 2147483647 !important;
+    width: 320px;
+    min-width: 270px;
+    max-width: 750px;
+    background: rgba(18, 22, 28, 0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75), 0 0 20px rgba(212, 175, 55, 0.25);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #f0f3f6;
+    user-select: none;
+    overflow: hidden;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+    box-sizing: border-box;
+}
+
+/* =================================================== */
+/* RESIZE HANDLES (KÉO TO / THU NHỎ POPUP)             */
+/* =================================================== */
+
+.ziga-mod-resize-handle {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 18px;
+    height: 18px;
+    cursor: nwse-resize;
+    z-index: 99999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 3px;
+    opacity: 0.65;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.ziga-mod-resize-handle:hover {
+    opacity: 1;
+    transform: scale(1.15);
+}
+
+.ziga-mod-resize-handle::after {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-right: 2.5px solid #ffd700;
+    border-bottom: 2.5px solid #ffd700;
+    border-radius: 1px;
+}
+
+/* Right border resizer */
+.ziga-mod-resize-edge-r {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 18px;
+    width: 7px;
+    cursor: ew-resize;
+    z-index: 99998;
+}
+
+.ziga-mod-resize-edge-r:hover {
+    background: rgba(212, 175, 55, 0.2);
+}
+
+/* Bottom border resizer */
+.ziga-mod-resize-edge-b {
+    position: absolute;
+    left: 0;
+    right: 18px;
+    bottom: 0;
+    height: 7px;
+    cursor: ns-resize;
+    z-index: 99998;
+}
+
+.ziga-mod-resize-edge-b:hover {
+    background: rgba(212, 175, 55, 0.2);
+}
+
+.ziga-mod-container.minimized .ziga-mod-resize-handle,
+.ziga-mod-container.minimized .ziga-mod-resize-edge-r,
+.ziga-mod-container.minimized .ziga-mod-resize-edge-b {
+    display: none !important;
+}
+
+/* Completely hide all floating AdSense side rails, anchor banners, and obstructing ads */
+ins.adsbygoogle,
+.google-auto-placed,
+iframe[id^="aswift"],
+iframe[name^="aswift"],
+div[id^="aswift"],
+div[id^="google_ads"],
+iframe[id^="google_ads"],
+.ads-frame,
+[id*="banner_left"],
+[id*="banner_right"],
+[class*="banner-left"],
+[class*="banner-right"] {
+    display: none !important;
+    visibility: hidden !important;
+    z-index: -9999 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+}
+
+.ziga-mod-container:hover {
+    border-color: rgba(212, 175, 55, 0.6);
+    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.65), 0 0 22px rgba(212, 175, 55, 0.25);
+}
+
+/* Header */
+.ziga-mod-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, rgba(38, 44, 56, 0.95), rgba(24, 28, 36, 0.95));
+    border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+    cursor: grab;
+}
+
+.ziga-mod-header:active {
+    cursor: grabbing;
+}
+
+.ziga-mod-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ziga-mod-badge-icon {
+    font-size: 18px;
+    color: #ffd700;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+.ziga-mod-title-text {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #f7df94;
+    font-family: "Inter", sans-serif;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    padding-top: 5px;
+}
+
+.ziga-mod-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ziga-mod-btn-icon {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #d1d5db;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1;
+    transition: all 0.2s ease;
+}
+
+.ziga-mod-btn-icon:hover {
+    background: rgba(212, 175, 55, 0.25);
+    border-color: #ffd700;
+    color: #fff;
+}
+
+/* Content Body */
+.ziga-mod-content {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 560px;
+    overflow-y: auto;
+}
+
+/* Scrollbar */
+.ziga-mod-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.ziga-mod-content::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.2);
+    border-radius: 3px;
+}
+
+/* =================================================== */
+/* MINIMIZED DOCKING BUBBLE MODE (BONG BÓNG THU NHỎ)   */
+/* =================================================== */
+
+.ziga-mod-container.minimized {
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: fit-content !important;
+    border-radius: 50px !important;
+    padding: 0 !important;
+    background: rgba(18, 22, 28, 0.94) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border: 1.5px solid rgba(212, 175, 55, 0.8) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75), 0 0 16px rgba(212, 175, 55, 0.4) !important;
+    overflow: hidden !important;
+    cursor: grab !important;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+
+.ziga-mod-container.minimized:hover {
+    transform: scale(1.05) translateY(-1px);
+    border-color: #ffd700 !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85), 0 0 24px rgba(255, 215, 0, 0.65) !important;
+}
+
+.ziga-mod-container.minimized:active {
+    cursor: grabbing !important;
+    transform: scale(0.98);
+}
+
+.ziga-mod-container.minimized .ziga-mod-header {
+    border-bottom: none !important;
+    padding: 5px 12px 5px 10px !important;
+    border-radius: 50px !important;
+    background: transparent !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    height: 38px !important;
+    box-sizing: border-box !important;
+    cursor: inherit !important;
+}
+
+.ziga-mod-container.minimized .ziga-mod-title {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: inherit !important;
+}
+
+.ziga-mod-container.minimized .ziga-mod-badge-icon svg {
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.6) !important;
+}
+
+.ziga-mod-container.minimized .ziga-mod-title-text {
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.8px !important;
+    color: #ffd700 !important;
+    padding-top: 2px !important;
+    display: inline-block !important;
+    line-height: 1 !important;
+    cursor: inherit !important;
+}
+
+.ziga-mod-container.minimized .ziga-mod-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+.ziga-mod-container.minimized #ziga-mod-btn-min {
+    background: rgba(212, 175, 55, 0.2) !important;
+    border: 1px solid rgba(212, 175, 55, 0.6) !important;
+    color: #ffd700 !important;
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+    transition: all 0.2s ease !important;
+    padding: 0 !important;
+}
+
+.ziga-mod-container.minimized #ziga-mod-btn-min:hover {
+    background: rgba(212, 175, 55, 0.5) !important;
+    border-color: #ffd700 !important;
+    color: #fff !important;
+    transform: scale(1.15) !important;
+}
+
+/* Hide content body, drawer, resize handles, and extra buttons in minimized mode */
+.ziga-mod-container.minimized .ziga-mod-content,
+.ziga-mod-container.minimized .ziga-settings-drawer,
+.ziga-mod-container.minimized .ziga-mod-resize-handle,
+.ziga-mod-container.minimized .ziga-mod-resize-edge-r,
+.ziga-mod-container.minimized .ziga-mod-resize-edge-b,
+.ziga-mod-container.minimized #ziga-mod-btn-settings,
+.ziga-mod-container.minimized .ziga-mod-actions .ziga-mod-btn-icon:not(#ziga-mod-btn-min) {
+    display: none !important;
+}
+
+/* Status Indicator */
+.ziga-mod-match-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #9ca3af;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+.ziga-mod-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.ziga-mod-dot.waiting {
+    background: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+.ziga-mod-dot.active {
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+    animation: pulse-dot 1.8s infinite;
+}
+
+@keyframes pulse-dot {
+    0% {
+        transform: scale(0.9);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(0.9);
+        opacity: 0.8;
+    }
+}
+
+/* Material Advantage Bar */
+.ziga-material-bar-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(212, 175, 55, 0.08);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 11.5px;
+}
+
+.ziga-material-left {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.ziga-material-label {
+    color: #cbd5e1;
+    font-weight: 600;
+}
+
+.ziga-help-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.2);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    color: #ffd700;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    line-height: 1;
+    margin: 0 1px;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.ziga-help-btn:hover {
+    background: rgba(212, 175, 55, 0.45);
+    border-color: #ffd700;
+    color: #fff;
+    transform: scale(1.15);
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+}
+
+.ziga-material-colon {
+    color: #cbd5e1;
+    font-weight: 600;
+}
+
+.ziga-material-val {
+    font-weight: 800;
+    color: #e2e8f0;
+}
+
+.ziga-material-val.advantage-positive {
+    color: #34d399;
+    text-shadow: 0 0 6px rgba(52, 211, 153, 0.4);
+}
+
+.ziga-material-val.advantage-negative {
+    color: #f87171;
+    text-shadow: 0 0 6px rgba(248, 113, 113, 0.4);
+}
+
+/* Material Tooltip Popover */
+.ziga-material-tooltip {
+    position: absolute;
+    top: calc(100% + 7px);
+    left: 0;
+    right: 0;
+    z-index: 99999;
+    background: rgba(18, 22, 28, 0.98);
+    border: 1px solid rgba(212, 175, 55, 0.55);
+    border-radius: 8px;
+    padding: 10px 11px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.85), 0 0 16px rgba(212, 175, 55, 0.25);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    animation: tooltip-fadein 0.18s ease-out;
+    box-sizing: border-box;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.ziga-material-tooltip::-webkit-scrollbar {
+    width: 4px;
+}
+
+.ziga-material-tooltip::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 2px;
+}
+
+.ziga-material-tooltip::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 102px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid rgba(212, 175, 55, 0.7);
+}
+
+@keyframes tooltip-fadein {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ziga-mat-tt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+    padding-bottom: 5px;
+    margin-bottom: 8px;
+}
+
+.ziga-mat-tt-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #f7df94;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.ziga-mat-tt-close {
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 3px;
+    line-height: 1;
+    transition: all 0.15s ease;
+}
+
+.ziga-mat-tt-close:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Live calculation breakdown section */
+.ziga-mat-tt-live-section {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 6px;
+    padding: 8px;
+    margin-bottom: 9px;
+}
+
+.ziga-mat-tt-live-title {
+    font-size: 10px;
+    font-weight: 800;
+    color: #ffd700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.ziga-mat-tt-live-calc {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 5px;
+    padding: 6px 8px;
+    margin-bottom: 7px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ziga-mat-tt-score-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    font-size: 11px;
+}
+
+.ziga-mat-tt-player-sc.my {
+    color: #38bdf8;
+}
+
+.ziga-mat-tt-player-sc.opp {
+    color: #fca5a5;
+}
+
+.ziga-mat-tt-vs {
+    font-size: 10px;
+    color: #94a3b8;
+    font-weight: bold;
+}
+
+.ziga-mat-tt-diff-row {
+    font-size: 10.5px;
+    color: #cbd5e1;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+    padding-top: 4px;
+}
+
+.ziga-mat-tt-diff-row .green,
+.ziga-mat-col-diff .green {
+    color: #34d399;
+}
+
+.ziga-mat-tt-diff-row .red,
+.ziga-mat-col-diff .red {
+    color: #f87171;
+}
+
+.ziga-mat-tt-diff-row .neutral {
+    color: #e2e8f0;
+}
+
+.ziga-mat-tt-table-wrap {
+    width: 100%;
+}
+
+.ziga-mat-tt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5px;
+}
+
+.ziga-mat-tt-table th {
+    padding: 3px 4px;
+    color: #94a3b8;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.ziga-mat-tt-table td {
+    padding: 3px 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: #e2e8f0;
+}
+
+.ziga-mat-col-name {
+    text-align: left;
+    white-space: nowrap;
+}
+
+.ziga-mat-col-num {
+    text-align: center;
+    font-weight: 600;
+}
+
+.ziga-mat-col-num.bold-green {
+    color: #34d399;
+    font-weight: 800;
+}
+
+.ziga-mat-col-num.bold-red {
+    color: #f87171;
+    font-weight: 800;
+}
+
+.ziga-mat-col-diff {
+    text-align: right;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.ziga-mat-row-total td {
+    border-top: 1px solid rgba(212, 175, 55, 0.35);
+    border-bottom: none;
+    padding-top: 5px;
+    color: #ffd700;
+}
+
+.ziga-mat-row-total td:nth-child(2),
+.ziga-mat-row-total td:nth-child(3) {
+    text-align: center;
+}
+
+.ziga-mat-row-total td:nth-child(4) {
+    text-align: right;
+}
+
+/* Reference points section */
+.ziga-mat-tt-ref-section {
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+    padding-top: 7px;
+}
+
+.ziga-mat-tt-ref-title {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.ziga-mat-tt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 6px;
+}
+
+.ziga-mat-tt-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 3px 5px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 10.5px;
+}
+
+.ziga-mat-tt-name {
+    color: #cbd5e1;
+}
+
+.ziga-mat-tt-pts {
+    color: #ffd700;
+    font-weight: 700;
+}
+
+/* Section Styling */
+.ziga-player-section {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.ziga-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ziga-player-label {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.opponent-section .ziga-player-label {
+    color: #fca5a5;
+}
+
+.self-section .ziga-player-label {
+    color: #93c5fd;
+}
+
+.ziga-count-tag {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: #cbd5e1;
+}
+
+/* Pieces Grid */
+.ziga-pieces-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    min-height: 40px;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.ziga-empty-note {
+    font-size: 11.5px;
+    color: #94a3b8;
+    font-style: italic;
+    width: 100%;
+    text-align: center;
+    padding: 4px 0;
+    line-height: 1.4;
+}
+
+/* Piece Token (Cờ) */
+.ziga-piece-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 3px 6px 3px 4px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.ziga-piece-chip:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.ziga-piece-token {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    font-family: "KaiTi", "BiauKai", "STKaiti", "SimSun", "Cinzel", serif;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+/* Red Piece Styling */
+.ziga-piece-chip.red-piece .ziga-piece-token {
+    background: radial-gradient(circle at 35% 35%, #fff2dc, #e8cfa1 60%, #bd9f67 100%);
+    border: 1.5px solid #bd302b;
+    color: #c92a2a;
+    text-shadow: 0 0 1px rgba(201, 42, 42, 0.5);
+}
+
+.ziga-piece-chip.red-piece {
+    border-color: rgba(239, 68, 68, 0.25);
+}
+
+/* Black Piece Styling */
+.ziga-piece-chip.black-piece .ziga-piece-token {
+    background: radial-gradient(circle at 35% 35%, #fff2dc, #ded0be 60%, #a89a87 100%);
+    border: 1.5px solid #2d3748;
+    color: #1a202c;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+.ziga-piece-chip.black-piece {
+    border-color: rgba(148, 163, 184, 0.25);
+}
+
+.ziga-piece-info {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+}
+
+.ziga-piece-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #e2e8f0;
+}
+
+.ziga-piece-count {
+    font-size: 12px;
+    font-weight: 900;
+    color: #ffd700;
+}
+
+/* Divider */
+.ziga-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.25), transparent);
+    margin: 2px 0;
+}
+
+/* =================================================== */
+/* TACTICAL TARGET INSPECTOR SECTION (HIGHLIGHT QUÂN)  */
+/* =================================================== */
+
+.ziga-tactical-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    border-radius: 10px;
+    padding: 10px 11px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.ziga-tactical-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ziga-tactical-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #f7df94;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: "Inter", sans-serif;
+}
+
+.ziga-btn-clear-select {
+    flex: none;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ziga-btn-clear-select:hover {
+    background: rgba(239, 68, 68, 0.3);
+    color: #fff;
+    border-color: #ef4444;
+}
+
+.ziga-inspect-card {
+    display: flex;
+    align-items: center;
+}
+
+.ziga-piece-chip.inspect-active {
+    width: 100%;
+    background: rgba(212, 175, 55, 0.12);
+    border-color: rgba(212, 175, 55, 0.5);
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+}
+
+.ziga-pos-badge {
+    font-size: 10px;
+    color: #94a3b8;
+    margin-left: auto;
+    font-family: monospace;
+}
+
+.ziga-targets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.ziga-target-subhead {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #f87171;
+    letter-spacing: 0.3px;
+}
+
+.ziga-target-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.ziga-target-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px 3px 5px;
+    border-radius: 6px;
+    background: rgba(239, 68, 68, 0.14);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    animation: pulse-border 1.5s infinite;
+}
+
+@keyframes pulse-border {
+    0% {
+        border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    50% {
+        border-color: rgba(239, 68, 68, 0.8);
+    }
+
+    100% {
+        border-color: rgba(239, 68, 68, 0.35);
+    }
+}
+
+.ziga-target-token {
+    font-family: "KaiTi", "BiauKai", "STKaiti", "SimSun", serif;
+    font-size: 14px;
+    font-weight: 900;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #fef2f2;
+    color: #b91c1c;
+    line-height: 1;
+}
+
+.ziga-target-item.black-piece .ziga-target-token {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.ziga-target-name {
+    font-size: 11px;
+    font-weight: 800;
+    color: #f1f5f9;
+}
+
+.ziga-target-pos {
+    font-size: 9.5px;
+    color: #94a3b8;
+    font-family: monospace;
+}
+
+.ziga-target-val {
+    font-size: 10px;
+    font-weight: 800;
+    color: #34d399;
+}
+
+.ziga-tactical-empty {
+    font-size: 11px;
+    color: #94a3b8;
+    padding: 4px 6px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    line-height: 1.4;
+}
+
+
+/* Summary Section */
+.ziga-summary-section {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 8px 10px;
+    border-radius: 8px;
+}
+
+.ziga-summary-title {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.ziga-summary-stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ziga-stat-col {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ziga-stat-head {
+    font-size: 11px;
+    color: #cbd5e1;
+    font-weight: 600;
+}
+
+.ziga-stat-val {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: #ffd700;
+    font-family: monospace;
+}
+
+.ziga-stat-vs {
+    font-size: 11px;
+    font-weight: 900;
+    color: #64748b;
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+/* =================================================== */
+/* SETTINGS DRAWER & TOGGLE SWITCHES                   */
+/* =================================================== */
+
+.ziga-settings-drawer {
+    background: rgba(15, 23, 42, 0.98);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.35);
+    padding: 12px 14px;
+    box-shadow: inset 0 -2px 8px rgba(0, 0, 0, 0.4);
+    animation: ziga-slide-down 0.22s ease-out;
+}
+
+@keyframes ziga-slide-down {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ziga-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed rgba(212, 175, 55, 0.25);
+}
+
+.ziga-settings-heading {
+    font-size: 11px;
+    font-weight: 800;
+    color: #f7df94;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    font-family: "Inter", sans-serif;
+}
+
+.ziga-settings-close-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #cbd5e1;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 11px;
+    line-height: 1;
+    transition: all 0.2s ease;
+}
+
+.ziga-settings-close-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: #ef4444;
+    color: #fff;
+}
+
+.ziga-settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    max-height: 310px;
+    overflow-y: auto;
+    padding-right: 3px;
+}
+
+.ziga-settings-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.ziga-settings-list::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.25);
+    border-radius: 2px;
+}
+
+.ziga-setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease;
+    position: relative;
+}
+
+.ziga-setting-row:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+.ziga-setting-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding-right: 12px;
+}
+
+.ziga-setting-text strong {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #f1f5f9;
+}
+
+.ziga-setting-text small {
+    font-size: 9.5px;
+    color: #94a3b8;
+    line-height: 1.25;
+}
+
+/* Custom iOS-style Switch Toggle */
+.ziga-setting-row input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.ziga-switch-slider {
+    position: relative;
+    width: 34px;
+    height: 18px;
+    background-color: #475569;
+    border-radius: 20px;
+    transition: background-color 0.25s ease;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.ziga-switch-slider::after {
+    content: "";
+    position: absolute;
+    height: 12px;
+    width: 12px;
+    left: 2px;
+    top: 2px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.ziga-setting-row input[type="checkbox"]:checked+.ziga-switch-slider {
+    background-color: #10b981;
+    border-color: #059669;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.ziga-setting-row input[type="checkbox"]:checked+.ziga-switch-slider::after {
+    transform: translateX(16px);
+}
+
+.ziga-settings-footer {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: center;
+}
+
+.ziga-btn-reset-settings {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #94a3b8;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ziga-btn-reset-settings:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+    color: #fca5a5;
+}
+
+.ziga-mod-btn-icon.active {
+    background: rgba(212, 175, 55, 0.35);
+    border-color: #ffd700;
+    color: #ffd700;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+/* =================================================== */
+/* THREAT SCANNER ALERT (CẢNH BÁO BỊ ĐE DỌA)            */
+/* =================================================== */
+
+.ziga-threat-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.16) 0%, rgba(18, 18, 24, 0.96) 100%);
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    border-radius: 9px;
+    padding: 8px 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 12px rgba(239, 68, 68, 0.15);
+    animation: threat-pulse 2s infinite ease-in-out;
+}
+
+.ziga-threat-box.king-in-check {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.32) 0%, rgba(32, 14, 18, 0.98) 100%);
+    border-color: #ef4444;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5), inset 0 0 12px rgba(239, 68, 68, 0.25);
+    animation: king-alert-pulse 1.4s infinite ease-in-out;
+}
+
+@keyframes threat-pulse {
+    0% {
+        box-shadow: 0 0 8px rgba(239, 68, 68, 0.15);
+    }
+
+    50% {
+        box-shadow: 0 0 16px rgba(239, 68, 68, 0.38);
+        border-color: rgba(239, 68, 68, 0.7);
+    }
+
+    100% {
+        box-shadow: 0 0 8px rgba(239, 68, 68, 0.15);
+    }
+}
+
+@keyframes king-alert-pulse {
+    0% {
+        border-color: #ef4444;
+        box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+    }
+
+    50% {
+        border-color: #f87171;
+        box-shadow: 0 0 24px rgba(239, 68, 68, 0.75), inset 0 0 8px rgba(239, 68, 68, 0.4);
+    }
+
+    100% {
+        border-color: #ef4444;
+        box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+    }
+}
+
+.ziga-threat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.ziga-threat-title-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ziga-threat-icon {
+    font-size: 14px;
+    animation: threat-shake 1.5s infinite;
+    flex-shrink: 0;
+}
+
+@keyframes threat-shake {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    20%,
+    60% {
+        transform: rotate(-8deg);
+    }
+
+    40%,
+    80% {
+        transform: rotate(8deg);
+    }
+}
+
+.ziga-threat-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #fca5a5;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: "Inter", sans-serif;
+    text-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
+.ziga-threat-count-pill {
+    font-size: 9px;
+    font-weight: 800;
+    color: #fee2e2;
+    background: rgba(239, 68, 68, 0.35);
+    border: 1px solid rgba(239, 68, 68, 0.65);
+    padding: 1px 6px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+}
+
+.ziga-threat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 3px;
+}
+
+/* Card item */
+.ziga-threat-card {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 5px 8px;
+    background: rgba(8, 8, 12, 0.65);
+    border-radius: 7px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 3.5px solid rgba(148, 163, 184, 0.4);
+    transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.ziga-threat-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Severity: King Under Attack */
+.ziga-threat-card.sev-king {
+    background: linear-gradient(90deg, rgba(220, 38, 38, 0.35) 0%, rgba(20, 15, 18, 0.85) 100%);
+    border-left: 4px solid #ef4444;
+    border-color: rgba(239, 68, 68, 0.55);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}
+
+/* Severity: Xe Under Attack */
+.ziga-threat-card.sev-xe {
+    background: linear-gradient(90deg, rgba(234, 88, 12, 0.28) 0%, rgba(24, 18, 14, 0.85) 100%);
+    border-left: 4px solid #f97316;
+    border-color: rgba(249, 115, 22, 0.5);
+    box-shadow: 0 0 8px rgba(249, 115, 22, 0.2);
+}
+
+/* Severity: Pháo/Mã Under Attack */
+.ziga-threat-card.sev-major {
+    background: linear-gradient(90deg, rgba(234, 179, 8, 0.2) 0%, rgba(22, 20, 15, 0.8) 100%);
+    border-left: 3.5px solid #eab308;
+    border-color: rgba(234, 179, 8, 0.4);
+}
+
+.ziga-threat-main-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+/* Parties */
+.ziga-threat-party {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+}
+
+/* Faction indicator pill */
+.ziga-party-pill {
+    font-size: 8.5px;
+    font-weight: 900;
+    padding: 1.5px 4px;
+    border-radius: 3px;
+    letter-spacing: 0.4px;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.ziga-party-pill.enemy-pill {
+    background: rgba(239, 68, 68, 0.28);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.6);
+}
+
+.ziga-party-pill.friendly-pill {
+    background: rgba(14, 165, 233, 0.25);
+    color: #7dd3fc;
+    border: 1px solid rgba(14, 165, 233, 0.55);
+}
+
+/* Realistic Mini Xiangqi Piece Token */
+.ziga-mini-token {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "KaiTi", "BiauKai", "STKaiti", "SimSun", "Cinzel", serif;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+    flex-shrink: 0;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+
+.ziga-mini-token.token-red {
+    background: radial-gradient(circle at 35% 35%, #fff5ea, #e8cfa1 60%, #bd9f67 100%);
+    border: 1.5px solid #bd302b;
+    color: #c92a2a;
+    text-shadow: 0 0 1px rgba(201, 42, 42, 0.5);
+}
+
+.ziga-mini-token.token-black {
+    background: radial-gradient(circle at 35% 35%, #fff5ea, #ded0be 60%, #a89a87 100%);
+    border: 1.5px solid #2d3748;
+    color: #1a202c;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+/* Major piece token highlights */
+.ziga-mini-token.major-token {
+    border: 2px solid #ef4444;
+    box-shadow: 0 0 7px rgba(239, 68, 68, 0.75), 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.ziga-mini-token.target-major-token {
+    border: 2px solid #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.8), 0 2px 4px rgba(0, 0, 0, 0.5);
+    animation: pulse-danger-token 1.6s infinite ease-in-out;
+}
+
+@keyframes pulse-danger-token {
+
+    0%,
+    100% {
+        box-shadow: 0 0 5px rgba(245, 158, 11, 0.6);
+    }
+
+    50% {
+        box-shadow: 0 0 11px rgba(239, 68, 68, 0.95);
+    }
+}
+
+/* Party text metadata */
+.ziga-party-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    line-height: 1;
+}
+
+.ziga-party-name {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #f1f5f9;
+    white-space: nowrap;
+}
+
+.ziga-party-name.highlight-atk-major {
+    color: #ff8787;
+    font-weight: 800;
+    text-shadow: 0 0 8px rgba(239, 68, 68, 0.55);
+}
+
+.ziga-party-name.highlight-tgt-major {
+    color: #fef08a;
+    font-weight: 800;
+    text-shadow: 0 0 8px rgba(250, 204, 21, 0.45);
+}
+
+.ziga-major-indicator {
+    font-size: 8.5px;
+    font-weight: 800;
+    color: #facc15;
+    background: rgba(250, 204, 21, 0.16);
+    border: 1px solid rgba(250, 204, 21, 0.45);
+    padding: 1px 3.5px;
+    border-radius: 3px;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+}
+
+/* Target Threat Badges */
+.ziga-threat-badge {
+    font-size: 8.5px;
+    font-weight: 800;
+    padding: 1.5px 4.5px;
+    border-radius: 3px;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+}
+
+.ziga-threat-badge.tag-king {
+    background: #dc2626;
+    color: #ffffff;
+    border: 1px solid #ef4444;
+    box-shadow: 0 0 8px rgba(220, 38, 38, 0.7);
+    animation: pulse-king 1.2s infinite;
+    font-weight: 900;
+}
+
+@keyframes pulse-king {
+
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 6px rgba(220, 38, 38, 0.6);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
+    }
+}
+
+.ziga-threat-badge.tag-xe {
+    background: rgba(234, 88, 12, 0.38);
+    color: #fed7aa;
+    border: 1px solid #f97316;
+    font-weight: 800;
+}
+
+.ziga-threat-badge.tag-major {
+    background: rgba(234, 179, 8, 0.22);
+    color: #fef08a;
+    border: 1px solid rgba(234, 179, 8, 0.5);
+}
+
+.ziga-threat-badge.tag-minor {
+    background: rgba(148, 163, 184, 0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+/* Attack sword indicator */
+.ziga-threat-attack-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+}
+
+.ziga-atk-sword {
+    font-size: 11px;
+    filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.6));
+    animation: attack-sway 1.4s infinite ease-in-out;
+}
+
+@keyframes attack-sway {
+
+    0%,
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+
+    50% {
+        transform: scale(1.15) rotate(6deg);
+    }
+}
+
+/* Coordinate pill */
+.ziga-threat-pos-pill {
+    font-size: 9.5px;
+    font-weight: 800;
+    color: #fde047;
+    background: rgba(234, 179, 8, 0.12);
+    border: 1px solid rgba(234, 179, 8, 0.35);
+    padding: 2px 5px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-family: monospace;
+    letter-spacing: 0.3px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* =================================================== */
+/* CỜ ÚP PROBABILITY BOX                               */
+/* =================================================== */
+
+.ziga-coup-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    border-radius: 8px;
+    padding: 8px 10px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.ziga-coup-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ziga-coup-icon {
+    font-size: 13px;
+}
+
+.ziga-coup-title {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #c4b5fd;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: "Inter", sans-serif;
+}
+
+.ziga-coup-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ziga-coup-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ziga-coup-side-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #e2e8f0;
+}
+
+.ziga-coup-unopened {
+    font-size: 10px;
+    color: #a78bfa;
+    font-weight: 800;
+}
+
+.ziga-coup-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.ziga-prob-badge {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.ziga-prob-badge.xe {
+    background: rgba(239, 68, 68, 0.18);
+    color: #fca5a5;
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.ziga-prob-badge.phao {
+    background: rgba(245, 158, 11, 0.18);
+    color: #fcd34d;
+    border-color: rgba(245, 158, 11, 0.4);
+}
+
+.ziga-prob-badge.ma {
+    background: rgba(16, 185, 129, 0.18);
+    color: #6ee7b7;
+    border-color: rgba(16, 185, 129, 0.4);
+}
+
+.ziga-prob-badge.phe {
+    background: rgba(148, 163, 184, 0.18);
+    color: #cbd5e1;
+    border-color: rgba(148, 163, 184, 0.35);
+}
+
+/* Board Row Numbers (Fallback DOM) */
+.ziga-board-row-num {
+    font-family: "Inter", sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: rgb(114, 51, 20);
+    opacity: 0.85;
+    user-select: none;
+    pointer-events: none;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+
+/* =================================================== */
+/* TACTICAL SANDBOX SIMULATION (MÔ PHỎNG NƯỚC ĐI)     */
+/* =================================================== */
+
+/* Launcher button on Main HUD */
+.ziga-sandbox-launcher-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.18) 0%, rgba(30, 24, 15, 0.85) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 8px;
+    padding: 7px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.ziga-sandbox-launcher-btn:hover {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.32) 0%, rgba(45, 34, 18, 0.95) 100%);
+    border-color: #ffd700;
+    box-shadow: 0 0 14px rgba(212, 175, 55, 0.35);
+    transform: translateY(-1px);
+}
+
+.ziga-sb-launcher-left {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.ziga-sb-launcher-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.ziga-sb-launcher-title {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #ffd700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+}
+
+.ziga-sb-launcher-badge {
+    font-size: 9px;
+    font-weight: 800;
+    color: #1e1e24;
+    background: #facc15;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    box-shadow: 0 0 6px rgba(250, 204, 21, 0.4);
+}
+
+/* Modal Overlay */
+.ziga-sandbox-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147483647 !important;
+    background: rgba(0, 0, 0, 0.78) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 15px !important;
+    box-sizing: border-box !important;
+    user-select: none !important;
+}
+
+.ziga-sandbox-overlay.hidden {
+    display: none !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
+.ziga-sb-card {
+    width: 440px;
+    max-width: 96vw;
+    background: rgba(18, 22, 28, 0.98);
+    border: 1.5px solid rgba(212, 175, 55, 0.65);
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(212, 175, 55, 0.25);
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    position: relative;
+    animation: sb-zoom-in 0.2s ease-out;
+}
+
+@keyframes sb-zoom-in {
+    from {
+        opacity: 0;
+        transform: scale(0.94);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ============================================================
+   Tactical Sandbox Dual-Flank Alert System (2 Bên Hông Bàn Cờ)
+   ============================================================ */
+
+.ziga-sb-flank {
+    position: absolute;
+    top: 52%;
+    transform: translateY(-50%);
+    width: 146px;
+    background: linear-gradient(180deg, rgba(20, 24, 33, 0.97) 0%, rgba(13, 16, 23, 0.97) 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 12px 10px;
+    box-sizing: border-box;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 50;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+}
+
+/* Left Flank (Bên hông trái bàn cờ duy nhất) */
+.ziga-sb-flank-left {
+    right: calc(100% + 14px);
+    width: 172px;
+}
+
+/* State: Opponent's Turn (Chờ đối thủ đánh cờ) */
+.ziga-sb-flank.state-opp-turn {
+    border-color: rgba(56, 189, 248, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 16px rgba(56, 189, 248, 0.15);
+}
+
+/* State: My Turn (Lượt bạn đánh cờ) */
+.ziga-sb-flank.state-my-turn {
+    border-color: rgba(250, 204, 21, 0.75);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8), 0 0 22px rgba(250, 204, 21, 0.3);
+}
+
+/* State: Urgent Alert (<= 15s sắp hết giờ) */
+.ziga-sb-flank.state-my-turn.urgent {
+    border-color: #ef4444;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85), 0 0 26px rgba(239, 68, 68, 0.65);
+    animation: sb-flank-urgent-pulse 1.3s infinite ease-in-out;
+}
+
+@keyframes sb-flank-urgent-pulse {
+    0%, 100% {
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85), 0 0 18px rgba(239, 68, 68, 0.5);
+        border-color: #ef4444;
+    }
+    50% {
+        box-shadow: 0 12px 44px rgba(0, 0, 0, 0.9), 0 0 32px rgba(239, 68, 68, 0.95);
+        border-color: #facc15;
+    }
+}
+
+/* Flank Header & Tags */
+.ziga-sb-flank-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ziga-sb-flank-icon {
+    font-size: 14px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.ziga-sb-flank-tag {
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #94a3b8;
+}
+
+.state-opp-turn .ziga-sb-flank-tag {
+    color: #38bdf8;
+}
+
+.state-my-turn .ziga-sb-flank-tag {
+    color: #facc15;
+}
+
+.state-my-turn.urgent .ziga-sb-flank-tag {
+    color: #f87171;
+}
+
+/* Left Flank Content */
+.ziga-sb-flank-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: #f8fafc;
+    line-height: 1.3;
+}
+
+.state-my-turn .ziga-sb-flank-title {
+    color: #facc15;
+}
+
+.state-my-turn.urgent .ziga-sb-flank-title {
+    color: #ef4444;
+    animation: threat-shake 1.3s infinite;
+}
+
+.ziga-sb-flank-desc {
+    font-size: 10px;
+    color: #94a3b8;
+    line-height: 1.35;
+}
+
+/* Dual Time-Block System in Left Flank */
+.ziga-sb-time-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 7px 8px;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.ziga-sb-time-block.turn-block {
+    border-color: rgba(34, 197, 94, 0.45);
+    background: rgba(34, 197, 94, 0.08);
+}
+
+.state-my-turn.urgent .ziga-sb-time-block.turn-block {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.18);
+    animation: sb-timer-pulse 0.8s infinite alternate;
+}
+
+.ziga-sb-time-block.total-block {
+    border-color: rgba(212, 175, 55, 0.35);
+    background: rgba(212, 175, 55, 0.06);
+}
+
+.ziga-sb-time-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ziga-sb-time-badge {
+    font-size: 8.5px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.ziga-sb-time-badge.turn-badge {
+    background: rgba(34, 197, 94, 0.22);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.5);
+}
+
+.state-my-turn.urgent .ziga-sb-time-badge.turn-badge {
+    background: rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+    border-color: #ef4444;
+}
+
+.ziga-sb-time-badge.total-badge {
+    background: rgba(212, 175, 55, 0.2);
+    color: #fde047;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+}
+
+.ziga-sb-time-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1px 0;
+}
+
+.ziga-sb-time-num {
+    font-size: 21px;
+    font-weight: 900;
+    font-family: 'Inter', monospace, sans-serif;
+    color: #4ade80;
+    line-height: 1.1;
+}
+
+.state-my-turn.urgent .ziga-sb-time-num {
+    color: #ef4444;
+    text-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
+}
+
+.ziga-sb-total-num {
+    font-size: 16px;
+    font-weight: 800;
+    font-family: 'Inter', monospace, sans-serif;
+    color: #fde047;
+    line-height: 1.1;
+}
+
+/* Green Progress Bar Tracking Avatar Radial Ring */
+.ziga-sb-progress-track {
+    width: 100%;
+    height: 5px;
+    background: rgba(0, 0, 0, 0.65);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    margin-top: 1px;
+}
+
+.ziga-sb-progress-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #10b981 0%, #22c55e 100%);
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+    transition: width 0.25s linear;
+}
+
+.ziga-sb-progress-bar.urgent {
+    background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.85);
+}
+
+.ziga-sb-note-text {
+    font-size: 8.5px;
+    color: #94a3b8;
+    line-height: 1.25;
+    font-style: italic;
+    text-align: center;
+}
+
+@keyframes sb-timer-pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.03); }
+}
+
+/* Action Button */
+.ziga-sb-flank-jump-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    padding: 7px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+    text-transform: uppercase;
+}
+
+.ziga-sb-flank-jump-btn.calm {
+    background: rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.ziga-sb-flank-jump-btn.calm:hover {
+    background: rgba(56, 189, 248, 0.2);
+    border-color: #38bdf8;
+    color: #ffffff;
+}
+
+.ziga-sb-flank-jump-btn.urgent-pulse {
+    background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+    color: #12161c;
+    box-shadow: 0 4px 14px rgba(250, 204, 21, 0.45);
+    animation: sb-jump-glow 1.2s infinite alternate;
+}
+
+.ziga-sb-flank-jump-btn.urgent-pulse:hover {
+    background: #ffffff;
+    box-shadow: 0 4px 18px rgba(255, 255, 255, 0.8);
+    transform: scale(1.03);
+}
+
+@keyframes sb-jump-glow {
+    from {
+        box-shadow: 0 2px 10px rgba(250, 204, 21, 0.4);
+    }
+    to {
+        box-shadow: 0 4px 20px rgba(239, 68, 68, 0.7);
+    }
+}
+
+.ziga-sb-flank-dismiss-btn {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-size: 9.5px;
+    text-align: center;
+    cursor: pointer;
+    padding: 3px 0;
+    transition: color 0.15s ease;
+}
+
+.ziga-sb-flank-dismiss-btn:hover {
+    color: #94a3b8;
+    text-decoration: underline;
+}
+
+/* Responsive Wrap for narrow viewports */
+@media (max-width: 780px) {
+    .ziga-sb-flank {
+        position: static;
+        width: calc(100% - 24px);
+        margin: 4px 12px;
+        transform: none;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 12px;
+    }
+    .ziga-sb-flank-desc {
+        display: none;
+    }
+    .ziga-sb-flank-header {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+}
+
+/* Move tags breakdown (Red & Black) */
+.ziga-sb-move-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 10.5px;
+}
+
+.ziga-sb-move-tag.red {
+    background: rgba(239, 68, 68, 0.18);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.ziga-sb-move-tag.black {
+    background: rgba(148, 163, 184, 0.18);
+    color: #cbd5e1;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.ziga-sb-logo-img,
+.ziga-mod-badge-img {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    display: inline-block;
+    vertical-align: middle;
+    box-shadow: 0 0 6px rgba(212, 175, 55, 0.4);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    object-fit: contain;
+    background: #000;
+}
+
+.ziga-sb-piece.inactive-turn {
+    cursor: not-allowed;
+    opacity: 0.82;
+}
+
+.ziga-sb-piece.active-turn {
+    cursor: pointer;
+}
+
+.ziga-sb-piece.capturable {
+    cursor: crosshair;
+}
+
+/* Modal Header */
+.ziga-sb-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, rgba(38, 44, 56, 0.95), rgba(24, 28, 36, 0.95));
+    border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 13px 13px 0 0;
+    cursor: grab;
+}
+
+.ziga-sb-header:active {
+    cursor: grabbing;
+}
+
+.ziga-sb-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ziga-sb-logo-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.ziga-sb-titles {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.ziga-sb-title {
+    font-size: 12.5px;
+    font-weight: 800;
+    color: #f7df94;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+}
+
+.ziga-sb-subtitle {
+    font-size: 9.5px;
+    color: #94a3b8;
+}
+
+.ziga-sb-header-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ziga-sb-real-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+}
+
+.ziga-sb-real-pill .ziga-sb-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+}
+
+.ziga-sb-real-pill.my-turn-alert {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+    animation: threat-pulse 1.4s infinite;
+}
+
+.ziga-sb-real-pill.my-turn-alert .ziga-sb-dot {
+    background: #ef4444;
+    box-shadow: 0 0 6px #ef4444;
+}
+
+.ziga-sb-btn-close {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #cbd5e1;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    transition: all 0.15s ease;
+}
+
+.ziga-sb-btn-close:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: #ef4444;
+    color: #fff;
+}
+
+/* Subheader Controls */
+.ziga-sb-subbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 14px;
+    background: rgba(0, 0, 0, 0.35);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 11px;
+}
+
+.ziga-sb-turn-toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ziga-sb-subbar-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: #94a3b8;
+    letter-spacing: 0.4px;
+}
+
+.ziga-sb-turn-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 6px;
+    color: #f1f5f9;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ziga-sb-turn-btn:hover {
+    background: rgba(212, 175, 55, 0.25);
+    border-color: #ffd700;
+}
+
+.ziga-sb-turn-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.ziga-sb-turn-dot.red {
+    background: #ef4444;
+    box-shadow: 0 0 6px #ef4444;
+}
+
+.ziga-sb-turn-dot.black {
+    background: #475569;
+    border: 1px solid #94a3b8;
+}
+
+.ziga-sb-mode-toggle {
+    display: flex;
+    align-items: center;
+}
+
+.ziga-sb-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #cbd5e1;
+    font-size: 10.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ziga-sb-checkbox-label input {
+    cursor: pointer;
+    accent-color: #10b981;
+}
+
+.ziga-sb-history-count {
+    color: #94a3b8;
+    font-size: 10.5px;
+}
+
+.ziga-sb-history-count strong {
+    color: #ffd700;
+}
+
+/* Board Area */
+.ziga-sb-board-container {
+    padding: 10px 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle, #f9dfad 0%, #e8c682 60%, #cc9f56 100%);
+    border: 2px solid #8c6239;
+    border-radius: 8px;
+    margin: 8px 12px;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.5);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ziga-sb-board-container.state-opp-turn {
+    border-left: 2.5px solid rgba(56, 189, 248, 0.4);
+    border-right: 2.5px solid rgba(56, 189, 248, 0.4);
+    box-shadow: -4px 0 12px rgba(56, 189, 248, 0.15), 4px 0 12px rgba(56, 189, 248, 0.15), inset 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.ziga-sb-board-container.flank-alert-active {
+    border-left: 3.5px solid #ef4444 !important;
+    border-right: 3.5px solid #ef4444 !important;
+    box-shadow: -8px 0 22px rgba(239, 68, 68, 0.65), 8px 0 22px rgba(239, 68, 68, 0.65), inset 0 2px 10px rgba(0, 0, 0, 0.4) !important;
+    animation: sb-flank-board-pulse 1.2s infinite ease-in-out;
+}
+
+@keyframes sb-flank-board-pulse {
+    0%, 100% {
+        border-left-color: #ef4444;
+        border-right-color: #ef4444;
+        box-shadow: -8px 0 16px rgba(239, 68, 68, 0.5), 8px 0 16px rgba(239, 68, 68, 0.5), inset 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+    50% {
+        border-left-color: #facc15;
+        border-right-color: #facc15;
+        box-shadow: -12px 0 26px rgba(250, 204, 21, 0.8), 12px 0 26px rgba(250, 204, 21, 0.8), inset 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+}
+
+.ziga-sb-board-bg {
+    position: relative;
+    width: 360px;
+    height: 405px;
+}
+
+.ziga-sb-svg-grid {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.ziga-sb-pieces-layer,
+.ziga-sb-dest-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Pieces on virtual board */
+.ziga-sb-piece {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.15s ease;
+    z-index: 10;
+}
+
+.ziga-sb-piece:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+    z-index: 18;
+}
+
+.ziga-sb-piece.selected {
+    transform: translate(-50%, -50%) scale(1.15) !important;
+    z-index: 20 !important;
+}
+
+.ziga-sb-piece.selected .ziga-sb-piece-inner {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.5), 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+    animation: sb-selected-pulse 1.2s infinite ease-in-out;
+}
+
+@keyframes sb-selected-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.5), 0 4px 12px rgba(0, 0, 0, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.8), 0 4px 16px rgba(16, 185, 129, 0.4);
+    }
+}
+
+.ziga-sb-piece-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.ziga-sb-piece.red-piece .ziga-sb-piece-inner {
+    background: radial-gradient(circle at 35% 35%, #fff7eb, #e8cfa1 60%, #bd9f67 100%);
+    border: 1.5px solid #bd302b;
+    color: #c92a2a;
+    text-shadow: 0 0 1px rgba(201, 42, 42, 0.5);
+}
+
+.ziga-sb-piece.black-piece .ziga-sb-piece-inner {
+    background: radial-gradient(circle at 35% 35%, #fff7eb, #ded0be 60%, #a89a87 100%);
+    border: 1.5px solid #2d3748;
+    color: #1a202c;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+.ziga-sb-piece-char {
+    font-family: 'KaiTi', 'BiauKai', 'STKaiti', 'SimSun', serif;
+    font-size: 19px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+/* Destination Markers */
+.ziga-sb-dest-dot {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.ziga-sb-dest-dot.move {
+    width: 13px;
+    height: 13px;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981, inset 0 0 2px #ffffff;
+    z-index: 15;
+    animation: sb-dest-pulse 1.2s infinite ease-in-out;
+}
+
+@keyframes sb-dest-pulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(0.9);
+        box-shadow: 0 0 6px #10b981;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        box-shadow: 0 0 14px rgba(16, 185, 129, 0.9);
+    }
+}
+
+.ziga-sb-dest-dot.capture {
+    width: 34px;
+    height: 34px;
+    border: 2.5px solid #ef4444;
+    background: rgba(239, 68, 68, 0.28);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.85);
+    z-index: 16;
+    animation: sb-capture-pulse 1.2s infinite ease-in-out;
+}
+
+@keyframes sb-capture-pulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(0.98);
+        border-color: #ef4444;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.08);
+        border-color: #f87171;
+    }
+}
+
+/* Footer Action Toolbar */
+.ziga-sb-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px 12px;
+    background: rgba(18, 22, 28, 0.98);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0 0 13px 13px;
+}
+
+.ziga-sb-footer-left {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.ziga-sb-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.ziga-sb-btn.secondary {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #e2e8f0;
+}
+
+.ziga-sb-btn.secondary:hover:not(:disabled) {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: #ffd700;
+    color: #ffd700;
+}
+
+.ziga-sb-btn.primary {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(185, 28, 28, 0.45) 100%);
+    border: 1px solid rgba(239, 68, 68, 0.55);
+    color: #fca5a5;
+}
+
+.ziga-sb-btn.primary:hover {
+    background: rgba(239, 68, 68, 0.45);
+    border-color: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
+}
+
+/* =================================================== */
+/* LIVE IN-BOARD GLOWING AURA RINGS (VIỀN XANH / ĐỎ)   */
+/* =================================================== */
+
+.ziga-board-aura-layer {
+    display: none !important;
+}
+
+/* Individual piece aura ring container */
+.ziga-aura-ring {
+    position: absolute;
+    border-radius: 50%;
+    box-sizing: border-box;
+    transform: translate(-50%, -50%);
+    pointer-events: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    will-change: transform, box-shadow, opacity;
+    transition: opacity 0.25s ease-out;
+}
+
+/* =================================================== */
+/* 1. GREEN AURA (LƯỢT TÔI ĐI - QUÂN CÓ THỂ ĂN)        */
+/* =================================================== */
+
+.ziga-aura-ring.ziga-aura-green {
+    border: 2.5px solid #39ff14;
+    background: radial-gradient(circle, rgba(57, 255, 20, 0.04) 0%, rgba(57, 255, 20, 0.14) 70%, rgba(57, 255, 20, 0.3) 100%);
+    box-shadow: 
+        0 0 8px #39ff14,
+        0 0 18px rgba(57, 255, 20, 0.75),
+        inset 0 0 8px rgba(57, 255, 20, 0.45);
+    animation: zigaAuraPulseGreen 1.8s ease-in-out infinite;
+}
+
+/* Quân mục tiêu có thể ăn (Target) trong lượt xanh: Viền đậm hơn, tỏa sáng mạnh hơn */
+.ziga-aura-ring.ziga-aura-green.ziga-aura-role-target {
+    border-width: 3px;
+    border-color: #00ff66;
+    box-shadow: 
+        0 0 12px #00ff66,
+        0 0 24px rgba(0, 255, 102, 0.85),
+        0 0 36px rgba(57, 255, 20, 0.4),
+        inset 0 0 10px rgba(0, 255, 102, 0.5);
+}
+
+/* Quân ta có nước ăn (Attacker) trong lượt xanh: Viền sáng thanh thoát */
+.ziga-aura-ring.ziga-aura-green.ziga-aura-role-attacker {
+    border-width: 2px;
+    border-color: #4ade80;
+    box-shadow: 
+        0 0 8px #4ade80,
+        0 0 16px rgba(74, 222, 128, 0.65),
+        inset 0 0 6px rgba(74, 222, 128, 0.35);
+}
+
+/* =================================================== */
+/* 2. RED AURA (LƯỢT ĐỐI THỦ - QUÂN ĐỐI THỦ CÓ THỂ ĂN) */
+/* =================================================== */
+
+.ziga-aura-ring.ziga-aura-red {
+    border: 2.5px solid #ff1744;
+    background: radial-gradient(circle, rgba(255, 23, 68, 0.05) 0%, rgba(255, 23, 68, 0.16) 70%, rgba(255, 23, 68, 0.35) 100%);
+    box-shadow: 
+        0 0 8px #ff1744,
+        0 0 18px rgba(255, 23, 68, 0.75),
+        inset 0 0 8px rgba(255, 23, 68, 0.45);
+    animation: zigaAuraPulseRed 1.6s ease-in-out infinite;
+}
+
+/* Quân ta có nguy cơ bị ăn (Target của đối thủ): Cảnh báo nguy hiểm cao độ */
+.ziga-aura-ring.ziga-aura-red.ziga-aura-role-target {
+    border-width: 3px;
+    border-color: #ff1744;
+    box-shadow: 
+        0 0 14px #ff1744,
+        0 0 28px rgba(255, 23, 68, 0.9),
+        0 0 40px rgba(239, 68, 68, 0.45),
+        inset 0 0 12px rgba(255, 23, 68, 0.55);
+}
+
+/* Quân đối thủ đang đe dọa (Attacker của đối thủ) */
+.ziga-aura-ring.ziga-aura-red.ziga-aura-role-attacker {
+    border-width: 2px;
+    border-color: #f87171;
+    box-shadow: 
+        0 0 8px #f87171,
+        0 0 16px rgba(248, 113, 113, 0.65),
+        inset 0 0 6px rgba(248, 113, 113, 0.35);
+}
+
+/* =================================================== */
+/* DECORATIVE INNER WAVE & CORE GLOW                   */
+/* =================================================== */
+
+.ziga-aura-inner-wave {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    box-sizing: border-box;
+    pointer-events: none !important;
+}
+
+.ziga-aura-green .ziga-aura-inner-wave {
+    border: 1px dashed rgba(57, 255, 20, 0.55);
+    animation: zigaAuraSpin 8s linear infinite;
+}
+
+.ziga-aura-red .ziga-aura-inner-wave {
+    border: 1px dashed rgba(255, 23, 68, 0.6);
+    animation: zigaAuraSpin 8s linear infinite reverse;
+}
+
+.ziga-aura-glow-core {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    pointer-events: none !important;
+}
+
+.ziga-aura-green .ziga-aura-glow-core {
+    background: radial-gradient(circle, rgba(57, 255, 20, 0.15) 0%, transparent 75%);
+}
+
+.ziga-aura-red .ziga-aura-glow-core {
+    background: radial-gradient(circle, rgba(255, 23, 68, 0.15) 0%, transparent 75%);
+}
+
+/* Keyframe animations */
+@keyframes zigaAuraPulseGreen {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(0.97);
+        opacity: 0.84;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.05);
+        opacity: 1;
+        box-shadow: 
+            0 0 16px #39ff14,
+            0 0 32px rgba(57, 255, 20, 0.95),
+            0 0 45px rgba(57, 255, 20, 0.45),
+            inset 0 0 12px rgba(57, 255, 20, 0.6);
+    }
+}
+
+@keyframes zigaAuraPulseRed {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(0.97);
+        opacity: 0.84;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.06);
+        opacity: 1;
+        box-shadow: 
+            0 0 18px #ff1744,
+            0 0 34px rgba(255, 23, 68, 0.95),
+            0 0 48px rgba(255, 23, 68, 0.45),
+            inset 0 0 14px rgba(255, 23, 68, 0.6);
+    }
+}
+
+@keyframes zigaAuraSpin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =================================================== */
+/* AURA CUSTOMIZER MODAL & SETTING LAUNCHER BUTTON     */
+/* =================================================== */
+
+.ziga-setting-action-row {
+    padding: 4px 10px 10px;
+}
+
+.ziga-btn-customize-aura {
+    width: 100%;
+    padding: 7px 12px;
+    background: linear-gradient(135deg, rgba(57, 255, 20, 0.12) 0%, rgba(0, 255, 102, 0.22) 100%);
+    border: 1px solid rgba(57, 255, 20, 0.45);
+    border-radius: 8px;
+    color: #4ade80;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.15);
+}
+
+.ziga-btn-customize-aura:hover {
+    background: linear-gradient(135deg, rgba(57, 255, 20, 0.25) 0%, rgba(0, 255, 102, 0.38) 100%);
+    border-color: #39ff14;
+    color: #ffffff;
+    box-shadow: 0 0 16px rgba(57, 255, 20, 0.35);
+    transform: translateY(-1px);
+}
+
+/* Modal Overlay */
+.ziga-aura-modal-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(8, 10, 15, 0.82) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    z-index: 2147483647 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+    animation: zigaFadeIn 0.2s ease-out;
+}
+
+/* Dialog Container */
+.ziga-aura-modal-dialog {
+    width: 100%;
+    max-width: 580px;
+    max-height: 92vh;
+    background: rgba(18, 22, 28, 0.98);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(212, 175, 55, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    animation: zigaScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes zigaFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zigaScaleUp {
+    from { transform: scale(0.94); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Header */
+.ziga-aura-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: rgba(12, 15, 20, 0.95);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ziga-aura-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ziga-aura-modal-badge {
+    font-size: 20px;
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    padding: 5px 8px;
+}
+
+.ziga-aura-modal-title-text h3 {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #ffd700;
+}
+
+.ziga-aura-modal-title-text small {
+    display: block;
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+.ziga-aura-modal-close {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+}
+
+.ziga-aura-modal-close:hover {
+    color: #ffffff;
+    background: rgba(239, 68, 68, 0.25);
+}
+
+/* Live Preview Stage */
+.ziga-aura-preview-stage {
+    margin: 14px 18px 8px;
+    background: radial-gradient(circle at center, rgba(30, 36, 46, 0.9) 0%, rgba(14, 18, 24, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px 16px;
+}
+
+.ziga-aura-preview-header {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: #ffd700;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.ziga-aura-preview-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.ziga-preview-piece-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.ziga-preview-piece-container {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Mock wooden chess piece */
+.ziga-mock-piece {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #f3cf99 0%, #d89e57 85%, #b2732a 100%);
+    border: 2px solid #844c12;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Kaiti", "STKaiti", "SimSun", serif;
+    font-size: 28px;
+    font-weight: 900;
+    user-select: none;
+    z-index: 2;
+}
+
+.ziga-mock-piece.red-piece {
+    color: #c92a2a;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.ziga-mock-piece.black-piece {
+    color: #1a1a1a;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+/* Mock aura ring surrounding the preview piece */
+.ziga-mock-aura {
+    position: absolute;
+    width: calc(60px * var(--aura-scale, 1));
+    height: calc(60px * var(--aura-scale, 1));
+    border-radius: 50%;
+    box-sizing: border-box;
+    z-index: 3;
+    pointer-events: none;
+    transition: width 0.15s ease, height 0.15s ease;
+    animation: zigaMockPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes zigaMockPulse {
+    0%, 100% {
+        transform: scale(0.97);
+        opacity: 0.85;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+}
+
+.ziga-preview-divider-vs {
+    font-size: 14px;
+    font-weight: 900;
+    color: #64748b;
+    letter-spacing: 1px;
+}
+
+.ziga-preview-role-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #e2e8f0;
+}
+
+.ziga-preview-subtag {
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+}
+
+.ziga-preview-subtag.my-subtag {
+    background: rgba(57, 255, 20, 0.15);
+    border: 1px solid rgba(57, 255, 20, 0.4);
+    color: #4ade80;
+}
+
+.ziga-preview-subtag.opp-subtag {
+    background: rgba(255, 23, 68, 0.15);
+    border: 1px solid rgba(255, 23, 68, 0.4);
+    color: #f87171;
+}
+
+/* Size Scale Control Bar */
+.ziga-aura-scale-control-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    background: rgba(0, 0, 0, 0.4);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ziga-scale-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #cbd5e1;
+    white-space: nowrap;
+}
+
+.ziga-scale-slider {
+    flex: 1;
+    accent-color: #ffd700;
+    height: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.ziga-scale-val-badge {
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffd700;
+    min-width: 36px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.ziga-btn-reset-scale {
+    padding: 3px 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    color: #cbd5e1;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ziga-btn-reset-scale:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: #ffd700;
+    color: #ffd700;
+}
+
+/* Tabs Navigation */
+.ziga-aura-tabs-nav {
+    display: flex;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0 18px;
+    gap: 8px;
+}
+
+.ziga-aura-tab-btn {
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ziga-aura-tab-btn:hover {
+    color: #e2e8f0;
+}
+
+.ziga-aura-tab-btn.active {
+    color: #ffd700;
+    border-bottom-color: #ffd700;
+}
+
+/* Tab Panes */
+.ziga-aura-tab-pane {
+    padding: 16px 18px;
+    overflow-y: auto;
+    max-height: 48vh;
+}
+
+.ziga-aura-pane-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ziga-pane-section-title {
+    font-size: 10px;
+    font-weight: 800;
+    color: #94a3b8;
+    letter-spacing: 0.6px;
+}
+
+/* Themes Grid */
+.ziga-aura-themes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+}
+
+.ziga-theme-card {
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.18s ease;
+}
+
+.ziga-theme-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(212, 175, 55, 0.4);
+    transform: translateY(-1px);
+}
+
+.ziga-theme-card.selected {
+    background: rgba(212, 175, 55, 0.12);
+    border-color: #ffd700;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.25);
+}
+
+.ziga-theme-swatches {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.ziga-theme-color-circle {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.ziga-theme-vs-small {
+    font-size: 8px;
+    font-weight: 800;
+    color: #64748b;
+}
+
+.ziga-theme-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.ziga-theme-name {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #f1f5f9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ziga-theme-desc {
+    font-size: 9.5px;
+    color: #94a3b8;
+    margin-top: 1px;
+}
+
+/* Color Pickers */
+.ziga-aura-color-pickers-box {
+    display: flex;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+.ziga-color-pick-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ziga-color-pick-item label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #cbd5e1;
+}
+
+.ziga-pick-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ziga-color-input {
+    width: 38px;
+    height: 34px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: transparent;
+    padding: 0;
+}
+
+.ziga-hex-text {
+    flex: 1;
+    padding: 6px 10px;
+    background: rgba(10, 12, 16, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    color: #f8fafc;
+    font-family: monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.ziga-hex-text:focus {
+    border-color: #ffd700;
+    outline: none;
+}
+
+/* Guidelines Card */
+.ziga-aura-guideline-card {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+}
+
+.ziga-guide-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #38bdf8;
+    margin-bottom: 6px;
+}
+
+.ziga-aura-guideline-card ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 10.5px;
+    color: #cbd5e1;
+    line-height: 1.5;
+}
+
+.ziga-aura-guideline-card code {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: #fde047;
+    font-family: monospace;
+}
+
+/* Upload Columns */
+.ziga-aura-upload-columns {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.ziga-upload-column-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+}
+
+.ziga-upload-card-heading {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #cbd5e1;
+    letter-spacing: 0.4px;
+}
+
+.ziga-upload-thumbnail-box {
+    width: 80px;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.ziga-upload-thumb-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.ziga-thumb-placeholder {
+    font-size: 9px;
+    color: #64748b;
+    text-align: center;
+    padding: 6px;
+}
+
+.ziga-upload-action-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.ziga-btn-choose-file {
+    flex: 1;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #e2e8f0;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+}
+
+.ziga-btn-choose-file:hover {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: #ffd700;
+    color: #ffd700;
+}
+
+.ziga-btn-clear-img {
+    padding: 6px 10px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 6px;
+    color: #fca5a5;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ziga-btn-clear-img:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: #ef4444;
+    color: #ffffff;
+}
+
+/* Modal Footer */
+.ziga-aura-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: rgba(12, 15, 20, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ziga-modal-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ziga-modal-btn.secondary {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #cbd5e1;
+}
+
+.ziga-modal-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+
+.ziga-modal-btn.primary {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.4) 0%, rgba(180, 140, 20, 0.6) 100%);
+    border: 1px solid #ffd700;
+    color: #ffffff;
+    box-shadow: 0 0 14px rgba(212, 175, 55, 0.35);
+}
+
+.ziga-modal-btn.primary:hover {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.6) 0%, rgba(180, 140, 20, 0.8) 100%);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.55);
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   AURA PRESETS GALLERY (1-CLICK TEST & PREVIEWS)
+   ========================================================================== */
+.ziga-aura-presets-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.ziga-presets-header {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 10px;
+}
+
+.ziga-presets-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffd700;
+    letter-spacing: 0.4px;
+}
+
+.ziga-presets-subtitle {
+    font-size: 10px;
+    color: #94a3b8;
+}
+
+.ziga-aura-presets-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.ziga-preset-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
+    transition: all 0.2s ease;
+}
+
+.ziga-preset-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.ziga-preset-card.active-my {
+    border-color: #39ff14;
+    background: rgba(57, 255, 20, 0.06);
+    box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.15);
+}
+
+.ziga-preset-card.active-opp {
+    border-color: #ff1744;
+    background: rgba(255, 23, 68, 0.06);
+    box-shadow: inset 0 0 10px rgba(255, 23, 68, 0.15);
+}
+
+.ziga-preset-card.active-my.active-opp {
+    border-color: #ffd700;
+    background: rgba(212, 175, 55, 0.08);
+    box-shadow: inset 0 0 12px rgba(212, 175, 55, 0.2);
+}
+
+.ziga-preset-preview-wrap {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ziga-mock-piece-preset {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #e6be8a 0%, #b8864e 60%, #855726 100%);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.4);
+    border: 1.5px solid #5a3813;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.ziga-mock-preset-char {
+    font-size: 17px;
+    font-weight: 900;
+    color: #b91c1c;
+    text-shadow: 0 1px 1px rgba(255,255,255,0.6);
+    font-family: 'Kaiti', 'STKaiti', 'SimSun', 'Songti SC', serif;
+    z-index: 1;
+}
+
+.ziga-preset-aura-circle {
+    position: absolute;
+    width: 46px;
+    height: 46px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 2;
+    animation: ziga-aura-spin-slow 12s linear infinite;
+}
+
+@keyframes ziga-aura-spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.ziga-preset-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.ziga-preset-name {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #f1f5f9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ziga-preset-badge {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 4px;
+    width: fit-content;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.ziga-preset-badge.my {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.ziga-preset-badge.opp {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.ziga-preset-badge.both {
+    background: rgba(168, 85, 247, 0.15);
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.ziga-preset-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 3px;
+}
+
+.ziga-preset-btn {
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.ziga-preset-btn.my {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: #86efac;
+}
+
+.ziga-preset-btn.my:hover {
+    background: rgba(34, 197, 94, 0.3);
+    border-color: #22c55e;
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+}
+
+.ziga-preset-btn.opp {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+.ziga-preset-btn.opp:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+}
+
+/* ==========================================================================
+   SETTINGS MODAL: TAB 1 FEATURES GROUPS & CARDS
+   ========================================================================== */
+.ziga-settings-groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.ziga-settings-group-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ziga-group-title {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #ffd700;
+    letter-spacing: 0.5px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed rgba(212, 175, 55, 0.25);
+    margin-bottom: 2px;
+}
+
+.ziga-group-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.ziga-setting-row-box {
+    display: flex;
+    flex-direction: column;
+    border-radius: 7px;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    background: rgba(212, 175, 55, 0.04);
+}
+
+.ziga-setting-sublink-bar {
+    padding: 5px 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px dashed rgba(212, 175, 55, 0.2);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.ziga-btn-goto-aura {
+    padding: 3px 9px;
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 5px;
+    color: #ffd700;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ziga-btn-goto-aura:hover {
+    background: rgba(212, 175, 55, 0.3);
+    border-color: #ffd700;
+    color: #ffffff;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.35);
+}
+
+/* ==========================================
+   MOVE HISTORY & FEN/PGN EXPORTER
+   ========================================== */
+.ziga-history-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.ziga-history-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.ziga-history-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #e2e8f0;
+}
+
+.ziga-history-icon {
+    font-size: 13px;
+}
+
+.ziga-history-count-badge {
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 1px 6px;
+    background: rgba(56, 189, 248, 0.18);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 10px;
+}
+
+.ziga-history-tools {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ziga-btn-tool-sub {
+    padding: 2.5px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #cbd5e1;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ziga-btn-tool-sub:hover {
+    background: rgba(212, 175, 55, 0.25);
+    border-color: #ffd700;
+    color: #ffffff;
+    box-shadow: 0 0 6px rgba(212, 175, 55, 0.3);
+}
+
+.ziga-btn-tool-sub.ziga-btn-tool-reset {
+    padding: 2.5px 5px;
+    color: #94a3b8;
+}
+
+.ziga-btn-tool-sub.ziga-btn-tool-reset:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: #ef4444;
+    color: #fca5a5;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.3);
+}
+
+.ziga-move-history-table-header {
+    display: grid;
+    grid-template-columns: 28px 1fr 1fr;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+    padding: 3px 6px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 4px;
+    text-align: center;
+}
+
+.ziga-move-history-table-header .red {
+    color: #f87171;
+}
+
+.ziga-move-history-table-header .black {
+    color: #94a3b8;
+}
+
+.ziga-move-history-scroll {
+    max-height: 140px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-right: 2px;
+}
+
+.ziga-move-history-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+
+.ziga-move-history-scroll::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.3);
+    border-radius: 3px;
+}
+
+.ziga-move-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 1fr;
+    gap: 4px;
+    font-size: 11px;
+    align-items: center;
+    padding: 2.5px 4px;
+    border-radius: 4px;
+    transition: background 0.12s ease;
+}
+
+.ziga-move-row:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.ziga-move-row:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.ziga-move-row.latest {
+    background: rgba(56, 189, 248, 0.1);
+    border-left: 2px solid #38bdf8;
+}
+
+.ziga-move-num {
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+    text-align: center;
+}
+
+.ziga-move-cell {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    padding: 2px 4px;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.ziga-move-cell.red {
+    color: #fca5a5;
+}
+
+.ziga-move-cell.black {
+    color: #e2e8f0;
+}
+
+.ziga-move-cell.is-capture {
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #fecaca;
+    font-weight: 800;
+}
+
+.ziga-move-cell.empty {
+    color: #475569;
+    font-weight: normal;
+}
+
+.ziga-empty-moves {
+    text-align: center;
+    padding: 14px 6px;
+    font-size: 11px;
+    font-style: italic;
+    color: #64748b;
+}
+
+/* Toast Notification */
+.ziga-recorder-toast {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: linear-gradient(135deg, rgba(20, 20, 28, 0.96) 0%, rgba(10, 10, 15, 0.98) 100%);
+    border: 1px solid #ffd700;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(212, 175, 55, 0.35);
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 9px 18px;
+    border-radius: 20px;
+    z-index: 2147483647;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.ziga-recorder-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+

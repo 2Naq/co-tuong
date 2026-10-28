@@ -1,13 +1,17 @@
-# build.ps1 - Bundles src/*.js modules into injected.js fallback
+# build.ps1 - Bundles modular src/ codebase into dist/injected.js and root injected.js
 $files = @(
-    "src/constants.js",
-    "src/storage.js",
-    "src/threat_scanner.js",
-    "src/coup_tracker.js",
-    "src/tactical_sandbox.js",
-    "src/engine_hook.js",
-    "src/ui.js",
-    "src/main.js"
+    "src/core/constants.js",
+    "src/core/storage.js",
+    "src/features/threat_scanner.js",
+    "src/features/coup_tracker.js",
+    "src/features/tactical_sandbox.js",
+    "src/core/engine_hook.js",
+    "src/aura/board_aura.js",
+    "src/aura/aura_presets.js",
+    "src/ui/settings_modal.js",
+    "src/features/move_recorder.js",
+    "src/ui/ui.js",
+    "src/core/main.js"
 )
 
 $dateStr = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
@@ -27,6 +31,23 @@ foreach ($f in $files) {
 
 $bundle += "`n})();`n"
 
-$outPath = Join-Path $PSScriptRoot "injected.js"
-[System.IO.File]::WriteAllText($outPath, $bundle, [System.Text.Encoding]::UTF8)
-Write-Host "[Build] Successfully compiled src/ modules into injected.js ($((Get-Item $outPath).Length) bytes)"
+# Ensure dist/ directory exists
+$distDir = Join-Path $PSScriptRoot "dist"
+if (-not (Test-Path $distDir)) {
+    New-Item -ItemType Directory -Force -Path $distDir | Out-Null
+}
+
+$distPath = Join-Path $distDir "injected.js"
+$rootPath = Join-Path $PSScriptRoot "injected.js"
+
+[System.IO.File]::WriteAllText($distPath, $bundle, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText($rootPath, $bundle, [System.Text.Encoding]::UTF8)
+
+# Synchronize styles/overlay.css to root overlay.css for 100% backward compatibility
+$stylesCss = Join-Path $PSScriptRoot "styles/overlay.css"
+$rootCss = Join-Path $PSScriptRoot "overlay.css"
+if (Test-Path $stylesCss) {
+    Copy-Item $stylesCss $rootCss -Force
+}
+
+Write-Host "[Build] Successfully compiled 12 modules into dist/injected.js and injected.js ($((Get-Item $distPath).Length) bytes)"

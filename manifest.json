@@ -23,7 +23,7 @@
         "*://zigavn.com/*"
       ],
       "css": [
-        "overlay.css"
+        "styles/overlay.css"
       ],
       "js": [
         "content_loader.js"
@@ -34,10 +34,12 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "src/*",
-        "injected.js",
+        "src/**/*",
+        "styles/*",
+        "dist/*",
+        "icons/*",
         "overlay.css",
-        "icons/*"
+        "injected.js"
       ],
       "matches": [
         "*://zigavn.com/*"
