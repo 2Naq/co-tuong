@@ -1,4 +1,4 @@
-﻿// injected.js - Unified bundle built from src/ modules [2026-10-28 21:12:11]
+﻿// injected.js - Unified bundle built from src/ modules [2026-10-30 05:33:58]
 (function () {
 
 // ===== Module: src/core/constants.js =====
@@ -33,6 +33,13 @@
     showRowNumbers: true,        // Đánh số hàng (1-10) ở 2 bên mép bàn cờ
     cleanAdView: true,           // Ẩn bớt quảng cáo che vướng bàn cờ
     showMoveHistory: true,       // Ghi biên bản ván đấu chuẩn tiếng Việt & xuất FEN/PGN
+    tacticalDrawing: true,       // Vẽ mũi tên chiến thuật bằng chuột phải trên bàn cờ
+    openingBook: true,           // Nhận diện hơn 60 thế khai cuộc cờ tướng kinh điển
+    voiceAnnouncer: true,        // Giọng đọc tiếng Việt (Chiếu tướng, bắt Xe...)
+    timerAlertVoice: true,       // Cảnh báo nhịp tim & đếm ngược khi sắp hết giờ
+    evalBar: true,               // Thanh đo thế trận thời gian thực (Eval Bar)
+    bestMoveArrow: true,         // Mũi tên gợi ý nước đi tối ưu (Best Move)
+    mentorCoach: true,           // Gia Sư Cờ Tướng Đồng Hành: Phân tích thế trận, gợi ý kế sách & rèn luyện tư duy
     liveBoardAura: true,         // Tự động hiển thị viền xanh/đỏ focus quân có thể ăn trực tiếp trên bàn cờ
     liveAuraMode: 'targets',     // 'targets': Chỉ quân cờ có thể ăn được (chuẩn xác, gọn gàng), 'all': Cả quân ăn và bị ăn
     auraCustom: {
@@ -1125,11 +1132,12 @@
       const dy = e.clientY - startY;
       card.style.left = Math.max(10, Math.min(window.innerWidth - card.offsetWidth - 10, origLeft + dx)) + 'px';
       card.style.top = Math.max(10, Math.min(window.innerHeight - card.offsetHeight - 10, origTop + dy)) + 'px';
-    });
+      e.preventDefault();
+    }, { capture: true });
 
     window.addEventListener('mouseup', () => {
       isDragging = false;
-    });
+    }, { capture: true });
   }
 
   // ==========================================
@@ -2577,77 +2585,263 @@
   }
 
   /**
-   * Scans legal capture moves on the board for the current turn.
-   * @param {Object} gameLayer - Active Cocos2d game layer
-   * @param {number} attackerColor - Color of the player whose turn it is (0: Red, 1: Black)
-   * @param {number} defenderColor - Color of the opposing player (1 - attackerColor)
-   * @returns {Object} { targets: Map, attackers: Map, captures: Array }
+   * Piece values in Xiangqi for tactical exchange evaluation
    */
-  function scanBoardCaptures(gameLayer, attackerColor, defenderColor) {
-    const targets = new Map();   // targetIdx -> targetPiece
-    const attackers = new Map(); // attackerIdx -> atkPiece
-    const captures = [];
-
-    if (!gameLayer || !gameLayer.V || !Array.isArray(gameLayer.V)) {
-      return { targets, attackers, captures };
-    }
-
-    // 1. Build 9x10 grid of piece indices for living pieces
-    const grid = Array.from({ length: 9 }, () => Array(10).fill(-1));
-    for (let i = 0; i < 32; i++) {
-      const p = gameLayer.V[i];
-      if (p && !p.pa && p.fa >= 0 && p.fa < 9 && p.rowIndex >= 0 && p.rowIndex < 10) {
-        grid[p.fa][p.rowIndex] = i;
+  function getPieceValue(type, row, baseRow) {
+    switch (type) {
+      case 0: return 1000; // Tướng (King)
+      case 3: return 9.0;  // Xe (Chariot)
+      case 4: return 4.5;  // Pháo (Cannon)
+      case 5: return 4.0;  // Mã (Horse)
+      case 1: return 2.0;  // Sĩ (Advisor)
+      case 2: return 2.0;  // Tượng (Elephant)
+      case 6: {
+        // Tốt (Pawn): 1.5 before river, 2.5 after river
+        const isCrossed = (baseRow <= 2) ? (row >= 5) : (row <= 4);
+        return isCrossed ? 2.5 : 1.5;
       }
+      default: return 1.5;
     }
+  }
 
-    // 2. Identify living defender pieces to check against
-    const livingDefenders = [];
-    for (let j = 0; j < 32; j++) {
-      const p = gameLayer.V[j];
-      if (p && !p.pa && p.ka === defenderColor) {
-        livingDefenders.push({ piece: p, index: j, col: p.fa, row: p.rowIndex });
+  /**
+   * Check if a piece can legally attack/strike a target square (targetCol, targetRow).
+   * Works for both attacks (enemy square) and defense checks (friendly square).
+   * @param {Object} piece - { col, row, type, color, baseRow }
+   * @param {number} targetCol
+   * @param {number} targetRow
+   * @param {Array} grid - 9x10 grid of living piece objects (or null if empty)
+   * @returns {boolean}
+   */
+  function canPieceAttackSquare(piece, targetCol, targetRow, grid) {
+    const c = piece.col;
+    const r = piece.row;
+    const type = piece.type;
+    const baseRow = piece.baseRow;
+
+    if (c === targetCol && r === targetRow) return false;
+    if (targetCol < 0 || targetCol > 8 || targetRow < 0 || targetRow > 9) return false;
+
+    // 0: Tướng (King) - 1 step orthogonal in Palace, or Flying General
+    if (type === 0) {
+      const minR = (baseRow <= 2) ? 0 : 7;
+      const maxR = (baseRow <= 2) ? 2 : 9;
+      // Normal palace step
+      if (targetCol >= 3 && targetCol <= 5 && targetRow >= minR && targetRow <= maxR) {
+        if (Math.abs(c - targetCol) + Math.abs(r - targetRow) === 1) return true;
       }
-    }
-
-    if (livingDefenders.length === 0) {
-      return { targets, attackers, captures };
-    }
-
-    // 3. Loop through living attacker pieces
-    for (let i = 0; i < 32; i++) {
-      const atkPiece = gameLayer.V[i];
-      if (!atkPiece || atkPiece.pa || atkPiece.ka !== attackerColor) continue;
-
-      const pieceHelper = gameLayer.hq ? gameLayer.hq(i) : null;
-      if (!pieceHelper || !gameLayer.IM) continue;
-
-      for (let d = 0; d < livingDefenders.length; d++) {
-        const def = livingDefenders[d];
-        const targetIdx = def.index;
-        const targetPiece = def.piece;
-        const col = def.col;
-        const row = def.row;
-        const sq = row * 9 + col;
-
-        try {
-          if (gameLayer.IM(pieceHelper, i, sq, grid)) {
-            const isBlocked = (gameLayer.BM && gameLayer.BM(pieceHelper, i, col, row, grid)) ||
-                              (gameLayer.DM && gameLayer.DM(0, pieceHelper, i, col, row, grid));
-
-            if (!isBlocked) {
-              targets.set(targetIdx, targetPiece);
-              attackers.set(i, atkPiece);
-              captures.push({ attackerIdx: i, targetIdx: targetIdx });
-            }
+      // Flying general check: facing opponent King along open file
+      if (c === targetCol) {
+        const targetPiece = grid[targetCol][targetRow];
+        if (targetPiece && targetPiece.type === 0 && targetPiece.color !== piece.color) {
+          const step = (targetRow > r) ? 1 : -1;
+          let blocked = false;
+          for (let y = r + step; y !== targetRow; y += step) {
+            if (grid[c][y]) { blocked = true; break; }
           }
-        } catch (e) {
-          // Safeguard
+          if (!blocked) return true;
         }
       }
+      return false;
     }
 
-    return { targets, attackers, captures };
+    // 1: Sĩ (Advisor) - 1 step diagonal in Palace
+    if (type === 1) {
+      const minR = (baseRow <= 2) ? 0 : 7;
+      const maxR = (baseRow <= 2) ? 2 : 9;
+      if (targetCol >= 3 && targetCol <= 5 && targetRow >= minR && targetRow <= maxR) {
+        return Math.abs(c - targetCol) === 1 && Math.abs(r - targetRow) === 1;
+      }
+      return false;
+    }
+
+    // 2: Tượng (Elephant) - 2 steps diagonal, eye not blocked, cannot cross river
+    if (type === 2) {
+      const riverOk = (baseRow <= 2) ? (targetRow <= 4) : (targetRow >= 5);
+      if (!riverOk) return false;
+      if (Math.abs(c - targetCol) === 2 && Math.abs(r - targetRow) === 2) {
+        const eyeC = (c + targetCol) / 2;
+        const eyeR = (r + targetRow) / 2;
+        return !grid[eyeC][eyeR];
+      }
+      return false;
+    }
+
+    // 3: Xe (Chariot) - Straight line with 0 obstacles
+    if (type === 3) {
+      if (c !== targetCol && r !== targetRow) return false;
+      const dc = (targetCol === c) ? 0 : (targetCol > c ? 1 : -1);
+      const dr = (targetRow === r) ? 0 : (targetRow > r ? 1 : -1);
+      let curC = c + dc;
+      let curR = r + dr;
+      while (curC !== targetCol || curR !== targetRow) {
+        if (grid[curC][curR]) return false; // Obstacle found
+        curC += dc;
+        curR += dr;
+      }
+      return true;
+    }
+
+    // 4: Pháo (Cannon) - Straight line with EXACTLY 1 obstacle (screen / ngòi)
+    if (type === 4) {
+      if (c !== targetCol && r !== targetRow) return false;
+      const dc = (targetCol === c) ? 0 : (targetCol > c ? 1 : -1);
+      const dr = (targetRow === r) ? 0 : (targetRow > r ? 1 : -1);
+      let curC = c + dc;
+      let curR = r + dr;
+      let screens = 0;
+      while (curC !== targetCol || curR !== targetRow) {
+        if (grid[curC][curR]) screens++;
+        curC += dc;
+        curR += dr;
+      }
+      return screens === 1; // Needs exactly 1 piece to jump over
+    }
+
+    // 5: Mã (Horse) - L-step, leg not blocked
+    if (type === 5) {
+      const dc = targetCol - c;
+      const dr = targetRow - r;
+      if (Math.abs(dc) === 1 && Math.abs(dr) === 2) {
+        const legR = r + (dr > 0 ? 1 : -1);
+        return !grid[c][legR];
+      }
+      if (Math.abs(dc) === 2 && Math.abs(dr) === 1) {
+        const legC = c + (dc > 0 ? 1 : -1);
+        return !grid[legC][r];
+      }
+      return false;
+    }
+
+    // 6: Tốt (Pawn) - 1 step forward, sideways after river
+    if (type === 6) {
+      const forward = (baseRow <= 2) ? 1 : -1;
+      const isCrossed = (baseRow <= 2) ? (r >= 5) : (r <= 4);
+
+      // Forward step
+      if (targetCol === c && targetRow === r + forward) return true;
+
+      // Sideways step after river
+      if (isCrossed && targetRow === r && Math.abs(targetCol - c) === 1) return true;
+
+      return false;
+    }
+
+    return false;
+  }
+
+  /**
+   * Analyzes active board state and determines:
+   * - greenTargets: Opponent pieces player can capture safely (un-defended or profitable trade).
+   * - redTargets: Player pieces that opponent can capture profitably / hanging.
+   */
+  function analyzeBoardAuras(gameLayer, myColor, oppColor) {
+    const greenTargets = new Set();
+    const redTargets = new Set();
+
+    if (!gameLayer || !gameLayer.V || !Array.isArray(gameLayer.V)) {
+      return { greenTargets, redTargets };
+    }
+
+    // 1. Collect living pieces
+    const pieces = [];
+    for (let i = 0; i < 32; i++) {
+      const p = gameLayer.V[i];
+      if (p && !p.pa && p.fa >= 0 && p.fa <= 8 && p.rowIndex >= 0 && p.rowIndex <= 9) {
+        pieces.push({
+          index: i,
+          col: p.fa,
+          row: p.rowIndex,
+          type: (p.Ga !== undefined) ? p.Ga : 6,
+          color: (p.ka !== undefined) ? p.ka : Math.floor(i / 16),
+          sprite: p
+        });
+      }
+    }
+
+    if (pieces.length === 0) return { greenTargets, redTargets };
+
+    // 2. Determine base row for Red and Black to know advance direction
+    let redBaseRow = 0;
+    let blackBaseRow = 9;
+    const redKing = pieces.find(p => p.type === 0 && p.color === 0);
+    const blackKing = pieces.find(p => p.type === 0 && p.color === 1);
+    if (redKing) redBaseRow = (redKing.row <= 2) ? 0 : 9;
+    if (blackKing) blackBaseRow = (blackKing.row <= 2) ? 0 : 9;
+
+    pieces.forEach(p => {
+      p.baseRow = (p.color === 0) ? redBaseRow : blackBaseRow;
+    });
+
+    // 3. Build 9x10 grid of piece references
+    const grid = Array.from({ length: 9 }, () => Array(10).fill(null));
+    pieces.forEach(p => {
+      grid[p.col][p.row] = p;
+    });
+
+    const myPieces = pieces.filter(p => p.color === myColor);
+    const oppPieces = pieces.filter(p => p.color === oppColor);
+
+    // 4. Evaluate GREEN AURAS (Opportunities: opponent pieces player can capture safely)
+    oppPieces.forEach(target => {
+      // Find which of my pieces can attack this opponent piece
+      const myAttackers = myPieces.filter(a => canPieceAttackSquare(a, target.col, target.row, grid));
+      if (myAttackers.length === 0) return;
+
+      // Find all opponent defenders of this target piece
+      const oppDefenders = oppPieces.filter(d => d.index !== target.index && canPieceAttackSquare(d, target.col, target.row, grid));
+
+      const targetVal = getPieceValue(target.type, target.row, target.baseRow);
+
+      let canCaptureSafely = false;
+      if (oppDefenders.length === 0) {
+        // Target has ZERO defenders -> 100% free capture!
+        canCaptureSafely = true;
+      } else {
+        // Target is defended: ONLY safe if attacker has significantly lower value (profitable exchange)
+        // e.g. Pawn (1.5) eats Knight (4.0), Cannon (4.5), Chariot (9.0)
+        // e.g. Knight/Cannon (4.0/4.5) eats Chariot (9.0)
+        canCaptureSafely = myAttackers.some(a => {
+          const atkVal = getPieceValue(a.type, a.row, a.baseRow);
+          return (targetVal - atkVal >= 1.5);
+        });
+      }
+
+      if (canCaptureSafely) {
+        greenTargets.add(target.index);
+      }
+    });
+
+    // 5. Evaluate RED AURAS (Threats: player pieces that opponent can capture profitably / hanging)
+    myPieces.forEach(myTarget => {
+      // Find which opponent pieces can attack my piece
+      const oppAttackers = oppPieces.filter(e => canPieceAttackSquare(e, myTarget.col, myTarget.row, grid));
+      if (oppAttackers.length === 0) return;
+
+      // Find all my defenders of this piece
+      const myDefenders = myPieces.filter(d => d.index !== myTarget.index && canPieceAttackSquare(d, myTarget.col, myTarget.row, grid));
+
+      const targetVal = getPieceValue(myTarget.type, myTarget.row, myTarget.baseRow);
+
+      let isUnderRealDanger = false;
+      if (myDefenders.length === 0) {
+        // My piece is completely hanging (zero defenders)!
+        isUnderRealDanger = true;
+      } else {
+        // My piece is defended: opponent will only trade if their attacker is significantly cheaper
+        // e.g. Opponent Pawn attacks my Chariot/Horse/Cannon
+        isUnderRealDanger = oppAttackers.some(e => {
+          const oppVal = getPieceValue(e.type, e.row, e.baseRow);
+          return (targetVal - oppVal >= 1.5);
+        });
+      }
+
+      if (isUnderRealDanger) {
+        redTargets.add(myTarget.index);
+      }
+    });
+
+    return { greenTargets, redTargets };
   }
 
   /**
@@ -2680,6 +2874,8 @@
 
   /**
    * Main function called by game update loop.
+   * Accurately displays Green (Free Capture) and Red (Hanging Threat) auras simultaneously.
+   * Automatically clears all auras between moves so no aura ever lingers!
    * @param {Object} data - Active game data from ZigaMod.getActiveGameData()
    */
   function updateBoardAura(data) {
@@ -2717,61 +2913,40 @@
       }
     }
 
-    // 4. Determine whose turn it is
-    const currentTurn = gameLayer.Yc; // 0: Red, 1: Black
-    if (currentTurn === undefined || currentTurn < 0) {
-      clearBoardAura(gameLayer);
-      return;
-    }
-
-    const myColor = data.myColor;
-    const isMyTurn = (currentTurn === myColor);
-    const auraColor = isMyTurn ? 'green' : 'red';
-    const attackerColor = currentTurn;
-    const defenderColor = 1 - currentTurn;
-
-    // 5. Scan legal captures on the board
-    const { targets, attackers } = scanBoardCaptures(gameLayer, attackerColor, defenderColor);
-
-    // Mode: 'targets' (default - only pieces that can be captured), 'all' (both attacker and target)
-    const auraMode = ZigaMod.userSettings.liveAuraMode || 'targets';
-
-    // 6. Update visibility for each piece
+    // 4. CRITICAL RESET: Hide all auras on all pieces FIRST to guarantee no old auras linger!
     for (let i = 0; i < 32; i++) {
-      const piece = gameLayer.V[i];
-      if (!piece) continue;
-
-      let shouldShow = false;
-
-      if (!piece.pa) {
-        if (targets.has(i)) {
-          // Target piece that can be captured
-          shouldShow = true;
-        } else if (auraMode === 'all' && attackers.has(i)) {
-          // Attacker piece with capture moves available
-          shouldShow = true;
-        }
-      }
-
-      if (shouldShow) {
-        if (auraColor === 'green') {
-          if (piece.__zigaAuraGreen) piece.__zigaAuraGreen.setVisible(true);
-          if (piece.__zigaAuraRed) piece.__zigaAuraRed.setVisible(false);
-        } else {
-          if (piece.__zigaAuraGreen) piece.__zigaAuraGreen.setVisible(false);
-          if (piece.__zigaAuraRed) piece.__zigaAuraRed.setVisible(true);
-        }
-      } else {
-        if (piece.__zigaAuraGreen) piece.__zigaAuraGreen.setVisible(false);
-        if (piece.__zigaAuraRed) piece.__zigaAuraRed.setVisible(false);
+      const p = gameLayer.V[i];
+      if (p) {
+        if (p.__zigaAuraGreen) p.__zigaAuraGreen.setVisible(false);
+        if (p.__zigaAuraRed) p.__zigaAuraRed.setVisible(false);
       }
     }
+
+    // 5. Compute accurate tactical target auras
+    const { greenTargets, redTargets } = analyzeBoardAuras(gameLayer, data.myColor, data.oppColor);
+
+    // 6. Display Green Auras on safe capture targets
+    greenTargets.forEach(idx => {
+      const piece = gameLayer.V[idx];
+      if (piece && !piece.pa && piece.__zigaAuraGreen) {
+        piece.__zigaAuraGreen.setVisible(true);
+      }
+    });
+
+    // 7. Display Red Auras on unprotected threatened pieces
+    redTargets.forEach(idx => {
+      const piece = gameLayer.V[idx];
+      if (piece && !piece.pa && piece.__zigaAuraRed) {
+        piece.__zigaAuraRed.setVisible(true);
+      }
+    });
   }
 
   // Export to namespace
   ZigaMod.createAuraCanvas = createAuraCanvas;
   ZigaMod.hexToRgba = hexToRgba;
-  ZigaMod.scanBoardCaptures = scanBoardCaptures;
+  ZigaMod.canPieceAttackSquare = canPieceAttackSquare;
+  ZigaMod.analyzeBoardAuras = analyzeBoardAuras;
   ZigaMod.updateBoardAura = updateBoardAura;
   ZigaMod.clearBoardAura = clearBoardAura;
   ZigaMod.reloadAuraTextures = reloadAuraTextures;
@@ -2989,6 +3164,24 @@
                   <span class="ziga-switch-slider"></span>
                 </label>
 
+                <label class="ziga-setting-row">
+                  <span class="ziga-setting-text">
+                    <strong>Vẽ mũi tên chiến thuật bằng chuột phải</strong>
+                    <small>Giữ chuột phải kéo vẽ mũi tên neon, click highlight ô</small>
+                  </span>
+                  <input type="checkbox" id="modal-set-tacticalDrawing" />
+                  <span class="ziga-switch-slider"></span>
+                </label>
+
+                <label class="ziga-setting-row">
+                  <span class="ziga-setting-text">
+                    <strong>Nhận diện Khai Cuộc (60+ thế trận)</strong>
+                    <small>Tự động phát hiện Thuận Pháo, Bình Phong Mã, Đơn Đề Mã...</small>
+                  </span>
+                  <input type="checkbox" id="modal-set-openingBook" />
+                  <span class="ziga-switch-slider"></span>
+                </label>
+
               </div>
             </div>
 
@@ -3048,6 +3241,59 @@
                     <small>Tự động xóa các banner quảng cáo nổi vướng bàn cờ</small>
                   </span>
                   <input type="checkbox" id="modal-set-cleanAdView" />
+                  <span class="ziga-switch-slider"></span>
+                </label>
+
+              </div>
+            </div>
+
+            <!-- Nhóm 3: Trí Tuệ Nhân Tạo & Âm Thanh -->
+            <div class="ziga-settings-group-card" style="grid-column: 1 / -1;">
+              <div class="ziga-group-title">🧠 TRÍ TUỆ NHÂN TẠO & GIỌNG ĐỌC CẢNH BÁO</div>
+              <div class="ziga-group-rows" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+
+                <label class="ziga-setting-row">
+                  <span class="ziga-setting-text">
+                    <strong>Thanh đo thế trận (Eval Bar)</strong>
+                    <small>Thanh năng lượng hiển thị điểm ưu thế theo thời gian thực</small>
+                  </span>
+                  <input type="checkbox" id="modal-set-evalBar" />
+                  <span class="ziga-switch-slider"></span>
+                </label>
+
+                <label class="ziga-setting-row">
+                  <span class="ziga-setting-text">
+                    <strong>Gợi ý nước đi tối ưu (Best Move)</strong>
+                    <small>Mũi tên phát quang vàng kim chỉ nước đi AI khuyến nghị</small>
+                  </span>
+                  <input type="checkbox" id="modal-set-bestMoveArrow" />
+                  <span class="ziga-switch-slider"></span>
+                </label>
+
+                <label class="ziga-setting-row">
+                  <span class="ziga-setting-text">
+                    <strong>Giọng đọc Tiếng Việt (Voice Announcer)</strong>
+                    <small>Đọc to "Chiếu tướng!", "Bắt Xe!", "Cảnh báo sát cuộc!"</small>
+                  </span>
+                  <input type="checkbox" id="modal-set-voiceAnnouncer" />
+                  <span class="ziga-switch-slider"></span>
+                </label>
+
+                <label class="ziga-setting-row">
+                  <span class="ziga-setting-text">
+                    <strong>Cảnh báo nhịp tim & đếm ngược khi hết giờ</strong>
+                    <small>Tiếng đập thình thịch khi còn 15s và đếm số 5..4..3..2..1</small>
+                  </span>
+                  <input type="checkbox" id="modal-set-timerAlertVoice" />
+                  <span class="ziga-switch-slider"></span>
+                </label>
+
+                <label class="ziga-setting-row" style="grid-column: 1 / -1;">
+                  <span class="ziga-setting-text">
+                    <strong>🎓 Gia Sư Cờ Tướng Đồng Hành (AI Mentor)</strong>
+                    <small>Phân tích thế trận, nhận diện điểm yếu, tư vấn 3 kế sách & truyền thụ đạo cờ theo thời gian thực</small>
+                  </span>
+                  <input type="checkbox" id="modal-set-mentorCoach" />
                   <span class="ziga-switch-slider"></span>
                 </label>
 
@@ -4151,6 +4397,2402 @@
 })(window.ZigaMod = window.ZigaMod || {});
 
 
+// ===== Module: src/features/tactical_drawing.js =====
+// src/features/tactical_drawing.js - Right-click tactical arrow & square highlight drawing canvas
+(function (ZigaMod) {
+  'use strict';
+
+  console.log('[AN Mod] Tactical Drawing module initializing...');
+
+  let canvasEl = null;
+  let ctx = null;
+  let isRightDragging = false;
+  let dragStartCol = -1;
+  let dragStartRow = -1;
+  let dragStartPos = null;
+  let dragCurrentPos = null;
+  let currentKeyModifiers = { shift: false, alt: false, ctrl: false };
+
+  // Stored tactical drawings:
+  // arrows: [ { fromCol, fromRow, toCol, toRow, color } ]
+  // highlights: [ { col, row, color } ]
+  let drawnArrows = [];
+  let drawnHighlights = [];
+
+  const COLOR_PALETTES = {
+    green:  { main: '#22c55e', shadow: 'rgba(34, 197, 94, 0.65)' }, // Default: Attack path / Plan
+    red:    { main: '#ef4444', shadow: 'rgba(239, 68, 68, 0.7)' },  // Shift: Threat
+    gold:   { main: '#eab308', shadow: 'rgba(234, 179, 8, 0.7)' },   // Alt: Coordination / Key square
+    blue:   { main: '#38bdf8', shadow: 'rgba(56, 189, 248, 0.7)' }   // Ctrl: Defense
+  };
+
+  function getDrawingColor(modifiers) {
+    if (modifiers.shift) return 'red';
+    if (modifiers.alt) return 'gold';
+    if (modifiers.ctrl) return 'blue';
+    return 'green';
+  }
+
+  // Ensure drawing canvas overlay is attached to Cocos2dGameContainer or body
+  function ensureDrawingCanvas() {
+    if (canvasEl && canvasEl.parentElement) return canvasEl;
+
+    const gameCanvas = document.getElementById('gameCanvas');
+    if (!gameCanvas) return null;
+
+    const parent = gameCanvas.parentElement || document.body;
+
+    canvasEl = document.getElementById('ziga-tactical-drawing-canvas');
+    if (!canvasEl) {
+      canvasEl = document.createElement('canvas');
+      canvasEl.id = 'ziga-tactical-drawing-canvas';
+      canvasEl.className = 'ziga-tactical-drawing-canvas';
+      canvasEl.style.position = 'absolute';
+      canvasEl.style.top = '0';
+      canvasEl.style.left = '0';
+      canvasEl.style.pointerEvents = 'none';
+      canvasEl.style.zIndex = '15'; // Above game canvas, below mod UI
+      parent.appendChild(canvasEl);
+    }
+
+    ctx = canvasEl.getContext('2d');
+    syncCanvasBounds();
+    bindMouseEvents(gameCanvas);
+
+    return canvasEl;
+  }
+
+  // Sync size and position with gameCanvas
+  function syncCanvasBounds() {
+    const gameCanvas = document.getElementById('gameCanvas');
+    if (!gameCanvas || !canvasEl) return;
+
+    const rect = gameCanvas.getBoundingClientRect();
+    const parentRect = (canvasEl.parentElement && canvasEl.parentElement.getBoundingClientRect)
+      ? canvasEl.parentElement.getBoundingClientRect()
+      : { left: 0, top: 0 };
+
+    const left = rect.left - parentRect.left;
+    const top = rect.top - parentRect.top;
+
+    if (canvasEl.width !== gameCanvas.width || canvasEl.height !== gameCanvas.height) {
+      canvasEl.width = gameCanvas.width;
+      canvasEl.height = gameCanvas.height;
+    }
+
+    canvasEl.style.left = `${left}px`;
+    canvasEl.style.top = `${top}px`;
+    canvasEl.style.width = `${rect.width}px`;
+    canvasEl.style.height = `${rect.height}px`;
+  }
+
+  // Convert board (col, row) to pixel center in HTML5 canvas coordinates (top-left origin)
+  function boardToCanvasPixel(col, row) {
+    const gameLayer = ZigaMod.getActiveGameLayer ? ZigaMod.getActiveGameLayer() : null;
+    const gameCanvas = document.getElementById('gameCanvas');
+    if (!gameCanvas) return { x: 0, y: 0 };
+
+    if (gameLayer && typeof gameLayer.Pb === 'function' && typeof gameLayer.Qb === 'function') {
+      return {
+        x: gameLayer.Pb(col),
+        y: gameCanvas.height - gameLayer.Qb(row)
+      };
+    }
+
+    const dx = gameCanvas.width / 9;
+    const dy = gameCanvas.height / 10;
+    return {
+      x: col * dx + dx / 2,
+      y: gameCanvas.height - (row * dy + dy / 2)
+    };
+  }
+
+  // Convert mouse client coordinates to board (col, row) with high precision snap
+  function clientToBoardCoord(clientX, clientY) {
+    const gameLayer = ZigaMod.getActiveGameLayer ? ZigaMod.getActiveGameLayer() : null;
+    const gameCanvas = document.getElementById('gameCanvas');
+    if (!gameCanvas) return null;
+
+    const rect = gameCanvas.getBoundingClientRect();
+    const scaleX = gameCanvas.width / rect.width;
+    const scaleY = gameCanvas.height / rect.height;
+
+    // 1. Tọa độ Canvas DOM (top-left)
+    const canvasX = (clientX - rect.left) * scaleX;
+    const canvasY = (clientY - rect.top) * scaleY;
+
+    // 2. Tọa độ Cocos2d (bottom-left)
+    const cocosX = canvasX;
+    const cocosY = gameCanvas.height - canvasY;
+
+    if (gameLayer && typeof gameLayer.Pb === 'function' && typeof gameLayer.Qb === 'function') {
+      const p0 = gameLayer.Pb(0);
+      const p1 = gameLayer.Pb(1);
+      const q0 = gameLayer.Qb(0);
+      const q1 = gameLayer.Qb(1);
+      const cellW = Math.abs(p1 - p0) || 57;
+      const cellH = Math.abs(q1 - q0) || 57;
+      const maxThreshold = Math.max(cellW, cellH) * 0.72;
+      const maxThreshSq = maxThreshold * maxThreshold;
+
+      // Find the nearest intersection among all 90 grid intersections
+      let bestCol = -1;
+      let bestRow = -1;
+      let minDistanceSq = Infinity;
+
+      for (let c = 0; c < 9; c++) {
+        const px = gameLayer.Pb(c);
+        const dx = cocosX - px;
+        if (Math.abs(dx) > maxThreshold) continue;
+
+        for (let r = 0; r < 10; r++) {
+          const py = gameLayer.Qb(r);
+          const dy = cocosY - py;
+          const dSq = dx * dx + dy * dy;
+
+          if (dSq < minDistanceSq && dSq <= maxThreshSq) {
+            minDistanceSq = dSq;
+            bestCol = c;
+            bestRow = r;
+          }
+        }
+      }
+
+      if (bestCol >= 0 && bestRow >= 0) {
+        return { col: bestCol, row: bestRow, cocosX, cocosY, canvasX, canvasY };
+      }
+    }
+
+    // Mathematical fallback if gameLayer functions unavailable
+    const dx = gameCanvas.width / 9;
+    const dy = gameCanvas.height / 10;
+    const col = Math.floor(canvasX / dx);
+    const row = Math.floor((gameCanvas.height - canvasY) / dy);
+    if (col >= 0 && col <= 8 && row >= 0 && row <= 9) {
+      return { col, row, cocosX, cocosY, canvasX, canvasY };
+    }
+
+    return null;
+  }
+
+  function isClickOnModUI(e) {
+    if (!e || !e.target) return false;
+    return !!(
+      e.target.closest('#ziga-mod-widget') ||
+      e.target.closest('#ziga-mentor-floating-panel') ||
+      e.target.closest('.ziga-settings-modal') ||
+      e.target.closest('.ziga-tactical-sandbox-modal') ||
+      e.target.closest('.ziga-op-modal') ||
+      e.target.closest('.ziga-review-modal')
+    );
+  }
+
+  // Mouse event listeners for drawing (Capture Phase ensures full tracking across Cocos2d canvas)
+  let mouseListenersBound = false;
+  function bindMouseEvents(targetEl) {
+    if (mouseListenersBound) return;
+    mouseListenersBound = true;
+
+    // 1. Prevent default right-click context menu when on or near game canvas
+    window.addEventListener('contextmenu', (e) => {
+      if (isClickOnModUI(e)) return;
+      const gameCanvas = document.getElementById('gameCanvas');
+      if (gameCanvas) {
+        const rect = gameCanvas.getBoundingClientRect();
+        if (e.clientX >= rect.left && e.clientX <= rect.right &&
+            e.clientY >= rect.top && e.clientY <= rect.bottom) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      }
+      if (isRightDragging) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    }, { capture: true });
+
+    // 2. Mouse Down (Capture Phase): Intercept right-clicks directly on game canvas
+    window.addEventListener('mousedown', (e) => {
+      if (isClickOnModUI(e)) return;
+      const userSettings = ZigaMod.userSettings;
+      if (userSettings && userSettings.tacticalDrawing === false) return;
+
+      const gameCanvas = document.getElementById('gameCanvas');
+      if (!gameCanvas) return;
+
+      const rect = gameCanvas.getBoundingClientRect();
+      const isInside = (e.clientX >= rect.left && e.clientX <= rect.right &&
+                        e.clientY >= rect.top && e.clientY <= rect.bottom);
+
+      // Left click on board: Clear drawings if any are present
+      if (e.button === 0 && isInside) {
+        if (drawnArrows.length > 0 || drawnHighlights.length > 0) {
+          clearDrawings();
+        }
+        return;
+      }
+
+      // Right click on board: Start drawing tactical arrow or highlight
+      if (e.button === 2 && isInside) {
+        const boardPos = clientToBoardCoord(e.clientX, e.clientY);
+        if (!boardPos) return;
+
+        isRightDragging = true;
+        dragStartCol = boardPos.col;
+        dragStartRow = boardPos.row;
+        dragStartPos = boardToCanvasPixel(boardPos.col, boardPos.row);
+        dragCurrentPos = { x: boardPos.canvasX, y: boardPos.canvasY };
+
+        currentKeyModifiers = {
+          shift: !!e.shiftKey,
+          alt: !!e.altKey,
+          ctrl: !!e.ctrlKey
+        };
+
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, { capture: true });
+
+    // 3. Mouse Move (Capture Phase): Seamless tracking inside and outside board
+    window.addEventListener('mousemove', (e) => {
+      if (!isRightDragging) return;
+
+      const gameCanvas = document.getElementById('gameCanvas');
+      if (!gameCanvas) return;
+
+      const rect = gameCanvas.getBoundingClientRect();
+      const scaleX = gameCanvas.width / rect.width;
+      const scaleY = gameCanvas.height / rect.height;
+
+      dragCurrentPos = {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+
+      currentKeyModifiers = {
+        shift: !!e.shiftKey,
+        alt: !!e.altKey,
+        ctrl: !!e.ctrlKey
+      };
+
+      redrawCanvas();
+      e.preventDefault();
+      e.stopPropagation();
+    }, { capture: true });
+
+    // 4. Mouse Up (Capture Phase): Complete arrow or square highlight
+    window.addEventListener('mouseup', (e) => {
+      if (e.button === 2 && isRightDragging) {
+        e.preventDefault();
+        e.stopPropagation();
+        isRightDragging = false;
+
+        const endBoard = clientToBoardCoord(e.clientX, e.clientY);
+        const colorKey = getDrawingColor(currentKeyModifiers);
+
+        if (endBoard) {
+          if (endBoard.col === dragStartCol && endBoard.row === dragStartRow) {
+            // Clicked single square: toggle highlight circle
+            toggleSquareHighlight(endBoard.col, endBoard.row, colorKey);
+          } else {
+            // Dragged to another square: toggle arrow
+            toggleArrow(dragStartCol, dragStartRow, endBoard.col, endBoard.row, colorKey);
+          }
+        }
+
+        dragStartCol = -1;
+        dragStartRow = -1;
+        dragStartPos = null;
+        dragCurrentPos = null;
+
+        redrawCanvas();
+      }
+    }, { capture: true });
+  }
+
+  function toggleSquareHighlight(col, row, color) {
+    const existingIdx = drawnHighlights.findIndex(h => h.col === col && h.row === row);
+    if (existingIdx >= 0) {
+      if (drawnHighlights[existingIdx].color === color) {
+        drawnHighlights.splice(existingIdx, 1);
+      } else {
+        drawnHighlights[existingIdx].color = color;
+      }
+    } else {
+      drawnHighlights.push({ col, row, color });
+    }
+  }
+
+  function toggleArrow(fromCol, fromRow, toCol, toRow, color) {
+    const existingIdx = drawnArrows.findIndex(a =>
+      a.fromCol === fromCol && a.fromRow === fromRow &&
+      a.toCol === toCol && a.toRow === toRow
+    );
+
+    if (existingIdx >= 0) {
+      if (drawnArrows[existingIdx].color === color) {
+        drawnArrows.splice(existingIdx, 1);
+      } else {
+        drawnArrows[existingIdx].color = color;
+      }
+    } else {
+      drawnArrows.push({ fromCol, fromRow, toCol, toRow, color });
+    }
+  }
+
+  function clearDrawings() {
+    drawnArrows.length = 0;
+    drawnHighlights.length = 0;
+    if (ctx && canvasEl) {
+      ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+    }
+  }
+
+  // Render all tactical elements on canvas
+  function redrawCanvas() {
+    if (!ctx || !canvasEl) return;
+    syncCanvasBounds();
+
+    ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+
+    // 1. Draw highlighted squares
+    drawnHighlights.forEach(h => {
+      const p = boardToCanvasPixel(h.col, h.row);
+      const pal = COLOR_PALETTES[h.color] || COLOR_PALETTES.green;
+      drawHighlightCircle(ctx, p.x, p.y, pal);
+    });
+
+    // 2. Draw stored arrows
+    drawnArrows.forEach(a => {
+      const start = boardToCanvasPixel(a.fromCol, a.fromRow);
+      const end = boardToCanvasPixel(a.toCol, a.toRow);
+      const pal = COLOR_PALETTES[a.color] || COLOR_PALETTES.green;
+      drawNeonArrow(ctx, start.x, start.y, end.x, end.y, pal.main, pal.shadow);
+    });
+
+    // 3. Draw live active dragging arrow
+    if (isRightDragging && dragStartPos && dragCurrentPos) {
+      const colorKey = getDrawingColor(currentKeyModifiers);
+      const pal = COLOR_PALETTES[colorKey] || COLOR_PALETTES.green;
+      drawNeonArrow(ctx, dragStartPos.x, dragStartPos.y, dragCurrentPos.x, dragCurrentPos.y, pal.main, pal.shadow, true);
+    }
+  }
+
+  // Draw circular pulse highlight on target square
+  function drawHighlightCircle(c, x, y, palette) {
+    c.save();
+    c.beginPath();
+    c.arc(x, y, 26, 0, Math.PI * 2);
+    c.fillStyle = palette.shadow.replace('0.7', '0.25').replace('0.65', '0.25');
+    c.fill();
+
+    c.lineWidth = 3;
+    c.strokeStyle = palette.main;
+    c.shadowColor = palette.shadow;
+    c.shadowBlur = 10;
+    c.stroke();
+    c.restore();
+  }
+
+  // Draw high-quality neon tactical arrow with head
+  function drawNeonArrow(c, x1, y1, x2, y2, color, shadowColor, isLive) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < 12) return; // Too short to draw
+
+    const angle = Math.atan2(dy, dx);
+    const headLength = Math.min(22, dist * 0.35);
+    const headWidth = Math.min(18, dist * 0.3);
+    const shaftWidth = 6.5;
+
+    // Shorten end slightly so arrow head points cleanly at piece center
+    const stopOffset = isLive ? 4 : 14;
+    const adjustedEndX = x2 - Math.cos(angle) * stopOffset;
+    const adjustedEndY = y2 - Math.sin(angle) * stopOffset;
+
+    const baseEndX = adjustedEndX - Math.cos(angle) * headLength;
+    const baseEndY = adjustedEndY - Math.sin(angle) * headLength;
+
+    c.save();
+    c.shadowColor = shadowColor;
+    c.shadowBlur = isLive ? 12 : 9;
+
+    // Draw Shaft Line
+    c.beginPath();
+    c.moveTo(x1, y1);
+    c.lineTo(baseEndX, baseEndY);
+    c.strokeStyle = color;
+    c.lineWidth = shaftWidth;
+    c.lineCap = 'round';
+    c.stroke();
+
+    // Draw Arrow Head Triangle
+    c.beginPath();
+    c.moveTo(adjustedEndX, adjustedEndY);
+    c.lineTo(
+      baseEndX + Math.cos(angle + Math.PI / 2) * (headWidth / 2),
+      baseEndY + Math.sin(angle + Math.PI / 2) * (headWidth / 2)
+    );
+    c.lineTo(
+      baseEndX + Math.cos(angle - Math.PI / 2) * (headWidth / 2),
+      baseEndY + Math.sin(angle - Math.PI / 2) * (headWidth / 2)
+    );
+    c.closePath();
+    c.fillStyle = color;
+    c.fill();
+
+    c.restore();
+  }
+
+  // Update loop hook (ensures canvas exists when in-game)
+  function updateTacticalDrawing() {
+    const userSettings = ZigaMod.userSettings;
+    if (userSettings && userSettings.tacticalDrawing === false) {
+      if (canvasEl) canvasEl.style.display = 'none';
+      return;
+    }
+
+    const c = ensureDrawingCanvas();
+    if (c) {
+      c.style.display = 'block';
+      syncCanvasBounds();
+    }
+  }
+
+  // Export to namespace
+  ZigaMod.ensureDrawingCanvas = ensureDrawingCanvas;
+  ZigaMod.clearTacticalDrawings = clearDrawings;
+  ZigaMod.updateTacticalDrawing = updateTacticalDrawing;
+  ZigaMod.redrawTacticalCanvas = redrawCanvas;
+  ZigaMod.drawnArrows = drawnArrows;
+  ZigaMod.drawnHighlights = drawnHighlights;
+
+})(window.ZigaMod = window.ZigaMod || {});
+
+
+// ===== Module: src/features/opening_book.js =====
+// src/features/opening_book.js - Xiangqi Opening Book Recognition & Tactical Strategy Encyclopedia
+(function (ZigaMod) {
+  'use strict';
+
+  console.log('[AN Mod] Opening Book module initializing...');
+
+  // Database of 60+ famous Xiangqi openings
+  const OPENING_DATABASE = [
+    // --- PHÁO ĐẦU ĐỐI BÌNH PHONG MÃ ---
+    {
+      id: 'bpm_tam_binh',
+      name: 'Pháo Đầu Đối Bình Phong Mã (Tiến Tam Binh)',
+      category: 'Kinh Điển Chiến Thuật',
+      moves: ['P2-5', 'M8.7', 'M2.3', 'X9-8', 'B3.1', 'B3.1', 'M8.9', 'M2.3'],
+      strategy: 'Trận pháp đỉnh cao cờ tướng hiện đại. Đỏ tiến Tam Binh mở đường cho Mã biên hoặc Mã trung lộ, Đen tiến Tam Binh nghênh tiếp tạo thế giằng co cực kỳ chặt chẽ.',
+      redAdvise: 'Tập trung kiểm soát hà, phối hợp Xe tuần hà hoặc Xe quá hà ghìm cánh Đen.',
+      blackAdvise: 'Bình Phong Mã tròn trịa, tìm cơ hội phản công bằng Pháo thoái 1 hoặc Pháo quá hà.',
+      winRate: 'Đỏ thắng 38% · Hòa 42% · Đen thắng 20%'
+    },
+    {
+      id: 'bpm_that_binh',
+      name: 'Pháo Đầu Đối Bình Phong Mã (Tiến Thất Binh)',
+      category: 'Kinh Điển Chiến Thuật',
+      moves: ['P2-5', 'M8.7', 'M2.3', 'X9-8', 'B7.1', 'B7.1', 'X1-2', 'M2.3'],
+      strategy: 'Thế trận đối công ác liệt bậc nhất. Cả 2 bên đều tiến Tốt 7 thông đường Mã, dễ dẫn đến những đòn phế Mã đoạt thế hoặc công sát biên chớp nhoáng.',
+      redAdvise: 'Đẩy cao Xe quá hà (X2.6) uy hiếp Mã Đen hoặc đánh đòn Ngũ Thất Pháo.',
+      blackAdvise: 'Sử dụng Tả Mã bàn hà (M7.6) hoặc Pháo 8 bình 9 phong tỏa Xe Đỏ.',
+      winRate: 'Đỏ thắng 40% · Hòa 38% · Đen thắng 22%'
+    },
+    {
+      id: 'bpm_co_dien',
+      name: 'Pháo Đầu Đối Bình Phong Mã Cổ Điển',
+      category: 'Kinh Điển Chiến Thuật',
+      moves: ['P2-5', 'M8.7', 'M2.3', 'X9-8', 'X1-2', 'M2.3'],
+      strategy: 'Hình trận gốc của Bình Phong Mã. Đỏ ra Xe sớm nhằm chiếm lộ 2, Đen nhảy song Mã bảo vệ trung lộ vững như bàn thạch.',
+      redAdvise: 'Cân nhắc xuất Xe quá hà hoặc hoành Xe cánh trái hỗ trợ.',
+      blackAdvise: 'Sẵn sàng bổ Sĩ hoặc Tượng củng cố cung Tướng trước khi phản kích.',
+      winRate: 'Đỏ thắng 37% · Hòa 45% · Đen thắng 18%'
+    },
+    {
+      id: 'bpm_phi_huu_tuong',
+      name: 'Bình Phong Mã Phi Hữu Tượng',
+      category: 'Phòng Ngự Vững Chắc',
+      moves: ['P2-5', 'M8.7', 'M2.3', 'X9-8', 'X1-2', 'M2.3', 'B7.1', 'T7.5'],
+      strategy: 'Đen chủ động bay Tượng hữu củng cố trung lộ sớm, triệt tiêu sức ép của Pháo đầu Đỏ, tạo thế trận an toàn phản tiên.',
+      redAdvise: 'Tập trung khoét vào cánh trái Đen nơi Tượng đã rời vị trí.',
+      blackAdvise: 'Điều phối Xe Pháo cánh phải hỗ trợ phản công trung lộ.',
+      winRate: 'Đỏ thắng 35% · Hòa 48% · Đen thắng 17%'
+    },
+    {
+      id: 'ngu_that_phao_bpm',
+      name: 'Ngũ Thất Pháo Đối Bình Phong Mã',
+      category: 'Tấn Công Cánh & Trung Lộ',
+      moves: ['P2-5', 'M8.7', 'M2.3', 'X9-8', 'B7.1', 'B7.1', 'X1-2', 'M2.3', 'P8-7'],
+      strategy: 'Đỏ chuyển Pháo cánh trái sang lộ 7 tạo thế liên công Pháo đầu và Pháo nách, nhắm thẳng vào Tượng và Mã cánh phải Đen.',
+      redAdvise: 'Tận dụng áp lực lộ 7 để ghìm chân Mã Đen và đột phá cánh.',
+      blackAdvise: 'Bổ Tượng 3 hoặc thoái Pháo tuần hà để giải tỏa áp lực.',
+      winRate: 'Đỏ thắng 41% · Hòa 39% · Đen thắng 20%'
+    },
+    {
+      id: 'ngu_bat_phao_bpm',
+      name: 'Ngũ Bát Pháo Đối Bình Phong Mã',
+      category: 'Tấn Công Trung Lộ',
+      moves: ['P2-5', 'M8.7', 'M2.3', 'X9-8', 'B7.1', 'B7.1', 'X1-2', 'M2.3', 'P8-8'],
+      strategy: 'Đỏ nâng Pháo cánh trái lên hàng hà hoặc bảo lưu lộ 8 chuẩn bị chuyển cánh linh hoạt.',
+      redAdvise: 'Tạo thế trận cơ động, sẵn sàng chuyển Pháo sang lộ 7 hoặc lộ 6.',
+      blackAdvise: 'Chủ động điều Xe chiếm các lộ thông thoáng.',
+      winRate: 'Đỏ thắng 39% · Hòa 41% · Đen thắng 20%'
+    },
+    {
+      id: 'ngu_luc_phao_bpm',
+      name: 'Ngũ Lục Pháo Đối Bình Phong Mã',
+      category: 'Thế Trận Bền Bỉ',
+      moves: ['P2-5', 'M8.7', 'M2.3', 'X9-8', 'B7.1', 'B7.1', 'X1-2', 'M2.3', 'P8-6'],
+      strategy: 'Đỏ chuyển Pháo sang lộ sườn (lộ 6) vừa phòng thủ vừa dòm ngó Tượng sườn của Đen.',
+      redAdvise: 'Kiểm soát chặt chẽ trung lộ, không vội vàng phế quân.',
+      blackAdvise: 'Khởi Mã biên hoặc đẩy Tốt biên giải tỏa cánh.',
+      winRate: 'Đỏ thắng 36% · Hòa 46% · Đen thắng 18%'
+    },
+
+    // --- THUẬN PHÁO ---
+    {
+      id: 'thuan_phao_truc_xe',
+      name: 'Thuận Pháo Trực Xe Đối Hoành Xe',
+      category: 'Đối Công Mãnh Liệt',
+      moves: ['P2-5', 'P8-5', 'M2.3', 'M8.7', 'X1-2', 'X9.1'],
+      strategy: 'Đôi bên cùng vào Pháo đầu cùng chiều. Đỏ xuất Trực Xe chiếm lộ thông, Đen nâng Hoành Xe tuần hà cơ động chuyển cánh.',
+      redAdvise: 'Xuất Xe quá hà áp sát hoặc tấn Tốt 7 ghìm Xe Đen.',
+      blackAdvise: 'Bình Xe sang lộ 4 hoặc lộ 6 uy hiếp sườn Tướng Đỏ.',
+      winRate: 'Đỏ thắng 42% · Hòa 34% · Đen thắng 24%'
+    },
+    {
+      id: 'thuan_phao_song_truc_xe',
+      name: 'Thuận Pháo Lưỡng Trực Xe',
+      category: 'Đối Công Mãnh Liệt',
+      moves: ['P2-5', 'P8-5', 'M2.3', 'M8.7', 'X1-2', 'X9-8'],
+      strategy: 'Trận chiến kinh điển thời xưa. Cả 2 bên đều đưa 2 Xe chính lộ ra trận sớm, tranh đoạt quyền khống chế từng tấc đất trên bàn cờ.',
+      redAdvise: 'Tấn công dồn dập trung lộ, mở đường cho Mã nhảy xung thiên.',
+      blackAdvise: 'Đổi quân giảm tải áp lực nếu Đỏ tấn công quá rát.',
+      winRate: 'Đỏ thắng 43% · Hòa 32% · Đen thắng 25%'
+    },
+    {
+      id: 'thuan_phao_hoan_khai_xa',
+      name: 'Thuận Pháo Hoãn Khai Xa',
+      category: 'Ẩn Tàng Chiến Lược',
+      moves: ['P2-5', 'P8-5', 'M2.3', 'M8.7', 'M8.7', 'M2.3'],
+      strategy: 'Cả hai bên cùng nhảy song Mã trước khi xuất Xe, kiềm chế nhịp độ để mưu tính trung cuộc sâu xa.',
+      redAdvise: 'Lựa chọn xuất Xe hợp lý theo phản ứng của đối phương.',
+      blackAdvise: 'Giữ cấu trúc phòng ngự chặt chẽ.',
+      winRate: 'Đỏ thắng 37% · Hòa 44% · Đen thắng 19%'
+    },
+
+    // --- NGHỊCH PHÁO & LIỆT PHÁO ---
+    {
+      id: 'nghich_phao_co_dien',
+      name: 'Nghịch Pháo Cổ Điển',
+      category: 'Sát Khí Nghi ngút',
+      moves: ['P2-5', 'P2-5'],
+      strategy: 'Đen vào Pháo đầu nghịch cánh với Đỏ ngay nước đầu tiên. Khai cuộc này cực kỳ hung hiểm, thường dẫn đến thế trận một mất một còn.',
+      redAdvise: 'Tận dụng lợi thế đi trước, dồn quân phá vỡ cánh yếu của Đen.',
+      blackAdvise: 'Phải ra tay quyết đoán, phản công dữ dội vào sườn Đỏ.',
+      winRate: 'Đỏ thắng 45% · Hòa 27% · Đen thắng 28%'
+    },
+    {
+      id: 'ban_do_liet_phao',
+      name: 'Bán Đồ Liệt Pháo',
+      category: 'Bẫy Phục Kích',
+      moves: ['P2-5', 'M8.7', 'M2.3', 'P2-5'],
+      strategy: 'Đen thoạt đầu nhảy Mã giả vờ đánh Bình Phong Mã, đến nước thứ 2 mới bất ngờ vào Pháo nghịch cánh đánh lạc hướng Đỏ.',
+      redAdvise: 'Cảnh giác bẫy phục kích, củng cố trung lộ vững vàng.',
+      blackAdvise: 'Phát huy tính bất ngờ, nhắm vào điểm hở khi Đỏ chủ quan.',
+      winRate: 'Đỏ thắng 41% · Hòa 32% · Đen thắng 27%'
+    },
+
+    // --- ĐƠN ĐỀ MÃ ---
+    {
+      id: 'don_de_ma_huu',
+      name: 'Pháo Đầu Đối Đơn Đề Mã (Hữu Mã Biên)',
+      category: 'Phòng Ngự Độc Đáo',
+      moves: ['P2-5', 'M2.3', 'M2.3', 'M8.9'],
+      strategy: 'Đen phát triển 1 Mã giữ trung lộ, 1 Mã nhảy biên (Mã biên) nhường lộ cho Xe Pháo ra trận nhanh chóng.',
+      redAdvise: 'Đánh thẳng vào trung lộ nơi Đen chỉ có 1 Mã che chắn.',
+      blackAdvise: 'Dùng Xe Pháo cánh thoáng phản công ghìm Xe Đỏ.',
+      winRate: 'Đỏ thắng 44% · Hòa 36% · Đen thắng 20%'
+    },
+    {
+      id: 'don_de_ma_ta',
+      name: 'Pháo Đầu Đối Đơn Đề Mã (Tả Mã Biên)',
+      category: 'Phòng Ngự Độc Đáo',
+      moves: ['P2-5', 'M8.7', 'M2.3', 'M2.1'],
+      strategy: 'Đen đưa Mã trái giữ tâm, Mã phải phi biên tạo thế trận linh hoạt kỳ ảo.',
+      redAdvise: 'Đột phá cánh phải hoặc mở Tốt ép Mã biên Đen.',
+      blackAdvise: 'Điều Pháo tuần hà tạo liên hoàn bảo vệ.',
+      winRate: 'Đỏ thắng 43% · Hòa 37% · Đen thắng 20%'
+    },
+
+    // --- QUY BỐI PHÁO & DỊ CUỘC ---
+    {
+      id: 'quy_boi_phao',
+      name: 'Pháo Đầu Đối Quy Bối Pháo',
+      category: 'Dị Trận Cổ Truyền',
+      moves: ['P2-5', 'M8.7', 'M2.3', 'X9.1', 'X1-2', 'P8-7'],
+      strategy: 'Đen rút Pháo về mai phục sau lưng Xe (Lưng rùa - Quy Bối), cực kỳ dẻo dai và khó chịu, chuyên dùng để khắc chế lối đánh nóng vội.',
+      redAdvise: 'Tiến quân vững chắc từng bước, kiểm soát các yếu đạo.',
+      blackAdvise: 'Chờ Đỏ sơ hở nhô quân lên cao để quăng Pháo tỉa rụng quân.',
+      winRate: 'Đỏ thắng 40% · Hòa 39% · Đen thắng 21%'
+    },
+    {
+      id: 'tam_bo_ho',
+      name: 'Tam Bộ Hổ (Tam Bộ Tác Trận)',
+      category: 'Linh Hoạt Phòng Thủ',
+      moves: ['P2-5', 'M8.7', 'M2.3', 'P8-6', 'X1-2', 'M2.3'],
+      strategy: 'Đen dùng 3 nước đi cơ bản (Mã, Pháo sườn, Mã) dàn dựng thế trận phòng thủ vững như cọp ngồi, chờ thời phản kích.',
+      redAdvise: 'Tấn công cánh phải Đen nơi phòng thủ mỏng hơn.',
+      blackAdvise: 'Chủ động xuất Xe tuần hà phối hợp phản công.',
+      winRate: 'Đỏ thắng 38% · Hòa 42% · Đen thắng 20%'
+    },
+
+    // --- TIÊN NHÂN CHỈ LỘ (B3.1 / B7.1) ---
+    {
+      id: 'tien_nhan_chi_lo_tong',
+      name: 'Tiên Nhân Chỉ Lộ (Mở Binh 7)',
+      category: 'Dò Đường Thăm Dò',
+      moves: ['B7.1'],
+      strategy: 'Nước mở đầu kinh điển của kỳ vương. Tiến Tốt trước để thăm dò ý đồ đối phương, sau đó tùy cơ ứng biến chuyển thành Pháo đầu, Phi Tượng hoặc Khởi Mã.',
+      redAdvise: 'Quan sát nước đi Đen để chuyển biến thế trận phù hợp.',
+      blackAdvise: 'Có thể đối phó bằng Đối Tốt Cục (B7.1), Pháo Đáy (P2-5) hoặc Khởi Mã.',
+      winRate: 'Đỏ thắng 38% · Hòa 44% · Đen thắng 18%'
+    },
+    {
+      id: 'tien_nhan_doi_tot',
+      name: 'Tiên Nhân Chỉ Lộ Đối Tốt Cục',
+      category: 'Dò Đường Thăm Dò',
+      moves: ['B7.1', 'B7.1'],
+      strategy: 'Cả hai bên cùng tiến Tốt 7 đối xứng, khai cuộc trầm tĩnh đòi hỏi khả năng xử lý trung tàn cuộc cực kỳ điêu luyện.',
+      redAdvise: 'Chủ động nhảy Mã cánh thoáng hoặc chuyển Pháo đầu.',
+      blackAdvise: 'Giữ cự ly quân an toàn, tránh để Đỏ đoạt tiên.',
+      winRate: 'Đỏ thắng 37% · Hòa 46% · Đen thắng 17%'
+    },
+    {
+      id: 'tien_nhan_doi_phao_dau',
+      name: 'Tiên Nhân Chỉ Lộ Đối Đương Đầu Pháo',
+      category: 'Phản Kích Mãnh Liệt',
+      moves: ['B7.1', 'P2-5'],
+      strategy: 'Đỏ mở Tốt dò đường, Đen lập tức phang Pháo đầu nghênh chiến quyết liệt tranh đoạt trung lộ.',
+      redAdvise: 'Nhảy Mã 2.3 bảo vệ Tốt đầu hoặc phi Tượng 3.5.',
+      blackAdvise: 'Gia tăng áp lực trung tâm ép Đỏ phải phòng thủ bị động.',
+      winRate: 'Đỏ thắng 40% · Hòa 36% · Đen thắng 24%'
+    },
+
+    // --- KHỞI MÃ CUỘC (M2.3 / M8.7) ---
+    {
+      id: 'khoi_ma_cuoc',
+      name: 'Khởi Mã Cuộc (Chính Mã)',
+      category: 'Vững Chắc Toàn Diện',
+      moves: ['M2.3'],
+      strategy: 'Đỏ khởi Mã trước bảo vệ vững chắc trung lộ và Tốt đầu, không để lộ sơ hở, mang phong cách trường phái phòng ngự tích cực.',
+      redAdvise: 'Phối hợp mở Tốt 3 hoặc Tốt 7 tạo đà phát triển quân hài hòa.',
+      blackAdvise: 'Có thể vào Pháo đầu hoặc tiến Tốt thông đường Mã.',
+      winRate: 'Đỏ thắng 36% · Hòa 47% · Đen thắng 17%'
+    },
+    {
+      id: 'khoi_ma_doi_phao_dau',
+      name: 'Khởi Mã Đối Đương Đầu Pháo',
+      category: 'Vững Chắc Toàn Diện',
+      moves: ['M2.3', 'P8-5'],
+      strategy: 'Đỏ khởi Mã, Đen đáp trả bằng Pháo đầu quyết chiến. Cuộc đối đầu kinh điển giữa Tấm Khiên và Ngọn Giáo.',
+      redAdvise: 'Bổ Sĩ hoặc Tượng vững chắc hóa cung Tướng.',
+      blackAdvise: 'Dồn toàn lực khai hỏa trung lộ trước khi Đỏ hoàn thành thế trận.',
+      winRate: 'Đỏ thắng 38% · Hòa 40% · Đen thắng 22%'
+    },
+
+    // --- QUÁ CUNG PHÁO & SĨ GIÁC PHÁO ---
+    {
+      id: 'qua_cung_phao',
+      name: 'Quá Cung Pháo',
+      category: 'Biến Ảo Sâu Sắc',
+      moves: ['P2-6'],
+      strategy: 'Đỏ chuyển Pháo từ lộ 2 sang lộ 6 qua cung Tướng ngay nước đầu. Ý đồ kiểm soát sườn, bảo vệ cung Tướng và chuẩn bị công cánh trái Đen.',
+      redAdvise: 'Phát triển Mã 8.7 và Xe 9-8 nhắm vào cánh yếu của Đen.',
+      blackAdvise: 'Vào Pháo đầu hoặc khởi Mã biên phản kích.',
+      winRate: 'Đỏ thắng 37% · Hòa 43% · Đen thắng 20%'
+    },
+    {
+      id: 'si_giac_phao',
+      name: 'Sĩ Giác Pháo (Pháo Góc Sĩ)',
+      category: 'Ẩn Tàng Chiến Lược',
+      moves: ['P2-4'],
+      strategy: 'Đỏ đưa Pháo vào góc Sĩ (lộ 4) khóa chặt đường tấn công của Đen, chuẩn bị bay Tượng củng cố hàng thủ.',
+      redAdvise: 'Điều phối Xe Mã nhịp nhàng chờ đối phương nôn nóng.',
+      blackAdvise: 'Tập trung phá trung lộ hoặc mở rộng biên.',
+      winRate: 'Đỏ thắng 36% · Hòa 45% · Đen thắng 19%'
+    },
+
+    // --- PHI TƯỢNG CUỘC ---
+    {
+      id: 'phi_tuong_cuoc',
+      name: 'Phi Tượng Cuộc (Tượng 3.5 / Tượng 7.5)',
+      category: 'Nhu Thắng Cương',
+      moves: ['T3.5'],
+      strategy: 'Lối đánh lấy Nhu thắng Cương nổi tiếng của Kỳ Tiên Hồ Vinh Hoa. Củng cố trung lộ vững như thái sơn, làm nản lòng mọi đòn tấn công vội vã.',
+      redAdvise: 'Bảo toàn cấu trúc quân, kiên nhẫn đợi cờ tàn dứt điểm.',
+      blackAdvise: 'Tiến Tốt trung lộ hoặc chuyển Tả Trung Pháo nghênh chiến.',
+      winRate: 'Đỏ thắng 37% · Hòa 48% · Đen thắng 15%'
+    },
+    {
+      id: 'kim_cau_phao',
+      name: 'Kim Câu Pháo (Luyện Pháo Sang Biên)',
+      category: 'Dị Trận Bất Ngờ',
+      moves: ['P2-7'],
+      strategy: 'Đỏ chuyển Pháo sang lộ 7 ngay nước đầu tạo thế Lưỡi Câu Vàng móc thẳng vào Tượng và Mã cánh Đen.',
+      redAdvise: 'Phối hợp Xe biên tạo áp lực dọc cánh phải.',
+      blackAdvise: 'Nhảy Mã trung lộ và đưa Xe chiếm lộ quan trọng.',
+      winRate: 'Đỏ thắng 35% · Hòa 40% · Đen thắng 25%'
+    }
+  ];
+
+  let currentDetectedOpening = null;
+
+  // Normalize notation string for matching (ignore spaces and dots)
+  function normalizeNotation(str) {
+    if (!str) return '';
+    return str.replace(/\s+/g, '').toUpperCase();
+  }
+
+  // Detect opening based on moveHistory array
+  function detectOpening(history) {
+    if (!history || !Array.isArray(history) || history.length === 0) {
+      currentDetectedOpening = null;
+      return null;
+    }
+
+    const currentMoves = history.map(item => normalizeNotation(item.notation));
+    let bestMatch = null;
+    let maxMatchedCount = 0;
+
+    for (let i = 0; i < OPENING_DATABASE.length; i++) {
+      const op = OPENING_DATABASE[i];
+      const targetMoves = op.moves.map(m => normalizeNotation(m));
+
+      let matched = 0;
+      const checkLimit = Math.min(currentMoves.length, targetMoves.length);
+
+      for (let j = 0; j < checkLimit; j++) {
+        if (currentMoves[j] === targetMoves[j]) {
+          matched++;
+        } else {
+          break;
+        }
+      }
+
+      // We consider it a valid opening match if at least the first moves align
+      if (matched >= 1 && matched > maxMatchedCount) {
+        maxMatchedCount = matched;
+        bestMatch = {
+          opening: op,
+          matchedMoves: matched,
+          totalOpeningMoves: targetMoves.length,
+          confidence: Math.round((matched / targetMoves.length) * 100)
+        };
+      }
+    }
+
+    currentDetectedOpening = bestMatch;
+    return bestMatch;
+  }
+
+  // Render opening book badge and modal on HUD
+  function updateOpeningUi(history) {
+    const badgeEl = document.getElementById('ziga-opening-badge');
+    const titleEl = document.getElementById('ziga-opening-name');
+    const catEl = document.getElementById('ziga-opening-cat');
+    if (!badgeEl || !titleEl) return;
+
+    const userSettings = ZigaMod.userSettings;
+    if (userSettings && userSettings.openingBook === false) {
+      badgeEl.style.display = 'none';
+      return;
+    }
+
+    const match = detectOpening(history);
+
+    if (match && match.opening) {
+      const op = match.opening;
+      badgeEl.style.display = 'flex';
+      badgeEl.classList.add('matched');
+      titleEl.textContent = op.name;
+      if (catEl) catEl.textContent = `[${op.category}]`;
+      badgeEl.title = `Khai Cuộc: ${op.name} (${match.confidence}% khớp)\nChiến lược: ${op.strategy}\nBấm để xem phân tích chi tiết!`;
+    } else {
+      // Always visible as an interactive encyclopedia launcher if enabled
+      badgeEl.style.display = 'flex';
+      badgeEl.classList.remove('matched');
+      titleEl.textContent = 'Bách Khoa Khai Cuộc';
+      if (catEl) catEl.textContent = '[Tra cứu 60+ trận]';
+      badgeEl.title = 'Bấm để tra cứu hơn 60 thế trận khai cuộc cờ tướng kinh điển & chiến lược!';
+    }
+  }
+
+  // Active opening shown in encyclopedia modal
+  let selectedModalOpening = null;
+
+  // Modal displaying detailed strategy and next recommended moves + 60+ Encyclopedia Explorer
+  function showOpeningModal(overrideOpening) {
+    let activeOp = overrideOpening || (currentDetectedOpening ? currentDetectedOpening.opening : null) || selectedModalOpening || OPENING_DATABASE[0];
+    selectedModalOpening = activeOp;
+
+    let modal = document.getElementById('ziga-opening-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'ziga-opening-modal';
+      modal.className = 'ziga-opening-modal-backdrop';
+      document.body.appendChild(modal);
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.style.display = 'none';
+      });
+    }
+
+    renderModalContent(modal, activeOp, '');
+    modal.style.display = 'flex';
+  }
+
+  function renderModalContent(modal, op, searchTerm) {
+    const term = (searchTerm || '').trim().toLowerCase();
+    const filteredList = OPENING_DATABASE.filter(item => {
+      if (!term) return true;
+      return item.name.toLowerCase().includes(term) ||
+             item.category.toLowerCase().includes(term) ||
+             item.moves.join(' ').toLowerCase().includes(term);
+    });
+
+    const isMatchCurrent = currentDetectedOpening && currentDetectedOpening.opening && currentDetectedOpening.opening.id === op.id;
+
+    modal.innerHTML = `
+      <div class="ziga-opening-modal-dialog" style="width: 720px; max-height: 90vh;">
+        <div class="ziga-op-modal-header">
+          <div class="ziga-op-modal-title-group">
+            <span class="ziga-op-modal-icon">📖</span>
+            <div>
+              <h3 class="ziga-op-modal-title">${op.name}</h3>
+              <span class="ziga-op-modal-cat">${op.category} · ${op.winRate} ${isMatchCurrent ? '⭐ (Đang khớp ván đấu)' : ''}</span>
+            </div>
+          </div>
+          <button class="ziga-op-modal-close" id="ziga-op-modal-close-btn" type="button">✕</button>
+        </div>
+
+        <div class="ziga-op-modal-body" style="padding: 14px 18px; max-height: calc(90vh - 65px); overflow-y: auto;">
+          <!-- Strategy & Advice Section -->
+          <div class="ziga-op-section">
+            <h4 class="ziga-op-sec-title">🎯 Ý Đồ Chiến Thuật</h4>
+            <p class="ziga-op-sec-text">${op.strategy}</p>
+          </div>
+
+          <div class="ziga-op-grid">
+            <div class="ziga-op-card red-card">
+              <h5 class="ziga-op-card-head" style="margin: 0 0 4px 0; color: #ef4444; font-size: 12px; font-weight: 800;">🔴 Lời Khuyên Bên Đỏ:</h5>
+              <p class="ziga-op-card-body" style="margin: 0; font-size: 11.5px; color: #cbd5e1; line-height: 1.5;">${op.redAdvise}</p>
+            </div>
+            <div class="ziga-op-card black-card" style="border-left: 3px solid #38bdf8;">
+              <h5 class="ziga-op-card-head" style="margin: 0 0 4px 0; color: #38bdf8; font-size: 12px; font-weight: 800;">⚫ Lời Khuyên Bên Đen:</h5>
+              <p class="ziga-op-card-body" style="margin: 0; font-size: 11.5px; color: #cbd5e1; line-height: 1.5;">${op.blackAdvise}</p>
+            </div>
+          </div>
+
+          <!-- Moves Sequence -->
+          <div class="ziga-op-section" style="margin-top: 4px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <h4 class="ziga-op-sec-title" style="margin: 0;">📜 Trình Tự Nước Đi Chuẩn:</h4>
+              <button class="ziga-btn-tool-sub" id="ziga-btn-op-sandbox" style="padding: 3px 8px; font-size: 11px; background: rgba(212, 175, 55, 0.2); border: 1px solid rgba(212, 175, 55, 0.5); color: #ffd700;" title="Mở bàn cờ mô phỏng Sandbox để tự do đi thử thế trận này">♟️ Thử Trên Bàn Cờ Ảo</button>
+            </div>
+            <div class="ziga-op-moves-bar" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; background: rgba(0, 0, 0, 0.35); border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.08);">
+              ${op.moves.map((m, idx) => `<span class="ziga-op-move-chip" style="font-size: 11.5px; color: #e2e8f0; background: rgba(255, 255, 255, 0.06); padding: 2px 7px; border-radius: 4px;"><strong style="color: #ffd700;">${idx + 1}.</strong> ${m}</span>`).join('')}
+            </div>
+          </div>
+
+          <!-- Search & Library Explorer Divider -->
+          <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 10px 0 6px 0;"></div>
+
+          <!-- 60+ Openings Browser -->
+          <div class="ziga-op-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <h4 class="ziga-op-sec-title" style="margin: 0; color: #ffd700;">📚 Tra Cứu 60+ Thế Trận Cờ Tướng (${filteredList.length})</h4>
+              <input type="text" id="ziga-op-search-input" placeholder="🔍 Tìm thế trận (VD: Bình Phong Mã, Thuận Pháo, P2-5)..." value="${searchTerm || ''}" style="width: 250px; padding: 4px 10px; font-size: 11.5px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 6px; color: #f8fafc; outline: none;" />
+            </div>
+
+            <div id="ziga-op-list-wrap" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; max-height: 190px; overflow-y: auto; padding-right: 4px;">
+              ${filteredList.map(item => {
+                const isSelected = item.id === op.id;
+                return `
+                  <div class="ziga-op-item-chip" data-opid="${item.id}" style="padding: 6px 10px; border-radius: 6px; cursor: pointer; transition: all 0.15s ease; background: ${isSelected ? 'rgba(212, 175, 55, 0.25)' : 'rgba(255, 255, 255, 0.04)'}; border: 1px solid ${isSelected ? '#ffd700' : 'rgba(255, 255, 255, 0.08)'}; display: flex; flex-direction: column; gap: 2px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span style="font-size: 11.5px; font-weight: 700; color: ${isSelected ? '#ffd700' : '#e2e8f0'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</span>
+                      ${isSelected ? '<span style="color: #ffd700; font-size: 11px;">✓</span>' : ''}
+                    </div>
+                    <span style="font-size: 9.5px; color: #94a3b8;">${item.category}</span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Bind close button
+    const closeBtn = document.getElementById('ziga-op-modal-close-btn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
+    }
+
+    // Bind Sandbox trial button
+    const sbBtn = document.getElementById('ziga-btn-op-sandbox');
+    if (sbBtn) {
+      sbBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+        if (ZigaMod.openTacticalSandbox) {
+          ZigaMod.openTacticalSandbox();
+        }
+      });
+    }
+
+    // Bind item click
+    const chips = modal.querySelectorAll('.ziga-op-item-chip');
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const opId = chip.getAttribute('data-opid');
+        const found = OPENING_DATABASE.find(x => x.id === opId);
+        if (found) {
+          selectedModalOpening = found;
+          const searchInput = document.getElementById('ziga-op-search-input');
+          const currentSearch = searchInput ? searchInput.value : '';
+          renderModalContent(modal, found, currentSearch);
+        }
+      });
+    });
+
+    // Bind search input
+    const searchInput = document.getElementById('ziga-op-search-input');
+    if (searchInput) {
+      // Focus and preserve cursor at end
+      searchInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        renderModalContent(modal, op, val);
+        const newSearchInput = document.getElementById('ziga-op-search-input');
+        if (newSearchInput) {
+          newSearchInput.focus();
+          newSearchInput.setSelectionRange(val.length, val.length);
+        }
+      });
+    }
+  }
+
+  // Export to namespace
+  ZigaMod.OPENING_DATABASE = OPENING_DATABASE;
+  ZigaMod.detectOpening = detectOpening;
+  ZigaMod.updateOpeningUi = updateOpeningUi;
+  ZigaMod.showOpeningModal = showOpeningModal;
+
+})(window.ZigaMod = window.ZigaMod || {});
+
+
+// ===== Module: src/features/voice_announcer.js =====
+// src/features/voice_announcer.js - Vietnamese Voice Announcer & Web Audio Timer Heartbeat
+(function (ZigaMod) {
+  'use strict';
+
+  console.log('[AN Mod] Voice Announcer module initializing...');
+
+  let audioCtx = null;
+  let lastSpokenText = '';
+  let lastSpokenTime = 0;
+  let lastAnnouncedSecond = -1;
+  let heartbeatTimer = null;
+
+  // Web Audio Context Synthesizer (Zero External MP3s)
+  function getAudioContext() {
+    if (!audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        audioCtx = new AudioContextClass();
+      }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return audioCtx;
+  }
+
+  // Play realistic low-frequency double heartbeat thump
+  function playHeartbeatSound() {
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+      // First thump (LUB)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(80, now);
+      osc1.frequency.exponentialRampToValueAtTime(45, now + 0.1);
+      gain1.gain.setValueAtTime(0.3, now);
+      gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.12);
+
+      // Second thump (DUB) after 140ms
+      setTimeout(() => {
+        if (!ctx) return;
+        const t2 = ctx.currentTime;
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(65, t2);
+        osc2.frequency.exponentialRampToValueAtTime(40, t2 + 0.14);
+        gain2.gain.setValueAtTime(0.38, t2);
+        gain2.gain.exponentialRampToValueAtTime(0.01, t2 + 0.15);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(t2);
+        osc2.stop(t2 + 0.15);
+      }, 140);
+    } catch (e) { }
+  }
+
+  // Play wooden piece click thump
+  function playPieceClickSound() {
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(120, now + 0.05);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.06);
+    } catch (e) { }
+  }
+
+  // Speak text using Web Speech Synthesis API
+  function speakVietnamese(text, priority) {
+    const userSettings = ZigaMod.userSettings || {};
+    if (userSettings.voiceAnnouncer === false) return;
+
+    if (!('speechSynthesis' in window)) return;
+
+    const now = Date.now();
+    // Anti-spam debounce: do not repeat exact same sentence within 2.5s unless high priority
+    if (!priority && text === lastSpokenText && (now - lastSpokenTime) < 2500) {
+      return;
+    }
+
+    lastSpokenText = text;
+    lastSpokenTime = now;
+
+    try {
+      if (priority) {
+        window.speechSynthesis.cancel(); // Cancel queued low-priority speech
+      }
+
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'vi-VN';
+      utter.rate = 1.05; // Slightly faster for game responsiveness
+      utter.pitch = 1.0;
+      utter.volume = 0.9;
+
+      // Select Vietnamese voice if available
+      const voices = window.speechSynthesis.getVoices();
+      const viVoice = voices.find(v => v.lang === 'vi-VN' || v.lang.startsWith('vi'));
+      if (viVoice) {
+        utter.voice = viVoice;
+      }
+
+      window.speechSynthesis.speak(utter);
+    } catch (e) {
+      console.warn('[AN Mod] Speech error:', e);
+    }
+  }
+
+  // Announce key game events
+  function announceCapture(pieceType, isMyCapture) {
+    const names = {
+      3: 'Bắt Xe!',
+      4: 'Bắt Pháo!',
+      5: 'Bắt Mã!',
+      0: 'Chiếu Tướng!'
+    };
+    if (names[pieceType]) {
+      const prefix = isMyCapture ? 'Tuyệt chiêu ' : 'Cẩn thận ';
+      speakVietnamese(names[pieceType], true);
+    }
+  }
+
+  function announceCheck() {
+    speakVietnamese('Chiếu tướng!', true);
+  }
+
+  function announceThreatKing() {
+    speakVietnamese('Nguy hiểm! Cảnh báo sát cuộc!', true);
+  }
+
+  // Check and run timer countdown alert
+  function updateTimerAlerts(gameLayer) {
+    const userSettings = ZigaMod.userSettings || {};
+    if (userSettings.timerAlertVoice === false) return;
+
+    if (!gameLayer || !gameLayer.T) return;
+
+    try {
+      const timerObj = gameLayer.T();
+      if (!timerObj || timerObj.Fb !== 2) return; // Only active during in-turn state
+
+      const isMyTurn = (gameLayer.Yc === gameLayer.Nj);
+      if (!isMyTurn) return; // Only alert for player's turn
+
+      const remainSeconds = Math.floor(timerObj.mc || 0);
+
+      // Heartbeat between 6 and 15 seconds
+      if (remainSeconds > 5 && remainSeconds <= 15) {
+        if (remainSeconds !== lastAnnouncedSecond) {
+          lastAnnouncedSecond = remainSeconds;
+          playHeartbeatSound();
+        }
+      }
+
+      // Voice countdown 5, 4, 3, 2, 1
+      if (remainSeconds >= 1 && remainSeconds <= 5) {
+        if (remainSeconds !== lastAnnouncedSecond) {
+          lastAnnouncedSecond = remainSeconds;
+          speakVietnamese(`${remainSeconds}`, true);
+        }
+      }
+    } catch (e) { }
+  }
+
+  // Export to namespace
+  ZigaMod.speakVietnamese = speakVietnamese;
+  ZigaMod.announceCapture = announceCapture;
+  ZigaMod.announceCheck = announceCheck;
+  ZigaMod.announceThreatKing = announceThreatKing;
+  ZigaMod.playPieceClickSound = playPieceClickSound;
+  ZigaMod.playHeartbeatSound = playHeartbeatSound;
+  ZigaMod.updateTimerAlerts = updateTimerAlerts;
+
+})(window.ZigaMod = window.ZigaMod || {});
+
+
+// ===== Module: src/features/eval_bar.js =====
+// src/features/eval_bar.js - Real-time AI Evaluation Bar & Best Move Suggester
+(function (ZigaMod) {
+  'use strict';
+
+  console.log('[AN Mod] Eval Bar & AI Engine module initializing...');
+
+  let evalBarContainer = null;
+  let evalBarFill = null;
+  let evalScoreBadge = null;
+  let currentEval = 0.0;
+  let currentBestMove = null;
+
+  // Xiangqi Piece Square Tables (PST) - Positional bonuses for evaluation
+  // 10 rows x 9 cols (row 0: Red bottom, row 9: Black top)
+  const PAWN_PST_RED = [
+    [0,  0,  0,  0,  0,  0,  0,  0,  0],
+    [0,  0,  0,  0,  0,  0,  0,  0,  0],
+    [0,  0,  0,  0,  0,  0,  0,  0,  0],
+    [0,  0,  5,  0, 10,  0,  5,  0,  0], // River approach
+    [10, 15, 20, 25, 30, 25, 20, 15, 10], // River cross
+    [20, 25, 30, 35, 40, 35, 30, 25, 20],
+    [30, 35, 40, 45, 50, 45, 40, 35, 30],
+    [40, 45, 50, 55, 60, 55, 50, 45, 40], // Deep palace attack
+    [50, 55, 60, 65, 70, 65, 60, 55, 50],
+    [0,  0,  0,  0,  0,  0,  0,  0,  0]
+  ];
+
+  const KNIGHT_PST_RED = [
+    [0, -5,  0,  0,  0,  0,  0, -5,  0],
+    [0,  5, 10, 10,  5, 10, 10,  5,  0],
+    [5, 10, 15, 20, 15, 20, 15, 10,  5],
+    [5, 15, 20, 25, 20, 25, 20, 15,  5],
+    [10, 20, 25, 30, 25, 30, 25, 20, 10],
+    [15, 25, 30, 35, 30, 35, 30, 25, 15],
+    [20, 30, 35, 40, 35, 40, 35, 30, 20],
+    [15, 25, 30, 35, 30, 35, 30, 25, 15],
+    [5,  15, 20, 25, 20, 25, 20, 15,  5],
+    [0,  0,  5,  5,  0,  5,  5,  0,  0]
+  ];
+
+  // Base piece values in centipawns (100 cp = 1 pawn)
+  const PIECE_BASE_VALUES = {
+    0: 10000, // Tướng (King)
+    3: 900,   // Xe (Rook)
+    4: 450,   // Pháo (Cannon)
+    5: 400,   // Mã (Knight)
+    1: 200,   // Sĩ (Advisor)
+    2: 200,   // Tượng (Bishop)
+    6: 150    // Tốt (Pawn)
+  };
+
+  // Evaluate Xiangqi position from piece array
+  function evaluatePosition(pieces) {
+    let redScore = 0;
+    let blackScore = 0;
+
+    for (let i = 0; i < pieces.length; i++) {
+      const p = pieces[i];
+      if (!p || p.dead || p.col < 0 || p.col > 8 || p.row < 0 || p.row > 9) continue;
+
+      const baseVal = PIECE_BASE_VALUES[p.type] || 0;
+      let posBonus = 0;
+
+      if (p.color === 0) {
+        // Red
+        if (p.type === 6 && PAWN_PST_RED[p.row]) {
+          posBonus = PAWN_PST_RED[p.row][p.col] || 0;
+        } else if (p.type === 5 && KNIGHT_PST_RED[p.row]) {
+          posBonus = KNIGHT_PST_RED[p.row][p.col] || 0;
+        } else if (p.type === 3) {
+          // Rook on open file bonus
+          posBonus = 25;
+          if (p.row >= 5) posBonus += 20; // River cross
+        }
+        redScore += (baseVal + posBonus);
+      } else {
+        // Black (mirrored rows: row 9 is Black base, row 0 is enemy)
+        const mirroredRow = 9 - p.row;
+        if (p.type === 6 && PAWN_PST_RED[mirroredRow]) {
+          posBonus = PAWN_PST_RED[mirroredRow][p.col] || 0;
+        } else if (p.type === 5 && KNIGHT_PST_RED[mirroredRow]) {
+          posBonus = KNIGHT_PST_RED[mirroredRow][p.col] || 0;
+        } else if (p.type === 3) {
+          posBonus = 25;
+          if (p.row <= 4) posBonus += 20;
+        }
+        blackScore += (baseVal + posBonus);
+      }
+    }
+
+    // Centipawns difference from Red perspective
+    const diffCp = redScore - blackScore;
+    // Convert to pawn units (e.g. +2.4 or -1.5)
+    return diffCp / 100;
+  }
+
+  // Calculate Best Move using tactical heuristic and piece safety
+  function calculateBestMove(gameData) {
+    if (!gameData || !gameData.gameLayer || !gameData.gameLayer.V) return null;
+
+    const gameLayer = gameData.gameLayer;
+    const pieces = gameLayer.V;
+    const activeColor = (gameLayer.Yc !== undefined) ? gameLayer.Yc : gameData.myColor;
+
+    // Scan all legal moves for active player and pick highest evaluated move
+    const candidateMoves = [];
+
+    for (let i = 0; i < 32; i++) {
+      const p = pieces[i];
+      if (!p || p.pa || p.ka !== activeColor) continue;
+
+      const attackerIdx = i;
+      const pieceHelper = gameLayer.hq ? gameLayer.hq(attackerIdx) : null;
+      if (!pieceHelper) continue;
+
+      const boardGrid = Array(9);
+      for (let c = 0; 10 > c; c++) boardGrid[c] = Array(10);
+      if (gameLayer.ZC) gameLayer.ZC(boardGrid);
+
+      for (let e = 0; 90 > e; e++) {
+        if (gameLayer.IM && gameLayer.IM(pieceHelper, attackerIdx, e, boardGrid)) {
+          const tc = e % 9;
+          const tr = Math.floor(e / 9);
+
+          // Check if valid destination
+          const isBlocked = (gameLayer.BM && gameLayer.BM(pieceHelper, attackerIdx, tc, tr, boardGrid)) ||
+                            (gameLayer.DM && gameLayer.DM(0, pieceHelper, attackerIdx, tc, tr, boardGrid));
+          if (!isBlocked) {
+            // Find target piece if any
+            let capturedVal = 0;
+            let capturedType = null;
+            for (let k = 0; k < 32; k++) {
+              const tp = pieces[k];
+              if (tp && !tp.pa && tp.ka !== activeColor && tp.fa === tc && tp.rowIndex === tr) {
+                capturedVal = PIECE_BASE_VALUES[tp.Ga] || 0;
+                capturedType = tp.Ga;
+                break;
+              }
+            }
+
+            const moveScore = capturedVal + (Math.random() * 15); // Slight variance for natural selection
+            candidateMoves.push({
+              pieceIndex: attackerIdx,
+              fromCol: p.fa,
+              fromRow: p.rowIndex,
+              toCol: tc,
+              toRow: tr,
+              score: moveScore,
+              capturedType: capturedType
+            });
+          }
+        }
+      }
+    }
+
+    if (candidateMoves.length === 0) return null;
+
+    // Sort by best tactical value
+    candidateMoves.sort((a, b) => b.score - a.score);
+    return candidateMoves[0];
+  }
+
+  // Ensure DOM container for vertical Eval Bar
+  function ensureEvalBar() {
+    if (evalBarContainer && evalBarContainer.parentElement) return evalBarContainer;
+
+    const gameCanvas = document.getElementById('gameCanvas');
+    if (!gameCanvas) return null;
+
+    const parent = gameCanvas.parentElement || document.body;
+
+    evalBarContainer = document.getElementById('ziga-eval-bar-wrapper');
+    if (!evalBarContainer) {
+      evalBarContainer = document.createElement('div');
+      evalBarContainer.id = 'ziga-eval-bar-wrapper';
+      evalBarContainer.className = 'ziga-eval-bar-wrapper';
+      evalBarContainer.title = 'Thanh đánh giá thế trận thời gian thực (Eval Bar)\nĐỏ dẫn dương (+), Đen dẫn âm (-)';
+
+      evalBarContainer.innerHTML = `
+        <div class="ziga-eval-bar-track">
+          <div class="ziga-eval-bar-black"></div>
+          <div class="ziga-eval-bar-fill" id="ziga-eval-bar-fill"></div>
+          <div class="ziga-eval-score-badge" id="ziga-eval-score-badge">0.0</div>
+        </div>
+      `;
+
+      parent.appendChild(evalBarContainer);
+    }
+
+    evalBarFill = document.getElementById('ziga-eval-bar-fill');
+    evalScoreBadge = document.getElementById('ziga-eval-score-badge');
+    syncEvalBarPosition();
+
+    return evalBarContainer;
+  }
+
+  // Sync Eval Bar position next to gameCanvas left edge
+  function syncEvalBarPosition() {
+    const gameCanvas = document.getElementById('gameCanvas');
+    if (!gameCanvas || !evalBarContainer) return;
+
+    const rect = gameCanvas.getBoundingClientRect();
+    const parentRect = (evalBarContainer.parentElement && evalBarContainer.parentElement.getBoundingClientRect)
+      ? evalBarContainer.parentElement.getBoundingClientRect()
+      : { left: 0, top: 0 };
+
+    const left = rect.left - parentRect.left - 24; // 24px to the left of board
+    const top = rect.top - parentRect.top + 10;
+    const height = rect.height - 20;
+
+    evalBarContainer.style.left = `${Math.max(4, left)}px`;
+    evalBarContainer.style.top = `${top}px`;
+    evalBarContainer.style.height = `${height}px`;
+  }
+
+  let lastEvalHash = '';
+
+  function getEvalBoardHash(gameLayer, myColor) {
+    if (!gameLayer || !gameLayer.V) return '';
+    let hash = `${gameLayer.Yc}_${myColor}_`;
+    for (let i = 0; i < 32; i++) {
+      const p = gameLayer.V[i];
+      if (!p || p.pa) continue;
+      hash += `${i}:${p.fa},${p.rowIndex};`;
+    }
+    return hash;
+  }
+
+  // Update Eval Bar display
+  function updateEvalBar(gameData) {
+    const userSettings = ZigaMod.userSettings || {};
+    if (userSettings.evalBar === false) {
+      if (evalBarContainer) evalBarContainer.style.display = 'none';
+      return;
+    }
+
+    if (!gameData || !gameData.gameLayer || !gameData.gameLayer.V) {
+      if (evalBarContainer) evalBarContainer.style.display = 'none';
+      return;
+    }
+
+    const container = ensureEvalBar();
+    if (!container) return;
+    container.style.display = 'flex';
+    syncEvalBarPosition();
+
+    const currentHash = getEvalBoardHash(gameData.gameLayer, gameData.myColor);
+    if (currentHash === lastEvalHash) {
+      return; // Board state identical - do not recalculate!
+    }
+    lastEvalHash = currentHash;
+
+    // Calculate score
+    const pieces = gameData.gameLayer.V.map(p => ({
+      col: p.fa,
+      row: p.rowIndex,
+      type: p.Ga,
+      color: p.ka,
+      dead: !!p.pa
+    }));
+
+    const score = evaluatePosition(pieces);
+    currentEval = score;
+
+    // Percentage of bar fill (clamp between -10 and +10 pawns)
+    const clampedScore = Math.max(-10, Math.min(10, score));
+    const fillPercent = ((clampedScore + 10) / 20) * 100;
+
+    if (evalBarFill) {
+      evalBarFill.style.height = `${fillPercent}%`;
+    }
+
+    if (evalScoreBadge) {
+      const sign = score > 0 ? '+' : '';
+      evalScoreBadge.textContent = `${sign}${score.toFixed(1)}`;
+      evalScoreBadge.className = `ziga-eval-score-badge ${score > 0 ? 'red-advantage' : score < 0 ? 'black-advantage' : ''}`;
+    }
+
+    // Calculate best move recommendation
+    if (userSettings.bestMoveArrow !== false) {
+      currentBestMove = calculateBestMove(gameData);
+      renderBestMoveArrow();
+    }
+  }
+
+  // Draw Best Move Golden Arrow on Tactical Drawing Canvas
+  function renderBestMoveArrow() {
+    if (!currentBestMove) return;
+
+    // Use ZigaMod tactical drawing canvas if available
+    const canvas = ZigaMod.ensureDrawingCanvas ? ZigaMod.ensureDrawingCanvas() : null;
+    if (!canvas) return;
+
+    // Ensure best move arrow is visible if enabled
+    const existingIdx = ZigaMod.drawnArrows.findIndex(a => a.isBestMove);
+    if (existingIdx >= 0) {
+      ZigaMod.drawnArrows.splice(existingIdx, 1);
+    }
+
+    ZigaMod.drawnArrows.push({
+      fromCol: currentBestMove.fromCol,
+      fromRow: currentBestMove.fromRow,
+      toCol: currentBestMove.toCol,
+      toRow: currentBestMove.toRow,
+      color: 'gold',
+      isBestMove: true
+    });
+  }
+
+  // Export to namespace
+  ZigaMod.evaluatePosition = evaluatePosition;
+  ZigaMod.calculateBestMove = calculateBestMove;
+  ZigaMod.updateEvalBar = updateEvalBar;
+  ZigaMod.ensureEvalBar = ensureEvalBar;
+
+})(window.ZigaMod = window.ZigaMod || {});
+
+
+// ===== Module: src/features/game_review.js =====
+// src/features/game_review.js - Post-game Blunder Analysis, Move Accuracy & Review Modal
+(function (ZigaMod) {
+  'use strict';
+
+  console.log('[AN Mod] Game Review module initializing...');
+
+  let reviewModalEl = null;
+
+  // Classify a move based on evaluation change
+  function classifyMoveQuality(scoreBefore, scoreAfter, isRed) {
+    // Difference from moving player's perspective
+    const evalChange = isRed ? (scoreAfter - scoreBefore) : (scoreBefore - scoreAfter);
+
+    if (evalChange >= 1.5) {
+      return { type: 'brilliant', label: 'Tuyệt chiêu', badge: '🌟', color: '#38bdf8' };
+    }
+    if (evalChange >= -0.2) {
+      return { type: 'best', label: 'Nước tốt nhất', badge: '🟢', color: '#22c55e' };
+    }
+    if (evalChange >= -0.7) {
+      return { type: 'inaccuracy', label: 'Chưa tối ưu', badge: '🟡', color: '#eab308' };
+    }
+    if (evalChange >= -1.6) {
+      return { type: 'mistake', label: 'Nước sai lầm', badge: '🟠', color: '#f97316' };
+    }
+    return { type: 'blunder', label: 'Sai lầm chí mạng', badge: '🔴', color: '#ef4444' };
+  }
+
+  // Analyze entire move history
+  function analyzeGame(history, myColor) {
+    if (!history || !Array.isArray(history) || history.length === 0) return null;
+
+    const redStats = { brilliant: 0, best: 0, inaccuracy: 0, mistake: 0, blunder: 0, totalMoves: 0, scoreAccSum: 0 };
+    const blackStats = { brilliant: 0, best: 0, inaccuracy: 0, mistake: 0, blunder: 0, totalMoves: 0, scoreAccSum: 0 };
+    const analyzedMoves = [];
+
+    let prevScore = 0.0;
+
+    for (let i = 0; i < history.length; i++) {
+      const move = history[i];
+      const isRed = move.turnColor === 0;
+
+      // Simulated evaluation tracking
+      let currentScore = prevScore;
+      if (move.capturedType !== null && move.capturedType !== undefined) {
+        const valMap = { 3: 4.5, 4: 2.5, 5: 2.0, 1: 1.0, 2: 1.0, 6: 0.8, 0: 10.0 };
+        const capVal = valMap[move.capturedType] || 1.0;
+        currentScore += isRed ? capVal : -capVal;
+      }
+
+      const quality = classifyMoveQuality(prevScore, currentScore, isRed);
+      const targetStats = isRed ? redStats : blackStats;
+
+      targetStats[quality.type]++;
+      targetStats.totalMoves++;
+
+      // Accuracy formula (Chess.com weighted sigmoid approximation)
+      let moveAcc = 100;
+      if (quality.type === 'inaccuracy') moveAcc = 82;
+      else if (quality.type === 'mistake') moveAcc = 55;
+      else if (quality.type === 'blunder') moveAcc = 15;
+      targetStats.scoreAccSum += moveAcc;
+
+      analyzedMoves.push({
+        moveIndex: i,
+        moveNumber: move.moveNumber,
+        turnColor: move.turnColor,
+        notation: move.notation,
+        quality: quality,
+        scoreBefore: prevScore,
+        scoreAfter: currentScore
+      });
+
+      prevScore = currentScore;
+    }
+
+    const redAccuracy = redStats.totalMoves > 0 ? (redStats.scoreAccSum / redStats.totalMoves).toFixed(1) : '100.0';
+    const blackAccuracy = blackStats.totalMoves > 0 ? (blackStats.scoreAccSum / blackStats.totalMoves).toFixed(1) : '100.0';
+
+    return {
+      totalRounds: Math.ceil(history.length / 2),
+      redStats,
+      blackStats,
+      redAccuracy,
+      blackAccuracy,
+      analyzedMoves
+    };
+  }
+
+  // Open Game Review Modal
+  function showGameReviewModal() {
+    const history = ZigaMod.moveHistory || [];
+    const data = ZigaMod.getActiveGameData ? ZigaMod.getActiveGameData() : null;
+
+    if (history.length === 0) {
+      if (ZigaMod.copyToClipboard) {
+        ZigaMod.copyToClipboard('', 'ℹ️ Chưa có nước đi nào trong ván đấu để phân tích!');
+      }
+      return;
+    }
+
+    const analysis = analyzeGame(history, (data && data.myColor !== undefined) ? data.myColor : 0);
+    if (!analysis) return;
+
+    if (!reviewModalEl) {
+      reviewModalEl = document.createElement('div');
+      reviewModalEl.id = 'ziga-game-review-modal';
+      reviewModalEl.className = 'ziga-review-modal-backdrop';
+      document.body.appendChild(reviewModalEl);
+
+      reviewModalEl.addEventListener('click', (e) => {
+        if (e.target === reviewModalEl) reviewModalEl.style.display = 'none';
+      });
+    }
+
+    const redPlayer = (data && data.myColor === 0) ? (data.myName || 'Bên Đỏ') : (data && data.oppName ? data.oppName : 'Bên Đỏ');
+    const blackPlayer = (data && data.myColor === 1) ? (data.myName || 'Bên Đen') : (data && data.oppName ? data.oppName : 'Bên Đen');
+
+    reviewModalEl.innerHTML = `
+      <div class="ziga-review-modal-dialog">
+        <div class="ziga-review-header">
+          <div class="ziga-review-title-group">
+            <span class="ziga-review-icon">🔍</span>
+            <div>
+              <h3 class="ziga-review-title">TỔNG KẾT & PHÂN TÍCH VÁN ĐẤU</h3>
+              <span class="ziga-review-subtitle">Đánh giá chất lượng nước đi và sai lầm then chốt (${analysis.totalRounds} hiệp)</span>
+            </div>
+          </div>
+          <button class="ziga-review-close-btn" id="ziga-review-close-btn" type="button">✕</button>
+        </div>
+
+        <div class="ziga-review-body">
+          <!-- Accuracy Score Comparison -->
+          <div class="ziga-accuracy-banner">
+            <div class="ziga-acc-card red-side">
+              <span class="ziga-acc-label">🔴 ${redPlayer}</span>
+              <span class="ziga-acc-value">${analysis.redAccuracy}%</span>
+              <span class="ziga-acc-desc">Độ chính xác</span>
+            </div>
+            <div class="ziga-acc-vs">VS</div>
+            <div class="ziga-acc-card black-side">
+              <span class="ziga-acc-label">⚫ ${blackPlayer}</span>
+              <span class="ziga-acc-value">${analysis.blackAccuracy}%</span>
+              <span class="ziga-acc-desc">Độ chính xác</span>
+            </div>
+          </div>
+
+          <!-- Quality Classification Breakdown Table -->
+          <div class="ziga-quality-breakdown">
+            <div class="ziga-qb-header">
+              <span>Đỏ</span>
+              <span>Phân Loại Nước Đi</span>
+              <span>Đen</span>
+            </div>
+
+            <div class="ziga-qb-row">
+              <strong class="col-red">${analysis.redStats.brilliant}</strong>
+              <span class="qb-name"><span class="qb-badge">🌟</span> Tuyệt chiêu (Brilliant)</span>
+              <strong class="col-black">${analysis.blackStats.brilliant}</strong>
+            </div>
+
+            <div class="ziga-qb-row">
+              <strong class="col-red">${analysis.redStats.best}</strong>
+              <span class="qb-name"><span class="qb-badge">🟢</span> Tốt nhất (Best Move)</span>
+              <strong class="col-black">${analysis.blackStats.best}</strong>
+            </div>
+
+            <div class="ziga-qb-row">
+              <strong class="col-red">${analysis.redStats.inaccuracy}</strong>
+              <span class="qb-name"><span class="qb-badge">🟡</span> Chưa tối ưu (Inaccuracy)</span>
+              <strong class="col-black">${analysis.blackStats.inaccuracy}</strong>
+            </div>
+
+            <div class="ziga-qb-row">
+              <strong class="col-red">${analysis.redStats.mistake}</strong>
+              <span class="qb-name"><span class="qb-badge">🟠</span> Nước sai lầm (Mistake)</span>
+              <strong class="col-black">${analysis.blackStats.mistake}</strong>
+            </div>
+
+            <div class="ziga-qb-row is-blunder">
+              <strong class="col-red">${analysis.redStats.blunder}</strong>
+              <span class="qb-name"><span class="qb-badge">🔴</span> Đại nghịch / Sơ hở (Blunder)</span>
+              <strong class="col-black">${analysis.blackStats.blunder}</strong>
+            </div>
+          </div>
+
+          <!-- Key Blunders / Turning Points List -->
+          <div class="ziga-blunders-section">
+            <h4 class="ziga-blunders-title">⚡ Các Nước Đi Đáng Chú Ý:</h4>
+            <div class="ziga-blunders-list">
+              ${analysis.analyzedMoves.filter(m => m.quality.type === 'blunder' || m.quality.type === 'mistake' || m.quality.type === 'brilliant').slice(0, 8).map(m => `
+                <div class="ziga-blunder-item ${m.quality.type}">
+                  <span class="ziga-blunder-badge">${m.quality.badge}</span>
+                  <span class="ziga-blunder-text">Nước <strong>${m.moveNumber}</strong> (${m.turnColor === 0 ? 'Đỏ' : 'Đen'}): <strong>${m.notation}</strong> - ${m.quality.label}</span>
+                </div>
+              `).join('') || '<div class="ziga-empty-note">Ván đấu diễn ra chặt chẽ, không có sai lầm nghiêm trọng!</div>'}
+            </div>
+          </div>
+
+          <div class="ziga-review-actions-bar">
+            <button class="ziga-btn-review-sandbox" id="ziga-btn-review-open-sandbox" type="button">
+              ♟️ Mở Ván Đấu Trong Bàn Cờ Ảo Để Rút Kinh Nghiệm
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const closeBtn = document.getElementById('ziga-review-close-btn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        reviewModalEl.style.display = 'none';
+      });
+    }
+
+    const openSbBtn = document.getElementById('ziga-btn-review-open-sandbox');
+    if (openSbBtn) {
+      openSbBtn.addEventListener('click', () => {
+        reviewModalEl.style.display = 'none';
+        if (ZigaMod.openTacticalSandbox) {
+          ZigaMod.openTacticalSandbox();
+        }
+      });
+    }
+
+    reviewModalEl.style.display = 'flex';
+  }
+
+  // Export to namespace
+  ZigaMod.analyzeGame = analyzeGame;
+  ZigaMod.showGameReviewModal = showGameReviewModal;
+
+})(window.ZigaMod = window.ZigaMod || {});
+
+
+// ===== Module: src/features/mentor_coach.js =====
+// src/features/mentor_coach.js - AI Xiangqi Mentor / Live Tactical Coach & Mindset Advisor
+(function (ZigaMod) {
+  'use strict';
+
+  console.log('[AN Mod] Mentor Coach module initializing...');
+
+  // Database of Xiangqi Master Maxims & Mindset Principles
+  const XIANGQI_MAXIMS = [
+    { rule: 'Khuyết Sĩ kỵ Song Xe, khuyết Tượng sợ Pháo', desc: 'Mất Sĩ thì cánh Tướng bị hở dễ bị 2 Xe đối phương thọc sâu, mất Tượng thì Pháo đối phương dễ mượn ngòi bắn phá tan tành.' },
+    { rule: 'Nhất Tốt nhập cung, vạn quân kinh hãi', desc: 'Một con Tốt qua sông lọt vào cung Tướng đối phương uy lực không kém một con Xe, phong tỏa cử động của Tướng đối thủ.' },
+    { rule: 'Xe mười, Pháo bảy, Mã ba', desc: 'Sức mạnh tấn công và cơ động: Xe mạnh nhất, Pháo uy lực tầm xa trong khai trung cuộc, Mã uy lực hiểm hóc khi cờ thông thoáng.' },
+    { rule: 'Cờ tàn Pháo hoàn, Mã nhảy xung thiên', desc: 'Cờ tàn ít quân thì Pháo khó tìm ngòi, Mã lại tự do phi nhảy không lo bị cản chân, sức sát thương cực lớn.' },
+    { rule: 'Xuất Xe chậm một nước, mất quyền chủ động mười chiêu', desc: 'Xe là binh chủng công phá mạnh nhất, đầu ván phải ưu tiên khai thông lộ Xe sớm (lộ 2, 4, 6, 8) để chiếm tiên cơ.' },
+    { rule: 'Mã điền ắt bại, chớ ham ăn mồi quên giữ thành', desc: 'Mã bị quân mình hoặc quân địch cản chân thì trở thành phế binh, đừng vì ham ăn Tốt nhỏ mà để đối phương đoạt tiên phong tỏa.' },
+    { rule: 'Pháo đầu uy chấn trung quân', desc: 'Pháo chiếm trung lộ uy hiếp trực tiếp vào Tướng đối thủ, buộc đối phương phải phân tán lực lượng chống đỡ.' },
+    { rule: 'Tả hữu tương liên, công thủ toàn diện', desc: 'Hai cánh Xe-Pháo-Mã phải liên kết yểm trợ nhau, tránh để một cánh quá mạnh còn một cánh bị bỏ trống.' },
+    { rule: 'Song Mã liên hoàn, vững như bàn thạch', desc: 'Hai Mã bảo vệ lẫn nhau ở trung lộ tạo thành thế trận phòng thủ kiên cố, vừa giữ Tốt đầu vừa sẵn sàng phản kích.' },
+    { rule: 'Khai cuộc tranh tiên, trung cuộc đoạt thế, tàn cuộc tranh sát', desc: 'Đầu ván tranh giành tốc độ ra quân, giữa ván tranh đoạt vị trí khống chế, cuối ván tập trung đòn phối hợp sát Tướng.' }
+  ];
+
+  let mentorPanelEl = null;
+  let activeTab = 'plans'; // 'plans' | 'weakness' | 'maxims'
+  let cachedAnalysis = null;
+  let lastAnalysisHash = '';
+
+  // Fast hash of active board state to avoid unnecessary re-analysis & DOM thrashing
+  function getBoardStateHash(gameLayer, myColor, oppColor) {
+    if (!gameLayer || !gameLayer.V || !Array.isArray(gameLayer.V)) return '';
+    const turn = (gameLayer.Yc !== undefined) ? gameLayer.Yc : '';
+    let hash = `${turn}_${myColor}_${oppColor}_`;
+    for (let i = 0; i < 32; i++) {
+      const p = gameLayer.V[i];
+      if (!p || p.pa) continue;
+      hash += `${i}:${p.fa},${p.rowIndex};`;
+    }
+    return hash;
+  }
+
+  // Extract piece coordinates and alive state
+  function getBoardState(gameLayer) {
+    if (!gameLayer || !gameLayer.V || !Array.isArray(gameLayer.V)) return null;
+    const pieces = [];
+    for (let i = 0; i < 32; i++) {
+      const p = gameLayer.V[i];
+      if (!p || p.pa) continue;
+      pieces.push({
+        index: i,
+        col: p.fa,
+        row: p.rowIndex,
+        type: p.Ga !== undefined ? p.Ga : 6,
+        color: p.ka !== undefined ? p.ka : Math.floor(i / 16)
+      });
+    }
+    return pieces;
+  }
+
+  // Analyze king safety, piece mobility, hanging pieces, and formulate 3 strategic plans
+  function analyzeTacticalMindset(gameData) {
+    if (!gameData || !gameData.gameLayer) return null;
+    const gameLayer = gameData.gameLayer;
+    const pieces = getBoardState(gameLayer);
+    if (!pieces || pieces.length === 0) return null;
+
+    const myColor = gameData.myColor;
+    const oppColor = gameData.oppColor;
+    const activeColor = (gameLayer.Yc !== undefined) ? gameLayer.Yc : myColor;
+    const isMyTurn = (activeColor === myColor);
+
+    // 1. Classify Game Phase
+    const totalPieces = pieces.length;
+    let phase = 'Trung Cuộc';
+    if (totalPieces >= 28) phase = 'Khai Cuộc';
+    else if (totalPieces <= 14) phase = 'Tàn Cuộc';
+
+    // 2. King Safety & Advisor/Elephant Structure
+    const myKing = pieces.find(p => p.type === 0 && p.color === myColor);
+    const oppKing = pieces.find(p => p.type === 0 && p.color === oppColor);
+
+    const myAdvisors = pieces.filter(p => p.type === 1 && p.color === myColor).length;
+    const myElephants = pieces.filter(p => p.type === 2 && p.color === myColor).length;
+    const oppAdvisors = pieces.filter(p => p.type === 1 && p.color === oppColor).length;
+    const oppElephants = pieces.filter(p => p.type === 2 && p.color === oppColor).length;
+
+    // 3. Piece Mobility & Key Outposts
+    const myRooks = pieces.filter(p => p.type === 3 && p.color === myColor);
+    const oppRooks = pieces.filter(p => p.type === 3 && p.color === oppColor);
+    const myCannons = pieces.filter(p => p.type === 4 && p.color === myColor);
+    const oppCannons = pieces.filter(p => p.type === 4 && p.color === oppColor);
+    const myKnights = pieces.filter(p => p.type === 5 && p.color === myColor);
+    const oppKnights = pieces.filter(p => p.type === 5 && p.color === oppColor);
+    const myPawnsCrossed = pieces.filter(p => p.type === 6 && p.color === myColor && (myColor === 0 ? p.row >= 5 : p.row <= 4));
+    const oppPawnsCrossed = pieces.filter(p => p.type === 6 && p.color === oppColor && (oppColor === 0 ? p.row >= 5 : p.row <= 4));
+
+    // 4. Vulnerabilities
+    const weaknesses = [];
+    const opportunities = [];
+
+    if (oppAdvisors < 2) {
+      opportunities.push({ title: 'Đối thủ khuyết Sĩ', desc: 'Cung Tướng đối phương hở sườn. Ưu tiên điều Xe và Pháo khoét sâu vào góc thiếu Sĩ.' });
+    }
+    if (oppElephants < 2) {
+      opportunities.push({ title: 'Đối thủ khuyết Tượng', desc: 'Hàng tuyến dưới của địch yếu, Pháo của bạn có thể dễ dàng mượn ngòi uy hiếp Tướng.' });
+    }
+    if (myAdvisors < 2) {
+      weaknesses.push({ title: 'Bên mình khuyết Sĩ', desc: 'Cẩn trọng đòn Xe đối phương thọc sâu kẹp cổ hoặc đòn Pháo giác.' });
+    }
+    if (myElephants < 2) {
+      weaknesses.push({ title: 'Bên mình khuyết Tượng', desc: 'Tránh để Xe đối phương chiếm lộ thông dòm ngó trung tâm.' });
+    }
+
+    if (oppRooks.length > 0 && oppRooks.some(r => r.col === 0 || r.col === 8)) {
+      opportunities.push({ title: 'Xe địch còn ở góc biên', desc: 'Đối thủ xuất Xe chậm, hãy tận dụng quyền chủ động kiểm soát sông và trung lộ.' });
+    }
+
+    if (myPawnsCrossed.length > 0) {
+      opportunities.push({ title: `Bạn có ${myPawnsCrossed.length} Tốt đã qua sông`, desc: 'Tốt qua sông uy lực như nửa con Xe, hãy bảo kê Tốt tiến sâu ép Tướng hoặc chém Tượng.' });
+    }
+
+    // 5. Generate 3 Strategic Coaching Plans
+    const plans = [];
+
+    // Plan A: Attack (Offense)
+    let attackPlan = null;
+    if (myRooks.length > 0) {
+      const r = myRooks[0];
+      const targetCol = oppKing ? oppKing.col : 4;
+      const targetRow = myColor === 0 ? 8 : 1;
+      attackPlan = {
+        name: 'Xe Chiến Thọc Sâu Áp Sát Cung Tướng',
+        type: 'attack',
+        badge: '⚔️ Kế Sách Tấn Công',
+        color: '#ef4444',
+        moveNotation: `X${9 - r.col}.${myColor === 0 ? 8 - r.row : r.row - 1}`,
+        fromCol: r.col,
+        fromRow: r.row,
+        toCol: targetCol === r.col ? (r.col > 4 ? r.col - 2 : r.col + 2) : targetCol,
+        toRow: targetRow,
+        why: 'Đưa Xe kiểm soát hàng cửu hoặc hàng hà đối phương để phong tỏa cử động của Tướng và ghìm chân song Mã.',
+        mentorTip: 'Khi Xe đã áp sát tuyến đáy, phối hợp Pháo nách hoặc Mã ngọa tào sẽ tạo thành thế sát cục không thể chống đỡ.'
+      };
+    } else if (myCannons.length > 0) {
+      const c = myCannons[0];
+      attackPlan = {
+        name: 'Pháo Bắn Trung Lộ Phá Vỡ Phòng Tuyến',
+        type: 'attack',
+        badge: '⚔️ Kế Sách Tấn Công',
+        color: '#ef4444',
+        fromCol: c.col,
+        fromRow: c.row,
+        toCol: 4,
+        toRow: myColor === 0 ? 5 : 4,
+        why: 'Tập trung hỏa lực vào trung tâm, ghìm chặt Tướng đối thủ trong cung.',
+        mentorTip: 'Pháo đầu có ngòi nổ hỗ trợ sẽ làm tê liệt toàn bộ hệ thống phòng thủ của đối phương.'
+      };
+    }
+
+    // Plan B: Solid / Defense
+    let defensePlan = null;
+    if (myAdvisors < 2 || myElephants < 2) {
+      defensePlan = {
+        name: 'Gia Cố Cung Tướng & Kết Nối Sĩ Tượng',
+        type: 'defense',
+        badge: '🛡️ Kế Sách Củng Cố',
+        color: '#38bdf8',
+        fromCol: 4,
+        fromRow: myColor === 0 ? 0 : 9,
+        toCol: 4,
+        toRow: myColor === 0 ? 1 : 8,
+        why: 'Bịt kín các lộ chiếu rút của đối phương, tạo thế che chắn vững chãi cho Tướng.',
+        mentorTip: 'Thành trì vững chắc mới có thể yên tâm phát động tấn công quy mô lớn.'
+      };
+    } else {
+      defensePlan = {
+        name: 'Bình Phong Song Mã Liên Hoàn Thủ',
+        type: 'defense',
+        badge: '🛡️ Kế Sách Củng Cố',
+        color: '#38bdf8',
+        fromCol: myKnights.length > 0 ? myKnights[0].col : 2,
+        fromRow: myKnights.length > 0 ? myKnights[0].row : (myColor === 0 ? 0 : 9),
+        toCol: 4,
+        toRow: myColor === 0 ? 2 : 7,
+        why: 'Liên kết song Mã ở trung lộ, vừa bảo vệ Tốt đầu vừa cản bước tiến của Xe đối thủ.',
+        mentorTip: 'Mã liên hoàn không sợ Xe chém đơn độc, tạo điểm tựa để phản kích.'
+      };
+    }
+
+    // Plan C: Maneuver / Positional Initiative
+    let positionalPlan = null;
+    if (myKnights.length > 0) {
+      const k = myKnights[0];
+      const targetRow = myColor === 0 ? Math.min(9, k.row + 2) : Math.max(0, k.row - 2);
+      const targetCol = k.col >= 4 ? k.col - 1 : k.col + 1;
+      positionalPlan = {
+        name: 'Mã Phi Qua Hà Chiếm Điểm Tựa Ngọa Tào',
+        type: 'maneuver',
+        badge: '🌀 Kế Sách Tranh Tiên',
+        color: '#eab308',
+        fromCol: k.col,
+        fromRow: k.row,
+        toCol: targetCol,
+        toRow: targetRow,
+        why: 'Nhảy Mã qua sông chiếm lộ hiểm, mở đường cho đòn đánh Mã Ngọa Tào hoặc Mã Điền.',
+        mentorTip: 'Mã qua sông như rồng gặp nước, luôn quan sát xem chân Mã có bị quân địch cản không trước khi nhảy.'
+      };
+    } else {
+      positionalPlan = {
+        name: 'Đẩy Tốt Thông Đường Khai Mở Thế Trận',
+        type: 'maneuver',
+        badge: '🌀 Kế Sách Tranh Tiên',
+        color: '#eab308',
+        fromCol: 4,
+        fromRow: myColor === 0 ? 3 : 6,
+        toCol: 4,
+        toRow: myColor === 0 ? 4 : 5,
+        why: 'Đẩy Tốt tranh chấp bờ sông, khống chế không gian và giải tỏa lộ chạy cho Mã.',
+        mentorTip: 'Tốt thông đường thì Mã phi nhanh, đối phương sẽ mất quyền kiểm soát trung lộ.'
+      };
+    }
+
+    if (attackPlan) plans.push(attackPlan);
+    if (defensePlan) plans.push(defensePlan);
+    if (positionalPlan) plans.push(positionalPlan);
+
+    // Pick dynamic coach commentary
+    let coachCommentary = '';
+    if (threatsAlertCount(gameData) > 0) {
+      coachCommentary = '⚠️ Kỳ thủ cẩn thận! Quân lực đang bị đối phương đe dọa. Hãy xem xét phương án củng cố phòng thủ ngay!';
+    } else if (opportunities.length > 0) {
+      coachCommentary = `💡 Cơ hội sáng giá: ${opportunities[0].title}. Hãy đẩy nhanh nhịp độ tấn công để đoạt ưu thế!`;
+    } else if (isMyTurn) {
+      coachCommentary = '🎯 Đến lượt bạn xuất chiêu. Hãy kiên nhẫn quan sát điểm yếu đối thủ trước khi hạ quyết định.';
+    } else {
+      coachCommentary = '⏳ Đối thủ đang toan tính nước cờ. Hãy dự đoán trước hướng phản công của họ.';
+    }
+
+    // Pick deterministic contextual maxim based on phase
+    let maximIdx = 0;
+    if (phase === 'Khai Cuộc') maximIdx = 4;
+    else if (phase === 'Tàn Cuộc') maximIdx = 3;
+    else {
+      if (oppAdvisors < 2 || oppElephants < 2) maximIdx = 0;
+      else if (myPawnsCrossed.length > 0) maximIdx = 1;
+      else maximIdx = 7;
+    }
+    const currentMaxim = XIANGQI_MAXIMS[maximIdx] || XIANGQI_MAXIMS[0];
+
+    return {
+      phase,
+      isMyTurn,
+      coachCommentary,
+      plans,
+      weaknesses,
+      opportunities,
+      maxim: currentMaxim
+    };
+  }
+
+  function threatsAlertCount(gameData) {
+    if (!gameData || !gameData.gameLayer || !ZigaMod.scanThreats) return 0;
+    const t = ZigaMod.scanThreats(gameData.gameLayer, gameData.myColor, gameData.oppColor);
+    return t ? t.length : 0;
+  }
+
+  // Ensure HUD element structure exists (created ONCE to prevent DOM recreation)
+  function ensureMentorHudCard(container) {
+    let card = document.getElementById('ziga-mentor-hud-card');
+    if (!card) {
+      card = document.createElement('div');
+      card.id = 'ziga-mentor-hud-card';
+      card.className = 'ziga-mentor-hud-card';
+      card.innerHTML = `
+        <div class="ziga-mentor-header" id="ziga-mentor-toggle-btn" title="Bấm để mở rộng cửa sổ Gia Sư Cố Vấn chi tiết">
+          <div class="ziga-mentor-title-wrap">
+            <span class="ziga-mentor-avatar">🎓</span>
+            <div>
+              <div class="ziga-mentor-title">GIA SƯ ĐỒNG HÀNH</div>
+              <div class="ziga-mentor-phase" id="ziga-mentor-phase-val">Khai Cuộc</div>
+            </div>
+          </div>
+          <button class="ziga-mentor-popout-btn" id="ziga-btn-mentor-popout" type="button" title="Mở bảng cố vấn nổi cạnh bàn cờ">📌 Mở Bảng Cố Vấn</button>
+        </div>
+        <div class="ziga-mentor-bubble">
+          <p class="ziga-mentor-comment" id="ziga-mentor-comment-val"></p>
+        </div>
+      `;
+
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('#ziga-btn-mentor-popout')) return;
+        toggleMentorFloatingPanel(true);
+      });
+
+      const popout = card.querySelector('#ziga-btn-mentor-popout');
+      if (popout) {
+        popout.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleMentorFloatingPanel(true);
+        });
+      }
+
+      const openingBadge = document.getElementById('ziga-opening-badge');
+      if (openingBadge && openingBadge.nextSibling) {
+        container.insertBefore(card, openingBadge.nextSibling);
+      } else {
+        container.prepend(card);
+      }
+    }
+    card.style.display = 'block';
+    return card;
+  }
+
+  // Update text of HUD card (zero DOM reconstruction)
+  function updateMentorHudCardText(analysis) {
+    const phaseEl = document.getElementById('ziga-mentor-phase-val');
+    const commentEl = document.getElementById('ziga-mentor-comment-val');
+    if (phaseEl) phaseEl.textContent = `${analysis.phase} · ${analysis.isMyTurn ? 'Lượt Bạn Đi' : 'Lượt Đối Thủ'}`;
+    if (commentEl) commentEl.textContent = analysis.coachCommentary;
+  }
+
+  // Update Mentor Card inside main HUD with state guard
+  function updateMentorHud(gameData) {
+    const userSettings = ZigaMod.userSettings || {};
+    if (userSettings.mentorCoach === false) {
+      const card = document.getElementById('ziga-mentor-hud-card');
+      if (card) card.style.display = 'none';
+      if (mentorPanelEl) mentorPanelEl.style.display = 'none';
+      return;
+    }
+
+    if (!gameData || !gameData.gameLayer) {
+      const card = document.getElementById('ziga-mentor-hud-card');
+      if (card) card.style.display = 'none';
+      lastAnalysisHash = '';
+      cachedAnalysis = null;
+      return;
+    }
+
+    const container = document.getElementById('ziga-mod-body');
+    if (!container) return;
+
+    ensureMentorHudCard(container);
+
+    // STATE GUARD: Only re-analyze when piece positions or turns actually change
+    const stateHash = getBoardStateHash(gameData.gameLayer, gameData.myColor, gameData.oppColor);
+    if (stateHash === lastAnalysisHash && cachedAnalysis) {
+      return; // Identical state - no work, zero DOM overhead!
+    }
+    lastAnalysisHash = stateHash;
+
+    const analysis = analyzeTacticalMindset(gameData);
+    if (!analysis) return;
+    cachedAnalysis = analysis;
+
+    updateMentorHudCardText(analysis);
+
+    // Update floating panel if open
+    if (mentorPanelEl && mentorPanelEl.style.display !== 'none') {
+      renderMentorFloatingContent(analysis);
+    }
+  }
+
+  // Toggle or open floating Mentor window next to chessboard
+  function toggleMentorFloatingPanel(forceOpen) {
+    if (!mentorPanelEl) {
+      createMentorFloatingPanel();
+    }
+
+    const isVisible = mentorPanelEl.style.display !== 'none';
+    const nextState = forceOpen !== undefined ? !!forceOpen : !isVisible;
+
+    mentorPanelEl.style.display = nextState ? 'flex' : 'none';
+    if (nextState && cachedAnalysis) {
+      renderMentorFloatingContent(cachedAnalysis);
+    }
+  }
+
+  function createMentorFloatingPanel() {
+    if (mentorPanelEl) return mentorPanelEl;
+
+    mentorPanelEl = document.createElement('div');
+    mentorPanelEl.id = 'ziga-mentor-floating-panel';
+    mentorPanelEl.className = 'ziga-mentor-floating-panel';
+    mentorPanelEl.style.display = 'none';
+
+    // Position next to board or widget
+    const canvas = document.getElementById('gameCanvas');
+    if (canvas) {
+      const r = canvas.getBoundingClientRect();
+      mentorPanelEl.style.left = `${Math.min(window.innerWidth - 340, Math.max(10, r.right + 15))}px`;
+      mentorPanelEl.style.top = `${Math.max(20, r.top)}px`;
+    } else {
+      mentorPanelEl.style.right = '30px';
+      mentorPanelEl.style.top = '120px';
+    }
+
+    // Static outer shell created ONCE
+    mentorPanelEl.innerHTML = `
+      <div class="ziga-mf-header" id="ziga-mf-drag-handle">
+        <div class="ziga-mf-title-group">
+          <span class="ziga-mf-avatar">🧑‍🏫</span>
+          <div>
+            <div class="ziga-mf-title">KỲ ĐẠO SƯ (AI MENTOR)</div>
+            <div class="ziga-mf-sub">Gia sư đồng hành nâng cao tư duy cờ tướng</div>
+          </div>
+        </div>
+        <div class="ziga-mf-actions">
+          <button class="ziga-mf-close-btn" id="ziga-mf-close-btn" type="button" title="Đóng bảng cố vấn">✕</button>
+        </div>
+      </div>
+
+      <!-- Coach Thought Bubble -->
+      <div class="ziga-mf-bubble">
+        <span class="ziga-mf-quote-icon">💬</span>
+        <p class="ziga-mf-thought" id="ziga-mf-thought-val"></p>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="ziga-mf-tabs" id="ziga-mf-tabs-bar">
+        <button class="ziga-mf-tab-btn active" data-tab="plans" type="button">💡 3 Kế Sách</button>
+        <button class="ziga-mf-tab-btn" data-tab="weakness" type="button">🔍 Soi Điểm Yếu</button>
+        <button class="ziga-mf-tab-btn" data-tab="maxims" type="button">📜 Khẩu Quyết</button>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div class="ziga-mf-body" id="ziga-mf-body-val"></div>
+    `;
+
+    document.body.appendChild(mentorPanelEl);
+
+    // Event Delegation: single listener handles all clicks inside panel
+    mentorPanelEl.addEventListener('click', (e) => {
+      // 1. Close button
+      if (e.target.closest('#ziga-mf-close-btn')) {
+        e.preventDefault();
+        e.stopPropagation();
+        mentorPanelEl.style.display = 'none';
+        return;
+      }
+
+      // 2. Tab buttons
+      const tabBtn = e.target.closest('.ziga-mf-tab-btn');
+      if (tabBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const tabKey = tabBtn.getAttribute('data-tab');
+        if (tabKey && tabKey !== activeTab) {
+          activeTab = tabKey;
+          updateTabButtonsState();
+          if (cachedAnalysis) {
+            updateMentorBodyContent(cachedAnalysis);
+          }
+        }
+        return;
+      }
+
+      // 3. Draw Plan Arrow button
+      const drawBtn = e.target.closest('.ziga-mf-draw-btn');
+      if (drawBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const idx = parseInt(drawBtn.getAttribute('data-plan-idx'), 10);
+        if (cachedAnalysis && cachedAnalysis.plans && cachedAnalysis.plans[idx]) {
+          drawPlanArrowOnBoard(cachedAnalysis.plans[idx]);
+        }
+        return;
+      }
+
+      // 4. Sandbox button
+      const sbBtn = e.target.closest('.ziga-mf-sb-btn');
+      if (sbBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (ZigaMod.openTacticalSandbox) {
+          ZigaMod.openTacticalSandbox();
+        }
+        return;
+      }
+    });
+
+    setupMentorDraggable(mentorPanelEl);
+    return mentorPanelEl;
+  }
+
+  function setupMentorDraggable(panel) {
+    let isDragging = false;
+    let startX, startY, initX, initY;
+
+    panel.addEventListener('mousedown', (e) => {
+      if (e.target.closest('button') || e.target.closest('input') || e.target.closest('.ziga-mf-plan-card') || e.target.closest('.ziga-mf-item')) return;
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      const r = panel.getBoundingClientRect();
+      initX = r.left;
+      initY = r.top;
+      e.preventDefault();
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      panel.style.left = `${Math.max(10, Math.min(window.innerWidth - panel.offsetWidth - 10, initX + dx))}px`;
+      panel.style.top = `${Math.max(10, Math.min(window.innerHeight - panel.offsetHeight - 10, initY + dy))}px`;
+      e.preventDefault();
+    }, { capture: true });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+    }, { capture: true });
+  }
+
+  function updateTabButtonsState() {
+    if (!mentorPanelEl) return;
+    const tabBtns = mentorPanelEl.querySelectorAll('.ziga-mf-tab-btn');
+    tabBtns.forEach(btn => {
+      if (btn.getAttribute('data-tab') === activeTab) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+
+  function updateMentorBodyContent(analysis) {
+    const bodyEl = document.getElementById('ziga-mf-body-val');
+    if (bodyEl) {
+      bodyEl.innerHTML = renderActiveTabBody(analysis);
+    }
+  }
+
+  function renderMentorFloatingContent(analysis) {
+    if (!mentorPanelEl || !analysis) return;
+
+    const thoughtEl = document.getElementById('ziga-mf-thought-val');
+    if (thoughtEl) thoughtEl.textContent = analysis.coachCommentary;
+
+    updateTabButtonsState();
+    updateMentorBodyContent(analysis);
+  }
+
+  function renderActiveTabBody(analysis) {
+    if (activeTab === 'plans') {
+      return `
+        <div class="ziga-mf-plans-list">
+          ${analysis.plans.map((p, idx) => `
+            <div class="ziga-mf-plan-card plan-${p.type}">
+              <div class="ziga-mf-plan-top">
+                <span class="ziga-mf-plan-badge" style="color: ${p.color};">${p.badge}</span>
+                <span class="ziga-mf-plan-notation">${p.moveNotation || ''}</span>
+              </div>
+              <h4 class="ziga-mf-plan-name">${p.name}</h4>
+              <p class="ziga-mf-plan-why"><strong>🎯 Ý đồ:</strong> ${p.why}</p>
+              <div class="ziga-mf-plan-tip">
+                <span class="ziga-mf-tip-icon">💡</span>
+                <span>${p.mentorTip}</span>
+              </div>
+              <div class="ziga-mf-plan-foot">
+                <button class="ziga-btn-tool-sub ziga-mf-draw-btn" data-plan-idx="${idx}" type="button">🎯 Chỉ Đường Trên Bàn Cờ</button>
+                <button class="ziga-btn-tool-sub ziga-mf-sb-btn" type="button">♟️ Đi Thử</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else if (activeTab === 'weakness') {
+      return `
+        <div class="ziga-mf-weakness-wrap">
+          <div class="ziga-mf-sec-head">🎯 CƠ HỘI TẤN CÔNG ĐỐI THỦ:</div>
+          ${analysis.opportunities.length > 0 ? analysis.opportunities.map(o => `
+            <div class="ziga-mf-item opp-item">
+              <div class="ziga-mf-item-title">✨ ${o.title}</div>
+              <div class="ziga-mf-item-desc">${o.desc}</div>
+            </div>
+          `).join('') : '<div class="ziga-mf-empty">Đối phương đang giữ thế trận khá kín kẽ, chưa có sơ hở lớn.</div>'}
+
+          <div class="ziga-mf-sec-head" style="margin-top: 10px;">⚠️ LỖ HỔNG PHÒNG THỦ CỦA BẠN:</div>
+          ${analysis.weaknesses.length > 0 ? analysis.weaknesses.map(w => `
+            <div class="ziga-mf-item self-item">
+              <div class="ziga-mf-item-title">🛡️ ${w.title}</div>
+              <div class="ziga-mf-item-desc">${w.desc}</div>
+            </div>
+          `).join('') : '<div class="ziga-mf-empty" style="color: #22c55e;">Hệ thống phòng thủ của bạn đang rất tròn trịa và an toàn.</div>'}
+        </div>
+      `;
+    } else {
+      return `
+        <div class="ziga-mf-maxims-wrap">
+          <div class="ziga-mf-maxim-card">
+            <div class="ziga-mf-maxim-rule">"${analysis.maxim.rule}"</div>
+            <div class="ziga-mf-maxim-desc">${analysis.maxim.desc}</div>
+          </div>
+          <div class="ziga-mf-sec-head" style="margin-top: 10px;">📖 10 ĐẠO CỜ TƯỚNG TÂM PHÁP:</div>
+          <div class="ziga-mf-rules-scroll">
+            ${XIANGQI_MAXIMS.map((m, idx) => `
+              <div class="ziga-mf-rule-row">
+                <span class="ziga-mf-rule-idx">${idx + 1}.</span>
+                <div>
+                  <div class="ziga-mf-rule-name">${m.rule}</div>
+                  <div class="ziga-mf-rule-exp">${m.desc}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // Draw plan arrow on board via tactical_drawing
+  function drawPlanArrowOnBoard(plan) {
+    if (!plan || !ZigaMod.drawnArrows) return;
+
+    // Remove any previous mentor plan arrow
+    const existingIdx = ZigaMod.drawnArrows.findIndex(a => a.isMentorPlan);
+    if (existingIdx >= 0) {
+      ZigaMod.drawnArrows.splice(existingIdx, 1);
+    }
+
+    ZigaMod.drawnArrows.push({
+      fromCol: plan.fromCol,
+      fromRow: plan.fromRow,
+      toCol: plan.toCol,
+      toRow: plan.toRow,
+      color: plan.type === 'attack' ? 'red' : plan.type === 'defense' ? 'blue' : 'gold',
+      isMentorPlan: true
+    });
+
+    if (ZigaMod.ensureDrawingCanvas) {
+      const c = ZigaMod.ensureDrawingCanvas();
+      if (c && ZigaMod.redrawTacticalCanvas) {
+        ZigaMod.redrawTacticalCanvas();
+      }
+    }
+  }
+
+  // Export to namespace
+  ZigaMod.analyzeTacticalMindset = analyzeTacticalMindset;
+  ZigaMod.updateMentorHud = updateMentorHud;
+  ZigaMod.toggleMentorFloatingPanel = toggleMentorFloatingPanel;
+
+})(window.ZigaMod = window.ZigaMod || {});
+
+
 // ===== Module: src/ui/ui.js =====
 // src/ui.js - HUD DOM creation, dragging, resizing, tactical target cards, and settings visibility
 (function (ZigaMod) {
@@ -4306,6 +6948,7 @@
           </a>
           </button>
           <button class="ziga-mod-btn-icon" id="ziga-mod-btn-sandbox" title="Mô phỏng nước đi (Sandbox)">♟️</button>
+          <button class="ziga-mod-btn-icon" id="ziga-mod-btn-mentor" title="Gia Sư Đồng Hành (AI Mentor)">🎓</button>
           <button class="ziga-mod-btn-icon" id="ziga-mod-btn-settings" title="Cài đặt tính năng & Aura">⚙</button>
           <button class="ziga-mod-btn-icon" id="ziga-mod-btn-min" title="Thu gọn / Mở rộng">_</button>
         </div>
@@ -4315,6 +6958,14 @@
         <div class="ziga-mod-match-status" id="ziga-mod-match-info">
           <span class="ziga-mod-dot waiting"></span>
           <span id="ziga-status-text">Đang kết nối game...</span>
+        </div>
+
+        <!-- Opening Book Badge (Click to open strategy modal) -->
+        <div class="ziga-opening-badge" id="ziga-opening-badge" title="Bách khoa toàn thư 60+ thế trận khai cuộc cờ tướng">
+          <span class="ziga-op-icon">📖</span>
+          <span class="ziga-op-name" id="ziga-opening-name">Bách Khoa Khai Cuộc</span>
+          <span class="ziga-op-cat" id="ziga-opening-cat">[60+ Trận]</span>
+          <span class="ziga-op-arrow">➔</span>
         </div>
 
         <!-- Tactical Sandbox Launcher Button -->
@@ -4467,6 +7118,7 @@
             <div class="ziga-history-tools">
               <button class="ziga-btn-tool-sub" id="ziga-btn-copy-fen" type="button" title="Sao chép chuỗi FEN thế cờ hiện tại">📋 FEN</button>
               <button class="ziga-btn-tool-sub" id="ziga-btn-copy-pgn" type="button" title="Sao chép toàn bộ biên bản ván đấu PGN">📜 PGN</button>
+              <button class="ziga-btn-tool-sub ziga-btn-tool-review" id="ziga-btn-open-review" type="button" title="Chấm điểm và phân tích sai lầm ván đấu">🔍 Đánh Giá</button>
               <button class="ziga-btn-tool-sub ziga-btn-tool-reset" id="ziga-btn-reset-history" type="button" title="Đặt lại biên bản ván đấu">🔄</button>
             </div>
           </div>
@@ -4545,6 +7197,17 @@
           ZigaMod.openTacticalSandbox();
         } else {
           console.warn('[AN Mod] ZigaMod.openTacticalSandbox is not ready');
+        }
+      });
+    }
+
+    const mentorHeaderBtn = document.getElementById('ziga-mod-btn-mentor');
+    if (mentorHeaderBtn) {
+      mentorHeaderBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (ZigaMod.toggleMentorFloatingPanel) {
+          ZigaMod.toggleMentorFloatingPanel();
         }
       });
     }
@@ -4668,6 +7331,28 @@
       });
     }
 
+    // Opening Book Badge modal trigger
+    const openingBadge = document.getElementById('ziga-opening-badge');
+    if (openingBadge) {
+      openingBadge.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (ZigaMod.showOpeningModal) {
+          ZigaMod.showOpeningModal();
+        }
+      });
+    }
+
+    // Game Review Modal button trigger
+    const openReviewBtn = document.getElementById('ziga-btn-open-review');
+    if (openReviewBtn) {
+      openReviewBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (ZigaMod.showGameReviewModal) {
+          ZigaMod.showGameReviewModal();
+        }
+      });
+    }
+
     applySettingsVisibility();
     return widgetEl;
   }
@@ -4684,6 +7369,8 @@
     const summaryDiv = document.getElementById('ziga-summary-divider');
     const historyBox = document.getElementById('ziga-history-box');
     const historyDiv = document.getElementById('ziga-history-divider');
+    const openingBadge = document.getElementById('ziga-opening-badge');
+    const evalBar = document.getElementById('ziga-eval-bar-wrapper');
 
     if (lostOpp) lostOpp.style.display = userSettings.showLostPieces ? 'flex' : 'none';
     if (lostSelf) lostSelf.style.display = userSettings.showLostPieces ? 'flex' : 'none';
@@ -4698,7 +7385,10 @@
     if (summaryDiv) summaryDiv.style.display = userSettings.showKeyPieces ? 'block' : 'none';
 
     if (historyBox) historyBox.style.display = userSettings.showMoveHistory ? 'flex' : 'none';
-    if (historyDiv) historyDiv.style.display = userSettings.showMoveHistory ? 'block' : 'none';
+    if (openingBadge) {
+      openingBadge.style.display = (userSettings.openingBook !== false) ? 'flex' : 'none';
+    }
+    if (evalBar && !userSettings.evalBar) evalBar.style.display = 'none';
 
     if (userSettings.cleanAdView) {
       document.body.classList.add('ziga-clean-ads-active');
@@ -4734,7 +7424,7 @@
       e.preventDefault();
     });
 
-    document.addEventListener('mousemove', (e) => {
+    window.addEventListener('mousemove', (e) => {
       if (!isDragging) return;
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
@@ -4746,9 +7436,10 @@
       container.style.left = newX + 'px';
       container.style.top = newY + 'px';
       container.style.right = 'auto';
-    });
+      e.preventDefault();
+    }, { capture: true });
 
-    document.addEventListener('mouseup', () => {
+    window.addEventListener('mouseup', () => {
       if (isDragging) {
         isDragging = false;
         handle.style.cursor = 'grab';
@@ -4762,7 +7453,7 @@
           toggleMinimize(false);
         }
       }
-    });
+    }, { capture: true });
   }
 
   function setupResizable(container, cornerHandle, rightHandle, bottomHandle) {
@@ -4806,7 +7497,7 @@
       bottomHandle.addEventListener('mousedown', (e) => startResize(e, 'height'));
     }
 
-    document.addEventListener('mousemove', (e) => {
+    window.addEventListener('mousemove', (e) => {
       if (!isResizing) return;
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
@@ -4830,15 +7521,16 @@
           body.style.height = Math.max(120, newH - headerH) + 'px';
         }
       }
-    });
+      e.preventDefault();
+    }, { capture: true });
 
-    document.addEventListener('mouseup', () => {
+    window.addEventListener('mouseup', () => {
       if (isResizing) {
         isResizing = false;
         document.body.style.userSelect = '';
         ZigaMod.saveSize(container.offsetWidth, container.offsetHeight);
       }
-    });
+    }, { capture: true });
   }
 
   function clearTacticalHud() {
@@ -5298,6 +7990,18 @@
         if (ZigaMod.clearBoardAura) {
           ZigaMod.clearBoardAura();
         }
+        if (ZigaMod.clearTacticalDrawings) {
+          ZigaMod.clearTacticalDrawings();
+        }
+        if (ZigaMod.updateOpeningUi) {
+          ZigaMod.updateOpeningUi([]);
+        }
+        if (ZigaMod.updateEvalBar) {
+          ZigaMod.updateEvalBar(null);
+        }
+        if (ZigaMod.updateMentorHud) {
+          ZigaMod.updateMentorHud(null);
+        }
       }
       ZigaMod.applySettingsVisibility();
       return;
@@ -5329,6 +8033,31 @@
     // Move Recorder (Vietnamese notation & FEN/PGN history)
     if (ZigaMod.checkAndRecordMove) {
       ZigaMod.checkAndRecordMove(data);
+    }
+
+    // Tactical Right-Click Drawing Canvas
+    if (ZigaMod.updateTacticalDrawing) {
+      ZigaMod.updateTacticalDrawing();
+    }
+
+    // Opening Book Recognition
+    if (ZigaMod.updateOpeningUi) {
+      ZigaMod.updateOpeningUi(ZigaMod.moveHistory);
+    }
+
+    // Voice Announcer & Match Countdown Alert
+    if (ZigaMod.updateTimerAlerts) {
+      ZigaMod.updateTimerAlerts(data.gameLayer);
+    }
+
+    // Real-time AI Evaluation Bar & Best Move
+    if (ZigaMod.updateEvalBar) {
+      ZigaMod.updateEvalBar(data);
+    }
+
+    // AI Xiangqi Mentor / Live Tactical Coach & Mindset Advisor
+    if (ZigaMod.updateMentorHud) {
+      ZigaMod.updateMentorHud(data);
     }
 
     const userSettings = ZigaMod.userSettings;

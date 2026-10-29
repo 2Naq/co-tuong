@@ -152,6 +152,7 @@
           </a>
           </button>
           <button class="ziga-mod-btn-icon" id="ziga-mod-btn-sandbox" title="Mô phỏng nước đi (Sandbox)">♟️</button>
+          <button class="ziga-mod-btn-icon" id="ziga-mod-btn-mentor" title="Gia Sư Đồng Hành (AI Mentor)">🎓</button>
           <button class="ziga-mod-btn-icon" id="ziga-mod-btn-settings" title="Cài đặt tính năng & Aura">⚙</button>
           <button class="ziga-mod-btn-icon" id="ziga-mod-btn-min" title="Thu gọn / Mở rộng">_</button>
         </div>
@@ -161,6 +162,14 @@
         <div class="ziga-mod-match-status" id="ziga-mod-match-info">
           <span class="ziga-mod-dot waiting"></span>
           <span id="ziga-status-text">Đang kết nối game...</span>
+        </div>
+
+        <!-- Opening Book Badge (Click to open strategy modal) -->
+        <div class="ziga-opening-badge" id="ziga-opening-badge" title="Bách khoa toàn thư 60+ thế trận khai cuộc cờ tướng">
+          <span class="ziga-op-icon">📖</span>
+          <span class="ziga-op-name" id="ziga-opening-name">Bách Khoa Khai Cuộc</span>
+          <span class="ziga-op-cat" id="ziga-opening-cat">[60+ Trận]</span>
+          <span class="ziga-op-arrow">➔</span>
         </div>
 
         <!-- Tactical Sandbox Launcher Button -->
@@ -313,6 +322,7 @@
             <div class="ziga-history-tools">
               <button class="ziga-btn-tool-sub" id="ziga-btn-copy-fen" type="button" title="Sao chép chuỗi FEN thế cờ hiện tại">📋 FEN</button>
               <button class="ziga-btn-tool-sub" id="ziga-btn-copy-pgn" type="button" title="Sao chép toàn bộ biên bản ván đấu PGN">📜 PGN</button>
+              <button class="ziga-btn-tool-sub ziga-btn-tool-review" id="ziga-btn-open-review" type="button" title="Chấm điểm và phân tích sai lầm ván đấu">🔍 Đánh Giá</button>
               <button class="ziga-btn-tool-sub ziga-btn-tool-reset" id="ziga-btn-reset-history" type="button" title="Đặt lại biên bản ván đấu">🔄</button>
             </div>
           </div>
@@ -391,6 +401,17 @@
           ZigaMod.openTacticalSandbox();
         } else {
           console.warn('[AN Mod] ZigaMod.openTacticalSandbox is not ready');
+        }
+      });
+    }
+
+    const mentorHeaderBtn = document.getElementById('ziga-mod-btn-mentor');
+    if (mentorHeaderBtn) {
+      mentorHeaderBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (ZigaMod.toggleMentorFloatingPanel) {
+          ZigaMod.toggleMentorFloatingPanel();
         }
       });
     }
@@ -514,6 +535,28 @@
       });
     }
 
+    // Opening Book Badge modal trigger
+    const openingBadge = document.getElementById('ziga-opening-badge');
+    if (openingBadge) {
+      openingBadge.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (ZigaMod.showOpeningModal) {
+          ZigaMod.showOpeningModal();
+        }
+      });
+    }
+
+    // Game Review Modal button trigger
+    const openReviewBtn = document.getElementById('ziga-btn-open-review');
+    if (openReviewBtn) {
+      openReviewBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (ZigaMod.showGameReviewModal) {
+          ZigaMod.showGameReviewModal();
+        }
+      });
+    }
+
     applySettingsVisibility();
     return widgetEl;
   }
@@ -530,6 +573,8 @@
     const summaryDiv = document.getElementById('ziga-summary-divider');
     const historyBox = document.getElementById('ziga-history-box');
     const historyDiv = document.getElementById('ziga-history-divider');
+    const openingBadge = document.getElementById('ziga-opening-badge');
+    const evalBar = document.getElementById('ziga-eval-bar-wrapper');
 
     if (lostOpp) lostOpp.style.display = userSettings.showLostPieces ? 'flex' : 'none';
     if (lostSelf) lostSelf.style.display = userSettings.showLostPieces ? 'flex' : 'none';
@@ -544,7 +589,10 @@
     if (summaryDiv) summaryDiv.style.display = userSettings.showKeyPieces ? 'block' : 'none';
 
     if (historyBox) historyBox.style.display = userSettings.showMoveHistory ? 'flex' : 'none';
-    if (historyDiv) historyDiv.style.display = userSettings.showMoveHistory ? 'block' : 'none';
+    if (openingBadge) {
+      openingBadge.style.display = (userSettings.openingBook !== false) ? 'flex' : 'none';
+    }
+    if (evalBar && !userSettings.evalBar) evalBar.style.display = 'none';
 
     if (userSettings.cleanAdView) {
       document.body.classList.add('ziga-clean-ads-active');
@@ -580,7 +628,7 @@
       e.preventDefault();
     });
 
-    document.addEventListener('mousemove', (e) => {
+    window.addEventListener('mousemove', (e) => {
       if (!isDragging) return;
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
@@ -592,9 +640,10 @@
       container.style.left = newX + 'px';
       container.style.top = newY + 'px';
       container.style.right = 'auto';
-    });
+      e.preventDefault();
+    }, { capture: true });
 
-    document.addEventListener('mouseup', () => {
+    window.addEventListener('mouseup', () => {
       if (isDragging) {
         isDragging = false;
         handle.style.cursor = 'grab';
@@ -608,7 +657,7 @@
           toggleMinimize(false);
         }
       }
-    });
+    }, { capture: true });
   }
 
   function setupResizable(container, cornerHandle, rightHandle, bottomHandle) {
@@ -652,7 +701,7 @@
       bottomHandle.addEventListener('mousedown', (e) => startResize(e, 'height'));
     }
 
-    document.addEventListener('mousemove', (e) => {
+    window.addEventListener('mousemove', (e) => {
       if (!isResizing) return;
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
@@ -676,15 +725,16 @@
           body.style.height = Math.max(120, newH - headerH) + 'px';
         }
       }
-    });
+      e.preventDefault();
+    }, { capture: true });
 
-    document.addEventListener('mouseup', () => {
+    window.addEventListener('mouseup', () => {
       if (isResizing) {
         isResizing = false;
         document.body.style.userSelect = '';
         ZigaMod.saveSize(container.offsetWidth, container.offsetHeight);
       }
-    });
+    }, { capture: true });
   }
 
   function clearTacticalHud() {

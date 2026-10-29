@@ -296,77 +296,263 @@
   }
 
   /**
-   * Scans legal capture moves on the board for the current turn.
-   * @param {Object} gameLayer - Active Cocos2d game layer
-   * @param {number} attackerColor - Color of the player whose turn it is (0: Red, 1: Black)
-   * @param {number} defenderColor - Color of the opposing player (1 - attackerColor)
-   * @returns {Object} { targets: Map, attackers: Map, captures: Array }
+   * Piece values in Xiangqi for tactical exchange evaluation
    */
-  function scanBoardCaptures(gameLayer, attackerColor, defenderColor) {
-    const targets = new Map();   // targetIdx -> targetPiece
-    const attackers = new Map(); // attackerIdx -> atkPiece
-    const captures = [];
-
-    if (!gameLayer || !gameLayer.V || !Array.isArray(gameLayer.V)) {
-      return { targets, attackers, captures };
-    }
-
-    // 1. Build 9x10 grid of piece indices for living pieces
-    const grid = Array.from({ length: 9 }, () => Array(10).fill(-1));
-    for (let i = 0; i < 32; i++) {
-      const p = gameLayer.V[i];
-      if (p && !p.pa && p.fa >= 0 && p.fa < 9 && p.rowIndex >= 0 && p.rowIndex < 10) {
-        grid[p.fa][p.rowIndex] = i;
+  function getPieceValue(type, row, baseRow) {
+    switch (type) {
+      case 0: return 1000; // Tướng (King)
+      case 3: return 9.0;  // Xe (Chariot)
+      case 4: return 4.5;  // Pháo (Cannon)
+      case 5: return 4.0;  // Mã (Horse)
+      case 1: return 2.0;  // Sĩ (Advisor)
+      case 2: return 2.0;  // Tượng (Elephant)
+      case 6: {
+        // Tốt (Pawn): 1.5 before river, 2.5 after river
+        const isCrossed = (baseRow <= 2) ? (row >= 5) : (row <= 4);
+        return isCrossed ? 2.5 : 1.5;
       }
+      default: return 1.5;
     }
+  }
 
-    // 2. Identify living defender pieces to check against
-    const livingDefenders = [];
-    for (let j = 0; j < 32; j++) {
-      const p = gameLayer.V[j];
-      if (p && !p.pa && p.ka === defenderColor) {
-        livingDefenders.push({ piece: p, index: j, col: p.fa, row: p.rowIndex });
+  /**
+   * Check if a piece can legally attack/strike a target square (targetCol, targetRow).
+   * Works for both attacks (enemy square) and defense checks (friendly square).
+   * @param {Object} piece - { col, row, type, color, baseRow }
+   * @param {number} targetCol
+   * @param {number} targetRow
+   * @param {Array} grid - 9x10 grid of living piece objects (or null if empty)
+   * @returns {boolean}
+   */
+  function canPieceAttackSquare(piece, targetCol, targetRow, grid) {
+    const c = piece.col;
+    const r = piece.row;
+    const type = piece.type;
+    const baseRow = piece.baseRow;
+
+    if (c === targetCol && r === targetRow) return false;
+    if (targetCol < 0 || targetCol > 8 || targetRow < 0 || targetRow > 9) return false;
+
+    // 0: Tướng (King) - 1 step orthogonal in Palace, or Flying General
+    if (type === 0) {
+      const minR = (baseRow <= 2) ? 0 : 7;
+      const maxR = (baseRow <= 2) ? 2 : 9;
+      // Normal palace step
+      if (targetCol >= 3 && targetCol <= 5 && targetRow >= minR && targetRow <= maxR) {
+        if (Math.abs(c - targetCol) + Math.abs(r - targetRow) === 1) return true;
       }
-    }
-
-    if (livingDefenders.length === 0) {
-      return { targets, attackers, captures };
-    }
-
-    // 3. Loop through living attacker pieces
-    for (let i = 0; i < 32; i++) {
-      const atkPiece = gameLayer.V[i];
-      if (!atkPiece || atkPiece.pa || atkPiece.ka !== attackerColor) continue;
-
-      const pieceHelper = gameLayer.hq ? gameLayer.hq(i) : null;
-      if (!pieceHelper || !gameLayer.IM) continue;
-
-      for (let d = 0; d < livingDefenders.length; d++) {
-        const def = livingDefenders[d];
-        const targetIdx = def.index;
-        const targetPiece = def.piece;
-        const col = def.col;
-        const row = def.row;
-        const sq = row * 9 + col;
-
-        try {
-          if (gameLayer.IM(pieceHelper, i, sq, grid)) {
-            const isBlocked = (gameLayer.BM && gameLayer.BM(pieceHelper, i, col, row, grid)) ||
-                              (gameLayer.DM && gameLayer.DM(0, pieceHelper, i, col, row, grid));
-
-            if (!isBlocked) {
-              targets.set(targetIdx, targetPiece);
-              attackers.set(i, atkPiece);
-              captures.push({ attackerIdx: i, targetIdx: targetIdx });
-            }
+      // Flying general check: facing opponent King along open file
+      if (c === targetCol) {
+        const targetPiece = grid[targetCol][targetRow];
+        if (targetPiece && targetPiece.type === 0 && targetPiece.color !== piece.color) {
+          const step = (targetRow > r) ? 1 : -1;
+          let blocked = false;
+          for (let y = r + step; y !== targetRow; y += step) {
+            if (grid[c][y]) { blocked = true; break; }
           }
-        } catch (e) {
-          // Safeguard
+          if (!blocked) return true;
         }
       }
+      return false;
     }
 
-    return { targets, attackers, captures };
+    // 1: Sĩ (Advisor) - 1 step diagonal in Palace
+    if (type === 1) {
+      const minR = (baseRow <= 2) ? 0 : 7;
+      const maxR = (baseRow <= 2) ? 2 : 9;
+      if (targetCol >= 3 && targetCol <= 5 && targetRow >= minR && targetRow <= maxR) {
+        return Math.abs(c - targetCol) === 1 && Math.abs(r - targetRow) === 1;
+      }
+      return false;
+    }
+
+    // 2: Tượng (Elephant) - 2 steps diagonal, eye not blocked, cannot cross river
+    if (type === 2) {
+      const riverOk = (baseRow <= 2) ? (targetRow <= 4) : (targetRow >= 5);
+      if (!riverOk) return false;
+      if (Math.abs(c - targetCol) === 2 && Math.abs(r - targetRow) === 2) {
+        const eyeC = (c + targetCol) / 2;
+        const eyeR = (r + targetRow) / 2;
+        return !grid[eyeC][eyeR];
+      }
+      return false;
+    }
+
+    // 3: Xe (Chariot) - Straight line with 0 obstacles
+    if (type === 3) {
+      if (c !== targetCol && r !== targetRow) return false;
+      const dc = (targetCol === c) ? 0 : (targetCol > c ? 1 : -1);
+      const dr = (targetRow === r) ? 0 : (targetRow > r ? 1 : -1);
+      let curC = c + dc;
+      let curR = r + dr;
+      while (curC !== targetCol || curR !== targetRow) {
+        if (grid[curC][curR]) return false; // Obstacle found
+        curC += dc;
+        curR += dr;
+      }
+      return true;
+    }
+
+    // 4: Pháo (Cannon) - Straight line with EXACTLY 1 obstacle (screen / ngòi)
+    if (type === 4) {
+      if (c !== targetCol && r !== targetRow) return false;
+      const dc = (targetCol === c) ? 0 : (targetCol > c ? 1 : -1);
+      const dr = (targetRow === r) ? 0 : (targetRow > r ? 1 : -1);
+      let curC = c + dc;
+      let curR = r + dr;
+      let screens = 0;
+      while (curC !== targetCol || curR !== targetRow) {
+        if (grid[curC][curR]) screens++;
+        curC += dc;
+        curR += dr;
+      }
+      return screens === 1; // Needs exactly 1 piece to jump over
+    }
+
+    // 5: Mã (Horse) - L-step, leg not blocked
+    if (type === 5) {
+      const dc = targetCol - c;
+      const dr = targetRow - r;
+      if (Math.abs(dc) === 1 && Math.abs(dr) === 2) {
+        const legR = r + (dr > 0 ? 1 : -1);
+        return !grid[c][legR];
+      }
+      if (Math.abs(dc) === 2 && Math.abs(dr) === 1) {
+        const legC = c + (dc > 0 ? 1 : -1);
+        return !grid[legC][r];
+      }
+      return false;
+    }
+
+    // 6: Tốt (Pawn) - 1 step forward, sideways after river
+    if (type === 6) {
+      const forward = (baseRow <= 2) ? 1 : -1;
+      const isCrossed = (baseRow <= 2) ? (r >= 5) : (r <= 4);
+
+      // Forward step
+      if (targetCol === c && targetRow === r + forward) return true;
+
+      // Sideways step after river
+      if (isCrossed && targetRow === r && Math.abs(targetCol - c) === 1) return true;
+
+      return false;
+    }
+
+    return false;
+  }
+
+  /**
+   * Analyzes active board state and determines:
+   * - greenTargets: Opponent pieces player can capture safely (un-defended or profitable trade).
+   * - redTargets: Player pieces that opponent can capture profitably / hanging.
+   */
+  function analyzeBoardAuras(gameLayer, myColor, oppColor) {
+    const greenTargets = new Set();
+    const redTargets = new Set();
+
+    if (!gameLayer || !gameLayer.V || !Array.isArray(gameLayer.V)) {
+      return { greenTargets, redTargets };
+    }
+
+    // 1. Collect living pieces
+    const pieces = [];
+    for (let i = 0; i < 32; i++) {
+      const p = gameLayer.V[i];
+      if (p && !p.pa && p.fa >= 0 && p.fa <= 8 && p.rowIndex >= 0 && p.rowIndex <= 9) {
+        pieces.push({
+          index: i,
+          col: p.fa,
+          row: p.rowIndex,
+          type: (p.Ga !== undefined) ? p.Ga : 6,
+          color: (p.ka !== undefined) ? p.ka : Math.floor(i / 16),
+          sprite: p
+        });
+      }
+    }
+
+    if (pieces.length === 0) return { greenTargets, redTargets };
+
+    // 2. Determine base row for Red and Black to know advance direction
+    let redBaseRow = 0;
+    let blackBaseRow = 9;
+    const redKing = pieces.find(p => p.type === 0 && p.color === 0);
+    const blackKing = pieces.find(p => p.type === 0 && p.color === 1);
+    if (redKing) redBaseRow = (redKing.row <= 2) ? 0 : 9;
+    if (blackKing) blackBaseRow = (blackKing.row <= 2) ? 0 : 9;
+
+    pieces.forEach(p => {
+      p.baseRow = (p.color === 0) ? redBaseRow : blackBaseRow;
+    });
+
+    // 3. Build 9x10 grid of piece references
+    const grid = Array.from({ length: 9 }, () => Array(10).fill(null));
+    pieces.forEach(p => {
+      grid[p.col][p.row] = p;
+    });
+
+    const myPieces = pieces.filter(p => p.color === myColor);
+    const oppPieces = pieces.filter(p => p.color === oppColor);
+
+    // 4. Evaluate GREEN AURAS (Opportunities: opponent pieces player can capture safely)
+    oppPieces.forEach(target => {
+      // Find which of my pieces can attack this opponent piece
+      const myAttackers = myPieces.filter(a => canPieceAttackSquare(a, target.col, target.row, grid));
+      if (myAttackers.length === 0) return;
+
+      // Find all opponent defenders of this target piece
+      const oppDefenders = oppPieces.filter(d => d.index !== target.index && canPieceAttackSquare(d, target.col, target.row, grid));
+
+      const targetVal = getPieceValue(target.type, target.row, target.baseRow);
+
+      let canCaptureSafely = false;
+      if (oppDefenders.length === 0) {
+        // Target has ZERO defenders -> 100% free capture!
+        canCaptureSafely = true;
+      } else {
+        // Target is defended: ONLY safe if attacker has significantly lower value (profitable exchange)
+        // e.g. Pawn (1.5) eats Knight (4.0), Cannon (4.5), Chariot (9.0)
+        // e.g. Knight/Cannon (4.0/4.5) eats Chariot (9.0)
+        canCaptureSafely = myAttackers.some(a => {
+          const atkVal = getPieceValue(a.type, a.row, a.baseRow);
+          return (targetVal - atkVal >= 1.5);
+        });
+      }
+
+      if (canCaptureSafely) {
+        greenTargets.add(target.index);
+      }
+    });
+
+    // 5. Evaluate RED AURAS (Threats: player pieces that opponent can capture profitably / hanging)
+    myPieces.forEach(myTarget => {
+      // Find which opponent pieces can attack my piece
+      const oppAttackers = oppPieces.filter(e => canPieceAttackSquare(e, myTarget.col, myTarget.row, grid));
+      if (oppAttackers.length === 0) return;
+
+      // Find all my defenders of this piece
+      const myDefenders = myPieces.filter(d => d.index !== myTarget.index && canPieceAttackSquare(d, myTarget.col, myTarget.row, grid));
+
+      const targetVal = getPieceValue(myTarget.type, myTarget.row, myTarget.baseRow);
+
+      let isUnderRealDanger = false;
+      if (myDefenders.length === 0) {
+        // My piece is completely hanging (zero defenders)!
+        isUnderRealDanger = true;
+      } else {
+        // My piece is defended: opponent will only trade if their attacker is significantly cheaper
+        // e.g. Opponent Pawn attacks my Chariot/Horse/Cannon
+        isUnderRealDanger = oppAttackers.some(e => {
+          const oppVal = getPieceValue(e.type, e.row, e.baseRow);
+          return (targetVal - oppVal >= 1.5);
+        });
+      }
+
+      if (isUnderRealDanger) {
+        redTargets.add(myTarget.index);
+      }
+    });
+
+    return { greenTargets, redTargets };
   }
 
   /**
@@ -399,6 +585,8 @@
 
   /**
    * Main function called by game update loop.
+   * Accurately displays Green (Free Capture) and Red (Hanging Threat) auras simultaneously.
+   * Automatically clears all auras between moves so no aura ever lingers!
    * @param {Object} data - Active game data from ZigaMod.getActiveGameData()
    */
   function updateBoardAura(data) {
@@ -436,61 +624,40 @@
       }
     }
 
-    // 4. Determine whose turn it is
-    const currentTurn = gameLayer.Yc; // 0: Red, 1: Black
-    if (currentTurn === undefined || currentTurn < 0) {
-      clearBoardAura(gameLayer);
-      return;
-    }
-
-    const myColor = data.myColor;
-    const isMyTurn = (currentTurn === myColor);
-    const auraColor = isMyTurn ? 'green' : 'red';
-    const attackerColor = currentTurn;
-    const defenderColor = 1 - currentTurn;
-
-    // 5. Scan legal captures on the board
-    const { targets, attackers } = scanBoardCaptures(gameLayer, attackerColor, defenderColor);
-
-    // Mode: 'targets' (default - only pieces that can be captured), 'all' (both attacker and target)
-    const auraMode = ZigaMod.userSettings.liveAuraMode || 'targets';
-
-    // 6. Update visibility for each piece
+    // 4. CRITICAL RESET: Hide all auras on all pieces FIRST to guarantee no old auras linger!
     for (let i = 0; i < 32; i++) {
-      const piece = gameLayer.V[i];
-      if (!piece) continue;
-
-      let shouldShow = false;
-
-      if (!piece.pa) {
-        if (targets.has(i)) {
-          // Target piece that can be captured
-          shouldShow = true;
-        } else if (auraMode === 'all' && attackers.has(i)) {
-          // Attacker piece with capture moves available
-          shouldShow = true;
-        }
-      }
-
-      if (shouldShow) {
-        if (auraColor === 'green') {
-          if (piece.__zigaAuraGreen) piece.__zigaAuraGreen.setVisible(true);
-          if (piece.__zigaAuraRed) piece.__zigaAuraRed.setVisible(false);
-        } else {
-          if (piece.__zigaAuraGreen) piece.__zigaAuraGreen.setVisible(false);
-          if (piece.__zigaAuraRed) piece.__zigaAuraRed.setVisible(true);
-        }
-      } else {
-        if (piece.__zigaAuraGreen) piece.__zigaAuraGreen.setVisible(false);
-        if (piece.__zigaAuraRed) piece.__zigaAuraRed.setVisible(false);
+      const p = gameLayer.V[i];
+      if (p) {
+        if (p.__zigaAuraGreen) p.__zigaAuraGreen.setVisible(false);
+        if (p.__zigaAuraRed) p.__zigaAuraRed.setVisible(false);
       }
     }
+
+    // 5. Compute accurate tactical target auras
+    const { greenTargets, redTargets } = analyzeBoardAuras(gameLayer, data.myColor, data.oppColor);
+
+    // 6. Display Green Auras on safe capture targets
+    greenTargets.forEach(idx => {
+      const piece = gameLayer.V[idx];
+      if (piece && !piece.pa && piece.__zigaAuraGreen) {
+        piece.__zigaAuraGreen.setVisible(true);
+      }
+    });
+
+    // 7. Display Red Auras on unprotected threatened pieces
+    redTargets.forEach(idx => {
+      const piece = gameLayer.V[idx];
+      if (piece && !piece.pa && piece.__zigaAuraRed) {
+        piece.__zigaAuraRed.setVisible(true);
+      }
+    });
   }
 
   // Export to namespace
   ZigaMod.createAuraCanvas = createAuraCanvas;
   ZigaMod.hexToRgba = hexToRgba;
-  ZigaMod.scanBoardCaptures = scanBoardCaptures;
+  ZigaMod.canPieceAttackSquare = canPieceAttackSquare;
+  ZigaMod.analyzeBoardAuras = analyzeBoardAuras;
   ZigaMod.updateBoardAura = updateBoardAura;
   ZigaMod.clearBoardAura = clearBoardAura;
   ZigaMod.reloadAuraTextures = reloadAuraTextures;

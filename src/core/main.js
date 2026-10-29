@@ -243,6 +243,18 @@
         if (ZigaMod.clearBoardAura) {
           ZigaMod.clearBoardAura();
         }
+        if (ZigaMod.clearTacticalDrawings) {
+          ZigaMod.clearTacticalDrawings();
+        }
+        if (ZigaMod.updateOpeningUi) {
+          ZigaMod.updateOpeningUi([]);
+        }
+        if (ZigaMod.updateEvalBar) {
+          ZigaMod.updateEvalBar(null);
+        }
+        if (ZigaMod.updateMentorHud) {
+          ZigaMod.updateMentorHud(null);
+        }
       }
       ZigaMod.applySettingsVisibility();
       return;
@@ -274,6 +286,31 @@
     // Move Recorder (Vietnamese notation & FEN/PGN history)
     if (ZigaMod.checkAndRecordMove) {
       ZigaMod.checkAndRecordMove(data);
+    }
+
+    // Tactical Right-Click Drawing Canvas
+    if (ZigaMod.updateTacticalDrawing) {
+      ZigaMod.updateTacticalDrawing();
+    }
+
+    // Opening Book Recognition
+    if (ZigaMod.updateOpeningUi) {
+      ZigaMod.updateOpeningUi(ZigaMod.moveHistory);
+    }
+
+    // Voice Announcer & Match Countdown Alert
+    if (ZigaMod.updateTimerAlerts) {
+      ZigaMod.updateTimerAlerts(data.gameLayer);
+    }
+
+    // Real-time AI Evaluation Bar & Best Move
+    if (ZigaMod.updateEvalBar) {
+      ZigaMod.updateEvalBar(data);
+    }
+
+    // AI Xiangqi Mentor / Live Tactical Coach & Mindset Advisor
+    if (ZigaMod.updateMentorHud) {
+      ZigaMod.updateMentorHud(data);
     }
 
     const userSettings = ZigaMod.userSettings;

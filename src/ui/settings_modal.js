@@ -156,6 +156,24 @@
                   <span class="ziga-switch-slider"></span>
                 </label>
 
+                <label class="ziga-setting-row">
+                  <span class="ziga-setting-text">
+                    <strong>Vẽ mũi tên chiến thuật bằng chuột phải</strong>
+                    <small>Giữ chuột phải kéo vẽ mũi tên neon, click highlight ô</small>
+                  </span>
+                  <input type="checkbox" id="modal-set-tacticalDrawing" />
+                  <span class="ziga-switch-slider"></span>
+                </label>
+
+                <label class="ziga-setting-row">
+                  <span class="ziga-setting-text">
+                    <strong>Nhận diện Khai Cuộc (60+ thế trận)</strong>
+                    <small>Tự động phát hiện Thuận Pháo, Bình Phong Mã, Đơn Đề Mã...</small>
+                  </span>
+                  <input type="checkbox" id="modal-set-openingBook" />
+                  <span class="ziga-switch-slider"></span>
+                </label>
+
               </div>
             </div>
 
@@ -215,6 +233,59 @@
                     <small>Tự động xóa các banner quảng cáo nổi vướng bàn cờ</small>
                   </span>
                   <input type="checkbox" id="modal-set-cleanAdView" />
+                  <span class="ziga-switch-slider"></span>
+                </label>
+
+              </div>
+            </div>
+
+            <!-- Nhóm 3: Trí Tuệ Nhân Tạo & Âm Thanh -->
+            <div class="ziga-settings-group-card" style="grid-column: 1 / -1;">
+              <div class="ziga-group-title">🧠 TRÍ TUỆ NHÂN TẠO & GIỌNG ĐỌC CẢNH BÁO</div>
+              <div class="ziga-group-rows" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+
+                <label class="ziga-setting-row">
+                  <span class="ziga-setting-text">
+                    <strong>Thanh đo thế trận (Eval Bar)</strong>
+                    <small>Thanh năng lượng hiển thị điểm ưu thế theo thời gian thực</small>
+                  </span>
+                  <input type="checkbox" id="modal-set-evalBar" />
+                  <span class="ziga-switch-slider"></span>
+                </label>
+
+                <label class="ziga-setting-row">
+                  <span class="ziga-setting-text">
+                    <strong>Gợi ý nước đi tối ưu (Best Move)</strong>
+                    <small>Mũi tên phát quang vàng kim chỉ nước đi AI khuyến nghị</small>
+                  </span>
+                  <input type="checkbox" id="modal-set-bestMoveArrow" />
+                  <span class="ziga-switch-slider"></span>
+                </label>
+
+                <label class="ziga-setting-row">
+                  <span class="ziga-setting-text">
+                    <strong>Giọng đọc Tiếng Việt (Voice Announcer)</strong>
+                    <small>Đọc to "Chiếu tướng!", "Bắt Xe!", "Cảnh báo sát cuộc!"</small>
+                  </span>
+                  <input type="checkbox" id="modal-set-voiceAnnouncer" />
+                  <span class="ziga-switch-slider"></span>
+                </label>
+
+                <label class="ziga-setting-row">
+                  <span class="ziga-setting-text">
+                    <strong>Cảnh báo nhịp tim & đếm ngược khi hết giờ</strong>
+                    <small>Tiếng đập thình thịch khi còn 15s và đếm số 5..4..3..2..1</small>
+                  </span>
+                  <input type="checkbox" id="modal-set-timerAlertVoice" />
+                  <span class="ziga-switch-slider"></span>
+                </label>
+
+                <label class="ziga-setting-row" style="grid-column: 1 / -1;">
+                  <span class="ziga-setting-text">
+                    <strong>🎓 Gia Sư Cờ Tướng Đồng Hành (AI Mentor)</strong>
+                    <small>Phân tích thế trận, nhận diện điểm yếu, tư vấn 3 kế sách & truyền thụ đạo cờ theo thời gian thực</small>
+                  </span>
+                  <input type="checkbox" id="modal-set-mentorCoach" />
                   <span class="ziga-switch-slider"></span>
                 </label>
 

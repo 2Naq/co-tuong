@@ -4011,4 +4011,903 @@ iframe[id^="google_ads"],
     opacity: 1;
     transform: translateX(-50%) translateY(0);
 }
+
+/* ==========================================
+   1. OPENING BOOK BADGE & MODAL
+   ========================================== */
+.ziga-opening-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.75) 0%, rgba(15, 23, 42, 0.85) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ziga-opening-badge:hover {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(30, 41, 59, 0.9) 100%);
+    border-color: #ffd700;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
+    transform: translateY(-1px);
+}
+
+.ziga-op-icon {
+    font-size: 14px;
+}
+
+.ziga-op-name {
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffd700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+.ziga-op-cat {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: #94a3b8;
+}
+
+.ziga-op-arrow {
+    font-size: 10px;
+    color: #ffd700;
+    opacity: 0.7;
+}
+
+/* Opening Modal Dialog */
+.ziga-opening-modal-backdrop,
+.ziga-review-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 2147483647;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    box-sizing: border-box;
+    animation: zigaFadeIn 0.22s ease-out;
+}
+
+.ziga-opening-modal-dialog,
+.ziga-review-modal-dialog {
+    background: linear-gradient(145deg, rgba(20, 24, 33, 0.96) 0%, rgba(10, 12, 18, 0.98) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 24px rgba(212, 175, 55, 0.25);
+    border-radius: 14px;
+    width: 580px;
+    max-width: 95vw;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    animation: zigaScaleUp 0.24s cubic-bezier(0.18, 0.89, 0.32, 1.2);
+}
+
+.ziga-op-modal-header,
+.ziga-review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: rgba(0, 0, 0, 0.35);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ziga-op-modal-title-group,
+.ziga-review-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ziga-op-modal-icon,
+.ziga-review-icon {
+    font-size: 24px;
+}
+
+.ziga-op-modal-title,
+.ziga-review-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    color: #ffd700;
+    letter-spacing: 0.3px;
+}
+
+.ziga-op-modal-cat,
+.ziga-review-subtitle {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.ziga-op-modal-close,
+.ziga-review-close-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #94a3b8;
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.ziga-op-modal-close:hover,
+.ziga-review-close-btn:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: #ef4444;
+    color: #ffffff;
+}
+
+.ziga-op-modal-body,
+.ziga-review-body {
+    padding: 16px 18px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ziga-op-sec-title {
+    margin: 0 0 6px 0;
+    font-size: 12px;
+    font-weight: 800;
+    color: #38bdf8;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.ziga-op-sec-text {
+    margin: 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: #cbd5e1;
+}
+
+.ziga-op-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.ziga-op-card {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.ziga-op-card.red-card {
+    border-left: 3px solid #ef4444;
+    background: rgba(239, 68, 68, 0.08);
+}
+
+.ziga-op-card.black-card {
+    border-left: 3px solid #38bdf8;
+    background: rgba(56, 189, 248, 0.08);
+}
+
+.ziga-op-card-head {
+    margin: 0 0 4px 0;
+    font-size: 11.5px;
+    font-weight: 800;
+}
+
+.ziga-op-card.red-card .ziga-op-card-head { color: #fca5a5; }
+.ziga-op-card.black-card .ziga-op-card-head { color: #bae6fd; }
+
+.ziga-op-card-body {
+    margin: 0;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: #cbd5e1;
+}
+
+.ziga-op-moves-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 10px;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 6px;
+}
+
+.ziga-op-move-chip {
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    padding: 2px 7px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    color: #ffd700;
+}
+
+/* ==========================================
+   2. REAL-TIME AI EVALUATION BAR
+   ========================================== */
+.ziga-eval-bar-wrapper {
+    position: absolute;
+    width: 14px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #0f172a;
+    border: 1.5px solid rgba(212, 175, 55, 0.5);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7), 0 0 8px rgba(212, 175, 55, 0.25);
+    z-index: 20;
+    display: none;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.ziga-eval-bar-track {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #1e293b; /* Black half */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.ziga-eval-bar-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); /* Red advantage fill */
+    transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ziga-eval-score-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 8.5px;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.ziga-eval-score-badge.red-advantage {
+    color: #fee2e2;
+}
+
+.ziga-eval-score-badge.black-advantage {
+    color: #e0f2fe;
+}
+
+/* ==========================================
+   3. POST-GAME ACCURACY & REVIEW MODAL
+   ========================================== */
+.ziga-accuracy-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ziga-acc-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.ziga-acc-label {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.ziga-acc-card.red-side .ziga-acc-label { color: #f87171; }
+.ziga-acc-card.black-side .ziga-acc-label { color: #38bdf8; }
+
+.ziga-acc-value {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+}
+
+.ziga-acc-card.red-side .ziga-acc-value { color: #ef4444; text-shadow: 0 0 12px rgba(239, 68, 68, 0.35); }
+.ziga-acc-card.black-side .ziga-acc-value { color: #38bdf8; text-shadow: 0 0 12px rgba(56, 189, 248, 0.35); }
+
+.ziga-acc-desc {
+    font-size: 10px;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.ziga-acc-vs {
+    font-size: 12px;
+    font-weight: 900;
+    color: #ffd700;
+    opacity: 0.6;
+}
+
+.ziga-quality-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.ziga-qb-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 800;
+    color: #64748b;
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ziga-qb-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    transition: background 0.15s ease;
+}
+
+.ziga-qb-row:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.ziga-qb-row.is-blunder {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 2.5px solid #ef4444;
+}
+
+.ziga-qb-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #cbd5e1;
+    font-size: 11px;
+}
+
+.ziga-qb-row strong.col-red { color: #f87171; min-width: 20px; text-align: left; }
+.ziga-qb-row strong.col-black { color: #38bdf8; min-width: 20px; text-align: right; }
+
+.ziga-blunders-title {
+    margin: 6px 0 6px 0;
+    font-size: 12px;
+    font-weight: 800;
+    color: #ffd700;
+}
+
+.ziga-blunders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 130px;
+    overflow-y: auto;
+}
+
+.ziga-blunder-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.ziga-blunder-item.blunder {
+    background: rgba(239, 68, 68, 0.15);
+    border-left: 2.5px solid #ef4444;
+}
+
+.ziga-blunder-item.mistake {
+    background: rgba(249, 115, 22, 0.12);
+    border-left: 2.5px solid #f97316;
+}
+
+.ziga-blunder-item.brilliant {
+    background: rgba(56, 189, 248, 0.15);
+    border-left: 2.5px solid #38bdf8;
+}
+
+.ziga-btn-review-sandbox {
+    width: 100%;
+    padding: 9px 14px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(180, 140, 30, 0.35) 100%);
+    border: 1px solid #ffd700;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.ziga-btn-review-sandbox:hover {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.45) 0%, rgba(180, 140, 30, 0.6) 100%);
+    box-shadow: 0 0 16px rgba(212, 175, 55, 0.4);
+    transform: translateY(-1px);
+}
+
+/* ==========================================
+   AI XIANGQI MENTOR / GIA SƯ ĐỒNG HÀNH
+   ========================================== */
+
+/* 1. Mentor HUD Card (Inside main tool widget) */
+.ziga-mentor-hud-card {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 9px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ziga-mentor-hud-card:hover {
+    border-color: #ffd700;
+    box-shadow: 0 0 14px rgba(212, 175, 55, 0.35);
+    transform: translateY(-1px);
+}
+
+.ziga-mentor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.ziga-mentor-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.ziga-mentor-avatar {
+    font-size: 16px;
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
+}
+
+.ziga-mentor-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffd700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.ziga-mentor-phase {
+    font-size: 9.5px;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.ziga-mentor-popout-btn {
+    background: rgba(212, 175, 55, 0.18);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    border-radius: 5px;
+    color: #ffd700;
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ziga-mentor-popout-btn:hover {
+    background: rgba(212, 175, 55, 0.35);
+    color: #ffffff;
+}
+
+.ziga-mentor-bubble {
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 6px;
+    padding: 6px 8px;
+    border-left: 2.5px solid #ffd700;
+}
+
+.ziga-mentor-comment {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.45;
+    color: #e2e8f0;
+}
+
+/* 2. Floating Mentor Panel (Draggable alongside board) */
+.ziga-mentor-floating-panel {
+    position: fixed;
+    width: 320px;
+    max-width: 95vw;
+    background: linear-gradient(150deg, rgba(20, 26, 38, 0.96) 0%, rgba(11, 15, 23, 0.98) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.55);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 25px rgba(212, 175, 55, 0.25);
+    border-radius: 12px;
+    z-index: 2147483646;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    color: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    animation: zigaFadeIn 0.22s ease-out;
+}
+
+.ziga-mf-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: grab;
+    user-select: none;
+}
+
+.ziga-mf-header:active {
+    cursor: grabbing;
+}
+
+.ziga-mf-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ziga-mf-avatar {
+    font-size: 20px;
+    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
+}
+
+.ziga-mf-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: #ffd700;
+    letter-spacing: 0.4px;
+}
+
+.ziga-mf-sub {
+    font-size: 9px;
+    color: #94a3b8;
+}
+
+.ziga-mf-close-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 5px;
+    color: #94a3b8;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.15s ease;
+}
+
+.ziga-mf-close-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: #ef4444;
+    color: #ffffff;
+}
+
+.ziga-mf-bubble {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 9px 12px;
+    background: rgba(212, 175, 55, 0.12);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+}
+
+.ziga-mf-quote-icon {
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+.ziga-mf-thought {
+    margin: 0;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: #fef08a;
+    font-weight: 500;
+}
+
+.ziga-mf-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.ziga-mf-tab-btn {
+    padding: 7px 4px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #94a3b8;
+    font-size: 10.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ziga-mf-tab-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.ziga-mf-tab-btn.active {
+    color: #ffd700;
+    border-bottom-color: #ffd700;
+    background: rgba(212, 175, 55, 0.12);
+}
+
+.ziga-mf-body {
+    padding: 12px 14px;
+    max-height: 380px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Plan Cards */
+.ziga-mf-plans-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ziga-mf-plan-card {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 9px 11px;
+    transition: all 0.15s ease;
+}
+
+.ziga-mf-plan-card:hover {
+    border-color: rgba(212, 175, 55, 0.4);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.ziga-mf-plan-card.plan-attack {
+    border-left: 3px solid #ef4444;
+}
+
+.ziga-mf-plan-card.plan-defense {
+    border-left: 3px solid #38bdf8;
+}
+
+.ziga-mf-plan-card.plan-maneuver {
+    border-left: 3px solid #eab308;
+}
+
+.ziga-mf-plan-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.ziga-mf-plan-badge {
+    font-size: 9.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.ziga-mf-plan-notation {
+    font-size: 11.5px;
+    font-weight: 900;
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.12);
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
+.ziga-mf-plan-name {
+    margin: 0 0 5px 0;
+    font-size: 12px;
+    font-weight: 800;
+    color: #f8fafc;
+}
+
+.ziga-mf-plan-why {
+    margin: 0 0 6px 0;
+    font-size: 11px;
+    line-height: 1.45;
+    color: #cbd5e1;
+}
+
+.ziga-mf-plan-tip {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 5px 7px;
+    border-radius: 5px;
+    font-size: 10.5px;
+    color: #94a3b8;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.ziga-mf-tip-icon {
+    font-size: 11px;
+}
+
+.ziga-mf-plan-foot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ziga-mf-draw-btn {
+    flex: 1;
+    padding: 4px 8px;
+    font-size: 10px;
+    background: rgba(212, 175, 55, 0.2);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    color: #ffd700;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: 700;
+    transition: all 0.15s ease;
+}
+
+.ziga-mf-draw-btn:hover {
+    background: rgba(212, 175, 55, 0.4);
+    color: #ffffff;
+}
+
+.ziga-mf-sb-btn {
+    padding: 4px 8px;
+    font-size: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #cbd5e1;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: 700;
+    transition: all 0.15s ease;
+}
+
+.ziga-mf-sb-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+/* Weakness & Maxims Tabs */
+.ziga-mf-sec-head {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #ffd700;
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+}
+
+.ziga-mf-item {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    padding: 7px 9px;
+    margin-bottom: 6px;
+}
+
+.ziga-mf-item.opp-item {
+    border-left: 2.5px solid #22c55e;
+}
+
+.ziga-mf-item.self-item {
+    border-left: 2.5px solid #ef4444;
+}
+
+.ziga-mf-item-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #f8fafc;
+    margin-bottom: 3px;
+}
+
+.ziga-mf-item-desc {
+    font-size: 10.5px;
+    color: #94a3b8;
+    line-height: 1.45;
+}
+
+.ziga-mf-empty {
+    font-size: 10.5px;
+    color: #64748b;
+    font-style: italic;
+    padding: 6px 0;
+}
+
+.ziga-mf-maxim-card {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.18) 0%, rgba(30, 41, 59, 0.5) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.ziga-mf-maxim-rule {
+    font-size: 12.5px;
+    font-weight: 900;
+    color: #ffd700;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.ziga-mf-maxim-desc {
+    font-size: 11px;
+    color: #cbd5e1;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.ziga-mf-rules-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.ziga-mf-rule-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    padding: 6px 8px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 5px;
+}
+
+.ziga-mf-rule-idx {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #ffd700;
+}
+
+.ziga-mf-rule-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #e2e8f0;
+    margin-bottom: 2px;
+}
+
+.ziga-mf-rule-exp {
+    font-size: 10px;
+    color: #94a3b8;
+    line-height: 1.4;
+}
+
 

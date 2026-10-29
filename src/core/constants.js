@@ -29,6 +29,13 @@
     showRowNumbers: true,        // Đánh số hàng (1-10) ở 2 bên mép bàn cờ
     cleanAdView: true,           // Ẩn bớt quảng cáo che vướng bàn cờ
     showMoveHistory: true,       // Ghi biên bản ván đấu chuẩn tiếng Việt & xuất FEN/PGN
+    tacticalDrawing: true,       // Vẽ mũi tên chiến thuật bằng chuột phải trên bàn cờ
+    openingBook: true,           // Nhận diện hơn 60 thế khai cuộc cờ tướng kinh điển
+    voiceAnnouncer: true,        // Giọng đọc tiếng Việt (Chiếu tướng, bắt Xe...)
+    timerAlertVoice: true,       // Cảnh báo nhịp tim & đếm ngược khi sắp hết giờ
+    evalBar: true,               // Thanh đo thế trận thời gian thực (Eval Bar)
+    bestMoveArrow: true,         // Mũi tên gợi ý nước đi tối ưu (Best Move)
+    mentorCoach: true,           // Gia Sư Cờ Tướng Đồng Hành: Phân tích thế trận, gợi ý kế sách & rèn luyện tư duy
     liveBoardAura: true,         // Tự động hiển thị viền xanh/đỏ focus quân có thể ăn trực tiếp trên bàn cờ
     liveAuraMode: 'targets',     // 'targets': Chỉ quân cờ có thể ăn được (chuẩn xác, gọn gàng), 'all': Cả quân ăn và bị ăn
     auraCustom: {
