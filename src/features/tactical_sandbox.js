@@ -622,11 +622,12 @@
       const dy = e.clientY - startY;
       card.style.left = Math.max(10, Math.min(window.innerWidth - card.offsetWidth - 10, origLeft + dx)) + 'px';
       card.style.top = Math.max(10, Math.min(window.innerHeight - card.offsetHeight - 10, origTop + dy)) + 'px';
-    });
+      e.preventDefault();
+    }, { capture: true });
 
     window.addEventListener('mouseup', () => {
       isDragging = false;
-    });
+    }, { capture: true });
   }
 
   // ==========================================
