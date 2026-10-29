@@ -160,30 +160,82 @@
   }
 
   /**
-   * Starts a smooth pulse animation on an aura sprite.
+   * Applies selected animation effect to an aura sprite using native Cocos2d Actions.
+   * Supports: 'spin_pulse', 'spin', 'pulse', 'heartbeat', 'static'.
    * @param {cc.Sprite} sprite
    * @param {number} baseScale
    */
-  function startAuraPulse(sprite, baseScale) {
+  function applyAuraAnimation(sprite, baseScale) {
     if (!sprite || !window.cc) return;
 
     try {
       sprite.stopAllActions();
+      sprite.setRotation(0);
       sprite.setScale(baseScale);
+      sprite.setOpacity(220);
 
-      const scaleUp = cc.scaleTo(0.7, baseScale * 1.08);
-      const scaleDown = cc.scaleTo(0.7, baseScale * 0.96);
-      const fadeOut = cc.fadeTo(0.7, 100);
-      const fadeIn = cc.fadeTo(0.7, 255);
+      const custom = (ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {};
+      const animType = custom.animation || 'spin_pulse';
+      const speed = Math.max(1.0, Math.min(8.0, Number(custom.spinSpeed) || 3.5));
+
+      if (animType === 'static') {
+        // Tĩnh: Không chuyển động, viền sáng rõ nét
+        sprite.setOpacity(235);
+        return;
+      }
+
+      if (animType === 'spin') {
+        // Xoay tròn 360 độ liên tục
+        const spinAction = cc.rotateBy(speed, 360).repeatForever();
+        sprite.runAction(spinAction);
+        return;
+      }
+
+      if (animType === 'pulse') {
+        // Chớp nháy hơi thở (Breathing pulse)
+        const scaleUp = cc.scaleTo(0.75, baseScale * 1.08);
+        const scaleDown = cc.scaleTo(0.75, baseScale * 0.95);
+        const fadeOut = cc.fadeTo(0.75, 120);
+        const fadeIn = cc.fadeTo(0.75, 255);
+
+        const pulseAction = cc.sequence(
+          cc.spawn(scaleUp, fadeIn),
+          cc.spawn(scaleDown, fadeOut)
+        ).repeatForever();
+        sprite.runAction(pulseAction);
+        return;
+      }
+
+      if (animType === 'heartbeat') {
+        // Nhịp tim dồn dập (Heartbeat cảnh báo)
+        const beat1Up = cc.spawn(cc.scaleTo(0.12, baseScale * 1.15), cc.fadeTo(0.12, 255));
+        const beat1Dn = cc.spawn(cc.scaleTo(0.12, baseScale * 0.98), cc.fadeTo(0.12, 180));
+        const beat2Up = cc.spawn(cc.scaleTo(0.15, baseScale * 1.22), cc.fadeTo(0.15, 255));
+        const beat2Dn = cc.spawn(cc.scaleTo(0.2, baseScale), cc.fadeTo(0.2, 160));
+        const wait = cc.delayTime(0.7);
+
+        const heartbeat = cc.sequence(beat1Up, beat1Dn, beat2Up, beat2Dn, wait).repeatForever();
+        sprite.runAction(heartbeat);
+        return;
+      }
+
+      // Mặc định: 'spin_pulse' (Kết hợp xoay tròn 360° và chớp nháy hơi thở)
+      const spinAction = cc.rotateBy(speed, 360).repeatForever();
+
+      const scaleUp = cc.scaleTo(0.8, baseScale * 1.08);
+      const scaleDown = cc.scaleTo(0.8, baseScale * 0.95);
+      const fadeOut = cc.fadeTo(0.8, 140);
+      const fadeIn = cc.fadeTo(0.8, 255);
 
       const pulseAction = cc.sequence(
         cc.spawn(scaleUp, fadeIn),
         cc.spawn(scaleDown, fadeOut)
       ).repeatForever();
 
+      sprite.runAction(spinAction);
       sprite.runAction(pulseAction);
     } catch (e) {
-      console.warn('[AN Mod] Failed to start pulse action:', e);
+      console.warn('[AN Mod] Failed to apply aura animation:', e);
     }
   }
 
@@ -254,7 +306,7 @@
         if (greenSprite.setAnchorPoint) greenSprite.setAnchorPoint(0.5, 0.5);
         greenSprite.setVisible(false);
         const greenBaseScale = calculateAuraBaseScale(greenSprite, w, 'green');
-        startAuraPulse(greenSprite, greenBaseScale);
+        applyAuraAnimation(greenSprite, greenBaseScale);
         piece.addChild(greenSprite, 10);
         piece.__zigaAuraGreen = greenSprite;
       }
@@ -266,7 +318,7 @@
         if (redSprite.setAnchorPoint) redSprite.setAnchorPoint(0.5, 0.5);
         redSprite.setVisible(false);
         const redBaseScale = calculateAuraBaseScale(redSprite, w, 'red');
-        startAuraPulse(redSprite, redBaseScale);
+        applyAuraAnimation(redSprite, redBaseScale);
         piece.addChild(redSprite, 10);
         piece.__zigaAuraRed = redSprite;
       }
@@ -661,5 +713,6 @@
   ZigaMod.updateBoardAura = updateBoardAura;
   ZigaMod.clearBoardAura = clearBoardAura;
   ZigaMod.reloadAuraTextures = reloadAuraTextures;
+  ZigaMod.applyAuraAnimation = applyAuraAnimation;
 
 })(window.ZigaMod = window.ZigaMod || {});

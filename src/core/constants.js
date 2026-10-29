@@ -41,6 +41,8 @@
     auraCustom: {
       mode: 'neon',              // 'neon' hoặc 'image'
       theme: 'default',          // 'default', 'ice_fire', 'gold_purple', 'cyberpunk', 'custom'
+      animation: 'spin_pulse',   // 'spin_pulse', 'spin', 'pulse', 'heartbeat', 'static'
+      spinSpeed: 3.5,            // Thời gian 1 vòng quay 360° (1.0s - 8.0s, mặc định 3.5s)
       myColor: '#39ff14',        // Màu viền lượt tôi
       oppColor: '#ff1744',       // Màu viền lượt đối thủ
       customImageMy: '',         // Base64 DataURL ảnh PNG tùy chọn lượt tôi
@@ -54,6 +56,14 @@
     ice_fire: { id: 'ice_fire', name: 'Băng & Lửa', myColor: '#00e5ff', oppColor: '#ff3d00', desc: 'Xanh Băng Tuyết & Đỏ Cam Lửa' },
     gold_purple: { id: 'gold_purple', name: 'Hoàng Kim & Hắc Ám', myColor: '#ffd700', oppColor: '#d500f9', desc: 'Vàng Kim & Tím Thần Bí' },
     cyberpunk: { id: 'cyberpunk', name: 'Cyberpunk Neon', myColor: '#ff007f', oppColor: '#00f0ff', desc: 'Hồng Neon & Xanh Cyan' }
+  };
+
+  const AURA_ANIMATIONS = {
+    spin_pulse: { id: 'spin_pulse', name: 'Xoay Tròn & Chớp Nháy', desc: 'Vừa quay 360° vừa thở nhịp nhàng (Đẹp nhất)' },
+    spin: { id: 'spin', name: 'Xoay Tròn 360° Liên Tục', desc: 'Vòng quay ma pháp luân chuyển 360° mượt mà' },
+    pulse: { id: 'pulse', name: 'Chớp Nháy Hơi Thở (Pulse)', desc: 'Phóng to thu nhỏ tỏa sáng nhịp nhàng' },
+    heartbeat: { id: 'heartbeat', name: 'Nhịp Tim Dồn Dập (Heartbeat)', desc: 'Đập thình thịch 2 nhịp cảnh báo kịch tính' },
+    static: { id: 'static', name: 'Tĩnh (Không Chuyển Động)', desc: 'Vòng hào quang đứng yên tỏa sáng nhẹ' }
   };
 
   // Coordinate converter according to standard Vietnamese Xiangqi notation:
@@ -76,6 +86,7 @@
   ZigaMod.DISPLAY_ORDER = DISPLAY_ORDER;
   ZigaMod.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
   ZigaMod.AURA_THEMES = AURA_THEMES;
+  ZigaMod.AURA_ANIMATIONS = AURA_ANIMATIONS;
   ZigaMod.formatXiangqiCoord = formatXiangqiCoord;
 
 })(window.ZigaMod = window.ZigaMod || {});

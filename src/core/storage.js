@@ -8,7 +8,11 @@
     try {
       const saved = localStorage.getItem('ziga_mod_settings');
       if (saved) {
-        userSettings = Object.assign({}, ZigaMod.DEFAULT_SETTINGS, JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        userSettings = Object.assign({}, ZigaMod.DEFAULT_SETTINGS, parsed);
+        if (parsed.auraCustom) {
+          userSettings.auraCustom = Object.assign({}, ZigaMod.DEFAULT_SETTINGS.auraCustom, parsed.auraCustom);
+        }
       }
     } catch (e) { }
   }

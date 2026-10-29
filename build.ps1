@@ -10,6 +10,12 @@ $files = @(
     "src/aura/aura_presets.js",
     "src/ui/settings_modal.js",
     "src/features/move_recorder.js",
+    "src/features/tactical_drawing.js",
+    "src/features/opening_book.js",
+    "src/features/voice_announcer.js",
+    "src/features/eval_bar.js",
+    "src/features/game_review.js",
+    "src/features/mentor_coach.js",
     "src/ui/ui.js",
     "src/core/main.js"
 )
@@ -50,4 +56,4 @@ if (Test-Path $stylesCss) {
     Copy-Item $stylesCss $rootCss -Force
 }
 
-Write-Host "[Build] Successfully compiled 12 modules into dist/injected.js and injected.js ($((Get-Item $distPath).Length) bytes)"
+Write-Host "[Build] Successfully compiled 18 modules into dist/injected.js and injected.js ($((Get-Item $distPath).Length) bytes)"

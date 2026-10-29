@@ -3064,18 +3064,87 @@ iframe[id^="google_ads"],
     z-index: 3;
     pointer-events: none;
     transition: width 0.15s ease, height 0.15s ease;
-    animation: zigaMockPulse 1.6s ease-in-out infinite;
+    animation: zigaMockSpinPulse var(--aura-speed, 3.5s) linear infinite;
+}
+
+@keyframes zigaMockSpinPulse {
+    0% {
+        transform: rotate(0deg) scale(0.97);
+        opacity: 0.85;
+    }
+    50% {
+        transform: rotate(180deg) scale(1.06);
+        opacity: 1;
+    }
+    100% {
+        transform: rotate(360deg) scale(0.97);
+        opacity: 0.85;
+    }
+}
+
+@keyframes zigaMockSpin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes zigaMockPulse {
     0%, 100% {
-        transform: scale(0.97);
-        opacity: 0.85;
+        transform: scale(0.96);
+        opacity: 0.82;
     }
     50% {
-        transform: scale(1.05);
+        transform: scale(1.06);
         opacity: 1;
     }
+}
+
+@keyframes zigaMockHeartbeat {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.85;
+    }
+    14% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
+    28% {
+        transform: scale(0.98);
+        opacity: 0.88;
+    }
+    42% {
+        transform: scale(1.22);
+        opacity: 1;
+    }
+    70% {
+        transform: scale(1);
+        opacity: 0.85;
+    }
+}
+
+.ziga-mock-aura.anim-spin_pulse {
+    animation: zigaMockSpinPulse var(--aura-speed, 3.5s) linear infinite;
+}
+
+.ziga-mock-aura.anim-spin {
+    animation: zigaMockSpin var(--aura-speed, 3.5s) linear infinite;
+}
+
+.ziga-mock-aura.anim-pulse {
+    animation: zigaMockPulse 1.5s ease-in-out infinite;
+}
+
+.ziga-mock-aura.anim-heartbeat {
+    animation: zigaMockHeartbeat 1.4s ease-in-out infinite;
+}
+
+.ziga-mock-aura.anim-static {
+    animation: none;
+    transform: scale(1);
+    opacity: 0.95;
 }
 
 .ziga-preview-divider-vs {
@@ -3161,6 +3230,55 @@ iframe[id^="google_ads"],
     background: rgba(212, 175, 55, 0.2);
     border-color: #ffd700;
     color: #ffd700;
+}
+
+/* Animation & Motion Control Bar */
+.ziga-aura-anim-control-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 14px;
+    background: rgba(0, 0, 0, 0.55);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ziga-anim-select-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1.2;
+}
+
+.ziga-anim-select {
+    flex: 1;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    border-radius: 6px;
+    color: #ffd700;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 8px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.ziga-anim-select:hover, .ziga-anim-select:focus {
+    border-color: #ffd700;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.35);
+}
+
+.ziga-anim-select option {
+    background: #0f172a;
+    color: #f1f5f9;
+}
+
+.ziga-anim-speed-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
 }
 
 /* Tabs Navigation */

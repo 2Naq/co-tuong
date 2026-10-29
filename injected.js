@@ -1,4 +1,4 @@
-﻿// injected.js - Unified bundle built from src/ modules [2026-10-30 05:33:58]
+﻿// injected.js - Unified bundle built from src/ modules [2026-10-30 05:51:22]
 (function () {
 
 // ===== Module: src/core/constants.js =====
@@ -45,6 +45,8 @@
     auraCustom: {
       mode: 'neon',              // 'neon' hoặc 'image'
       theme: 'default',          // 'default', 'ice_fire', 'gold_purple', 'cyberpunk', 'custom'
+      animation: 'spin_pulse',   // 'spin_pulse', 'spin', 'pulse', 'heartbeat', 'static'
+      spinSpeed: 3.5,            // Thời gian 1 vòng quay 360° (1.0s - 8.0s, mặc định 3.5s)
       myColor: '#39ff14',        // Màu viền lượt tôi
       oppColor: '#ff1744',       // Màu viền lượt đối thủ
       customImageMy: '',         // Base64 DataURL ảnh PNG tùy chọn lượt tôi
@@ -58,6 +60,14 @@
     ice_fire: { id: 'ice_fire', name: 'Băng & Lửa', myColor: '#00e5ff', oppColor: '#ff3d00', desc: 'Xanh Băng Tuyết & Đỏ Cam Lửa' },
     gold_purple: { id: 'gold_purple', name: 'Hoàng Kim & Hắc Ám', myColor: '#ffd700', oppColor: '#d500f9', desc: 'Vàng Kim & Tím Thần Bí' },
     cyberpunk: { id: 'cyberpunk', name: 'Cyberpunk Neon', myColor: '#ff007f', oppColor: '#00f0ff', desc: 'Hồng Neon & Xanh Cyan' }
+  };
+
+  const AURA_ANIMATIONS = {
+    spin_pulse: { id: 'spin_pulse', name: 'Xoay Tròn & Chớp Nháy', desc: 'Vừa quay 360° vừa thở nhịp nhàng (Đẹp nhất)' },
+    spin: { id: 'spin', name: 'Xoay Tròn 360° Liên Tục', desc: 'Vòng quay ma pháp luân chuyển 360° mượt mà' },
+    pulse: { id: 'pulse', name: 'Chớp Nháy Hơi Thở (Pulse)', desc: 'Phóng to thu nhỏ tỏa sáng nhịp nhàng' },
+    heartbeat: { id: 'heartbeat', name: 'Nhịp Tim Dồn Dập (Heartbeat)', desc: 'Đập thình thịch 2 nhịp cảnh báo kịch tính' },
+    static: { id: 'static', name: 'Tĩnh (Không Chuyển Động)', desc: 'Vòng hào quang đứng yên tỏa sáng nhẹ' }
   };
 
   // Coordinate converter according to standard Vietnamese Xiangqi notation:
@@ -80,6 +90,7 @@
   ZigaMod.DISPLAY_ORDER = DISPLAY_ORDER;
   ZigaMod.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
   ZigaMod.AURA_THEMES = AURA_THEMES;
+  ZigaMod.AURA_ANIMATIONS = AURA_ANIMATIONS;
   ZigaMod.formatXiangqiCoord = formatXiangqiCoord;
 
 })(window.ZigaMod = window.ZigaMod || {});
@@ -96,7 +107,11 @@
     try {
       const saved = localStorage.getItem('ziga_mod_settings');
       if (saved) {
-        userSettings = Object.assign({}, ZigaMod.DEFAULT_SETTINGS, JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        userSettings = Object.assign({}, ZigaMod.DEFAULT_SETTINGS, parsed);
+        if (parsed.auraCustom) {
+          userSettings.auraCustom = Object.assign({}, ZigaMod.DEFAULT_SETTINGS.auraCustom, parsed.auraCustom);
+        }
       }
     } catch (e) { }
   }
@@ -2449,30 +2464,82 @@
   }
 
   /**
-   * Starts a smooth pulse animation on an aura sprite.
+   * Applies selected animation effect to an aura sprite using native Cocos2d Actions.
+   * Supports: 'spin_pulse', 'spin', 'pulse', 'heartbeat', 'static'.
    * @param {cc.Sprite} sprite
    * @param {number} baseScale
    */
-  function startAuraPulse(sprite, baseScale) {
+  function applyAuraAnimation(sprite, baseScale) {
     if (!sprite || !window.cc) return;
 
     try {
       sprite.stopAllActions();
+      sprite.setRotation(0);
       sprite.setScale(baseScale);
+      sprite.setOpacity(220);
 
-      const scaleUp = cc.scaleTo(0.7, baseScale * 1.08);
-      const scaleDown = cc.scaleTo(0.7, baseScale * 0.96);
-      const fadeOut = cc.fadeTo(0.7, 100);
-      const fadeIn = cc.fadeTo(0.7, 255);
+      const custom = (ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {};
+      const animType = custom.animation || 'spin_pulse';
+      const speed = Math.max(1.0, Math.min(8.0, Number(custom.spinSpeed) || 3.5));
+
+      if (animType === 'static') {
+        // Tĩnh: Không chuyển động, viền sáng rõ nét
+        sprite.setOpacity(235);
+        return;
+      }
+
+      if (animType === 'spin') {
+        // Xoay tròn 360 độ liên tục
+        const spinAction = cc.rotateBy(speed, 360).repeatForever();
+        sprite.runAction(spinAction);
+        return;
+      }
+
+      if (animType === 'pulse') {
+        // Chớp nháy hơi thở (Breathing pulse)
+        const scaleUp = cc.scaleTo(0.75, baseScale * 1.08);
+        const scaleDown = cc.scaleTo(0.75, baseScale * 0.95);
+        const fadeOut = cc.fadeTo(0.75, 120);
+        const fadeIn = cc.fadeTo(0.75, 255);
+
+        const pulseAction = cc.sequence(
+          cc.spawn(scaleUp, fadeIn),
+          cc.spawn(scaleDown, fadeOut)
+        ).repeatForever();
+        sprite.runAction(pulseAction);
+        return;
+      }
+
+      if (animType === 'heartbeat') {
+        // Nhịp tim dồn dập (Heartbeat cảnh báo)
+        const beat1Up = cc.spawn(cc.scaleTo(0.12, baseScale * 1.15), cc.fadeTo(0.12, 255));
+        const beat1Dn = cc.spawn(cc.scaleTo(0.12, baseScale * 0.98), cc.fadeTo(0.12, 180));
+        const beat2Up = cc.spawn(cc.scaleTo(0.15, baseScale * 1.22), cc.fadeTo(0.15, 255));
+        const beat2Dn = cc.spawn(cc.scaleTo(0.2, baseScale), cc.fadeTo(0.2, 160));
+        const wait = cc.delayTime(0.7);
+
+        const heartbeat = cc.sequence(beat1Up, beat1Dn, beat2Up, beat2Dn, wait).repeatForever();
+        sprite.runAction(heartbeat);
+        return;
+      }
+
+      // Mặc định: 'spin_pulse' (Kết hợp xoay tròn 360° và chớp nháy hơi thở)
+      const spinAction = cc.rotateBy(speed, 360).repeatForever();
+
+      const scaleUp = cc.scaleTo(0.8, baseScale * 1.08);
+      const scaleDown = cc.scaleTo(0.8, baseScale * 0.95);
+      const fadeOut = cc.fadeTo(0.8, 140);
+      const fadeIn = cc.fadeTo(0.8, 255);
 
       const pulseAction = cc.sequence(
         cc.spawn(scaleUp, fadeIn),
         cc.spawn(scaleDown, fadeOut)
       ).repeatForever();
 
+      sprite.runAction(spinAction);
       sprite.runAction(pulseAction);
     } catch (e) {
-      console.warn('[AN Mod] Failed to start pulse action:', e);
+      console.warn('[AN Mod] Failed to apply aura animation:', e);
     }
   }
 
@@ -2543,7 +2610,7 @@
         if (greenSprite.setAnchorPoint) greenSprite.setAnchorPoint(0.5, 0.5);
         greenSprite.setVisible(false);
         const greenBaseScale = calculateAuraBaseScale(greenSprite, w, 'green');
-        startAuraPulse(greenSprite, greenBaseScale);
+        applyAuraAnimation(greenSprite, greenBaseScale);
         piece.addChild(greenSprite, 10);
         piece.__zigaAuraGreen = greenSprite;
       }
@@ -2555,7 +2622,7 @@
         if (redSprite.setAnchorPoint) redSprite.setAnchorPoint(0.5, 0.5);
         redSprite.setVisible(false);
         const redBaseScale = calculateAuraBaseScale(redSprite, w, 'red');
-        startAuraPulse(redSprite, redBaseScale);
+        applyAuraAnimation(redSprite, redBaseScale);
         piece.addChild(redSprite, 10);
         piece.__zigaAuraRed = redSprite;
       }
@@ -2950,6 +3017,7 @@
   ZigaMod.updateBoardAura = updateBoardAura;
   ZigaMod.clearBoardAura = clearBoardAura;
   ZigaMod.reloadAuraTextures = reloadAuraTextures;
+  ZigaMod.applyAuraAnimation = applyAuraAnimation;
 
 })(window.ZigaMod = window.ZigaMod || {});
 
@@ -3078,6 +3146,25 @@
             <input type="range" id="ziga-modal-scale-slider" min="0.7" max="1.3" step="0.05" value="1.0" class="ziga-scale-slider" />
             <span class="ziga-scale-val-badge" id="ziga-modal-scale-val">100%</span>
             <button class="ziga-btn-reset-scale" id="ziga-btn-reset-modal-scale" type="button" title="Đặt lại kích thước chuẩn 100%">Chuẩn 100%</button>
+          </div>
+
+          <!-- Animation & Motion Control Bar -->
+          <div class="ziga-aura-anim-control-bar">
+            <div class="ziga-anim-select-group">
+              <label for="ziga-modal-anim-select" class="ziga-scale-label">✨ Hiệu Ứng:</label>
+              <select id="ziga-modal-anim-select" class="ziga-anim-select">
+                <option value="spin_pulse">🌀 Xoay Tròn & Chớp Nháy (Đẹp nhất)</option>
+                <option value="spin">🔄 Xoay Tròn 360° Liên Tục</option>
+                <option value="pulse">💡 Chớp Nháy Hơi Thở (Breathing Pulse)</option>
+                <option value="heartbeat">💓 Nhịp Tim Dồn Dập (Heartbeat)</option>
+                <option value="static">⏸️ Tĩnh (Không Chuyển Động)</option>
+              </select>
+            </div>
+            <div class="ziga-anim-speed-group" id="ziga-modal-speed-wrap">
+              <span class="ziga-scale-label">⚡ Tốc Độ Xoay:</span>
+              <input type="range" id="ziga-modal-speed-slider" min="1.0" max="8.0" step="0.5" value="3.5" class="ziga-scale-slider" />
+              <span class="ziga-scale-val-badge" id="ziga-modal-speed-val">3.5s</span>
+            </div>
           </div>
         </div>
 
@@ -3337,7 +3424,7 @@
           <div class="ziga-aura-presets-section">
             <div class="ziga-presets-header">
               <span class="ziga-presets-title">✨ MẪU ẢNH AURA CÓ SẴN (CHỌN 1-CLICK TEST NGAY)</span>
-              <span class="ziga-presets-subtitle">Bấm <strong>[🟢 Lượt Tôi]</strong> hoặc <strong>[🔴 Đối Thủ]</strong> để test ngay vòng hào quang độc quyền!</span>
+              <span class="ziga-presets-subtitle">Bấm <strong>[🟢 Lượt Tôi]</strong> hoặc <strong>[🔴 Đối Thủ]</strong> để test ngay! Bạn có thể kết hợp với hiệu ứng xoay tròn, chớp nháy hoặc nhịp tim ở thanh điều khiển phía trên.</span>
             </div>
             <div class="ziga-aura-presets-grid" id="ziga-modal-presets-container"></div>
           </div>
@@ -3507,6 +3594,36 @@
         }
         if (scaleSlider) scaleSlider.value = '1.0';
         if (scaleVal) scaleVal.textContent = '100%';
+        updateModalLivePreview();
+      });
+    }
+
+    // Animation Effect & Speed controls
+    const animSelect = document.getElementById('ziga-modal-anim-select');
+    const speedSlider = document.getElementById('ziga-modal-speed-slider');
+    const speedVal = document.getElementById('ziga-modal-speed-val');
+    const speedWrap = document.getElementById('ziga-modal-speed-wrap');
+
+    if (animSelect) {
+      animSelect.addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (tempCustomSettings) {
+          tempCustomSettings.animation = val;
+        }
+        if (speedWrap) {
+          speedWrap.style.display = (val === 'static' || val === 'pulse') ? 'none' : 'flex';
+        }
+        updateModalLivePreview();
+      });
+    }
+
+    if (speedSlider) {
+      speedSlider.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        if (tempCustomSettings) {
+          tempCustomSettings.spinSpeed = val;
+        }
+        if (speedVal) speedVal.textContent = val.toFixed(1) + 's';
         updateModalLivePreview();
       });
     }
@@ -3855,6 +3972,22 @@
     if (scaleSlider) scaleSlider.value = curScale;
     if (scaleVal) scaleVal.textContent = Math.round(curScale * 100) + '%';
 
+    // Animation Effect & Speed sync
+    const animSelect = document.getElementById('ziga-modal-anim-select');
+    const speedSlider = document.getElementById('ziga-modal-speed-slider');
+    const speedVal = document.getElementById('ziga-modal-speed-val');
+    const speedWrap = document.getElementById('ziga-modal-speed-wrap');
+
+    const curAnim = (tempCustomSettings && tempCustomSettings.animation) || 'spin_pulse';
+    const curSpeed = (tempCustomSettings && typeof tempCustomSettings.spinSpeed === 'number') ? tempCustomSettings.spinSpeed : 3.5;
+
+    if (animSelect) animSelect.value = curAnim;
+    if (speedSlider) speedSlider.value = curSpeed;
+    if (speedVal) speedVal.textContent = curSpeed.toFixed(1) + 's';
+    if (speedWrap) {
+      speedWrap.style.display = (curAnim === 'static' || curAnim === 'pulse') ? 'none' : 'flex';
+    }
+
     updateThumbnailPreview('my', tempCustomSettings.customImageMy || '');
     updateThumbnailPreview('opp', tempCustomSettings.customImageOpp || '');
 
@@ -3882,6 +4015,16 @@
     const previewMy = document.getElementById('ziga-mock-aura-my');
     const previewOpp = document.getElementById('ziga-mock-aura-opp');
     const curScale = (typeof tempCustomSettings.scale === 'number') ? tempCustomSettings.scale : 1.0;
+    const curAnim = tempCustomSettings.animation || 'spin_pulse';
+    const curSpeed = (typeof tempCustomSettings.spinSpeed === 'number') ? tempCustomSettings.spinSpeed : 3.5;
+    const animClasses = ['anim-spin_pulse', 'anim-spin', 'anim-pulse', 'anim-heartbeat', 'anim-static'];
+
+    [previewMy, previewOpp].forEach((el) => {
+      if (!el) return;
+      animClasses.forEach(c => el.classList.remove(c));
+      el.classList.add(`anim-${curAnim}`);
+      el.style.setProperty('--aura-speed', `${curSpeed}s`);
+    });
 
     if (previewMy) {
       previewMy.style.setProperty('--aura-scale', curScale);

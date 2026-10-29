@@ -71,6 +71,25 @@
             <span class="ziga-scale-val-badge" id="ziga-modal-scale-val">100%</span>
             <button class="ziga-btn-reset-scale" id="ziga-btn-reset-modal-scale" type="button" title="Đặt lại kích thước chuẩn 100%">Chuẩn 100%</button>
           </div>
+
+          <!-- Animation & Motion Control Bar -->
+          <div class="ziga-aura-anim-control-bar">
+            <div class="ziga-anim-select-group">
+              <label for="ziga-modal-anim-select" class="ziga-scale-label">✨ Hiệu Ứng:</label>
+              <select id="ziga-modal-anim-select" class="ziga-anim-select">
+                <option value="spin_pulse">🌀 Xoay Tròn & Chớp Nháy (Đẹp nhất)</option>
+                <option value="spin">🔄 Xoay Tròn 360° Liên Tục</option>
+                <option value="pulse">💡 Chớp Nháy Hơi Thở (Breathing Pulse)</option>
+                <option value="heartbeat">💓 Nhịp Tim Dồn Dập (Heartbeat)</option>
+                <option value="static">⏸️ Tĩnh (Không Chuyển Động)</option>
+              </select>
+            </div>
+            <div class="ziga-anim-speed-group" id="ziga-modal-speed-wrap">
+              <span class="ziga-scale-label">⚡ Tốc Độ Xoay:</span>
+              <input type="range" id="ziga-modal-speed-slider" min="1.0" max="8.0" step="0.5" value="3.5" class="ziga-scale-slider" />
+              <span class="ziga-scale-val-badge" id="ziga-modal-speed-val">3.5s</span>
+            </div>
+          </div>
         </div>
 
         <!-- Navigation Tabs -->
@@ -329,7 +348,7 @@
           <div class="ziga-aura-presets-section">
             <div class="ziga-presets-header">
               <span class="ziga-presets-title">✨ MẪU ẢNH AURA CÓ SẴN (CHỌN 1-CLICK TEST NGAY)</span>
-              <span class="ziga-presets-subtitle">Bấm <strong>[🟢 Lượt Tôi]</strong> hoặc <strong>[🔴 Đối Thủ]</strong> để test ngay vòng hào quang độc quyền!</span>
+              <span class="ziga-presets-subtitle">Bấm <strong>[🟢 Lượt Tôi]</strong> hoặc <strong>[🔴 Đối Thủ]</strong> để test ngay! Bạn có thể kết hợp với hiệu ứng xoay tròn, chớp nháy hoặc nhịp tim ở thanh điều khiển phía trên.</span>
             </div>
             <div class="ziga-aura-presets-grid" id="ziga-modal-presets-container"></div>
           </div>
@@ -499,6 +518,36 @@
         }
         if (scaleSlider) scaleSlider.value = '1.0';
         if (scaleVal) scaleVal.textContent = '100%';
+        updateModalLivePreview();
+      });
+    }
+
+    // Animation Effect & Speed controls
+    const animSelect = document.getElementById('ziga-modal-anim-select');
+    const speedSlider = document.getElementById('ziga-modal-speed-slider');
+    const speedVal = document.getElementById('ziga-modal-speed-val');
+    const speedWrap = document.getElementById('ziga-modal-speed-wrap');
+
+    if (animSelect) {
+      animSelect.addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (tempCustomSettings) {
+          tempCustomSettings.animation = val;
+        }
+        if (speedWrap) {
+          speedWrap.style.display = (val === 'static' || val === 'pulse') ? 'none' : 'flex';
+        }
+        updateModalLivePreview();
+      });
+    }
+
+    if (speedSlider) {
+      speedSlider.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        if (tempCustomSettings) {
+          tempCustomSettings.spinSpeed = val;
+        }
+        if (speedVal) speedVal.textContent = val.toFixed(1) + 's';
         updateModalLivePreview();
       });
     }
@@ -847,6 +896,22 @@
     if (scaleSlider) scaleSlider.value = curScale;
     if (scaleVal) scaleVal.textContent = Math.round(curScale * 100) + '%';
 
+    // Animation Effect & Speed sync
+    const animSelect = document.getElementById('ziga-modal-anim-select');
+    const speedSlider = document.getElementById('ziga-modal-speed-slider');
+    const speedVal = document.getElementById('ziga-modal-speed-val');
+    const speedWrap = document.getElementById('ziga-modal-speed-wrap');
+
+    const curAnim = (tempCustomSettings && tempCustomSettings.animation) || 'spin_pulse';
+    const curSpeed = (tempCustomSettings && typeof tempCustomSettings.spinSpeed === 'number') ? tempCustomSettings.spinSpeed : 3.5;
+
+    if (animSelect) animSelect.value = curAnim;
+    if (speedSlider) speedSlider.value = curSpeed;
+    if (speedVal) speedVal.textContent = curSpeed.toFixed(1) + 's';
+    if (speedWrap) {
+      speedWrap.style.display = (curAnim === 'static' || curAnim === 'pulse') ? 'none' : 'flex';
+    }
+
     updateThumbnailPreview('my', tempCustomSettings.customImageMy || '');
     updateThumbnailPreview('opp', tempCustomSettings.customImageOpp || '');
 
@@ -874,6 +939,16 @@
     const previewMy = document.getElementById('ziga-mock-aura-my');
     const previewOpp = document.getElementById('ziga-mock-aura-opp');
     const curScale = (typeof tempCustomSettings.scale === 'number') ? tempCustomSettings.scale : 1.0;
+    const curAnim = tempCustomSettings.animation || 'spin_pulse';
+    const curSpeed = (typeof tempCustomSettings.spinSpeed === 'number') ? tempCustomSettings.spinSpeed : 3.5;
+    const animClasses = ['anim-spin_pulse', 'anim-spin', 'anim-pulse', 'anim-heartbeat', 'anim-static'];
+
+    [previewMy, previewOpp].forEach((el) => {
+      if (!el) return;
+      animClasses.forEach(c => el.classList.remove(c));
+      el.classList.add(`anim-${curAnim}`);
+      el.style.setProperty('--aura-speed', `${curSpeed}s`);
+    });
 
     if (previewMy) {
       previewMy.style.setProperty('--aura-scale', curScale);
