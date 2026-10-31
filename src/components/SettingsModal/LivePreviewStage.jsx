@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye } from 'lucide-react';
+import { Eye, RotateCcw } from 'lucide-react';
 import {
   Card,
   CardHeader,
@@ -19,6 +19,8 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { PieceToken } from '@/components/ui/piece-token';
+import { PRESET_AURAS } from '../../aura/aura_presets';
+import { AURA_THEMES } from '../../core/constants';
 import { cn } from '../../lib/utils';
 
 const ANIMATION_LABELS = {
@@ -34,42 +36,74 @@ export function LivePreviewStage({
   updateDraft,
   auraPresets = []
 }) {
-  const activePreset =
-    auraPresets.find((p) => p.id === draft.auraPreset) ||
-    auraPresets[0] || {
-      id: 'default',
-      myColor: '#22c55e',
-      oppColor: '#ef4444',
-      style: 'dashed'
-    };
-
-  const isCustomColor = draft.auraPreset === 'custom';
-  const myCol = isCustomColor ? draft.customMyAuraColor : activePreset.myColor;
-  const oppCol = isCustomColor ? draft.customOppAuraColor : activePreset.oppColor;
-  const scaleVal = Number(draft.auraScale) || 1;
-  const speedVal = Number(draft.auraSpeed) || 3.5;
-  const animType = draft.auraAnimation || 'spin_pulse';
+  const ZigaMod = window.ZigaMod || {};
+  const effectivePresets =
+    Array.isArray(auraPresets) && auraPresets.length > 0
+      ? auraPresets
+      : PRESET_AURAS;
+  const custom = draft.auraCustom || {};
+  const isImageMode = custom.mode === 'image';
+  const scaleVal = typeof custom.scale === 'number' ? custom.scale : 1.0;
+  const speedVal = typeof custom.spinSpeed === 'number' ? custom.spinSpeed : 3.5;
+  const animType = custom.animation || 'spin_pulse';
   const scalePercent = Math.round(scaleVal * 100);
+
+  const myCol = custom.myColor || '#39ff14';
+  const oppCol = custom.oppColor || '#ff1744';
+
+  const myImg = ZigaMod.resolveAuraImageData
+    ? ZigaMod.resolveAuraImageData(custom, 'my')
+    : (custom.customImageMy || '');
+  const oppImg = ZigaMod.resolveAuraImageData
+    ? ZigaMod.resolveAuraImageData(custom, 'opp')
+    : (custom.customImageOpp || '');
+
+  // Active theme or preset badge title
+  let badgeTitle = 'Mặc định';
+  if (isImageMode) {
+    const pMy = effectivePresets.find((p) => p.id === custom.presetMy);
+    const pOpp = effectivePresets.find((p) => p.id === custom.presetOpp);
+    if (pMy && pOpp) {
+      badgeTitle = `${pMy.title} / ${pOpp.title}`;
+    } else if (pMy) {
+      badgeTitle = pMy.title;
+    } else if (pOpp) {
+      badgeTitle = pOpp.title;
+    } else {
+      badgeTitle = 'Ảnh PNG Đồ Họa';
+    }
+  } else {
+    const themes =
+      ZigaMod.AURA_THEMES && Object.keys(ZigaMod.AURA_THEMES).length > 0
+        ? ZigaMod.AURA_THEMES
+        : AURA_THEMES;
+    const th = themes?.[custom.theme];
+    badgeTitle = th ? th.name : custom.theme === 'custom' ? 'Tự Chọn Hex' : 'Neon JJ Xiangqi';
+  }
 
   const animClass = `aura-anim-${animType}`;
 
-  const renderPreviewRing = (colorHex) => {
-    const isImagePreset = activePreset.style === 'image' && activePreset.imageUrl;
+  const renderPreviewRing = (side, colorHex, imgUrl) => {
+    const isImage = isImageMode && !!imgUrl;
+    // Calibrated to 48px piece (size="xl"):
+    // PNG ring: 66px base width gives hollow inner 66 * 0.72 = 47.5px, hugging the 48px piece!
+    // Neon ring: 56px base width hugs the 48px piece with a 4px radiant glow!
+    const baseDiameter = isImage ? 66 : 56;
     const baseStyle = {
       '--aura-scale': scaleVal,
       '--aura-speed': `${speedVal}s`,
-      width: '68px',
-      height: '68px',
+      width: `calc(${baseDiameter}px * var(--aura-scale, 1))`,
+      height: `calc(${baseDiameter}px * var(--aura-scale, 1))`,
       left: '50%',
       top: '50%'
     };
 
-    if (isImagePreset) {
+    if (isImage) {
       return (
         <div
           style={{
             ...baseStyle,
-            backgroundImage: `url("${activePreset.imageUrl}")`,
+            backgroundImage: `url("${imgUrl}")`,
             backgroundSize: 'contain',
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
@@ -84,8 +118,8 @@ export function LivePreviewStage({
       <div
         style={{
           ...baseStyle,
-          border: `2.5px ${activePreset.style === 'dashed' ? 'dashed' : 'solid'} ${colorHex}`,
-          boxShadow: `0 0 14px ${colorHex}, inset 0 0 8px ${colorHex}`
+          border: `2.5px solid ${colorHex}`,
+          boxShadow: `0 0 12px ${colorHex}, 0 0 24px ${colorHex}, inset 0 0 8px ${colorHex}`
         }}
         className={cn('pointer-events-none absolute z-20 rounded-full', animClass)}
       />
@@ -100,37 +134,41 @@ export function LivePreviewStage({
           <span>Xem trước hiệu ứng Hào Quang (Live Preview)</span>
         </CardTitle>
         <CardAction>
-          <Badge variant="secondary">{activePreset.name || 'Mặc định'}</Badge>
+          <Badge variant="secondary" className="max-w-[220px] truncate" title={badgeTitle}>
+            {badgeTitle}
+          </Badge>
         </CardAction>
       </CardHeader>
 
       <CardContent className="flex flex-col gap-3">
         {/* Dual Chessboard Stage */}
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 rounded-lg border bg-muted/30 px-4 py-3.5">
+          {/* My Piece */}
           <div className="flex flex-col items-center gap-1.5">
-            <div className="relative flex size-16 items-center justify-center">
-              {renderPreviewRing(myCol)}
-              <PieceToken char="帥" color={0} size="lg" className="z-10" />
+            <div className="relative flex size-20 items-center justify-center">
+              {renderPreviewRing('my', myCol, myImg)}
+              <PieceToken char="帥" color="red" size="xl" className="z-10 shadow-lg" />
             </div>
-            <span className="text-xs font-medium text-foreground">
+            <span className="text-xs font-semibold text-foreground">
               Lượt Tôi Đi
             </span>
-            <Badge variant="outline">Quân Có Thể Ăn</Badge>
+            <Badge variant="outline" className="text-[10px] py-0 px-1.5">Quân Có Thể Ăn</Badge>
           </div>
 
-          <div className="text-xs font-semibold text-muted-foreground select-none">
+          <div className="text-xs font-black text-muted-foreground select-none">
             VS
           </div>
 
+          {/* Opponent Piece */}
           <div className="flex flex-col items-center gap-1.5">
-            <div className="relative flex size-16 items-center justify-center">
-              {renderPreviewRing(oppCol)}
-              <PieceToken char="將" color={1} size="lg" className="z-10" />
+            <div className="relative flex size-20 items-center justify-center">
+              {renderPreviewRing('opp', oppCol, oppImg)}
+              <PieceToken char="將" color="black" size="xl" className="z-10 shadow-lg" />
             </div>
-            <span className="text-xs font-medium text-foreground">
+            <span className="text-xs font-semibold text-foreground">
               Lượt Đối Thủ Đi
             </span>
-            <Badge variant="outline">Quân Ta Bị Nhắm</Badge>
+            <Badge variant="outline" className="text-[10px] py-0 px-1.5">Quân Ta Bị Nhắm</Badge>
           </div>
         </div>
 
@@ -144,20 +182,27 @@ export function LivePreviewStage({
                 <Button
                   variant="outline"
                   size="xs"
-                  onClick={() => updateDraft({ auraScale: 1.0 })}
+                  onClick={() => updateDraft({ auraCustom: { ...custom, scale: 1.0 } })}
+                  title="Đặt lại về kích thước chuẩn 100%"
                 >
+                  <RotateCcw className="size-3 mr-1" />
                   100%
                 </Button>
               </div>
             </div>
             <Slider
-              min={60}
-              max={220}
+              min={70}
+              max={130}
               step={5}
               value={[scalePercent]}
               onValueChange={(vals) => {
                 const nextVal = Array.isArray(vals) ? vals[0] : vals;
-                updateDraft({ auraScale: Number((nextVal / 100).toFixed(2)) });
+                updateDraft({
+                  auraCustom: {
+                    ...custom,
+                    scale: Number((nextVal / 100).toFixed(2))
+                  }
+                });
               }}
             />
           </div>
@@ -168,13 +213,18 @@ export function LivePreviewStage({
               <Badge variant="secondary">{speedVal.toFixed(1)}s</Badge>
             </div>
             <Slider
-              min={8}
+              min={10}
               max={80}
               step={2}
               value={[Math.round(speedVal * 10)]}
               onValueChange={(vals) => {
                 const nextVal = Array.isArray(vals) ? vals[0] : vals;
-                updateDraft({ auraSpeed: Number((nextVal / 10).toFixed(1)) });
+                updateDraft({
+                  auraCustom: {
+                    ...custom,
+                    spinSpeed: Number((nextVal / 10).toFixed(1))
+                  }
+                });
               }}
             />
           </div>
@@ -186,7 +236,7 @@ export function LivePreviewStage({
           <Select
             value={animType}
             onValueChange={(val) => {
-              if (val) updateDraft({ auraAnimation: val });
+              if (val) updateDraft({ auraCustom: { ...custom, animation: val } });
             }}
           >
             <SelectTrigger className="w-64">

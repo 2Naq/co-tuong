@@ -13,6 +13,7 @@
 
   // Inject CSS (Base Overlay + Compiled Tailwind/shadcn utilities)
   const link = document.createElement('link');
+  link.id = 'ziga-mod-overlay-css';
   link.rel = 'stylesheet';
   link.type = 'text/css';
   link.href = chrome.runtime.getURL('styles/overlay.css');
@@ -20,6 +21,16 @@
     this.href = chrome.runtime.getURL('overlay.css');
   };
   (document.head || document.documentElement).appendChild(link);
+
+  function ensureStylesheetLastInHead() {
+    if (document.head && link.parentNode !== document.head) {
+      document.head.appendChild(link);
+    } else if (document.head && document.head.lastElementChild !== link) {
+      document.head.appendChild(link);
+    }
+  }
+  document.addEventListener('DOMContentLoaded', ensureStylesheetLastInHead);
+  window.addEventListener('load', ensureStylesheetLastInHead);
 
   // Inject compiled React + shadcn/ui + 18 modules IIFE bundle into MAIN world
   function injectBundle() {
@@ -84,6 +95,9 @@
             el.classList.contains('ziga-shadcn-root') ||
             el.classList.contains('ziga-sandbox-overlay') || 
             el.classList.contains('ziga-mod-container') ||
+            el.hasAttribute('data-base-ui-portal') ||
+            el.hasAttribute('data-slot') ||
+            el.querySelector('[data-slot]') ||
             el.id === 'gameCanvas' || 
             el.id === 'Cocos2dGameContainer' || 
             el.classList.contains('modal')) {

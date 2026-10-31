@@ -61,18 +61,30 @@ export function TacticalInspectorCard({ tactical, visible }) {
               </span>
             ) : (
               targets.map((t, idx) => {
-                const tChar = ZigaMod.getPieceChar
-                  ? ZigaMod.getPieceChar(t.Ga, t.ka)
-                  : '?';
-                const tName = ZigaMod.getPieceVnName
-                  ? ZigaMod.getPieceVnName(t.Ga)
-                  : '';
+                const tType = t?.type !== undefined ? t.type : t?.Ga;
+                const tColor = t?.color !== undefined ? t.color : t?.ka;
+                const tCol = t?.col !== undefined ? t.col : t?.fa;
+                const tRow = t?.row !== undefined ? t.row : t?.rowIndex;
+                const tChar =
+                  t?.char ||
+                  (ZigaMod.getPieceChar && tType !== undefined
+                    ? ZigaMod.getPieceChar(tType, tColor)
+                    : '?');
+                const tName =
+                  t?.name ||
+                  (ZigaMod.getPieceVnName && tType !== undefined
+                    ? ZigaMod.getPieceVnName(tType)
+                    : 'Quân');
+                const coordStr =
+                  tCol !== undefined && tRow !== undefined
+                    ? ` (${tCol + 1},${tRow + 1})`
+                    : '';
                 return (
                   <PieceChip
                     key={idx}
                     char={tChar}
-                    color={t.ka}
-                    subLabel={`${tName} (${t.fa + 1},${t.rowIndex + 1})`}
+                    color={tColor}
+                    subLabel={`${tName}${coordStr}`}
                   />
                 );
               })
@@ -96,17 +108,23 @@ export function TacticalInspectorCard({ tactical, visible }) {
               </span>
             ) : (
               defended.map((d, idx) => {
-                const dChar = ZigaMod.getPieceChar
-                  ? ZigaMod.getPieceChar(d.Ga, d.ka)
-                  : '?';
-                const dName = ZigaMod.getPieceVnName
-                  ? ZigaMod.getPieceVnName(d.Ga)
-                  : '';
+                const dType = d?.type !== undefined ? d.type : d?.Ga;
+                const dColor = d?.color !== undefined ? d.color : d?.ka;
+                const dChar =
+                  d?.char ||
+                  (ZigaMod.getPieceChar && dType !== undefined
+                    ? ZigaMod.getPieceChar(dType, dColor)
+                    : '?');
+                const dName =
+                  d?.name ||
+                  (ZigaMod.getPieceVnName && dType !== undefined
+                    ? ZigaMod.getPieceVnName(dType)
+                    : 'Quân');
                 return (
                   <PieceChip
                     key={idx}
                     char={dChar}
-                    color={d.ka}
+                    color={dColor}
                     subLabel={dName}
                   />
                 );

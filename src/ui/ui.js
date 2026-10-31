@@ -3,6 +3,7 @@ import React from 'react';
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { HudWidget } from '../components/HudWidget/HudWidget';
+import { ErrorBoundary } from '../components/common/ErrorBoundary';
 import { uiStore } from '../lib/ui_store';
 
 (function (ZigaMod) {
@@ -38,11 +39,40 @@ import { uiStore } from '../lib/ui_store';
 
     const widgetEl = document.createElement('div');
     widgetEl.id = 'ziga-mod-widget';
-    widgetEl.className = `ziga-shadcn-root fixed z-[2147483647] w-80 min-w-[270px] max-w-[750px] overflow-hidden rounded-xl border border-border bg-background text-foreground shadow-2xl font-sans select-none [&.minimized]:w-auto [&.minimized]:min-w-0 ${
+    widgetEl.className = `ziga-shadcn-root fixed z-[2147483647] min-w-[270px] max-w-[750px] overflow-hidden rounded-xl border border-border bg-background text-foreground shadow-2xl font-sans select-none [&.minimized]:w-auto [&.minimized]:min-w-0 ${
       initialTheme === 'dark' ? 'dark' : ''
     }`;
-    widgetEl.style.top = '16px';
-    widgetEl.style.right = '16px';
+
+    // Restore saved widget dimensions and position
+    const savedSize = (ZigaMod.loadSavedSize || ZigaMod.loadSavedWidgetSize)
+      ? (ZigaMod.loadSavedSize || ZigaMod.loadSavedWidgetSize)()
+      : null;
+    const initialWidth =
+      savedSize && savedSize.width >= 270 && savedSize.width <= 750
+        ? savedSize.width
+        : 320;
+    widgetEl.style.width = initialWidth + 'px';
+
+    const savedPos = ZigaMod.loadSavedPosition ? ZigaMod.loadSavedPosition() : null;
+    if (
+      savedPos &&
+      typeof savedPos.x === 'number' &&
+      typeof savedPos.y === 'number' &&
+      (savedPos.x > 10 || savedPos.y > 10)
+    ) {
+      const maxLeft = Math.max(0, window.innerWidth - initialWidth - 4);
+      const maxTop = Math.max(0, window.innerHeight - 100 - 4);
+      const safeLeft = Math.min(maxLeft, Math.max(4, savedPos.x));
+      const safeTop = Math.min(maxTop, Math.max(4, savedPos.y));
+      widgetEl.style.left = safeLeft + 'px';
+      widgetEl.style.top = safeTop + 'px';
+      widgetEl.style.right = 'auto';
+    } else {
+      // Default initial position: Top-Right corner
+      widgetEl.style.top = '16px';
+      widgetEl.style.right = '16px';
+      widgetEl.style.left = 'auto';
+    }
 
     if (!document.body) return null;
     document.body.appendChild(widgetEl);
@@ -50,19 +80,22 @@ import { uiStore } from '../lib/ui_store';
 
     hudRoot = createRoot(widgetEl);
     flushSync(() => {
-      hudRoot.render(<HudWidget />);
+      hudRoot.render(
+        <ErrorBoundary>
+          <HudWidget />
+        </ErrorBoundary>
+      );
     });
 
-    // Restore saved widget dimensions
-    const savedSize = ZigaMod.loadSavedWidgetSize ? ZigaMod.loadSavedWidgetSize() : null;
+    // Restore body max height if saved
     const bodyEl = document.getElementById('ziga-mod-body');
-    if (savedSize) {
-      if (savedSize.width && savedSize.width >= 270 && savedSize.width <= 750) {
-        widgetEl.style.width = savedSize.width + 'px';
-      }
-      if (savedSize.bodyMaxHeight && bodyEl && savedSize.bodyMaxHeight >= 150) {
-        bodyEl.style.maxHeight = savedSize.bodyMaxHeight + 'px';
-      }
+    if (
+      savedSize &&
+      savedSize.bodyMaxHeight &&
+      bodyEl &&
+      savedSize.bodyMaxHeight >= 150
+    ) {
+      bodyEl.style.maxHeight = savedSize.bodyMaxHeight + 'px';
     }
 
     // Isolate clicks from #gameCanvas WITHOUT blocking mouseup/pointerup from reaching window
@@ -104,6 +137,9 @@ import { uiStore } from '../lib/ui_store';
         const finalW = parseInt(widgetEl.style.width, 10) || 320;
         const bEl = document.getElementById('ziga-mod-body');
         const finalH = bEl ? parseInt(bEl.style.maxHeight, 10) || 560 : 560;
+        if (ZigaMod.saveSize) {
+          ZigaMod.saveSize(finalW, finalH);
+        }
         if (ZigaMod.saveWidgetSize) {
           ZigaMod.saveWidgetSize(finalW, finalH);
         }
@@ -115,6 +151,14 @@ import { uiStore } from '../lib/ui_store';
           setTimeout(() => {
             widgetEl.__zigaJustDragged = false;
           }, 120);
+        }
+        // Persist dragged position to localStorage
+        const curLeft = parseInt(widgetEl.style.left, 10);
+        const curTop = parseInt(widgetEl.style.top, 10);
+        if (!isNaN(curLeft) && !isNaN(curTop)) {
+          if (ZigaMod.savePosition) {
+            ZigaMod.savePosition(curLeft, curTop);
+          }
         }
       }
     }

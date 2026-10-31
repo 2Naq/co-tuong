@@ -1,46 +1,32 @@
 @import "tailwindcss/theme.css";
+@source "../components";
+@source "../ui";
+@source "../features";
 
-/* Zero-specificity scoped preflight (protects #gameCanvas while resetting Ziga host CSS inside shadcn UI) */
-:where(
-  .ziga-shadcn-root,
-  .ziga-shadcn-root *,
-  .ziga-shadcn-root *::before,
-  .ziga-shadcn-root *::after,
-  [data-slot="dialog-overlay"],
-  [data-slot="dialog-content"],
-  [data-slot="dialog-content"] *,
-  [data-slot="dialog-content"] *::before,
-  [data-slot="dialog-content"] *::after,
-  [data-slot="select-content"],
-  [data-slot="select-content"] *,
-  [data-slot="popover-content"],
-  [data-slot="popover-content"] *,
-  [data-slot="tooltip-content"],
-  [data-slot="tooltip-content"] *
-) {
+/* Scoped Preflight Reset with (0,1,0) specificity:
+   Beats all Bootstrap/Ziga HTML tag rules (button, table, th, td, label, p, h1-h6, a, svg)
+   inside .ziga-shadcn-root & [data-slot] portals without touching #gameCanvas or host DOM */
+:is(.ziga-shadcn-root, [data-slot], .ziga-shadcn-root *, [data-slot] *):where(*, *::before, *::after) {
   box-sizing: border-box;
   border-width: 0;
   border-style: solid;
   border-color: var(--border);
 }
 
-:where(
-  .ziga-shadcn-root button,
-  .ziga-shadcn-root input,
-  .ziga-shadcn-root select,
-  .ziga-shadcn-root textarea,
-  [data-slot="dialog-content"] button,
-  [data-slot="dialog-content"] input,
-  [data-slot="dialog-content"] select,
-  [data-slot="dialog-content"] textarea,
-  [data-slot="select-content"] button,
-  [data-slot="popover-content"] button
+:is(.ziga-shadcn-root, [data-slot], .ziga-shadcn-root *, [data-slot] *):where(
+  button,
+  input,
+  optgroup,
+  select,
+  textarea
 ) {
   background-color: transparent;
   color: inherit;
   font-family: inherit;
-  font-size: inherit;
+  font-size: 100%;
+  font-weight: inherit;
   line-height: inherit;
+  letter-spacing: inherit;
   margin: 0;
   padding: 0;
   text-transform: none;
@@ -48,26 +34,57 @@
   -webkit-appearance: none;
 }
 
-:where(
-  .ziga-shadcn-root h1,
-  .ziga-shadcn-root h2,
-  .ziga-shadcn-root h3,
-  .ziga-shadcn-root h4,
-  .ziga-shadcn-root h5,
-  .ziga-shadcn-root p,
-  [data-slot="dialog-content"] h1,
-  [data-slot="dialog-content"] h2,
-  [data-slot="dialog-content"] h3,
-  [data-slot="dialog-content"] h4,
-  [data-slot="dialog-content"] h5,
-  [data-slot="dialog-content"] p,
-  [data-slot="popover-content"] h1,
-  [data-slot="popover-content"] h2,
-  [data-slot="popover-content"] h3,
-  [data-slot="popover-content"] h4,
-  [data-slot="popover-content"] p
+:is(.ziga-shadcn-root, [data-slot], .ziga-shadcn-root *, [data-slot] *):where(
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  ul,
+  ol,
+  dl,
+  dd,
+  blockquote,
+  figure,
+  hr,
+  pre
 ) {
   margin: 0;
+  padding: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+:is(.ziga-shadcn-root, [data-slot], .ziga-shadcn-root *, [data-slot] *):where(label) {
+  margin: 0;
+  font-weight: inherit;
+}
+
+:is(.ziga-shadcn-root, [data-slot], .ziga-shadcn-root *, [data-slot] *):where(table) {
+  text-indent: 0;
+  border-color: inherit;
+  border-collapse: collapse;
+}
+
+:is(.ziga-shadcn-root, [data-slot], .ziga-shadcn-root *, [data-slot] *):where(th, td, tr, thead, tbody, tfoot) {
+  border-color: var(--border);
+  background-color: transparent;
+}
+
+:is(.ziga-shadcn-root, [data-slot], .ziga-shadcn-root *, [data-slot] *):where(a) {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+:is(.ziga-shadcn-root, [data-slot], .ziga-shadcn-root *, [data-slot] *):where(svg, img, canvas, video) {
+  display: block;
+  vertical-align: middle;
+}
+
+:is(.ziga-shadcn-root, [data-slot], .ziga-shadcn-root *, [data-slot] *):where([hidden]:not([hidden="until-found"])) {
+  display: none !important;
 }
 
 @import "tailwindcss/utilities.css";
@@ -112,7 +129,7 @@
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
+  --color-sidebar-sidebar: var(--sidebar);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -122,7 +139,11 @@
 
 /* Official shadcn/ui Orange Theme (preset b3PBYm) - Light Mode */
 :root,
-.ziga-shadcn-root {
+.ziga-shadcn-root,
+[data-slot="dialog-content"],
+[data-slot="select-content"],
+[data-slot="popover-content"],
+[data-slot="tooltip-content"] {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -160,7 +181,11 @@
 
 /* Official shadcn/ui Orange Theme (preset b3PBYm) - Dark Mode */
 .dark,
-.ziga-shadcn-root.dark {
+.ziga-shadcn-root.dark,
+.dark [data-slot="dialog-content"],
+.dark [data-slot="select-content"],
+.dark [data-slot="popover-content"],
+.dark [data-slot="tooltip-content"] {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -217,24 +242,6 @@
   border: 1px solid var(--border);
 }
 
-/* HUD Widget root container surface */
-#ziga-mod-widget.ziga-mod-container {
-  background-color: var(--background) !important;
-  color: var(--foreground) !important;
-  border: 1px solid var(--border) !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55) !important;
-}
-
-#ziga-mod-widget .ziga-mod-header {
-  background: var(--card) !important;
-  border-bottom: 1px solid var(--border) !important;
-}
-
-#ziga-mod-widget .ziga-mod-title-text {
-  color: var(--foreground) !important;
-  padding-top: 0 !important;
-}
-
 /* Prevent #gameCanvas or iframes from intercepting mousemove during HUD drag/resize */
 body.ziga-is-dragging-or-resizing #gameCanvas,
 body.ziga-is-dragging-or-resizing #Cocos2dGameContainer,
@@ -243,7 +250,7 @@ body.ziga-is-dragging-or-resizing iframe {
   pointer-events: none !important;
 }
 
-/* Unified sleek custom scrollbars inside all shadcn containers (eliminates boxy OS scrollbars) */
+/* Unified sleek custom scrollbars inside all shadcn containers */
 .ziga-shadcn-root ::-webkit-scrollbar,
 [data-slot="dialog-content"] ::-webkit-scrollbar,
 [data-slot="select-content"] ::-webkit-scrollbar,

@@ -24,6 +24,7 @@ import { LivePreviewStage } from './LivePreviewStage';
 import { FeaturesTab } from './FeaturesTab';
 import { ThemesTab } from './ThemesTab';
 import { AuraGalleryTab } from './AuraGalleryTab';
+import { PRESET_AURAS } from '../../aura/aura_presets';
 import { uiStore, useUiStore } from '../../lib/ui_store';
 
 const AURA_KEYS = [
@@ -61,13 +62,20 @@ export function SettingsModal({
 }) {
   const ZigaMod = window.ZigaMod || {};
   const defaultSettings = ZigaMod.DEFAULT_SETTINGS || {};
-  const auraPresets = ZigaMod.AURA_PRESETS || [];
+  const auraPresets =
+    Array.isArray(ZigaMod.PRESET_AURAS) && ZigaMod.PRESET_AURAS.length > 0
+      ? ZigaMod.PRESET_AURAS
+      : PRESET_AURAS;
   const themeMode = useUiStore((s) => s.themeMode) || 'dark';
 
   const [activeTab, setActiveTab] = useState(initialTab);
   const [draft, setDraft] = useState(() => ({
     ...defaultSettings,
-    ...(ZigaMod.userSettings || {})
+    ...(ZigaMod.userSettings || {}),
+    auraCustom: {
+      ...(defaultSettings.auraCustom || {}),
+      ...((ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {})
+    }
   }));
   const [toastMsg, setToastMsg] = useState('');
 
@@ -75,7 +83,11 @@ export function SettingsModal({
     if (isOpen) {
       setDraft({
         ...defaultSettings,
-        ...(ZigaMod.userSettings || {})
+        ...(ZigaMod.userSettings || {}),
+        auraCustom: {
+          ...(defaultSettings.auraCustom || {}),
+          ...((ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {})
+        }
       });
       if (initialTab) setActiveTab(initialTab);
     }
@@ -89,12 +101,21 @@ export function SettingsModal({
   const syncToEngineLive = useCallback((nextDraft) => {
     const mod = window.ZigaMod;
     if (!mod) return;
-    mod.userSettings = { ...nextDraft };
+    mod.userSettings = {
+      ...nextDraft,
+      auraCustom: {
+        ...(mod.DEFAULT_SETTINGS?.auraCustom || {}),
+        ...(nextDraft.auraCustom || {})
+      }
+    };
     if (typeof mod.saveSettings === 'function') {
       mod.saveSettings();
     }
     if (typeof mod.applySettingsVisibility === 'function') {
       mod.applySettingsVisibility();
+    }
+    if (typeof mod.reloadAuraTextures === 'function') {
+      mod.reloadAuraTextures();
     }
     if (typeof mod.refreshBoardAuraImmediate === 'function') {
       mod.refreshBoardAuraImmediate();
@@ -109,7 +130,19 @@ export function SettingsModal({
   const updateDraft = useCallback(
     (patch) => {
       setDraft((prev) => {
-        const next = { ...prev, ...patch };
+        let next;
+        if (patch.auraCustom) {
+          next = {
+            ...prev,
+            ...patch,
+            auraCustom: {
+              ...prev.auraCustom,
+              ...patch.auraCustom
+            }
+          };
+        } else {
+          next = { ...prev, ...patch };
+        }
         syncToEngineLive(next);
         return next;
       });
@@ -120,10 +153,10 @@ export function SettingsModal({
   // Separate Reset #1: Reset Features Only (Preserve Aura Settings)
   const handleResetFeaturesOnly = () => {
     setDraft((prev) => {
-      const next = { ...defaultSettings };
-      for (const k of AURA_KEYS) {
-        if (prev[k] !== undefined) next[k] = prev[k];
-      }
+      const next = {
+        ...defaultSettings,
+        auraCustom: { ...(prev.auraCustom || defaultSettings.auraCustom || {}) }
+      };
       syncToEngineLive(next);
       return next;
     });
@@ -133,10 +166,10 @@ export function SettingsModal({
   // Separate Reset #2: Reset Aura Only (Preserve Feature Toggles)
   const handleResetAuraOnly = () => {
     setDraft((prev) => {
-      const next = { ...prev };
-      for (const k of AURA_KEYS) {
-        next[k] = defaultSettings[k];
-      }
+      const next = {
+        ...prev,
+        auraCustom: { ...(defaultSettings.auraCustom || {}) }
+      };
       syncToEngineLive(next);
       return next;
     });
@@ -158,7 +191,7 @@ export function SettingsModal({
     );
   };
 
-  const imageCount = auraPresets.filter((p) => p.style === 'image').length;
+  const imageCount = auraPresets.length;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>

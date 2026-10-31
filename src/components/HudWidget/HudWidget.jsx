@@ -29,6 +29,7 @@ import { CoUpTrackerCard } from './CoUpTrackerCard';
 import { LostPiecesCard } from './LostPiecesCard';
 import { TacticalInspectorCard } from './TacticalInspectorCard';
 import { MoveHistoryCard } from './MoveHistoryCard';
+import { ErrorBoundary } from '../common/ErrorBoundary';
 import { cn } from '../../lib/utils';
 
 export function HudWidget() {
@@ -97,11 +98,37 @@ export function HudWidget() {
           }}
           className="flex items-center gap-2"
         >
-          <span className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Crown className="size-3.5" />
+          <span
+            className="ziga-mod-badge-icon flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-md border border-input/30 ]"
+            title="TOOLS SUPPORT"
+            style={{ width: '22px', height: '22px', maxWidth: '22px', maxHeight: '22px' }}
+          >
+            <img
+              src={(typeof document !== 'undefined' && document.documentElement?.dataset?.zigaLogoUrl) || ''}
+              className="ziga-mod-badge-img object-contain rounded"
+              alt="Logo"
+              style={{ width: '22px', height: '22px', maxWidth: '22px', maxHeight: '22px' }}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                if (e.currentTarget.nextElementSibling) {
+                  e.currentTarget.nextElementSibling.style.display = 'inline-block';
+                }
+              }}
+            />
+            <svg
+              viewBox="0 0 512 512"
+              className="ziga-sb-logo-svg-fallback hidden rounded"
+              style={{ width: '22px', height: '22px', maxWidth: '22px', maxHeight: '22px' }}
+            >
+              <rect width="512" height="512" rx="64" fill="#000000" />
+              <path
+                d="M118.141 347H76.9482L139.714 165.182H189.253L251.93 347H210.737L165.194 206.73H163.773L118.141 347ZM115.567 275.533H212.868V305.54H115.567V275.533ZM425.892 165.182V347H392.689L313.587 232.565H312.255V347H273.814V165.182H307.55L386.03 279.528H387.628V165.182H425.892Z"
+                fill="#ffffff"
+              />
+            </svg>
           </span>
-          <span className="text-xs font-semibold tracking-tight text-foreground">
-            AN Cờ Tướng
+          <span className="text-xs font-bold tracking-tight text-foreground select-none">
+            TOOLS SUPPORT
           </span>
         </div>
 
@@ -239,50 +266,62 @@ export function HudWidget() {
         </Card>
 
         {/* Threat Scanner Alert */}
-        <ThreatAlertCard
-          threats={state.threats}
-          visible={!!settings.threatAlert}
-        />
+        <ErrorBoundary>
+          <ThreatAlertCard
+            threats={state.threats}
+            visible={!!settings.threatAlert}
+          />
+        </ErrorBoundary>
 
         {/* Material Advantage Bar */}
-        <MaterialBarCard
-          material={state.material}
-          myName={state.myName}
-          oppName={state.oppName}
-          visible={!!settings.materialAdvantage}
-        />
+        <ErrorBoundary>
+          <MaterialBarCard
+            material={state.material}
+            myName={state.myName}
+            oppName={state.oppName}
+            visible={!!settings.materialAdvantage}
+          />
+        </ErrorBoundary>
 
         {/* Cờ Úp Tracker */}
-        <CoUpTrackerCard
-          stats={state.coUpStats}
-          oppName={state.oppName}
-          myName={state.myName}
-          visible={!!settings.showCoUpTracker}
-        />
+        <ErrorBoundary>
+          <CoUpTrackerCard
+            stats={state.coUpStats}
+            oppName={state.oppName}
+            myName={state.myName}
+            visible={!!settings.showCoUpTracker}
+          />
+        </ErrorBoundary>
 
         {/* Lost Pieces Section */}
-        <LostPiecesCard
-          inGame={state.inGame}
-          myName={state.myName}
-          oppName={state.oppName}
-          myColor={state.myColor}
-          oppColor={state.oppColor}
-          deadMyPieces={state.deadMyPieces}
-          deadOppPieces={state.deadOppPieces}
-          visible={!!settings.showLostPieces}
-        />
+        <ErrorBoundary>
+          <LostPiecesCard
+            inGame={state.inGame}
+            myName={state.myName}
+            oppName={state.oppName}
+            myColor={state.myColor}
+            oppColor={state.oppColor}
+            deadMyPieces={state.deadMyPieces}
+            deadOppPieces={state.deadOppPieces}
+            visible={!!settings.showLostPieces}
+          />
+        </ErrorBoundary>
 
         {/* Tactical Range Inspector */}
-        <TacticalInspectorCard
-          tactical={state.tactical}
-          visible={!!settings.showTacticalHud}
-        />
+        <ErrorBoundary>
+          <TacticalInspectorCard
+            tactical={state.tactical}
+            visible={!!settings.showTacticalHud}
+          />
+        </ErrorBoundary>
 
         {/* Move History (FEN / PGN) */}
-        <MoveHistoryCard
-          moves={state.moveHistory}
-          visible={!!settings.showMoveHistory}
-        />
+        <ErrorBoundary>
+          <MoveHistoryCard
+            moves={state.moveHistory}
+            visible={!!settings.showMoveHistory}
+          />
+        </ErrorBoundary>
 
         {/* Key Pieces Footer */}
         <Card

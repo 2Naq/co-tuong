@@ -409,9 +409,9 @@
     // Inner hollow ring diameter in 256x256 texture is ~0.72 * sprW (~184px)
     const ringDiameterInTex = sprW * 0.72;
 
-    // Desired inner ring diameter on piece: 0.98x piece width so inner edge hugs the wooden rim
-    // while ornate blades/runes radiate cleanly outside the piece
-    const targetRingDiameter = pieceWidth * 0.98 * userScaleFactor;
+    // Desired inner ring diameter on piece: 1.02x piece width so inner edge hugs the wooden rim
+    // while ornate blades/runes radiate cleanly outside the piece without choking the character
+    const targetRingDiameter = pieceWidth * 1.02 * userScaleFactor;
 
     return targetRingDiameter / ringDiameterInTex;
   }

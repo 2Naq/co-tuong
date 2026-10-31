@@ -39,7 +39,11 @@ const PIECE_SCORE_REF = [
 export function MaterialBarCard({ material, myName, oppName, visible }) {
   if (!visible || !material) return null;
 
-  const { myScore = 0, oppScore = 0, diff = 0, myBreakdown, oppBreakdown } = material;
+  const myScore = typeof material.myScore === 'number' ? material.myScore : 0;
+  const oppScore = typeof material.oppScore === 'number' ? material.oppScore : 0;
+  const diff = typeof material.diff === 'number' ? material.diff : myScore - oppScore;
+  const myCounts = material.myCounts || {};
+  const oppCounts = material.oppCounts || {};
   const totalScore = myScore + oppScore;
   const myPercent =
     totalScore > 0 ? Math.min(92, Math.max(8, (myScore / totalScore) * 100)) : 50;
@@ -88,16 +92,14 @@ export function MaterialBarCard({ material, myName, oppName, visible }) {
                 </TableHeader>
                 <TableBody>
                   {PIECE_SCORE_REF.map((row) => {
-                    const mItem =
-                      row.id === 'up'
-                        ? myBreakdown?.hidden
-                        : myBreakdown?.byType?.[row.id];
-                    const oItem =
-                      row.id === 'up'
-                        ? oppBreakdown?.hidden
-                        : oppBreakdown?.byType?.[row.id];
-                    if (row.id === 'up' && !mItem?.count && !oItem?.count)
+                    const mCount = typeof myCounts[row.id] === 'number' ? myCounts[row.id] : 0;
+                    const oCount = typeof oppCounts[row.id] === 'number' ? oppCounts[row.id] : 0;
+                    if (row.id === 'up' && mCount === 0 && oCount === 0) {
                       return null;
+                    }
+                    const unitPts = parseFloat(row.pts) || 0;
+                    const mPts = (mCount * unitPts).toFixed(1);
+                    const oPts = (oCount * unitPts).toFixed(1);
 
                     return (
                       <TableRow key={row.id}>
@@ -108,14 +110,10 @@ export function MaterialBarCard({ material, myName, oppName, visible }) {
                           {row.pts}
                         </TableCell>
                         <TableCell className="text-right font-medium">
-                          {mItem?.count
-                            ? `${mItem.count} (${mItem.pts.toFixed(1)})`
-                            : '-'}
+                          {mCount > 0 ? `${mCount} (${mPts})` : '-'}
                         </TableCell>
                         <TableCell className="text-right text-muted-foreground">
-                          {oItem?.count
-                            ? `${oItem.count} (${oItem.pts.toFixed(1)})`
-                            : '-'}
+                          {oCount > 0 ? `${oCount} (${oPts})` : '-'}
                         </TableCell>
                       </TableRow>
                     );

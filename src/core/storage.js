@@ -70,28 +70,46 @@
   function loadSavedPosition() {
     try {
       const saved = localStorage.getItem('ziga_mod_pos');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed.x === 'number' && typeof parsed.y === 'number') {
+          return parsed;
+        }
+      }
     } catch (e) { }
     return null;
   }
 
   function savePosition(x, y) {
     try {
-      localStorage.setItem('ziga_mod_pos', JSON.stringify({ x, y }));
+      if (typeof x === 'number' && typeof y === 'number' && !isNaN(x) && !isNaN(y)) {
+        localStorage.setItem('ziga_mod_pos', JSON.stringify({ x: Math.round(x), y: Math.round(y) }));
+      }
     } catch (e) { }
   }
 
   function loadSavedSize() {
     try {
       const saved = localStorage.getItem('ziga_mod_size');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.w >= 200 && parsed.h >= 100) {
+          return {
+            width: parsed.w,
+            height: parsed.h,
+            bodyMaxHeight: parsed.h
+          };
+        }
+      }
     } catch (e) { }
     return null;
   }
 
   function saveSize(w, h) {
     try {
-      localStorage.setItem('ziga_mod_size', JSON.stringify({ w, h }));
+      if (w && h) {
+        localStorage.setItem('ziga_mod_size', JSON.stringify({ w: Math.round(w), h: Math.round(h) }));
+      }
     } catch (e) { }
   }
 
@@ -106,6 +124,8 @@
   ZigaMod.savePosition = savePosition;
   ZigaMod.loadSavedSize = loadSavedSize;
   ZigaMod.saveSize = saveSize;
+  ZigaMod.loadSavedWidgetSize = loadSavedSize;
+  ZigaMod.saveWidgetSize = saveSize;
 
   // Convenient direct reference
   Object.defineProperty(ZigaMod, 'userSettings', {

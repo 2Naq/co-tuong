@@ -5,6 +5,20 @@
   console.log('[AN Mod] Voice Announcer module initializing...');
 
   let audioCtx = null;
+  let audioUnlocked = false;
+
+  if (typeof window !== 'undefined') {
+    const unlock = () => {
+      audioUnlocked = true;
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+    };
+    ['click', 'keydown', 'pointerdown', 'touchstart'].forEach((evt) => {
+      window.addEventListener(evt, unlock, { capture: true, once: true });
+    });
+  }
+
   let lastSpokenText = '';
   let lastSpokenTime = 0;
   let lastAnnouncedSecond = -1;
@@ -13,13 +27,15 @@
   // Web Audio Context Synthesizer (Zero External MP3s)
   function getAudioContext() {
     if (!audioCtx) {
+      if (!audioUnlocked) return null;
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       if (AudioContextClass) {
         audioCtx = new AudioContextClass();
       }
     }
     if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume();
+      audioCtx.resume().catch(() => {});
+      if (audioCtx.state === 'suspended') return null;
     }
     return audioCtx;
   }

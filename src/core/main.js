@@ -168,6 +168,9 @@
             el.classList.contains('ziga-shadcn-root') ||
             el.classList.contains('ziga-sandbox-overlay') || 
             el.classList.contains('ziga-mod-container') ||
+            el.hasAttribute('data-base-ui-portal') ||
+            el.hasAttribute('data-slot') ||
+            el.querySelector('[data-slot]') ||
             el.id === 'gameCanvas' || 
             el.id === 'Cocos2dGameContainer' || 
             el.classList.contains('modal')) {

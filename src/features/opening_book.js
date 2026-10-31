@@ -522,6 +522,7 @@ import { Separator } from '../components/ui/separator';
     if (!host) {
       host = document.createElement('div');
       host.id = 'ziga-opening-modal-host';
+      host.className = 'ziga-shadcn-root';
       document.body.appendChild(host);
       openingModalRoot = createRoot(host);
       openingModalRoot.render(

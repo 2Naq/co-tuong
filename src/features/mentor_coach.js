@@ -573,7 +573,7 @@ import { Alert, AlertTitle, AlertDescription } from '../components/ui/alert';
 
     mentorPanelEl = document.createElement('div');
     mentorPanelEl.id = 'ziga-mentor-floating-panel';
-    mentorPanelEl.className = 'fixed z-[2147483646] select-none';
+    mentorPanelEl.className = 'ziga-shadcn-root fixed z-[2147483646] select-none';
     mentorPanelEl.style.display = 'none';
 
     const canvas = document.getElementById('gameCanvas');

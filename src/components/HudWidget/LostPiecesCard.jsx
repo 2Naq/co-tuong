@@ -25,9 +25,12 @@ export function LostPiecesCard({
 
   const groupPieces = (piecesList, colorCode) => {
     const grouped = {};
-    for (const p of piecesList) {
-      if (!grouped[p.type]) grouped[p.type] = 0;
-      grouped[p.type]++;
+    if (Array.isArray(piecesList)) {
+      for (const p of piecesList) {
+        if (!p || p.type === undefined) continue;
+        if (!grouped[p.type]) grouped[p.type] = 0;
+        grouped[p.type]++;
+      }
     }
     const sortedTypes = Object.keys(grouped)
       .map(Number)
@@ -86,8 +89,8 @@ export function LostPiecesCard({
                   key={g.typeId}
                   char={g.char}
                   color={oppColor}
+                  name={g.vnName}
                   count={g.count}
-                  title={`${g.vnName} (${g.count})`}
                 />
               ))
             )}
@@ -131,8 +134,8 @@ export function LostPiecesCard({
                   key={g.typeId}
                   char={g.char}
                   color={myColor}
+                  name={g.vnName}
                   count={g.count}
-                  title={`${g.vnName} (${g.count})`}
                 />
               ))
             )}

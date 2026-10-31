@@ -7,12 +7,11 @@ import {
   AlertAction
 } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { PieceToken } from '@/components/ui/piece-token';
 
 export function ThreatAlertCard({ threats = [], visible }) {
   const ZigaMod = window.ZigaMod || {};
 
-  if (!visible || !threats || threats.length === 0) {
+  if (!visible || !Array.isArray(threats) || threats.length === 0) {
     return null;
   }
 
@@ -26,30 +25,88 @@ export function ThreatAlertCard({ threats = [], visible }) {
       <AlertDescription>
         <div id="ziga-threat-list" className="mt-2 flex flex-col gap-1.5">
           {threats.slice(0, 4).map((t, idx) => {
-            const victimChar = ZigaMod.getPieceChar
-              ? ZigaMod.getPieceChar(t.victim.Ga, t.victim.ka)
-              : '?';
-            const victimName = ZigaMod.getPieceVnName
-              ? ZigaMod.getPieceVnName(t.victim.Ga)
-              : '';
-            const attackerNames = t.attackers
-              .map((a) =>
-                ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(a.Ga) : '?'
-              )
-              .join(', ');
+            if (!t) return null;
+            const targetPiece = t.target || t.victim || {};
+            const targetType =
+              t.targetType !== undefined
+                ? t.targetType
+                : targetPiece.Ga !== undefined
+                ? targetPiece.Ga
+                : targetPiece.type;
+            const targetColor =
+              t.targetColor !== undefined
+                ? t.targetColor
+                : targetPiece.ka !== undefined
+                ? targetPiece.ka
+                : targetPiece.color;
+
+            const victimChar =
+              t.targetChar ||
+              (ZigaMod.getPieceChar && targetType !== undefined
+                ? ZigaMod.getPieceChar(targetType, targetColor)
+                : '?');
+            const victimName =
+              t.targetName ||
+              (ZigaMod.PIECE_DEFS?.[targetType]?.name ??
+                (ZigaMod.getPieceVnName && targetType !== undefined
+                  ? ZigaMod.getPieceVnName(targetType)
+                  : 'Quân'));
+
+            const col = targetPiece.fa !== undefined ? targetPiece.fa : t.col;
+            const row =
+              targetPiece.rowIndex !== undefined
+                ? targetPiece.rowIndex
+                : targetPiece.row !== undefined
+                ? targetPiece.row
+                : t.row;
+            const coordLabel =
+              t.coordText ||
+              (col !== undefined && row !== undefined
+                ? `C${col + 1}·H${row + 1}`
+                : '');
+
+            let attackerNames = t.attackerName;
+            if (!attackerNames) {
+              if (Array.isArray(t.attackers) && t.attackers.length > 0) {
+                attackerNames = t.attackers
+                  .filter(Boolean)
+                  .map((a) => {
+                    const aType = a.Ga !== undefined ? a.Ga : a.type;
+                    return (
+                      ZigaMod.PIECE_DEFS?.[aType]?.name ||
+                      (ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(aType) : 'Quân')
+                    );
+                  })
+                  .join(', ');
+              } else if (t.attacker) {
+                const aType =
+                  t.attackerType !== undefined
+                    ? t.attackerType
+                    : t.attacker.Ga !== undefined
+                    ? t.attacker.Ga
+                    : t.attacker.type;
+                attackerNames =
+                  ZigaMod.PIECE_DEFS?.[aType]?.name ||
+                  (ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(aType) : 'Đối phương');
+              } else {
+                attackerNames = 'Đối phương';
+              }
+            }
 
             return (
               <div
                 key={idx}
-                className="flex items-center justify-between rounded-md border bg-background/60 px-2.5 py-1.5 text-xs text-foreground"
+                className="flex items-center justify-between gap-2 rounded-md border border-border bg-background/80 px-2.5 py-1.5 text-xs text-foreground"
               >
-                <div className="flex items-center gap-2">
-                  <PieceToken char={victimChar} color={t.victim.ka} size="sm" />
-                  <span className="font-medium">
-                    {victimName} ({t.victim.fa + 1},{t.victim.rowIndex + 1})
+                <div className="flex items-center gap-1.5 truncate">
+                  <Badge variant="outline" className="px-1.5 py-0 font-serif font-bold text-primary">
+                    {victimChar}
+                  </Badge>
+                  <span className="truncate font-medium text-foreground">
+                    {victimName} {coordLabel ? `(${coordLabel})` : ''}
                   </span>
                 </div>
-                <span className="text-xs text-destructive">
+                <span className="shrink-0 text-xs font-medium text-destructive">
                   Bị {attackerNames} nhắm
                 </span>
               </div>

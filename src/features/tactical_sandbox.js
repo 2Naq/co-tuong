@@ -33,14 +33,37 @@
   // Web Audio Synthesizer (Zero External Files)
   // ==========================================
   let audioCtx = null;
+  let audioUnlocked = false;
+
+  function unlockAudioOnGesture() {
+    audioUnlocked = true;
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    ['click', 'keydown', 'pointerdown', 'touchstart'].forEach((evt) => {
+      window.addEventListener(evt, unlockAudioOnGesture, { capture: true, once: true });
+    });
+  }
+
   function playSound(type) {
     try {
+      const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtxClass) return;
+
+      // Chrome Autoplay Policy: only create or resume after user gesture
       if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (!audioUnlocked) return;
+        audioCtx = new AudioCtxClass();
       }
+
       if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
+        audioCtx.resume().catch(() => {});
+        if (audioCtx.state === 'suspended') return;
       }
+
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain);
@@ -403,9 +426,9 @@
         <!-- Header -->
         <div class="ziga-sb-header" id="ziga-sb-drag-handle">
           <div class="ziga-sb-title-group">
-            <span class="ziga-sb-logo-icon">
-              <img src="${logoUrl}" class="ziga-sb-logo-img" alt="Logo" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';" />
-              <svg class="ziga-sb-logo-svg-fallback" viewBox="0 0 512 512" width="22" height="22" style="display:none; border-radius: 4px; vertical-align: middle; box-shadow: 0 0 6px rgba(212, 175, 55, 0.4); border: 1px solid rgba(212, 175, 55, 0.5);">
+            <span class="ziga-sb-logo-icon" style="display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; max-width:22px; max-height:22px; border-radius:4px; overflow:hidden; flex-shrink:0;">
+              <img src="${logoUrl}" class="" alt="Logo" style="width:22px !important; height:22px !important; max-width:22px !important; max-height:22px !important; object-fit:contain !important; border-radius:4px; display:inline-block; vertical-align:middle; flex-shrink:0;" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='inline-block';" />
+              <svg class="ziga-sb-logo-svg-fallback" viewBox="0 0 512 512" width="22" height="22" style="display:none; width:22px !important; height:22px !important; max-width:22px !important; max-height:22px !important; border-radius:4px; vertical-align:middle; flex-shrink:0;">
                 <rect width="512" height="512" rx="64" fill="#000000"></rect>
                 <path d="M118.141 347H76.9482L139.714 165.182H189.253L251.93 347H210.737L165.194 206.73H163.773L118.141 347ZM115.567 275.533H212.868V305.54H115.567V275.533ZM425.892 165.182V347H392.689L313.587 232.565H312.255V347H273.814V165.182H307.55L386.03 279.528H387.628V165.182H425.892Z" fill="#ffffff"></path>
               </svg>

@@ -21,12 +21,38 @@ import { PieceChip } from '@/components/ui/piece-token';
 export function CoUpTrackerCard({ stats, oppName, myName, visible }) {
   const ZigaMod = window.ZigaMod || {};
 
-  if (!visible || !stats || !stats.isCoUp) return null;
+  if (!visible || !stats) return null;
 
-  const renderPoolList = (pool, colorCode) => {
+  const oppData = stats.opp || {};
+  const myData = stats.self || {};
+  const oppUnopened = oppData.unopenedCount ?? stats.oppHiddenBoardCount ?? 0;
+  const myUnopened = myData.unopenedCount ?? stats.myHiddenBoardCount ?? 0;
+
+  const oppPool = stats.oppPool || {
+    3: oppData.hiddenXe || 0,
+    4: oppData.hiddenPhao || 0,
+    5: oppData.hiddenMa || 0,
+    1: Math.floor((oppData.hiddenPhe || 0) / 2),
+    2: Math.ceil((oppData.hiddenPhe || 0) / 2),
+    6: oppData.hiddenTot || 0
+  };
+
+  const myPool = stats.myPool || {
+    3: myData.hiddenXe || 0,
+    4: myData.hiddenPhao || 0,
+    5: myData.hiddenMa || 0,
+    1: Math.floor((myData.hiddenPhe || 0) / 2),
+    2: Math.ceil((myData.hiddenPhe || 0) / 2),
+    6: myData.hiddenTot || 0
+  };
+
+  const oppColor = stats.oppColor ?? 1;
+  const myColor = stats.myColor ?? 0;
+
+  const renderPoolList = (pool = {}, colorCode) => {
     const types = Object.keys(pool)
       .map(Number)
-      .filter((t) => pool[t] > 0)
+      .filter((t) => (pool[t] || 0) > 0)
       .sort(
         (a, b) =>
           (ZigaMod.PIECE_ORDER?.[a] ?? 99) - (ZigaMod.PIECE_ORDER?.[b] ?? 99)
@@ -79,11 +105,11 @@ export function CoUpTrackerCard({ stats, oppName, myName, visible }) {
               {oppName || 'Đối thủ'} chưa lật:
             </span>
             <Badge variant="secondary">
-              {stats.oppHiddenBoardCount} bàn / {stats.oppUnrevealedTotal} túi
+              {oppUnopened} quân úp
             </Badge>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {renderPoolList(stats.oppPool, stats.oppColor)}
+            {renderPoolList(oppPool, oppColor)}
           </div>
         </div>
 
@@ -93,11 +119,11 @@ export function CoUpTrackerCard({ stats, oppName, myName, visible }) {
               {myName || 'Bạn'} chưa lật:
             </span>
             <Badge variant="secondary">
-              {stats.myHiddenBoardCount} bàn / {stats.myUnrevealedTotal} túi
+              {myUnopened} quân úp
             </Badge>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {renderPoolList(stats.myPool, stats.myColor)}
+            {renderPoolList(myPool, myColor)}
           </div>
         </div>
 
@@ -116,13 +142,13 @@ export function CoUpTrackerCard({ stats, oppName, myName, visible }) {
                 {oppName?.slice(0, 8) || 'Đối thủ'}
               </TableCell>
               <TableCell className="text-right text-xs">
-                {stats.oppProbs?.[3] || 0}%
+                {oppData.probXe ?? stats.oppProbs?.[3] ?? 0}%
               </TableCell>
               <TableCell className="text-right text-xs">
-                {stats.oppProbs?.[4] || 0}%
+                {oppData.probPhao ?? stats.oppProbs?.[4] ?? 0}%
               </TableCell>
               <TableCell className="text-right text-xs">
-                {stats.oppProbs?.[5] || 0}%
+                {oppData.probMa ?? stats.oppProbs?.[5] ?? 0}%
               </TableCell>
             </TableRow>
             <TableRow>
@@ -130,13 +156,13 @@ export function CoUpTrackerCard({ stats, oppName, myName, visible }) {
                 {myName?.slice(0, 8) || 'Bạn'}
               </TableCell>
               <TableCell className="text-right text-xs text-primary font-medium">
-                {stats.myProbs?.[3] || 0}%
+                {myData.probXe ?? stats.myProbs?.[3] ?? 0}%
               </TableCell>
               <TableCell className="text-right text-xs text-primary font-medium">
-                {stats.myProbs?.[4] || 0}%
+                {myData.probPhao ?? stats.myProbs?.[4] ?? 0}%
               </TableCell>
               <TableCell className="text-right text-xs text-primary font-medium">
-                {stats.myProbs?.[5] || 0}%
+                {myData.probMa ?? stats.myProbs?.[5] ?? 0}%
               </TableCell>
             </TableRow>
           </TableBody>

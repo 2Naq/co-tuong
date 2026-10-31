@@ -4,6 +4,8 @@
   "description": "Công cụ hỗ trợ Cờ Tướng & Cờ Úp Ziga (React + Tailwind CSS + shadcn/ui)",
   "main": "content_loader.js",
   "scripts": {
+    "dev": "node scripts/build.js --watch",
+    "watch": "node scripts/build.js --watch",
     "build": "node scripts/build.js",
     "generate:auras": "node scripts/generate_auras.js"
   },

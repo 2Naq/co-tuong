@@ -1,8 +1,5 @@
 // src/aura/aura_presets.js - Built-in high-quality PNG Aura presets (22 templates) for 1-click testing
-(function (ZigaMod) {
-  'use strict';
-
-  ZigaMod.PRESET_AURAS = [
+export const PRESET_AURAS = [
   {
     "id": "Aura_Op_01",
     "file": "Aura_Op_01_256x256.png",
@@ -203,4 +200,11 @@
   }
 ];
 
-})(window.ZigaMod = window.ZigaMod || {});
+export const AURA_PRESETS = PRESET_AURAS;
+
+// Export to global ZigaMod namespace for legacy Cocos2d engine runtime compatibility
+if (typeof window !== 'undefined') {
+  const ZigaMod = window.ZigaMod = window.ZigaMod || {};
+  ZigaMod.PRESET_AURAS = PRESET_AURAS;
+  ZigaMod.AURA_PRESETS = PRESET_AURAS;
+}
