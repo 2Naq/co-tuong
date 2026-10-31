@@ -58,46 +58,23 @@
   }
 
   function updateCoUpUi(stats, oppName, myName) {
-    const wrapper = document.getElementById('ziga-coup-wrapper');
-    const content = document.getElementById('ziga-coup-content');
-    if (!wrapper || !content) return;
-
-    if (!ZigaMod.userSettings.showCoUpTracker || !stats || (stats.opp.unopenedCount === 0 && stats.self.unopenedCount === 0)) {
-      wrapper.style.display = 'none';
-      content.innerHTML = '';
+    if (!ZigaMod.uiStore) return;
+    if (
+      !ZigaMod.userSettings.showCoUpTracker ||
+      !stats ||
+      (stats.opp.unopenedCount === 0 && stats.self.unopenedCount === 0)
+    ) {
+      if (ZigaMod.uiStore.getState().coUpStats !== null) {
+        ZigaMod.uiStore.setState({ coUpStats: null });
+      }
       return;
     }
 
-    const safeOpp = (oppName || 'Đối thủ').slice(0, 10);
-    const safeSelf = (myName || 'Bạn').slice(0, 10);
-
-    wrapper.style.display = 'flex';
-    content.innerHTML = `
-      <div class="ziga-coup-row">
-        <div class="ziga-coup-side-head">
-          <span>🔴 ${safeOpp}</span>
-          <span class="ziga-coup-unopened">Còn ${stats.opp.unopenedCount} quân úp</span>
-        </div>
-        <div class="ziga-coup-chips">
-          <span class="ziga-prob-badge xe" title="Xác suất mở Xe">Xe: ${stats.opp.hiddenXe} (${stats.opp.probXe}%)</span>
-          <span class="ziga-prob-badge phao" title="Xác suất mở Pháo">Pháo: ${stats.opp.hiddenPhao} (${stats.opp.probPhao}%)</span>
-          <span class="ziga-prob-badge ma" title="Xác suất mở Mã">Mã: ${stats.opp.hiddenMa} (${stats.opp.probMa}%)</span>
-          <span class="ziga-prob-badge phe" title="Xác suất mở Sĩ/Tượng">Sĩ-Tượng: ${stats.opp.hiddenPhe} (${stats.opp.probPhe}%)</span>
-        </div>
-      </div>
-      <div class="ziga-coup-row">
-        <div class="ziga-coup-side-head">
-          <span>⚫ ${safeSelf} (Bạn)</span>
-          <span class="ziga-coup-unopened">Còn ${stats.self.unopenedCount} quân úp</span>
-        </div>
-        <div class="ziga-coup-chips">
-          <span class="ziga-prob-badge xe" title="Xác suất mở Xe">Xe: ${stats.self.hiddenXe} (${stats.self.probXe}%)</span>
-          <span class="ziga-prob-badge phao" title="Xác suất mở Pháo">Pháo: ${stats.self.hiddenPhao} (${stats.self.probPhao}%)</span>
-          <span class="ziga-prob-badge ma" title="Xác suất mở Mã">Mã: ${stats.self.hiddenMa} (${stats.self.probMa}%)</span>
-          <span class="ziga-prob-badge phe" title="Xác suất mở Sĩ/Tượng">Sĩ-Tượng: ${stats.self.hiddenPhe} (${stats.self.probPhe}%)</span>
-        </div>
-      </div>
-    `;
+    ZigaMod.uiStore.setState({
+      coUpStats: stats,
+      ...(oppName ? { oppName } : {}),
+      ...(myName ? { myName } : {})
+    });
   }
 
   // Export to namespace

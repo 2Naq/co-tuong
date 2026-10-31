@@ -1,4 +1,12 @@
 // src/features/mentor_coach.js - AI Xiangqi Mentor / Live Tactical Coach & Mindset Advisor
+import React, { useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import { Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent } from '../components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { Alert, AlertTitle, AlertDescription } from '../components/ui/alert';
+
 (function (ZigaMod) {
   'use strict';
 
@@ -298,13 +306,17 @@
       }
 
       const openingBadge = document.getElementById('ziga-opening-badge');
-      if (openingBadge && openingBadge.nextSibling) {
-        container.insertBefore(card, openingBadge.nextSibling);
-      } else {
+      try {
+        if (openingBadge && openingBadge.parentNode === container) {
+          container.insertBefore(card, openingBadge.nextSibling);
+        } else {
+          container.prepend(card);
+        }
+      } catch (e) {
         container.prepend(card);
       }
     }
-    card.style.display = 'block';
+    card.style.display = 'flex';
     return card;
   }
 
@@ -358,6 +370,189 @@
     }
   }
 
+  let mentorRoot = null;
+  let mentorSetter = null;
+
+  function MentorFloatingPanel({ initialAnalysis, onClose }) {
+    const [analysis, setAnalysis] = useState(initialAnalysis);
+    const [tab, setTab] = useState('plans');
+
+    mentorSetter = (nextAnalysis) => {
+      if (nextAnalysis) setAnalysis(nextAnalysis);
+    };
+
+    if (!analysis) {
+      return (
+        <Card className="w-[340px] shadow-2xl border-border bg-card text-card-foreground">
+          <CardHeader className="pb-2 border-b border-border cursor-move">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider text-primary">
+              Kỳ Đạo Sư (AI Mentor)
+            </CardTitle>
+            <CardDescription className="text-[11px]">
+              Gia sư đồng hành nâng cao tư duy cờ tướng
+            </CardDescription>
+            <CardAction>
+              <Button variant="ghost" size="icon-xs" onClick={onClose}>✕</Button>
+            </CardAction>
+          </CardHeader>
+          <CardContent className="p-4 text-xs text-muted-foreground">
+            Chờ ván cờ bắt đầu để phân tích thế trận...
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return (
+      <Card className="w-[340px] max-h-[82vh] flex flex-col shadow-2xl border-border bg-card text-card-foreground overflow-hidden">
+        <CardHeader className="pb-2 border-b border-border bg-muted/20 cursor-move shrink-0">
+          <CardTitle className="text-xs font-bold uppercase tracking-wider text-primary">
+            Kỳ Đạo Sư (AI Mentor)
+          </CardTitle>
+          <CardDescription className="text-[11px]">
+            Gia sư đồng hành nâng cao tư duy cờ tướng
+          </CardDescription>
+          <CardAction>
+            <Button variant="ghost" size="icon-xs" onClick={onClose} title="Đóng bảng cố vấn">✕</Button>
+          </CardAction>
+        </CardHeader>
+
+        <CardContent className="p-3 flex flex-col gap-3 overflow-y-auto min-h-0">
+          <Alert className="py-2 px-3 bg-muted/40">
+            <AlertDescription className="text-xs text-foreground leading-relaxed">
+              {analysis.coachCommentary}
+            </AlertDescription>
+          </Alert>
+
+          <Tabs value={tab} onValueChange={setTab} className="w-full">
+            <TabsList className="w-full grid grid-cols-3 h-8">
+              <TabsTrigger value="plans" className="text-[11px]">3 Kế Sách</TabsTrigger>
+              <TabsTrigger value="weakness" className="text-[11px]">Điểm Yếu</TabsTrigger>
+              <TabsTrigger value="maxims" className="text-[11px]">Khẩu Quyết</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="plans" className="mt-2.5 flex flex-col gap-2">
+              {analysis.plans.map((p, idx) => (
+                <Card key={idx} size="sm" className="bg-muted/20">
+                  <CardHeader className="pb-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <Badge variant={p.type === 'attack' ? 'default' : p.type === 'defend' ? 'destructive' : 'secondary'}>
+                        {p.badge}
+                      </Badge>
+                      {p.moveNotation && (
+                        <Badge variant="outline" className="font-mono text-[10px]">
+                          {p.moveNotation}
+                        </Badge>
+                      )}
+                    </div>
+                    <CardTitle className="text-xs font-bold mt-1">{p.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-2">
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      <strong className="text-foreground">Ý đồ:</strong> {p.why}
+                    </p>
+                    <div className="text-[11px] text-muted-foreground bg-muted/50 rounded-md p-2 border border-border/60">
+                      {p.mentorTip}
+                    </div>
+                    <div className="flex items-center gap-1.5 pt-1">
+                      <Button
+                        variant="default"
+                        size="xs"
+                        className="flex-1 text-[11px]"
+                        onClick={() => drawPlanArrowOnBoard(p)}
+                      >
+                        Chỉ Đường
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        className="text-[11px]"
+                        onClick={() => {
+                          if (ZigaMod.openTacticalSandbox) ZigaMod.openTacticalSandbox();
+                        }}
+                      >
+                        Đi Thử
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </TabsContent>
+
+            <TabsContent value="weakness" className="mt-2.5 flex flex-col gap-2.5">
+              <div className="flex flex-col gap-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                  Cơ Hội Tấn Công Đối Thủ
+                </span>
+                {analysis.opportunities.length > 0 ? (
+                  analysis.opportunities.map((o, idx) => (
+                    <Card key={idx} size="sm" className="bg-muted/20">
+                      <CardHeader className="pb-0.5">
+                        <CardTitle className="text-xs font-semibold">{o.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-[11px] text-muted-foreground">{o.desc}</CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <p className="text-xs text-muted-foreground italic">
+                    Đối phương đang giữ thế trận khá kín kẽ, chưa có sơ hở lớn.
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-destructive">
+                  Lỗ Hổng Phòng Thủ Của Bạn
+                </span>
+                {analysis.weaknesses.length > 0 ? (
+                  analysis.weaknesses.map((w, idx) => (
+                    <Card key={idx} size="sm" className="bg-muted/20">
+                      <CardHeader className="pb-0.5">
+                        <CardTitle className="text-xs font-semibold text-destructive">{w.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-[11px] text-muted-foreground">{w.desc}</CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <p className="text-xs text-muted-foreground italic">
+                    Hệ thống phòng thủ của bạn đang rất tròn trịa và an toàn.
+                  </p>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="maxims" className="mt-2.5 flex flex-col gap-2.5">
+              <Alert className="bg-primary/10 border-primary/30">
+                <AlertTitle className="text-xs font-bold text-primary">"{analysis.maxim.rule}"</AlertTitle>
+                <AlertDescription className="text-[11px] text-muted-foreground mt-1">
+                  {analysis.maxim.desc}
+                </AlertDescription>
+              </Alert>
+
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                10 Đạo Cờ Tướng Tâm Pháp
+              </span>
+              <div className="flex flex-col gap-1.5 max-h-[220px] overflow-y-auto pr-1">
+                {XIANGQI_MAXIMS.map((m, idx) => (
+                  <Card key={idx} size="sm" className="bg-muted/15">
+                    <CardHeader className="pb-0.5">
+                      <CardTitle className="text-[11px] font-semibold">
+                        <span className="text-primary font-bold mr-1">{idx + 1}.</span>
+                        {m.rule}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-[11px] text-muted-foreground leading-relaxed">
+                      {m.desc}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Toggle or open floating Mentor window next to chessboard
   function toggleMentorFloatingPanel(forceOpen) {
     if (!mentorPanelEl) {
@@ -378,103 +573,29 @@
 
     mentorPanelEl = document.createElement('div');
     mentorPanelEl.id = 'ziga-mentor-floating-panel';
-    mentorPanelEl.className = 'ziga-mentor-floating-panel';
+    mentorPanelEl.className = 'fixed z-[2147483646] select-none';
     mentorPanelEl.style.display = 'none';
 
-    // Position next to board or widget
     const canvas = document.getElementById('gameCanvas');
     if (canvas) {
       const r = canvas.getBoundingClientRect();
-      mentorPanelEl.style.left = `${Math.min(window.innerWidth - 340, Math.max(10, r.right + 15))}px`;
+      mentorPanelEl.style.left = `${Math.min(window.innerWidth - 350, Math.max(10, r.right + 15))}px`;
       mentorPanelEl.style.top = `${Math.max(20, r.top)}px`;
     } else {
       mentorPanelEl.style.right = '30px';
       mentorPanelEl.style.top = '120px';
     }
 
-    // Static outer shell created ONCE
-    mentorPanelEl.innerHTML = `
-      <div class="ziga-mf-header" id="ziga-mf-drag-handle">
-        <div class="ziga-mf-title-group">
-          <span class="ziga-mf-avatar">🧑‍🏫</span>
-          <div>
-            <div class="ziga-mf-title">KỲ ĐẠO SƯ (AI MENTOR)</div>
-            <div class="ziga-mf-sub">Gia sư đồng hành nâng cao tư duy cờ tướng</div>
-          </div>
-        </div>
-        <div class="ziga-mf-actions">
-          <button class="ziga-mf-close-btn" id="ziga-mf-close-btn" type="button" title="Đóng bảng cố vấn">✕</button>
-        </div>
-      </div>
-
-      <!-- Coach Thought Bubble -->
-      <div class="ziga-mf-bubble">
-        <span class="ziga-mf-quote-icon">💬</span>
-        <p class="ziga-mf-thought" id="ziga-mf-thought-val"></p>
-      </div>
-
-      <!-- Navigation Tabs -->
-      <div class="ziga-mf-tabs" id="ziga-mf-tabs-bar">
-        <button class="ziga-mf-tab-btn active" data-tab="plans" type="button">💡 3 Kế Sách</button>
-        <button class="ziga-mf-tab-btn" data-tab="weakness" type="button">🔍 Soi Điểm Yếu</button>
-        <button class="ziga-mf-tab-btn" data-tab="maxims" type="button">📜 Khẩu Quyết</button>
-      </div>
-
-      <!-- Tab Content Area -->
-      <div class="ziga-mf-body" id="ziga-mf-body-val"></div>
-    `;
-
     document.body.appendChild(mentorPanelEl);
-
-    // Event Delegation: single listener handles all clicks inside panel
-    mentorPanelEl.addEventListener('click', (e) => {
-      // 1. Close button
-      if (e.target.closest('#ziga-mf-close-btn')) {
-        e.preventDefault();
-        e.stopPropagation();
-        mentorPanelEl.style.display = 'none';
-        return;
-      }
-
-      // 2. Tab buttons
-      const tabBtn = e.target.closest('.ziga-mf-tab-btn');
-      if (tabBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        const tabKey = tabBtn.getAttribute('data-tab');
-        if (tabKey && tabKey !== activeTab) {
-          activeTab = tabKey;
-          updateTabButtonsState();
-          if (cachedAnalysis) {
-            updateMentorBodyContent(cachedAnalysis);
-          }
-        }
-        return;
-      }
-
-      // 3. Draw Plan Arrow button
-      const drawBtn = e.target.closest('.ziga-mf-draw-btn');
-      if (drawBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        const idx = parseInt(drawBtn.getAttribute('data-plan-idx'), 10);
-        if (cachedAnalysis && cachedAnalysis.plans && cachedAnalysis.plans[idx]) {
-          drawPlanArrowOnBoard(cachedAnalysis.plans[idx]);
-        }
-        return;
-      }
-
-      // 4. Sandbox button
-      const sbBtn = e.target.closest('.ziga-mf-sb-btn');
-      if (sbBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (ZigaMod.openTacticalSandbox) {
-          ZigaMod.openTacticalSandbox();
-        }
-        return;
-      }
-    });
+    mentorRoot = createRoot(mentorPanelEl);
+    mentorRoot.render(
+      <MentorFloatingPanel
+        initialAnalysis={cachedAnalysis}
+        onClose={() => {
+          if (mentorPanelEl) mentorPanelEl.style.display = 'none';
+        }}
+      />
+    );
 
     setupMentorDraggable(mentorPanelEl);
     return mentorPanelEl;
@@ -485,14 +606,14 @@
     let startX, startY, initX, initY;
 
     panel.addEventListener('mousedown', (e) => {
-      if (e.target.closest('button') || e.target.closest('input') || e.target.closest('.ziga-mf-plan-card') || e.target.closest('.ziga-mf-item')) return;
+      if (e.target.closest('button') || e.target.closest('input') || e.target.closest('[role="tab"]')) return;
       isDragging = true;
+      document.body.classList.add('ziga-is-dragging-or-resizing');
       startX = e.clientX;
       startY = e.clientY;
       const r = panel.getBoundingClientRect();
       initX = r.left;
       initY = r.top;
-      e.preventDefault();
     });
 
     window.addEventListener('mousemove', (e) => {
@@ -501,108 +622,20 @@
       const dy = e.clientY - startY;
       panel.style.left = `${Math.max(10, Math.min(window.innerWidth - panel.offsetWidth - 10, initX + dx))}px`;
       panel.style.top = `${Math.max(10, Math.min(window.innerHeight - panel.offsetHeight - 10, initY + dy))}px`;
-      e.preventDefault();
     }, { capture: true });
 
     window.addEventListener('mouseup', () => {
-      isDragging = false;
-    }, { capture: true });
-  }
-
-  function updateTabButtonsState() {
-    if (!mentorPanelEl) return;
-    const tabBtns = mentorPanelEl.querySelectorAll('.ziga-mf-tab-btn');
-    tabBtns.forEach(btn => {
-      if (btn.getAttribute('data-tab') === activeTab) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
+      if (isDragging) {
+        isDragging = false;
+        document.body.classList.remove('ziga-is-dragging-or-resizing');
       }
-    });
-  }
-
-  function updateMentorBodyContent(analysis) {
-    const bodyEl = document.getElementById('ziga-mf-body-val');
-    if (bodyEl) {
-      bodyEl.innerHTML = renderActiveTabBody(analysis);
-    }
+    }, { capture: true });
   }
 
   function renderMentorFloatingContent(analysis) {
     if (!mentorPanelEl || !analysis) return;
-
-    const thoughtEl = document.getElementById('ziga-mf-thought-val');
-    if (thoughtEl) thoughtEl.textContent = analysis.coachCommentary;
-
-    updateTabButtonsState();
-    updateMentorBodyContent(analysis);
-  }
-
-  function renderActiveTabBody(analysis) {
-    if (activeTab === 'plans') {
-      return `
-        <div class="ziga-mf-plans-list">
-          ${analysis.plans.map((p, idx) => `
-            <div class="ziga-mf-plan-card plan-${p.type}">
-              <div class="ziga-mf-plan-top">
-                <span class="ziga-mf-plan-badge" style="color: ${p.color};">${p.badge}</span>
-                <span class="ziga-mf-plan-notation">${p.moveNotation || ''}</span>
-              </div>
-              <h4 class="ziga-mf-plan-name">${p.name}</h4>
-              <p class="ziga-mf-plan-why"><strong>🎯 Ý đồ:</strong> ${p.why}</p>
-              <div class="ziga-mf-plan-tip">
-                <span class="ziga-mf-tip-icon">💡</span>
-                <span>${p.mentorTip}</span>
-              </div>
-              <div class="ziga-mf-plan-foot">
-                <button class="ziga-btn-tool-sub ziga-mf-draw-btn" data-plan-idx="${idx}" type="button">🎯 Chỉ Đường Trên Bàn Cờ</button>
-                <button class="ziga-btn-tool-sub ziga-mf-sb-btn" type="button">♟️ Đi Thử</button>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    } else if (activeTab === 'weakness') {
-      return `
-        <div class="ziga-mf-weakness-wrap">
-          <div class="ziga-mf-sec-head">🎯 CƠ HỘI TẤN CÔNG ĐỐI THỦ:</div>
-          ${analysis.opportunities.length > 0 ? analysis.opportunities.map(o => `
-            <div class="ziga-mf-item opp-item">
-              <div class="ziga-mf-item-title">✨ ${o.title}</div>
-              <div class="ziga-mf-item-desc">${o.desc}</div>
-            </div>
-          `).join('') : '<div class="ziga-mf-empty">Đối phương đang giữ thế trận khá kín kẽ, chưa có sơ hở lớn.</div>'}
-
-          <div class="ziga-mf-sec-head" style="margin-top: 10px;">⚠️ LỖ HỔNG PHÒNG THỦ CỦA BẠN:</div>
-          ${analysis.weaknesses.length > 0 ? analysis.weaknesses.map(w => `
-            <div class="ziga-mf-item self-item">
-              <div class="ziga-mf-item-title">🛡️ ${w.title}</div>
-              <div class="ziga-mf-item-desc">${w.desc}</div>
-            </div>
-          `).join('') : '<div class="ziga-mf-empty" style="color: #22c55e;">Hệ thống phòng thủ của bạn đang rất tròn trịa và an toàn.</div>'}
-        </div>
-      `;
-    } else {
-      return `
-        <div class="ziga-mf-maxims-wrap">
-          <div class="ziga-mf-maxim-card">
-            <div class="ziga-mf-maxim-rule">"${analysis.maxim.rule}"</div>
-            <div class="ziga-mf-maxim-desc">${analysis.maxim.desc}</div>
-          </div>
-          <div class="ziga-mf-sec-head" style="margin-top: 10px;">📖 10 ĐẠO CỜ TƯỚNG TÂM PHÁP:</div>
-          <div class="ziga-mf-rules-scroll">
-            ${XIANGQI_MAXIMS.map((m, idx) => `
-              <div class="ziga-mf-rule-row">
-                <span class="ziga-mf-rule-idx">${idx + 1}.</span>
-                <div>
-                  <div class="ziga-mf-rule-name">${m.rule}</div>
-                  <div class="ziga-mf-rule-exp">${m.desc}</div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
+    if (mentorSetter) {
+      mentorSetter(analysis);
     }
   }
 

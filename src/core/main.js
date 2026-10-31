@@ -165,6 +165,7 @@
             el.id === 'ziga-mod-widget' || 
             el.id === 'ziga-sandbox-modal' || 
             (el.id && el.id.startsWith('ziga-')) ||
+            el.classList.contains('ziga-shadcn-root') ||
             el.classList.contains('ziga-sandbox-overlay') || 
             el.classList.contains('ziga-mod-container') ||
             el.id === 'gameCanvas' || 
@@ -196,7 +197,9 @@
   }
 
   function updateMod() {
-    ZigaMod.createOverlay();
+    if (typeof ZigaMod.createOverlay === 'function') {
+      ZigaMod.createOverlay();
+    }
     cleanObstructingAds();
 
     const widgetEl = ZigaMod.widgetEl || document.getElementById('ziga-mod-widget');
@@ -204,39 +207,15 @@
 
     const data = getActiveGameData();
 
-    const statusDot = widgetEl.querySelector('.ziga-mod-dot');
-    const statusText = document.getElementById('ziga-status-text');
-    const materialWrapper = document.getElementById('ziga-material-wrapper');
-    const materialScore = document.getElementById('ziga-material-score');
-
-    const oppLabel = document.getElementById('ziga-opp-label');
-    const oppDeadCount = document.getElementById('ziga-opp-dead-count');
-    const oppPiecesContainer = document.getElementById('ziga-opp-pieces');
-
-    const selfLabel = document.getElementById('ziga-self-label');
-    const selfDeadCount = document.getElementById('ziga-self-dead-count');
-    const selfPiecesContainer = document.getElementById('ziga-self-pieces');
-
-    const statOppName = document.getElementById('ziga-stat-opp-name');
-    const statOppVal = document.getElementById('ziga-stat-opp-val');
-    const statSelfName = document.getElementById('ziga-stat-self-name');
-    const statSelfVal = document.getElementById('ziga-stat-self-val');
-
     if (!data) {
       if (lastStateHash !== 'waiting') {
         lastStateHash = 'waiting';
-        if (statusDot) statusDot.className = 'ziga-mod-dot waiting';
-        if (statusText) statusText.textContent = 'Chờ vào ván cờ...';
-        if (materialWrapper) materialWrapper.style.display = 'none';
-        if (oppDeadCount) oppDeadCount.textContent = '0/16';
-        if (selfDeadCount) selfDeadCount.textContent = '0/16';
-        if (oppPiecesContainer) oppPiecesContainer.innerHTML = '<div class="ziga-empty-note">Chờ bắt đầu ván đấu...</div>';
-        if (selfPiecesContainer) selfPiecesContainer.innerHTML = '<div class="ziga-empty-note">Chờ bắt đầu ván đấu...</div>';
-        if (statOppVal) statOppVal.textContent = '-';
-        if (statSelfVal) statSelfVal.textContent = '-';
-        ZigaMod.clearTacticalHud();
-        ZigaMod.updateThreatUi([]);
-        ZigaMod.updateCoUpUi(null);
+        if (ZigaMod.uiStore) {
+          ZigaMod.uiStore.resetGameState();
+        }
+        if (typeof ZigaMod.clearTacticalHud === 'function') ZigaMod.clearTacticalHud();
+        if (typeof ZigaMod.updateThreatUi === 'function') ZigaMod.updateThreatUi([]);
+        if (typeof ZigaMod.updateCoUpUi === 'function') ZigaMod.updateCoUpUi(null);
         if (ZigaMod.updateMaterialTooltipLive) {
           ZigaMod.updateMaterialTooltipLive(null);
         }
@@ -256,12 +235,16 @@
           ZigaMod.updateMentorHud(null);
         }
       }
-      ZigaMod.applySettingsVisibility();
+      if (typeof ZigaMod.applySettingsVisibility === 'function') {
+        ZigaMod.applySettingsVisibility();
+      }
       return;
     }
 
     // Hook game engine for native highlights & row numbers
-    ZigaMod.hookGameLayer(data.gameLayer);
+    if (typeof ZigaMod.hookGameLayer === 'function') {
+      ZigaMod.hookGameLayer(data.gameLayer);
+    }
     if (ZigaMod.setupRowNumbers) {
       ZigaMod.setupRowNumbers(data.gameLayer);
     }
@@ -272,14 +255,16 @@
     }
 
     // Threat Scanner (Under-Attack Alert)
-    const threats = ZigaMod.scanThreats(data.gameLayer, data.myColor, data.oppColor);
-    ZigaMod.updateThreatUi(threats);
+    const threats = ZigaMod.scanThreats ? ZigaMod.scanThreats(data.gameLayer, data.myColor, data.oppColor) : [];
+    if (ZigaMod.updateThreatUi) {
+      ZigaMod.updateThreatUi(threats);
+    }
 
     // Co Up Probability Tracker
-    if (ZigaMod.isCoUpGame(data.gameLayer)) {
+    if (ZigaMod.isCoUpGame && ZigaMod.isCoUpGame(data.gameLayer)) {
       const coUpStats = ZigaMod.computeCoUpStats(data.gameLayer, data.myColor, data.oppColor);
       ZigaMod.updateCoUpUi(coUpStats, data.oppName, data.myName);
-    } else {
+    } else if (ZigaMod.updateCoUpUi) {
       ZigaMod.updateCoUpUi(null);
     }
 
@@ -320,51 +305,28 @@
     }
     lastStateHash = currentHash;
 
-    // In game status
-    if (statusDot) statusDot.className = 'ziga-mod-dot active';
-    if (statusText) statusText.textContent = data.isSpectator ? `Đang xem ván (${data.myName} vs ${data.oppName})` : `Trận đấu: Bạn vs ${data.oppName}`;
+    const mat = userSettings.materialAdvantage
+      ? computeMaterialScore(data.aliveMyPieces, data.aliveOppPieces)
+      : null;
 
-    const oppColorName = data.oppColor === 0 ? 'Đỏ 🔴' : 'Đen ⚫';
-    const selfColorName = data.myColor === 0 ? 'Đỏ 🔴' : 'Đen ⚫';
-
-    if (oppLabel) oppLabel.textContent = `${oppColorName} [${data.oppName}] ĐÃ MẤT`;
-    if (oppDeadCount) oppDeadCount.textContent = `${data.deadOppPieces.length}/16`;
-
-    if (selfLabel) selfLabel.textContent = `${selfColorName} [${data.myName}] ĐÃ MẤT`;
-    if (selfDeadCount) selfDeadCount.textContent = `${data.deadMyPieces.length}/16`;
-
-    if (oppPiecesContainer) oppPiecesContainer.innerHTML = ZigaMod.renderPieceList(data.deadOppPieces, data.oppColor);
-    if (selfPiecesContainer) selfPiecesContainer.innerHTML = ZigaMod.renderPieceList(data.deadMyPieces, data.myColor);
-
-    // Material Advantage
-    if (userSettings.materialAdvantage) {
-      const mat = computeMaterialScore(data.aliveMyPieces, data.aliveOppPieces);
-      if (materialWrapper) materialWrapper.style.display = 'flex';
-      if (materialScore) {
-        if (mat.diff > 0) {
-          materialScore.className = 'ziga-material-val advantage-positive';
-          materialScore.textContent = `+${mat.diff} điểm (Bạn ưu thế)`;
-        } else if (mat.diff < 0) {
-          materialScore.className = 'ziga-material-val advantage-negative';
-          materialScore.textContent = `${mat.diff} điểm (Đối thủ ưu thế)`;
-        } else {
-          materialScore.className = 'ziga-material-val';
-          materialScore.textContent = 'Cân bằng lực lượng';
-        }
-      }
-      if (ZigaMod.updateMaterialTooltipLive) {
-        ZigaMod.updateMaterialTooltipLive(mat, data.myName, data.oppName);
-      }
-    } else if (materialWrapper) {
-      materialWrapper.style.display = 'none';
+    if (ZigaMod.uiStore) {
+      ZigaMod.uiStore.setState({
+        inGame: true,
+        isSpectator: !!data.isSpectator,
+        statusText: data.isSpectator
+          ? `Đang xem ván (${data.myName} vs ${data.oppName})`
+          : `Trận đấu: Bạn vs ${data.oppName}`,
+        myName: data.myName,
+        oppName: data.oppName,
+        myColor: data.myColor,
+        oppColor: data.oppColor,
+        deadMyPieces: data.deadMyPieces.slice(),
+        deadOppPieces: data.deadOppPieces.slice(),
+        keyPiecesSelf: countKeyPieces(data.aliveMyPieces),
+        keyPiecesOpp: countKeyPieces(data.aliveOppPieces),
+        material: mat
+      });
     }
-
-    if (statOppName) statOppName.textContent = `${data.oppName.slice(0, 10)}`;
-    if (statOppVal) statOppVal.textContent = countKeyPieces(data.aliveOppPieces);
-    if (statSelfName) statSelfName.textContent = `${data.myName.slice(0, 10)}`;
-    if (statSelfVal) statSelfVal.textContent = countKeyPieces(data.aliveMyPieces);
-
-    ZigaMod.applySettingsVisibility();
   }
 
   // Export to namespace

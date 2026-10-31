@@ -1,0 +1,346 @@
+@import "tailwindcss/theme.css";
+
+/* Zero-specificity scoped preflight (protects #gameCanvas while resetting Ziga host CSS inside shadcn UI) */
+:where(
+  .ziga-shadcn-root,
+  .ziga-shadcn-root *,
+  .ziga-shadcn-root *::before,
+  .ziga-shadcn-root *::after,
+  [data-slot="dialog-overlay"],
+  [data-slot="dialog-content"],
+  [data-slot="dialog-content"] *,
+  [data-slot="dialog-content"] *::before,
+  [data-slot="dialog-content"] *::after,
+  [data-slot="select-content"],
+  [data-slot="select-content"] *,
+  [data-slot="popover-content"],
+  [data-slot="popover-content"] *,
+  [data-slot="tooltip-content"],
+  [data-slot="tooltip-content"] *
+) {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: var(--border);
+}
+
+:where(
+  .ziga-shadcn-root button,
+  .ziga-shadcn-root input,
+  .ziga-shadcn-root select,
+  .ziga-shadcn-root textarea,
+  [data-slot="dialog-content"] button,
+  [data-slot="dialog-content"] input,
+  [data-slot="dialog-content"] select,
+  [data-slot="dialog-content"] textarea,
+  [data-slot="select-content"] button,
+  [data-slot="popover-content"] button
+) {
+  background-color: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  margin: 0;
+  padding: 0;
+  text-transform: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+:where(
+  .ziga-shadcn-root h1,
+  .ziga-shadcn-root h2,
+  .ziga-shadcn-root h3,
+  .ziga-shadcn-root h4,
+  .ziga-shadcn-root h5,
+  .ziga-shadcn-root p,
+  [data-slot="dialog-content"] h1,
+  [data-slot="dialog-content"] h2,
+  [data-slot="dialog-content"] h3,
+  [data-slot="dialog-content"] h4,
+  [data-slot="dialog-content"] h5,
+  [data-slot="dialog-content"] p,
+  [data-slot="popover-content"] h1,
+  [data-slot="popover-content"] h2,
+  [data-slot="popover-content"] h3,
+  [data-slot="popover-content"] h4,
+  [data-slot="popover-content"] p
+) {
+  margin: 0;
+}
+
+@import "tailwindcss/utilities.css";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark, .dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: 9999px;
+  --font-heading: var(--font-sans);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+}
+
+/* Official shadcn/ui Orange Theme (preset b3PBYm) - Light Mode */
+:root,
+.ziga-shadcn-root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.553 0.195 38.402);
+  --primary-foreground: oklch(0.98 0.016 73.684);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.646 0.222 41.116);
+  --sidebar-primary-foreground: oklch(0.98 0.016 73.684);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* Official shadcn/ui Orange Theme (preset b3PBYm) - Dark Mode */
+.dark,
+.ziga-shadcn-root.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.47 0.157 37.304);
+  --primary-foreground: oklch(0.98 0.016 73.684);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.705 0.213 47.604);
+  --sidebar-primary-foreground: oklch(0.98 0.016 73.684);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* Elevate untouched shadcn Portals (Dialog, Select, Popover, Tooltip) above #gameCanvas and HUD */
+[data-slot="dialog-overlay"] {
+  z-index: 2147483646 !important;
+  background-color: rgb(0 0 0 / 0.65) !important;
+}
+
+[data-slot="dialog-content"],
+[data-slot="select-content"],
+[data-slot="popover-content"],
+[data-slot="tooltip-content"],
+:has(> [data-slot="select-content"]),
+:has(> [data-slot="popover-content"]),
+:has(> [data-slot="tooltip-content"]) {
+  z-index: 2147483647 !important;
+  font-family: var(--font-sans);
+}
+
+/* Ensure Card borders are drawn inside border-box so they never clip inside scroll containers */
+[data-slot="card"] {
+  border: 1px solid var(--border);
+}
+
+/* HUD Widget root container surface */
+#ziga-mod-widget.ziga-mod-container {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55) !important;
+}
+
+#ziga-mod-widget .ziga-mod-header {
+  background: var(--card) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+#ziga-mod-widget .ziga-mod-title-text {
+  color: var(--foreground) !important;
+  padding-top: 0 !important;
+}
+
+/* Prevent #gameCanvas or iframes from intercepting mousemove during HUD drag/resize */
+body.ziga-is-dragging-or-resizing #gameCanvas,
+body.ziga-is-dragging-or-resizing #Cocos2dGameContainer,
+body.ziga-is-dragging-or-resizing canvas,
+body.ziga-is-dragging-or-resizing iframe {
+  pointer-events: none !important;
+}
+
+/* Unified sleek custom scrollbars inside all shadcn containers (eliminates boxy OS scrollbars) */
+.ziga-shadcn-root ::-webkit-scrollbar,
+[data-slot="dialog-content"] ::-webkit-scrollbar,
+[data-slot="select-content"] ::-webkit-scrollbar,
+[data-slot="popover-content"] ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.ziga-shadcn-root ::-webkit-scrollbar-track,
+[data-slot="dialog-content"] ::-webkit-scrollbar-track,
+[data-slot="select-content"] ::-webkit-scrollbar-track,
+[data-slot="popover-content"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ziga-shadcn-root ::-webkit-scrollbar-thumb,
+[data-slot="dialog-content"] ::-webkit-scrollbar-thumb,
+[data-slot="select-content"] ::-webkit-scrollbar-thumb,
+[data-slot="popover-content"] ::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+}
+
+.ziga-shadcn-root ::-webkit-scrollbar-thumb:hover,
+[data-slot="dialog-content"] ::-webkit-scrollbar-thumb:hover,
+[data-slot="select-content"] ::-webkit-scrollbar-thumb:hover,
+[data-slot="popover-content"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Aura Preview Stage Animations */
+@keyframes zigaAuraSpin {
+  0% {
+    transform: translate(-50%, -50%) scale(var(--aura-scale, 1)) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(var(--aura-scale, 1)) rotate(360deg);
+  }
+}
+
+@keyframes zigaAuraSpinPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(calc(var(--aura-scale, 1) * 0.94)) rotate(0deg);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(calc(var(--aura-scale, 1) * 1.06)) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(calc(var(--aura-scale, 1) * 0.94)) rotate(360deg);
+    opacity: 0.85;
+  }
+}
+
+@keyframes zigaAuraPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(calc(var(--aura-scale, 1) * 0.92));
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(calc(var(--aura-scale, 1) * 1.08));
+    opacity: 1;
+  }
+}
+
+@keyframes zigaAuraHeartbeat {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(calc(var(--aura-scale, 1) * 0.94));
+  }
+  15% {
+    transform: translate(-50%, -50%) scale(calc(var(--aura-scale, 1) * 1.1));
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(calc(var(--aura-scale, 1) * 0.96));
+  }
+  45% {
+    transform: translate(-50%, -50%) scale(calc(var(--aura-scale, 1) * 1.08));
+  }
+}
+
+.aura-anim-spin_pulse {
+  animation: zigaAuraSpinPulse var(--aura-speed, 3.5s) linear infinite;
+}
+
+.aura-anim-spin {
+  animation: zigaAuraSpin var(--aura-speed, 3.5s) linear infinite;
+}
+
+.aura-anim-pulse {
+  animation: zigaAuraPulse 2s ease-in-out infinite;
+}
+
+.aura-anim-heartbeat {
+  animation: zigaAuraHeartbeat 1.3s ease-in-out infinite;
+}
+
+.aura-anim-static {
+  transform: translate(-50%, -50%) scale(var(--aura-scale, 1));
+}

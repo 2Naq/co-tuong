@@ -173,14 +173,13 @@
     if (!evalBarContainer) {
       evalBarContainer = document.createElement('div');
       evalBarContainer.id = 'ziga-eval-bar-wrapper';
-      evalBarContainer.className = 'ziga-eval-bar-wrapper';
+      evalBarContainer.className = 'absolute z-[2147483640] w-3.5 flex flex-col items-center pointer-events-auto select-none';
       evalBarContainer.title = 'Thanh đánh giá thế trận thời gian thực (Eval Bar)\nĐỏ dẫn dương (+), Đen dẫn âm (-)';
 
       evalBarContainer.innerHTML = `
-        <div class="ziga-eval-bar-track">
-          <div class="ziga-eval-bar-black"></div>
-          <div class="ziga-eval-bar-fill" id="ziga-eval-bar-fill"></div>
-          <div class="ziga-eval-score-badge" id="ziga-eval-score-badge">0.0</div>
+        <div class="relative w-full h-full rounded-full overflow-hidden border border-border bg-secondary shadow-md flex flex-col justify-end">
+          <div class="w-full bg-primary transition-all duration-300 ease-out" id="ziga-eval-bar-fill" style="height: 50%"></div>
+          <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 text-[9px] font-mono font-bold text-center text-foreground bg-card/85 py-0.5 leading-none" id="ziga-eval-score-badge">0.0</div>
         </div>
       `;
 
@@ -273,7 +272,6 @@
     if (evalScoreBadge) {
       const sign = score > 0 ? '+' : '';
       evalScoreBadge.textContent = `${sign}${score.toFixed(1)}`;
-      evalScoreBadge.className = `ziga-eval-score-badge ${score > 0 ? 'red-advantage' : score < 0 ? 'black-advantage' : ''}`;
     }
 
     // Calculate best move recommendation

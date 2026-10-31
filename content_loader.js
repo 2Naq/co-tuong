@@ -1,9 +1,9 @@
-// content_loader.js - Bridge script to inject CSS and JS into MAIN world & neutralize ads
+// content_loader.js - Bridge script to inject CSS and React/shadcn bundle into MAIN world & neutralize ads
 (function() {
   // Prevent running inside ad iframes or Google Vignette subframes
   if (window.top !== window.self) return;
 
-  console.log('[Ziga Mod] Content loader initializing in top frame...');
+  console.log('[Ziga Mod] Content loader initializing in top frame (React + Tailwind + shadcn/ui)...');
 
   // Expose extension assets to main page context via documentElement dataset
   try {
@@ -11,74 +11,35 @@
     document.documentElement.dataset.zigaExtensionUrl = chrome.runtime.getURL('');
   } catch (e) {}
 
-  // Inject CSS
+  // Inject CSS (Base Overlay + Compiled Tailwind/shadcn utilities)
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.type = 'text/css';
   link.href = chrome.runtime.getURL('styles/overlay.css');
   link.onerror = function() {
-    // Fallback to root overlay.css if needed
     this.href = chrome.runtime.getURL('overlay.css');
   };
   (document.head || document.documentElement).appendChild(link);
 
-  // Modular scripts to inject sequentially into MAIN world (Clean Architecture - 18 Modules)
-  const MODULES = [
-    'src/core/constants.js',
-    'src/core/storage.js',
-    'src/features/threat_scanner.js',
-    'src/features/coup_tracker.js',
-    'src/features/tactical_sandbox.js',
-    'src/core/engine_hook.js',
-    'src/aura/aura_presets.js',
-    'src/aura/board_aura.js',
-    'src/ui/settings_modal.js',
-    'src/features/move_recorder.js',
-    'src/features/tactical_drawing.js',
-    'src/features/opening_book.js',
-    'src/features/voice_announcer.js',
-    'src/features/eval_bar.js',
-    'src/features/game_review.js',
-    'src/features/mentor_coach.js',
-    'src/ui/ui.js',
-    'src/core/main.js'
-  ];
-
-  function fallbackToInjected() {
-    if (window.__zigaModInjectedFallback) return;
-    window.__zigaModInjectedFallback = true;
-    console.warn('[Ziga Mod] Falling back to unified dist/injected.js bundle...');
+  // Inject compiled React + shadcn/ui + 18 modules IIFE bundle into MAIN world
+  function injectBundle() {
     const script = document.createElement('script');
     script.src = chrome.runtime.getURL('dist/injected.js');
+    script.onload = function() {
+      console.log('[Ziga Mod] React + Tailwind + shadcn/ui bundle loaded into MAIN world successfully.');
+      this.remove();
+    };
     script.onerror = function() {
+      console.warn('[Ziga Mod] Falling back to root injected.js...');
       const fallbackScript = document.createElement('script');
       fallbackScript.src = chrome.runtime.getURL('injected.js');
       fallbackScript.onload = function() { this.remove(); };
       (document.head || document.documentElement).appendChild(fallbackScript);
     };
-    script.onload = function() { this.remove(); };
     (document.head || document.documentElement).appendChild(script);
   }
 
-  function injectModules(index) {
-    if (index >= MODULES.length) {
-      console.log('[Ziga Mod] All 18 modular scripts loaded into page context successfully.');
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = chrome.runtime.getURL(MODULES[index]);
-    script.onload = function() {
-      this.remove();
-      injectModules(index + 1);
-    };
-    script.onerror = function(err) {
-      console.error('[Ziga Mod] Failed to load module:', MODULES[index], err);
-      fallbackToInjected();
-    };
-    (document.head || document.documentElement).appendChild(script);
-  }
-
-  injectModules(0);
+  injectBundle();
 
   // Active Ad Neutralizer in Content Script
   function cleanObstructingAds() {
@@ -118,7 +79,9 @@
         if (!el || 
             el.id === 'ziga-mod-widget' || 
             el.id === 'ziga-sandbox-modal' || 
+            el.id === 'ziga-react-settings-host' ||
             (el.id && el.id.startsWith('ziga-')) ||
+            el.classList.contains('ziga-shadcn-root') ||
             el.classList.contains('ziga-sandbox-overlay') || 
             el.classList.contains('ziga-mod-container') ||
             el.id === 'gameCanvas' || 

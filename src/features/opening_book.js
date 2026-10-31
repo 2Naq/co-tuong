@@ -1,4 +1,13 @@
 // src/features/opening_book.js - Xiangqi Opening Book Recognition & Tactical Strategy Encyclopedia
+import React, { useState, useMemo } from 'react';
+import { createRoot } from 'react-dom/client';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../components/ui/dialog';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { Separator } from '../components/ui/separator';
+
 (function (ZigaMod) {
   'use strict';
 
@@ -359,157 +368,167 @@
 
   // Active opening shown in encyclopedia modal
   let selectedModalOpening = null;
+  let openingModalRoot = null;
+  let openingModalSetter = null;
+
+  function OpeningBookModal({ initialOpening, detectedOpening }) {
+    const [open, setOpen] = useState(true);
+    const [activeOp, setActiveOp] = useState(initialOpening || OPENING_DATABASE[0]);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    openingModalSetter = (nextOpen, nextOp) => {
+      if (nextOp) setActiveOp(nextOp);
+      setOpen(nextOpen);
+    };
+
+    const filteredList = useMemo(() => {
+      const term = (searchTerm || '').trim().toLowerCase();
+      if (!term) return OPENING_DATABASE;
+      return OPENING_DATABASE.filter(item =>
+        item.name.toLowerCase().includes(term) ||
+        item.category.toLowerCase().includes(term) ||
+        item.moves.join(' ').toLowerCase().includes(term)
+      );
+    }, [searchTerm]);
+
+    const isMatchCurrent = detectedOpening && detectedOpening.opening && detectedOpening.opening.id === activeOp.id;
+
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[740px] max-h-[88vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogHeader className="p-4 border-b border-border bg-muted/20 shrink-0">
+            <div className="flex items-center justify-between gap-2 pr-6">
+              <div className="flex items-center gap-2">
+                <DialogTitle className="text-base font-bold">{activeOp.name}</DialogTitle>
+                {isMatchCurrent && <Badge variant="default">Đang khớp ván đấu</Badge>}
+              </div>
+              <Badge variant="outline" className="font-mono text-[11px]">{activeOp.category}</Badge>
+            </div>
+            <DialogDescription className="text-xs">
+              Tỷ lệ thống kê: {activeOp.winRate}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 min-h-0">
+            <Card size="sm">
+              <CardHeader className="pb-1">
+                <CardTitle className="text-xs font-bold uppercase tracking-wider text-primary">Ý Đồ Chiến Thuật</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-foreground leading-relaxed">{activeOp.strategy}</p>
+              </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Card size="sm">
+                <CardHeader className="pb-1">
+                  <CardTitle className="text-xs font-bold text-primary">Lời Khuyên Bên Đỏ</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{activeOp.redAdvise}</p>
+                </CardContent>
+              </Card>
+              <Card size="sm">
+                <CardHeader className="pb-1">
+                  <CardTitle className="text-xs font-bold text-foreground">Lời Khuyên Bên Đen</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{activeOp.blackAdvise}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card size="sm">
+              <CardHeader className="pb-1.5 flex flex-row items-center justify-between">
+                <CardTitle className="text-xs font-bold uppercase tracking-wider">Trình Tự Nước Đi Chuẩn</CardTitle>
+                <Button
+                  variant="outline"
+                  size="xs"
+                  onClick={() => {
+                    setOpen(false);
+                    if (ZigaMod.openTacticalSandbox) ZigaMod.openTacticalSandbox();
+                  }}
+                >
+                  Thử Trên Bàn Cờ Ảo
+                </Button>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-1.5">
+                {activeOp.moves.map((m, idx) => (
+                  <Badge key={idx} variant="secondary" className="font-mono text-xs">
+                    <span className="text-primary font-bold mr-1">{idx + 1}.</span>
+                    {m}
+                  </Badge>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Separator />
+
+            <div className="flex flex-col gap-2.5">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-foreground">
+                  Tra Cứu 60+ Thế Trận Cờ Tướng ({filteredList.length})
+                </span>
+                <Input
+                  type="text"
+                  placeholder="Tìm thế trận (VD: Bình Phong Mã, Thuận Pháo, P2-5)..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="max-w-[280px] h-8 text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 max-h-[200px] overflow-y-auto pr-1">
+                {filteredList.map((item) => {
+                  const isSelected = item.id === activeOp.id;
+                  return (
+                    <Button
+                      key={item.id}
+                      type="button"
+                      variant={isSelected ? 'default' : 'outline'}
+                      className="h-auto py-2 px-3 flex flex-col items-start justify-start text-left gap-0.5"
+                      onClick={() => {
+                        selectedModalOpening = item;
+                        setActiveOp(item);
+                      }}
+                    >
+                      <span className="text-xs font-semibold truncate w-full">{item.name}</span>
+                      <span className={`text-[10px] truncate w-full ${isSelected ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+                        {item.category}
+                      </span>
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="p-3 border-t border-border bg-muted/20 shrink-0">
+            <Button variant="default" size="sm" onClick={() => setOpen(false)}>
+              Đóng
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   // Modal displaying detailed strategy and next recommended moves + 60+ Encyclopedia Explorer
   function showOpeningModal(overrideOpening) {
     let activeOp = overrideOpening || (currentDetectedOpening ? currentDetectedOpening.opening : null) || selectedModalOpening || OPENING_DATABASE[0];
     selectedModalOpening = activeOp;
 
-    let modal = document.getElementById('ziga-opening-modal');
-    if (!modal) {
-      modal = document.createElement('div');
-      modal.id = 'ziga-opening-modal';
-      modal.className = 'ziga-opening-modal-backdrop';
-      document.body.appendChild(modal);
-
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.style.display = 'none';
-      });
-    }
-
-    renderModalContent(modal, activeOp, '');
-    modal.style.display = 'flex';
-  }
-
-  function renderModalContent(modal, op, searchTerm) {
-    const term = (searchTerm || '').trim().toLowerCase();
-    const filteredList = OPENING_DATABASE.filter(item => {
-      if (!term) return true;
-      return item.name.toLowerCase().includes(term) ||
-             item.category.toLowerCase().includes(term) ||
-             item.moves.join(' ').toLowerCase().includes(term);
-    });
-
-    const isMatchCurrent = currentDetectedOpening && currentDetectedOpening.opening && currentDetectedOpening.opening.id === op.id;
-
-    modal.innerHTML = `
-      <div class="ziga-opening-modal-dialog" style="width: 720px; max-height: 90vh;">
-        <div class="ziga-op-modal-header">
-          <div class="ziga-op-modal-title-group">
-            <span class="ziga-op-modal-icon">📖</span>
-            <div>
-              <h3 class="ziga-op-modal-title">${op.name}</h3>
-              <span class="ziga-op-modal-cat">${op.category} · ${op.winRate} ${isMatchCurrent ? '⭐ (Đang khớp ván đấu)' : ''}</span>
-            </div>
-          </div>
-          <button class="ziga-op-modal-close" id="ziga-op-modal-close-btn" type="button">✕</button>
-        </div>
-
-        <div class="ziga-op-modal-body" style="padding: 14px 18px; max-height: calc(90vh - 65px); overflow-y: auto;">
-          <!-- Strategy & Advice Section -->
-          <div class="ziga-op-section">
-            <h4 class="ziga-op-sec-title">🎯 Ý Đồ Chiến Thuật</h4>
-            <p class="ziga-op-sec-text">${op.strategy}</p>
-          </div>
-
-          <div class="ziga-op-grid">
-            <div class="ziga-op-card red-card">
-              <h5 class="ziga-op-card-head" style="margin: 0 0 4px 0; color: #ef4444; font-size: 12px; font-weight: 800;">🔴 Lời Khuyên Bên Đỏ:</h5>
-              <p class="ziga-op-card-body" style="margin: 0; font-size: 11.5px; color: #cbd5e1; line-height: 1.5;">${op.redAdvise}</p>
-            </div>
-            <div class="ziga-op-card black-card" style="border-left: 3px solid #38bdf8;">
-              <h5 class="ziga-op-card-head" style="margin: 0 0 4px 0; color: #38bdf8; font-size: 12px; font-weight: 800;">⚫ Lời Khuyên Bên Đen:</h5>
-              <p class="ziga-op-card-body" style="margin: 0; font-size: 11.5px; color: #cbd5e1; line-height: 1.5;">${op.blackAdvise}</p>
-            </div>
-          </div>
-
-          <!-- Moves Sequence -->
-          <div class="ziga-op-section" style="margin-top: 4px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <h4 class="ziga-op-sec-title" style="margin: 0;">📜 Trình Tự Nước Đi Chuẩn:</h4>
-              <button class="ziga-btn-tool-sub" id="ziga-btn-op-sandbox" style="padding: 3px 8px; font-size: 11px; background: rgba(212, 175, 55, 0.2); border: 1px solid rgba(212, 175, 55, 0.5); color: #ffd700;" title="Mở bàn cờ mô phỏng Sandbox để tự do đi thử thế trận này">♟️ Thử Trên Bàn Cờ Ảo</button>
-            </div>
-            <div class="ziga-op-moves-bar" style="display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; background: rgba(0, 0, 0, 0.35); border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.08);">
-              ${op.moves.map((m, idx) => `<span class="ziga-op-move-chip" style="font-size: 11.5px; color: #e2e8f0; background: rgba(255, 255, 255, 0.06); padding: 2px 7px; border-radius: 4px;"><strong style="color: #ffd700;">${idx + 1}.</strong> ${m}</span>`).join('')}
-            </div>
-          </div>
-
-          <!-- Search & Library Explorer Divider -->
-          <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 10px 0 6px 0;"></div>
-
-          <!-- 60+ Openings Browser -->
-          <div class="ziga-op-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <h4 class="ziga-op-sec-title" style="margin: 0; color: #ffd700;">📚 Tra Cứu 60+ Thế Trận Cờ Tướng (${filteredList.length})</h4>
-              <input type="text" id="ziga-op-search-input" placeholder="🔍 Tìm thế trận (VD: Bình Phong Mã, Thuận Pháo, P2-5)..." value="${searchTerm || ''}" style="width: 250px; padding: 4px 10px; font-size: 11.5px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 6px; color: #f8fafc; outline: none;" />
-            </div>
-
-            <div id="ziga-op-list-wrap" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; max-height: 190px; overflow-y: auto; padding-right: 4px;">
-              ${filteredList.map(item => {
-                const isSelected = item.id === op.id;
-                return `
-                  <div class="ziga-op-item-chip" data-opid="${item.id}" style="padding: 6px 10px; border-radius: 6px; cursor: pointer; transition: all 0.15s ease; background: ${isSelected ? 'rgba(212, 175, 55, 0.25)' : 'rgba(255, 255, 255, 0.04)'}; border: 1px solid ${isSelected ? '#ffd700' : 'rgba(255, 255, 255, 0.08)'}; display: flex; flex-direction: column; gap: 2px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                      <span style="font-size: 11.5px; font-weight: 700; color: ${isSelected ? '#ffd700' : '#e2e8f0'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</span>
-                      ${isSelected ? '<span style="color: #ffd700; font-size: 11px;">✓</span>' : ''}
-                    </div>
-                    <span style="font-size: 9.5px; color: #94a3b8;">${item.category}</span>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    // Bind close button
-    const closeBtn = document.getElementById('ziga-op-modal-close-btn');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-      });
-    }
-
-    // Bind Sandbox trial button
-    const sbBtn = document.getElementById('ziga-btn-op-sandbox');
-    if (sbBtn) {
-      sbBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-        if (ZigaMod.openTacticalSandbox) {
-          ZigaMod.openTacticalSandbox();
-        }
-      });
-    }
-
-    // Bind item click
-    const chips = modal.querySelectorAll('.ziga-op-item-chip');
-    chips.forEach(chip => {
-      chip.addEventListener('click', () => {
-        const opId = chip.getAttribute('data-opid');
-        const found = OPENING_DATABASE.find(x => x.id === opId);
-        if (found) {
-          selectedModalOpening = found;
-          const searchInput = document.getElementById('ziga-op-search-input');
-          const currentSearch = searchInput ? searchInput.value : '';
-          renderModalContent(modal, found, currentSearch);
-        }
-      });
-    });
-
-    // Bind search input
-    const searchInput = document.getElementById('ziga-op-search-input');
-    if (searchInput) {
-      // Focus and preserve cursor at end
-      searchInput.addEventListener('input', (e) => {
-        const val = e.target.value;
-        renderModalContent(modal, op, val);
-        const newSearchInput = document.getElementById('ziga-op-search-input');
-        if (newSearchInput) {
-          newSearchInput.focus();
-          newSearchInput.setSelectionRange(val.length, val.length);
-        }
-      });
+    let host = document.getElementById('ziga-opening-modal-host');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'ziga-opening-modal-host';
+      document.body.appendChild(host);
+      openingModalRoot = createRoot(host);
+      openingModalRoot.render(
+        <OpeningBookModal initialOpening={activeOp} detectedOpening={currentDetectedOpening} />
+      );
+    } else if (openingModalSetter) {
+      openingModalSetter(true, activeOp);
     }
   }
 

@@ -354,66 +354,17 @@
 
   // Reset move history
   function resetHistory() {
-    moveHistory = [];
+    moveHistory.length = 0;
     lastBoardSnapshot = null;
     renderMoveHistoryUi();
   }
 
-  // Render Move History UI on HUD
+  // Render Move History UI on HUD via reactive uiStore
   function renderMoveHistoryUi() {
-    const listEl = document.getElementById('ziga-move-history-list');
-    const countEl = document.getElementById('ziga-move-count-badge');
-    if (!listEl) return;
-
-    if (countEl) {
-      countEl.textContent = `${moveHistory.length} nước`;
-    }
-
-    if (moveHistory.length === 0) {
-      listEl.innerHTML = '<div class="ziga-empty-moves">Đang theo dõi... Các nước đi sẽ tự động xuất hiện tại đây.</div>';
-      return;
-    }
-
-    // Build pairs of moves
-    let html = '';
-    const totalRounds = Math.ceil(moveHistory.length / 2);
-
-    for (let r = 0; r < totalRounds; r++) {
-      const moveNum = r + 1;
-      const redMove = moveHistory[r * 2];
-      const blackMove = moveHistory[r * 2 + 1];
-
-      html += `<div class="ziga-move-row ${r === totalRounds - 1 ? 'latest' : ''}">`;
-      html += `<span class="ziga-move-num">${moveNum}.</span>`;
-
-      // Red move
-      if (redMove) {
-        const capClass = redMove.capturedType !== null ? 'is-capture' : '';
-        html += `<span class="ziga-move-cell red ${capClass}" title="Nước ${moveNum} (Đỏ): ${redMove.notation}">
-          ${redMove.notation}
-        </span>`;
-      } else {
-        html += `<span class="ziga-move-cell red empty">-</span>`;
-      }
-
-      // Black move
-      if (blackMove) {
-        const capClass = blackMove.capturedType !== null ? 'is-capture' : '';
-        html += `<span class="ziga-move-cell black ${capClass}" title="Nước ${moveNum} (Đen): ${blackMove.notation}">
-          ${blackMove.notation}
-        </span>`;
-      } else {
-        html += `<span class="ziga-move-cell black empty">-</span>`;
-      }
-
-      html += `</div>`;
-    }
-
-    listEl.innerHTML = html;
-
-    // Auto-scroll to bottom
-    if (autoScrollEnabled) {
-      listEl.scrollTop = listEl.scrollHeight;
+    if (ZigaMod.uiStore) {
+      ZigaMod.uiStore.setState({
+        moveHistory: moveHistory.slice()
+      });
     }
   }
 
