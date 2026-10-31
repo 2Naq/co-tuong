@@ -5,6 +5,39 @@
   let settingsModalEl = null;
   let tempCustomSettings = null;
   let currentActiveTab = 'features';
+  let currentPresetFilter = 'all';
+
+  /**
+   * Resolves image data URL for 'my' or 'opp' from tempCustomSettings (supports presetMy/presetOpp IDs).
+   */
+  function getResolvedPreviewImg(side) {
+    if (!tempCustomSettings) return '';
+    if (typeof ZigaMod.resolveAuraImageData === 'function') {
+      return ZigaMod.resolveAuraImageData(tempCustomSettings, side);
+    }
+    return side === 'opp' ? (tempCustomSettings.customImageOpp || '') : (tempCustomSettings.customImageMy || '');
+  }
+
+  /**
+   * Immediately persists and applies tempCustomSettings to the live Cocos2d board
+   * so the user sees changes right away without pressing F5 or closing the modal.
+   */
+  function applyLiveAuraSettings() {
+    if (!tempCustomSettings) return;
+    if (ZigaMod.userSettings) {
+      ZigaMod.userSettings.auraCustom = Object.assign({}, tempCustomSettings);
+      // Ensure liveBoardAura toggle is on when user actively selects/customizes an aura
+      if (!ZigaMod.userSettings.liveBoardAura) {
+        ZigaMod.userSettings.liveBoardAura = true;
+        syncModalFeaturesCheckboxes();
+      }
+      ZigaMod.saveSettings();
+    }
+    if (typeof ZigaMod.reloadAuraTextures === 'function') {
+      ZigaMod.reloadAuraTextures();
+    }
+    ZigaMod.lastStateHash = '';
+  }
 
   /**
    * Initializes the settings modal element in document.body if not already present.
@@ -101,7 +134,7 @@
             <span>🎨 CHỦ ĐỀ & MÀU AURA</span>
           </button>
           <button class="ziga-aura-tab-btn" id="ziga-modal-tab-btn-images" type="button" data-tab="images">
-            <span>🖼️ MẪU ẢNH AURA PNG</span>
+            <span>🖼️ KHO 22 MẪU AURA PNG</span>
           </button>
         </div>
 
@@ -317,7 +350,7 @@
         <!-- TAB 2: Themes & Màu Sắc (Aura Colors) -->
         <div class="ziga-aura-tab-pane" id="ziga-modal-pane-themes" style="display:none;">
           <div class="ziga-aura-pane-section">
-            <span class="ziga-pane-section-title">CHỌN NHANH THEME LÀM SẴN</span>
+            <span class="ziga-pane-section-title">CHỌN NHANH CHỦ ĐỀ NEON LÀM SẴN (ÁP DỤNG NGAY LÊN BÀN CỜ)</span>
             <div class="ziga-aura-themes-grid" id="ziga-modal-themes-container"></div>
           </div>
 
@@ -347,8 +380,16 @@
           <!-- Bộ sưu tập Preset 1-Click Test Ngay -->
           <div class="ziga-aura-presets-section">
             <div class="ziga-presets-header">
-              <span class="ziga-presets-title">✨ MẪU ẢNH AURA CÓ SẴN (CHỌN 1-CLICK TEST NGAY)</span>
-              <span class="ziga-presets-subtitle">Bấm <strong>[🟢 Lượt Tôi]</strong> hoặc <strong>[🔴 Đối Thủ]</strong> để test ngay! Bạn có thể kết hợp với hiệu ứng xoay tròn, chớp nháy hoặc nhịp tim ở thanh điều khiển phía trên.</span>
+              <div class="ziga-presets-title-row">
+                <span class="ziga-presets-title">✨ BỘ SƯU TẬP 22 MẪU AURA HD (CHỌN 1-CLICK HIỆN NGAY TRÊN BÀN CỜ)</span>
+              </div>
+              <span class="ziga-presets-subtitle">Bấm <strong>[🟢 Lượt Tôi]</strong>, <strong>[🔴 Đối Thủ]</strong> hoặc <strong>[⚡ Cả 2]</strong> để áp dụng trực tiếp lên bàn cờ mà không cần tải lại trang!</span>
+              <div class="ziga-preset-filter-bar" id="ziga-preset-filter-bar">
+                <button type="button" class="ziga-preset-filter-btn active" data-filter="all">Tất cả (22)</button>
+                <button type="button" class="ziga-preset-filter-btn" data-filter="new">🔥 Mẫu Mới (17)</button>
+                <button type="button" class="ziga-preset-filter-btn" data-filter="my">🟢 Hợp Lượt Tôi</button>
+                <button type="button" class="ziga-preset-filter-btn" data-filter="opp">🔴 Hợp Đối Thủ</button>
+              </div>
             </div>
             <div class="ziga-aura-presets-grid" id="ziga-modal-presets-container"></div>
           </div>
@@ -392,19 +433,24 @@
             <div class="ziga-guide-title">📐 TIÊU CHUẨN FILE ẢNH AURA TỰ VẼ (PHOTOSHOP / CANVA):</div>
             <ul>
               <li><strong>Định dạng:</strong> File ảnh <code>.PNG</code> nền trong suốt (Alpha Channel).</li>
-              <li><strong>Kích thước chuẩn:</strong> Ảnh vuông <code>128x128 px</code> hoặc <code>256x256 px</code>.</li>
-              <li><strong>Vùng an toàn:</strong> Tâm ảnh chính giữa, lòng trong rỗng (đường kính ~74%) để không che chữ quân cờ gỗ.</li>
+              <li><strong>Kích thước chuẩn:</strong> Ảnh vuông <code>256x256 px</code> (hoặc <code>128x128 px</code>).</li>
+              <li><strong>Vùng an toàn:</strong> Tâm ảnh chính giữa, lòng trong rỗng (đường kính ~70-74%) để tôn mặt quân cờ gỗ.</li>
             </ul>
           </div>
         </div>
 
-        <!-- Modal Footer -->
+        <!-- Modal Footer (Tách riêng Reset Tính Năng & Reset Aura theo yêu cầu) -->
         <div class="ziga-aura-modal-footer">
-          <button class="ziga-modal-btn secondary" id="ziga-modal-btn-restore-default" type="button">
-            🔄 Khôi Phục Mặc Định
-          </button>
+          <div class="ziga-modal-reset-group">
+            <button class="ziga-modal-btn secondary reset-features-btn" id="ziga-modal-btn-reset-features" type="button" title="Khôi phục mặc định các công cụ hỗ trợ (Giữ nguyên cài đặt Aura)">
+              🔄 Reset Tính Năng
+            </button>
+            <button class="ziga-modal-btn secondary reset-aura-btn" id="ziga-modal-btn-reset-aura" type="button" title="Khôi phục mặc định riêng phần Màu sắc & Ảnh Aura (Giữ nguyên các tính năng khác)">
+              ✨ Reset Riêng Aura
+            </button>
+          </div>
           <button class="ziga-modal-btn primary" id="ziga-modal-btn-save-confirm" type="button">
-            💾 ĐÓNG & ÁP DỤNG
+            💾 ĐÓNG & LƯU
           </button>
         </div>
       </div>
@@ -471,15 +517,29 @@
       });
     });
 
+    // Preset filter buttons
+    const filterBar = document.getElementById('ziga-preset-filter-bar');
+    if (filterBar) {
+      filterBar.querySelectorAll('.ziga-preset-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentPresetFilter = btn.dataset.filter || 'all';
+          filterBar.querySelectorAll('.ziga-preset-filter-btn').forEach(b => {
+            b.classList.toggle('active', b === btn);
+          });
+          renderAuraPresetsGrid();
+        });
+      });
+    }
+
     // Shortcut button in Features tab to jump directly to Aura Themes tab
     const gotoAuraBtn = document.getElementById('ziga-btn-goto-aura-tab');
     if (gotoAuraBtn) {
       gotoAuraBtn.addEventListener('click', () => {
-        switchModalTab('themes');
+        switchModalTab('images');
       });
     }
 
-    // Bind all 10 feature settings switches
+    // Bind all feature settings switches
     Object.keys(ZigaMod.DEFAULT_SETTINGS).forEach(key => {
       if (key === 'auraCustom' || key === 'liveAuraMode') return;
       const checkbox = document.getElementById(`modal-set-${key}`);
@@ -489,6 +549,9 @@
           ZigaMod.saveSettings();
           if (ZigaMod.applySettingsVisibility) {
             ZigaMod.applySettingsVisibility();
+          }
+          if (key === 'liveBoardAura' && typeof ZigaMod.reloadAuraTextures === 'function') {
+            ZigaMod.reloadAuraTextures();
           }
           ZigaMod.lastStateHash = ''; // Force immediate UI refresh
         });
@@ -508,6 +571,7 @@
         }
         if (scaleVal) scaleVal.textContent = Math.round(val * 100) + '%';
         updateModalLivePreview();
+        applyLiveAuraSettings();
       });
     }
 
@@ -519,6 +583,7 @@
         if (scaleSlider) scaleSlider.value = '1.0';
         if (scaleVal) scaleVal.textContent = '100%';
         updateModalLivePreview();
+        applyLiveAuraSettings();
       });
     }
 
@@ -538,6 +603,7 @@
           speedWrap.style.display = (val === 'static' || val === 'pulse') ? 'none' : 'flex';
         }
         updateModalLivePreview();
+        applyLiveAuraSettings();
       });
     }
 
@@ -549,6 +615,7 @@
         }
         if (speedVal) speedVal.textContent = val.toFixed(1) + 's';
         updateModalLivePreview();
+        applyLiveAuraSettings();
       });
     }
 
@@ -568,6 +635,8 @@
         }
         updateModalLivePreview();
         highlightActiveThemeCard();
+        highlightActivePresets();
+        applyLiveAuraSettings();
       });
 
       pickMyHex.addEventListener('input', (e) => {
@@ -582,6 +651,8 @@
           }
           updateModalLivePreview();
           highlightActiveThemeCard();
+          highlightActivePresets();
+          applyLiveAuraSettings();
         }
       });
     }
@@ -596,6 +667,8 @@
         }
         updateModalLivePreview();
         highlightActiveThemeCard();
+        highlightActivePresets();
+        applyLiveAuraSettings();
       });
 
       pickOppHex.addEventListener('input', (e) => {
@@ -610,6 +683,8 @@
           }
           updateModalLivePreview();
           highlightActiveThemeCard();
+          highlightActivePresets();
+          applyLiveAuraSettings();
         }
       });
     }
@@ -627,11 +702,14 @@
           const reader = new FileReader();
           reader.onload = (ev) => {
             if (tempCustomSettings) {
+              tempCustomSettings.presetMy = '';
               tempCustomSettings.customImageMy = ev.target.result;
               tempCustomSettings.mode = 'image';
             }
             updateThumbnailPreview('my', ev.target.result);
             updateModalLivePreview();
+            highlightActivePresets();
+            applyLiveAuraSettings();
           };
           reader.readAsDataURL(file);
         }
@@ -641,12 +719,15 @@
     if (clearMy) {
       clearMy.addEventListener('click', () => {
         if (tempCustomSettings) {
+          tempCustomSettings.presetMy = '';
           tempCustomSettings.customImageMy = '';
-          if (!tempCustomSettings.customImageOpp) tempCustomSettings.mode = 'neon';
+          if (!getResolvedPreviewImg('opp')) tempCustomSettings.mode = 'neon';
         }
         if (fileMy) fileMy.value = '';
         updateThumbnailPreview('my', '');
         updateModalLivePreview();
+        highlightActivePresets();
+        applyLiveAuraSettings();
       });
     }
 
@@ -657,11 +738,14 @@
           const reader = new FileReader();
           reader.onload = (ev) => {
             if (tempCustomSettings) {
+              tempCustomSettings.presetOpp = '';
               tempCustomSettings.customImageOpp = ev.target.result;
               tempCustomSettings.mode = 'image';
             }
             updateThumbnailPreview('opp', ev.target.result);
             updateModalLivePreview();
+            highlightActivePresets();
+            applyLiveAuraSettings();
           };
           reader.readAsDataURL(file);
         }
@@ -671,49 +755,83 @@
     if (clearOpp) {
       clearOpp.addEventListener('click', () => {
         if (tempCustomSettings) {
+          tempCustomSettings.presetOpp = '';
           tempCustomSettings.customImageOpp = '';
-          if (!tempCustomSettings.customImageMy) tempCustomSettings.mode = 'neon';
+          if (!getResolvedPreviewImg('my')) tempCustomSettings.mode = 'neon';
         }
         if (fileOpp) fileOpp.value = '';
         updateThumbnailPreview('opp', '');
         updateModalLivePreview();
+        highlightActivePresets();
+        applyLiveAuraSettings();
       });
     }
 
-    // Restore Defaults button (resets both features and aura to default)
-    const resetDefaultBtn = document.getElementById('ziga-modal-btn-restore-default');
-    if (resetDefaultBtn) {
-      resetDefaultBtn.addEventListener('click', () => {
-        ZigaMod.userSettings = Object.assign({}, ZigaMod.DEFAULT_SETTINGS);
+    // 1. Reset ONLY Features button (preserves Aura settings 100%)
+    const resetFeaturesBtn = document.getElementById('ziga-modal-btn-reset-features');
+    if (resetFeaturesBtn) {
+      resetFeaturesBtn.addEventListener('click', () => {
+        const savedAura = tempCustomSettings
+          ? Object.assign({}, tempCustomSettings)
+          : Object.assign({}, (ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || ZigaMod.DEFAULT_SETTINGS.auraCustom);
+
+        Object.keys(ZigaMod.DEFAULT_SETTINGS).forEach((key) => {
+          if (key === 'auraCustom') return;
+          ZigaMod.userSettings[key] = ZigaMod.DEFAULT_SETTINGS[key];
+        });
+        ZigaMod.userSettings.auraCustom = savedAura;
+        ZigaMod.saveSettings();
+
+        syncModalFeaturesCheckboxes();
+        if (ZigaMod.applySettingsVisibility) {
+          ZigaMod.applySettingsVisibility();
+        }
+        if (typeof ZigaMod.reloadAuraTextures === 'function') {
+          ZigaMod.reloadAuraTextures();
+        }
+        ZigaMod.lastStateHash = '';
+
+        const origText = resetFeaturesBtn.innerHTML;
+        resetFeaturesBtn.innerHTML = '✅ Đã Reset Tính Năng!';
+        resetFeaturesBtn.classList.add('reset-done');
+        setTimeout(() => {
+          resetFeaturesBtn.innerHTML = origText;
+          resetFeaturesBtn.classList.remove('reset-done');
+        }, 1400);
+      });
+    }
+
+    // 2. Reset ONLY Aura button (preserves all other feature toggles 100%)
+    const resetAuraBtn = document.getElementById('ziga-modal-btn-reset-aura');
+    if (resetAuraBtn) {
+      resetAuraBtn.addEventListener('click', () => {
         tempCustomSettings = Object.assign({}, ZigaMod.DEFAULT_SETTINGS.auraCustom);
         ZigaMod.userSettings.auraCustom = Object.assign({}, tempCustomSettings);
         ZigaMod.saveSettings();
 
-        syncModalFeaturesCheckboxes();
         syncModalControls();
         updateModalLivePreview();
 
-        if (ZigaMod.applySettingsVisibility) {
-          ZigaMod.applySettingsVisibility();
-        }
-        if (ZigaMod.reloadAuraTextures) {
+        if (typeof ZigaMod.reloadAuraTextures === 'function') {
           ZigaMod.reloadAuraTextures();
         }
         ZigaMod.lastStateHash = '';
+
+        const origText = resetAuraBtn.innerHTML;
+        resetAuraBtn.innerHTML = '✅ Đã Reset Aura!';
+        resetAuraBtn.classList.add('reset-done');
+        setTimeout(() => {
+          resetAuraBtn.innerHTML = origText;
+          resetAuraBtn.classList.remove('reset-done');
+        }, 1400);
       });
     }
 
-    // Save and Apply button
+    // Save and Close button
     const saveApplyBtn = document.getElementById('ziga-modal-btn-save-confirm');
     if (saveApplyBtn) {
       saveApplyBtn.addEventListener('click', () => {
-        if (tempCustomSettings) {
-          ZigaMod.userSettings.auraCustom = Object.assign({}, tempCustomSettings);
-          ZigaMod.saveSettings();
-          if (ZigaMod.reloadAuraTextures) {
-            ZigaMod.reloadAuraTextures();
-          }
-        }
+        applyLiveAuraSettings();
         closeSettingsModal();
       });
     }
@@ -773,6 +891,7 @@
           tempCustomSettings.mode = 'neon';
           syncModalControls();
           updateModalLivePreview();
+          applyLiveAuraSettings();
         }
       });
     });
@@ -789,7 +908,7 @@
   }
 
   /**
-   * Renders 5 high-quality PNG presets in Tab 3.
+   * Renders all 22 high-quality PNG presets in Tab 3 with filtering and 1-click live apply.
    */
   function renderAuraPresetsGrid() {
     const container = document.getElementById('ziga-modal-presets-container');
@@ -801,8 +920,28 @@
       return;
     }
 
+    // Update filter button counts dynamically
+    const filterBar = document.getElementById('ziga-preset-filter-bar');
+    if (filterBar) {
+      const allBtn = filterBar.querySelector('[data-filter="all"]');
+      const newBtn = filterBar.querySelector('[data-filter="new"]');
+      if (allBtn) allBtn.textContent = `Tất cả (${presets.length})`;
+      if (newBtn) {
+        const newCount = presets.filter(p => p.isNew).length;
+        newBtn.textContent = `🔥 Mẫu Mới (${newCount})`;
+      }
+    }
+
+    const filtered = presets.filter((p) => {
+      if (currentPresetFilter === 'new') return !!p.isNew;
+      if (currentPresetFilter === 'my') return p.cat === 'my' || p.cat === 'both';
+      if (currentPresetFilter === 'opp') return p.cat === 'opp' || p.cat === 'both';
+      return true;
+    });
+
     let html = '';
-    presets.forEach((p) => {
+    filtered.forEach((p) => {
+      const newBadge = p.isNew ? '<span class="ziga-preset-new-pill">MỚI</span>' : '';
       html += `
         <div class="ziga-preset-card" data-preset-id="${p.id}">
           <div class="ziga-preset-preview-wrap">
@@ -812,14 +951,20 @@
             </div>
           </div>
           <div class="ziga-preset-details">
-            <div class="ziga-preset-name">${p.title}</div>
+            <div class="ziga-preset-name-row">
+              <span class="ziga-preset-name">${p.title}</span>
+              ${newBadge}
+            </div>
             <div class="ziga-preset-badge ${p.cat}">${p.tag || ''}</div>
             <div class="ziga-preset-actions">
-              <button class="ziga-preset-btn my" type="button" data-action="set-my" title="Gán ảnh này cho Lượt Tôi">
+              <button class="ziga-preset-btn my" type="button" data-action="set-my" title="Gán mẫu này cho Lượt Tôi & hiển thị ngay trên bàn cờ">
                 🟢 Lượt Tôi
               </button>
-              <button class="ziga-preset-btn opp" type="button" data-action="set-opp" title="Gán ảnh này cho Lượt Đối Thủ">
+              <button class="ziga-preset-btn opp" type="button" data-action="set-opp" title="Gán mẫu này cho Lượt Đối Thủ & hiển thị ngay trên bàn cờ">
                 🔴 Đối Thủ
+              </button>
+              <button class="ziga-preset-btn both" type="button" data-action="set-both" title="Gán mẫu này cho cả 2 lượt & hiển thị ngay">
+                ⚡ Cả 2
               </button>
             </div>
           </div>
@@ -839,16 +984,29 @@
         if (!found || !tempCustomSettings) return;
 
         if (action === 'set-my') {
+          tempCustomSettings.presetMy = found.id;
           tempCustomSettings.customImageMy = found.base64;
           tempCustomSettings.mode = 'image';
           updateThumbnailPreview('my', found.base64);
         } else if (action === 'set-opp') {
+          tempCustomSettings.presetOpp = found.id;
           tempCustomSettings.customImageOpp = found.base64;
           tempCustomSettings.mode = 'image';
           updateThumbnailPreview('opp', found.base64);
+        } else if (action === 'set-both') {
+          tempCustomSettings.presetMy = found.id;
+          tempCustomSettings.customImageMy = found.base64;
+          tempCustomSettings.presetOpp = found.id;
+          tempCustomSettings.customImageOpp = found.base64;
+          tempCustomSettings.mode = 'image';
+          updateThumbnailPreview('my', found.base64);
+          updateThumbnailPreview('opp', found.base64);
         }
+
         updateModalLivePreview();
         highlightActivePresets();
+        highlightActiveThemeCard();
+        applyLiveAuraSettings();
       });
     });
 
@@ -860,13 +1018,18 @@
     if (!container || !tempCustomSettings) return;
 
     const presets = ZigaMod.PRESET_AURAS || [];
+    const myResolved = getResolvedPreviewImg('my');
+    const oppResolved = getResolvedPreviewImg('opp');
+
     container.querySelectorAll('.ziga-preset-card').forEach((card) => {
       const pid = card.dataset.presetId;
       const p = presets.find(item => item.id === pid);
       if (!p) return;
 
-      const isMy = (tempCustomSettings.mode === 'image' && tempCustomSettings.customImageMy === p.base64);
-      const isOpp = (tempCustomSettings.mode === 'image' && tempCustomSettings.customImageOpp === p.base64);
+      const isMy = tempCustomSettings.mode === 'image' &&
+        (tempCustomSettings.presetMy === p.id || myResolved === p.base64);
+      const isOpp = tempCustomSettings.mode === 'image' &&
+        (tempCustomSettings.presetOpp === p.id || oppResolved === p.base64);
 
       card.classList.toggle('active-my', isMy);
       card.classList.toggle('active-opp', isOpp);
@@ -912,8 +1075,8 @@
       speedWrap.style.display = (curAnim === 'static' || curAnim === 'pulse') ? 'none' : 'flex';
     }
 
-    updateThumbnailPreview('my', tempCustomSettings.customImageMy || '');
-    updateThumbnailPreview('opp', tempCustomSettings.customImageOpp || '');
+    updateThumbnailPreview('my', getResolvedPreviewImg('my'));
+    updateThumbnailPreview('opp', getResolvedPreviewImg('opp'));
 
     highlightActiveThemeCard();
     highlightActivePresets();
@@ -950,10 +1113,13 @@
       el.style.setProperty('--aura-speed', `${curSpeed}s`);
     });
 
+    const myImg = getResolvedPreviewImg('my');
+    const oppImg = getResolvedPreviewImg('opp');
+
     if (previewMy) {
       previewMy.style.setProperty('--aura-scale', curScale);
-      if (tempCustomSettings.mode === 'image' && tempCustomSettings.customImageMy) {
-        previewMy.style.backgroundImage = `url(${tempCustomSettings.customImageMy})`;
+      if (tempCustomSettings.mode === 'image' && myImg) {
+        previewMy.style.backgroundImage = `url(${myImg})`;
         previewMy.style.backgroundSize = 'contain';
         previewMy.style.backgroundRepeat = 'no-repeat';
         previewMy.style.backgroundPosition = 'center';
@@ -969,8 +1135,8 @@
 
     if (previewOpp) {
       previewOpp.style.setProperty('--aura-scale', curScale);
-      if (tempCustomSettings.mode === 'image' && tempCustomSettings.customImageOpp) {
-        previewOpp.style.backgroundImage = `url(${tempCustomSettings.customImageOpp})`;
+      if (tempCustomSettings.mode === 'image' && oppImg) {
+        previewOpp.style.backgroundImage = `url(${oppImg})`;
         previewOpp.style.backgroundSize = 'contain';
         previewOpp.style.backgroundRepeat = 'no-repeat';
         previewOpp.style.backgroundPosition = 'center';
@@ -997,7 +1163,7 @@
       ? ZigaMod.userSettings.auraCustom
       : ZigaMod.DEFAULT_SETTINGS.auraCustom;
 
-    tempCustomSettings = Object.assign({}, current);
+    tempCustomSettings = Object.assign({}, ZigaMod.DEFAULT_SETTINGS.auraCustom, current);
 
     syncModalFeaturesCheckboxes();
     renderThemesGrid();

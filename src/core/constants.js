@@ -40,11 +40,13 @@
     liveAuraMode: 'targets',     // 'targets': Chỉ quân cờ có thể ăn được (chuẩn xác, gọn gàng), 'all': Cả quân ăn và bị ăn
     auraCustom: {
       mode: 'neon',              // 'neon' hoặc 'image'
-      theme: 'default',          // 'default', 'ice_fire', 'gold_purple', 'cyberpunk', 'custom'
+      theme: 'default',          // 'default', 'ice_fire', 'gold_purple', 'cyberpunk', 'jade_crimson', 'thunder_magma', 'royal_blood', 'toxic_violet', 'custom'
       animation: 'spin_pulse',   // 'spin_pulse', 'spin', 'pulse', 'heartbeat', 'static'
       spinSpeed: 3.5,            // Thời gian 1 vòng quay 360° (1.0s - 8.0s, mặc định 3.5s)
       myColor: '#39ff14',        // Màu viền lượt tôi
       oppColor: '#ff1744',       // Màu viền lượt đối thủ
+      presetMy: '',              // ID mẫu Aura có sẵn lượt tôi (nếu dùng preset)
+      presetOpp: '',             // ID mẫu Aura có sẵn lượt đối thủ (nếu dùng preset)
       customImageMy: '',         // Base64 DataURL ảnh PNG tùy chọn lượt tôi
       customImageOpp: '',        // Base64 DataURL ảnh PNG tùy chọn lượt đối thủ
       scale: 1.0                 // Tỷ lệ độ lớn vòng Aura (0.7 đến 1.3, mặc định 1.0)
@@ -55,7 +57,11 @@
     default: { id: 'default', name: 'JJ Xiangqi Stream', myColor: '#39ff14', oppColor: '#ff1744', desc: 'Xanh Lá Neon & Đỏ Neon (Mặc định)' },
     ice_fire: { id: 'ice_fire', name: 'Băng & Lửa', myColor: '#00e5ff', oppColor: '#ff3d00', desc: 'Xanh Băng Tuyết & Đỏ Cam Lửa' },
     gold_purple: { id: 'gold_purple', name: 'Hoàng Kim & Hắc Ám', myColor: '#ffd700', oppColor: '#d500f9', desc: 'Vàng Kim & Tím Thần Bí' },
-    cyberpunk: { id: 'cyberpunk', name: 'Cyberpunk Neon', myColor: '#ff007f', oppColor: '#00f0ff', desc: 'Hồng Neon & Xanh Cyan' }
+    cyberpunk: { id: 'cyberpunk', name: 'Cyberpunk Neon', myColor: '#00f0ff', oppColor: '#ff007f', desc: 'Xanh Cyan & Hồng Neon' },
+    jade_crimson: { id: 'jade_crimson', name: 'Ngọc Bích & Chu Sa', myColor: '#00ff9d', oppColor: '#ff1e56', desc: 'Xanh Ngọc Lục Bảo & Đỏ Huyết Kiếm' },
+    thunder_magma: { id: 'thunder_magma', name: 'Lôi Điện & Dung Nham', myColor: '#38bdf8', oppColor: '#f97316', desc: 'Xanh Tia Chớp & Cam Dung Nham' },
+    royal_blood: { id: 'royal_blood', name: 'Đế Vương & Huyết Nguyệt', myColor: '#facc15', oppColor: '#ef4444', desc: 'Vàng Long Bào & Đỏ Huyết Nguyệt' },
+    toxic_violet: { id: 'toxic_violet', name: 'Lục Quang & Tử Tinh', myColor: '#a3e635', oppColor: '#c026d3', desc: 'Xanh Lục Quang & Tím Ma Giới' }
   };
 
   const AURA_ANIMATIONS = {

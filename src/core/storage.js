@@ -4,6 +4,26 @@
 
   let userSettings = Object.assign({}, ZigaMod.DEFAULT_SETTINGS);
 
+  function resolveAuraImageData(customObj, side) {
+    const c = customObj || (userSettings && userSettings.auraCustom) || {};
+    const isMy = (side === 'my' || side === 'green');
+    const presetId = isMy ? c.presetMy : c.presetOpp;
+    const directData = isMy ? c.customImageMy : c.customImageOpp;
+
+    // 1. Check preset ID first if PRESET_AURAS is loaded
+    if (presetId && Array.isArray(ZigaMod.PRESET_AURAS)) {
+      const found = ZigaMod.PRESET_AURAS.find(item => item.id === presetId);
+      if (found && found.base64) return found.base64;
+    }
+
+    // 2. Fallback to direct base64 data URL (e.g. user-uploaded PNG)
+    if (directData && typeof directData === 'string' && directData.startsWith('data:image')) {
+      return directData;
+    }
+
+    return '';
+  }
+
   function loadSettings() {
     try {
       const saved = localStorage.getItem('ziga_mod_settings');
@@ -20,7 +40,20 @@
   function saveSettings() {
     try {
       localStorage.setItem('ziga_mod_settings', JSON.stringify(userSettings));
-    } catch (e) { }
+    } catch (e) {
+      // QuotaExceededError fallback: if presetMy/presetOpp is used, omit duplicate base64 from localStorage
+      try {
+        const clone = Object.assign({}, userSettings);
+        if (clone.auraCustom) {
+          clone.auraCustom = Object.assign({}, clone.auraCustom);
+          if (clone.auraCustom.presetMy) clone.auraCustom.customImageMy = '';
+          if (clone.auraCustom.presetOpp) clone.auraCustom.customImageOpp = '';
+        }
+        localStorage.setItem('ziga_mod_settings', JSON.stringify(clone));
+      } catch (err2) {
+        console.warn('[AN Mod] Failed to save settings to localStorage:', err2);
+      }
+    }
   }
 
   // Load initially
@@ -67,6 +100,7 @@
   ZigaMod.setUserSettings = function (newSettings) { userSettings = newSettings; };
   ZigaMod.loadSettings = loadSettings;
   ZigaMod.saveSettings = saveSettings;
+  ZigaMod.resolveAuraImageData = resolveAuraImageData;
   ZigaMod.getPieceChar = getPieceChar;
   ZigaMod.loadSavedPosition = loadSavedPosition;
   ZigaMod.savePosition = savePosition;

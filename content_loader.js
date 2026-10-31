@@ -30,8 +30,8 @@
     'src/features/coup_tracker.js',
     'src/features/tactical_sandbox.js',
     'src/core/engine_hook.js',
-    'src/aura/board_aura.js',
     'src/aura/aura_presets.js',
+    'src/aura/board_aura.js',
     'src/ui/settings_modal.js',
     'src/features/move_recorder.js',
     'src/features/tactical_drawing.js',
@@ -62,7 +62,7 @@
 
   function injectModules(index) {
     if (index >= MODULES.length) {
-      console.log('[Ziga Mod] All 12 modular scripts loaded into page context successfully.');
+      console.log('[Ziga Mod] All 18 modular scripts loaded into page context successfully.');
       return;
     }
     const script = document.createElement('script');
