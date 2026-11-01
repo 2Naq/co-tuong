@@ -115,11 +115,11 @@
       }
     }
 
-    // Keep HUD at top if sandbox is not open
+    // Keep HUD at top of game canvas, but below Base UI portals/modals
     const widget = document.getElementById('ziga-mod-widget');
     const sbModal = document.getElementById('ziga-sandbox-modal');
     if (widget) {
-      widget.style.setProperty('z-index', '2147483647', 'important');
+      widget.style.setProperty('z-index', '2147483600', 'important');
       widget.style.setProperty('position', 'fixed', 'important');
     }
     if (sbModal) {

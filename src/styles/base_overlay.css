@@ -794,15 +794,44 @@ iframe[id^="google_ads"],
 }
 
 /* ========================================================================= */
+/* BASE UI PORTALS, POPOVERS, SELECTS, MODALS & DIALOGS ELEVATION OVER HUD   */
+/* ========================================================================= */
+[data-base-ui-portal] {
+  position: relative !important;
+  z-index: 2147483647 !important;
+}
+
+[data-base-ui-portal] > div,
+[data-base-ui-portal] .isolate,
+[data-base-ui-portal] [data-slot],
+[data-slot="popover-content"],
+[data-slot="select-content"],
+[data-slot="tooltip-content"],
+[data-slot="dialog-content"],
+[data-slot="dialog-overlay"],
+:has(> [data-slot="popover-content"]),
+:has(> [data-slot="select-content"]),
+:has(> [data-slot="tooltip-content"]),
+.ziga-sandbox-overlay,
+#ziga-sandbox-modal,
+#ziga-react-settings-host {
+  z-index: 2147483647 !important;
+}
+
+#ziga-mod-widget {
+  z-index: 2147483600 !important;
+}
+
+/* ========================================================================= */
 /* BOOTSTRAP 4 / 5 IMMUNITY SHIELD FOR MOD UI WIDGET, CARDS & DIALOGS      */
 /* ========================================================================= */
 /* Host page loads bootstrap.css which sets .border { border: 1px solid #dee2e6 !important; } */
 /* We neutralize this leak across all mod containers and portals with ID specificity: */
-:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot]) :is(.border, .border-top, .border-bottom, .border-left, .border-right, .border-start, .border-end) {
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) :is(.border, .border-top, .border-bottom, .border-left, .border-right, .border-start, .border-end) {
   border-color: var(--border) !important;
 }
 
-:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot]).border {
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border {
   border-color: var(--border) !important;
 }
 

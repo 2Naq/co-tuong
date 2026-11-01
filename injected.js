@@ -45557,7 +45557,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       document.documentElement.classList.toggle("dark", initialTheme === "dark");
       const widgetEl = document.createElement("div");
       widgetEl.id = "ziga-mod-widget";
-      widgetEl.className = `ziga-shadcn-root fixed z-[2147483647] min-w-[270px] max-w-[750px] overflow-hidden rounded-xl border border-border bg-background text-foreground shadow-2xl font-sans select-none [&.minimized]:w-auto [&.minimized]:min-w-0 ${initialTheme === "dark" ? "dark" : ""}`;
+      widgetEl.className = `ziga-shadcn-root fixed z-[2147483600] min-w-[270px] max-w-[750px] overflow-hidden rounded-xl border border-border bg-background text-foreground shadow-2xl font-sans select-none [&.minimized]:w-auto [&.minimized]:min-w-0 ${initialTheme === "dark" ? "dark" : ""}`;
       const savedSize = ZigaMod.loadSavedSize || ZigaMod.loadSavedWidgetSize ? (ZigaMod.loadSavedSize || ZigaMod.loadSavedWidgetSize)() : null;
       const initialWidth = savedSize && savedSize.width >= 270 && savedSize.width <= 750 ? savedSize.width : 320;
       widgetEl.style.width = initialWidth + "px";
@@ -45929,7 +45929,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       const widgetEl = ZigaMod.widgetEl || document.getElementById("ziga-mod-widget");
       const sbModal = document.getElementById("ziga-sandbox-modal");
       if (widgetEl) {
-        widgetEl.style.setProperty("z-index", "2147483647", "important");
+        widgetEl.style.setProperty("z-index", "2147483600", "important");
         widgetEl.style.setProperty("position", "fixed", "important");
       }
       if (sbModal) {

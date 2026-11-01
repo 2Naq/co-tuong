@@ -191,7 +191,7 @@
     const widgetEl = ZigaMod.widgetEl || document.getElementById('ziga-mod-widget');
     const sbModal = document.getElementById('ziga-sandbox-modal');
     if (widgetEl) {
-      widgetEl.style.setProperty('z-index', '2147483647', 'important');
+      widgetEl.style.setProperty('z-index', '2147483600', 'important');
       widgetEl.style.setProperty('position', 'fixed', 'important');
     }
     if (sbModal) {

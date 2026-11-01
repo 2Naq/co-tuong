@@ -39,7 +39,7 @@ import { uiStore } from '../lib/ui_store';
 
     const widgetEl = document.createElement('div');
     widgetEl.id = 'ziga-mod-widget';
-    widgetEl.className = `ziga-shadcn-root fixed z-[2147483647] min-w-[270px] max-w-[750px] overflow-hidden rounded-xl border border-border bg-background text-foreground shadow-2xl font-sans select-none [&.minimized]:w-auto [&.minimized]:min-w-0 ${
+    widgetEl.className = `ziga-shadcn-root fixed z-[2147483600] min-w-[270px] max-w-[750px] overflow-hidden rounded-xl border border-border bg-background text-foreground shadow-2xl font-sans select-none [&.minimized]:w-auto [&.minimized]:min-w-0 ${
       initialTheme === 'dark' ? 'dark' : ''
     }`;
 

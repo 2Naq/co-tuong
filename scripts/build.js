@@ -16,7 +16,7 @@ const outRootCss = path.join(rootDir, 'overlay.css');
 const outDistJs = path.join(distDir, 'injected.js');
 const outRootJs = path.join(rootDir, 'injected.js');
 
-const SCOPE_CONTAINER = ':is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot])';
+const SCOPE_CONTAINER = ':is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal])';
 
 function scopeSingleSelector(sel) {
   const trimmed = sel.trim();
@@ -30,6 +30,12 @@ function scopeSingleSelector(sel) {
     trimmed.includes('#ziga-mod-widget') ||
     trimmed.includes('#ziga-mod-settings-modal') ||
     trimmed.includes('.ziga-shadcn-root') ||
+    trimmed.includes('[data-base-ui-portal]') ||
+    trimmed.includes('[data-slot="popover-content"]') ||
+    trimmed.includes('[data-slot="select-content"]') ||
+    trimmed.includes('[data-slot="tooltip-content"]') ||
+    trimmed.includes('[data-slot="dialog-content"]') ||
+    trimmed.includes('[data-slot="dialog-overlay"]') ||
     trimmed.includes('::-webkit-scrollbar')
   ) {
     return trimmed;
