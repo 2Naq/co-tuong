@@ -17,12 +17,14 @@ const COMBAT_FEATURES = [
     desc: 'Thống kê số lượng quân đã mất của 2 bên'
   },
   {
-    key: 'highlight',
+    key: 'highlightTactics',
+    alias: 'highlight',
     title: 'Highlight tầm đánh trên bàn cờ',
     desc: 'Bấm vào quân để nhấp nháy quân ăn được'
   },
   {
-    key: 'boardAura',
+    key: 'liveBoardAura',
+    alias: 'boardAura',
     title: 'Aura Live (Hào quang trên bàn cờ)',
     desc: 'Lượt ta viền quân ăn được, lượt đối thủ viền quân ta bị nhắm'
   },
@@ -75,7 +77,8 @@ const STATS_FEATURES = [
     desc: 'Ghi chép lịch sử nước đi để phân tích AI'
   },
   {
-    key: 'rowNumbers',
+    key: 'showRowNumbers',
+    alias: 'rowNumbers',
     title: 'Tọa độ chuẩn Cờ Tướng (1 - 9)',
     desc: 'Hiển thị số lộ dọc từ phải sang trái chuẩn kỳ phổ'
   },
@@ -113,15 +116,23 @@ function FeatureRow({ item, checked, onToggle }) {
       <Switch
         id={`ziga-opt-${item.key}`}
         checked={!!checked}
-        onCheckedChange={(val) => onToggle(item.key, val)}
+        onCheckedChange={(val) => onToggle(item.key, val, item.alias)}
       />
     </Label>
   );
 }
 
 export function FeaturesTab({ draft, updateDraft }) {
-  const handleToggle = (key, val) => {
-    updateDraft({ [key]: val });
+  const handleToggle = (key, val, alias) => {
+    const patch = { [key]: val };
+    if (alias) patch[alias] = val;
+    updateDraft(patch);
+  };
+
+  const getChecked = (item) => {
+    if (draft[item.key] !== undefined) return draft[item.key];
+    if (item.alias && draft[item.alias] !== undefined) return draft[item.alias];
+    return false;
   };
 
   return (
@@ -142,7 +153,7 @@ export function FeaturesTab({ draft, updateDraft }) {
             <FeatureRow
               key={item.key}
               item={item}
-              checked={draft[item.key]}
+              checked={getChecked(item)}
               onToggle={handleToggle}
             />
           ))}
@@ -165,7 +176,7 @@ export function FeaturesTab({ draft, updateDraft }) {
             <FeatureRow
               key={item.key}
               item={item}
-              checked={draft[item.key]}
+              checked={getChecked(item)}
               onToggle={handleToggle}
             />
           ))}

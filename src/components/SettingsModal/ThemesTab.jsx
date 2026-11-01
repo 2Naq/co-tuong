@@ -85,12 +85,6 @@ export function ThemesTab({
                     : 'hover:bg-accent/30'
                 )}
               >
-                {isSelected && (
-                  <span className="absolute top-2.5 right-2.5 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm z-10">
-                    <Check className="size-3 stroke-[3]" />
-                  </span>
-                )}
-
                 <CardContent className="flex flex-col gap-2.5">
                   <div className="flex items-center justify-center gap-6 rounded-md border bg-muted/40 py-2.5">
                     {/* Red Piece Sample with Aura */}
@@ -127,6 +121,11 @@ export function ThemesTab({
                     </span>
                   </div>
                 </CardContent>
+                {isSelected && (
+                  <span className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm z-1000">
+                    <Check className="size-3 stroke-3" />
+                  </span>
+                )}
               </Card>
             );
           })}

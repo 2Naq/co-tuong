@@ -14739,11 +14739,13 @@
     // Hiển thị danh sách quân đã bị ăn
     highlightTactics: true,
     // Highlight tầm đánh trên bàn cờ khi chọn quân
-    showTacticalHud: true,
+    highlight: true,
+    // Alias cho highlightTactics
+    showTacticalHud: false,
     // Hiển thị bảng phân tích tầm đánh trên HUD
-    showCoUpTracker: true,
+    showCoUpTracker: false,
     // Thống kê cờ úp & tính xác suất lật quân
-    threatAlert: true,
+    threatAlert: false,
     // Cảnh báo quân của bạn đang bị đe dọa / bắt quân
     materialAdvantage: true,
     // Thanh chênh lệch điểm quân
@@ -14753,26 +14755,30 @@
     // Hiển thị chữ tiếng Việt (X, P, M...) thay vì chữ Hán
     showRowNumbers: true,
     // Đánh số hàng (1-10) ở 2 bên mép bàn cờ
+    rowNumbers: true,
+    // Alias cho showRowNumbers
     cleanAdView: true,
     // Ẩn bớt quảng cáo che vướng bàn cờ
-    showMoveHistory: true,
+    showMoveHistory: false,
     // Ghi biên bản ván đấu chuẩn tiếng Việt & xuất FEN/PGN
-    tacticalDrawing: true,
+    tacticalDrawing: false,
     // Vẽ mũi tên chiến thuật bằng chuột phải trên bàn cờ
-    openingBook: true,
+    openingBook: false,
     // Nhận diện hơn 60 thế khai cuộc cờ tướng kinh điển
-    voiceAnnouncer: true,
+    voiceAnnouncer: false,
     // Giọng đọc tiếng Việt (Chiếu tướng, bắt Xe...)
     timerAlertVoice: true,
     // Cảnh báo nhịp tim & đếm ngược khi sắp hết giờ
     evalBar: true,
     // Thanh đo thế trận thời gian thực (Eval Bar)
-    bestMoveArrow: true,
+    bestMoveArrow: false,
     // Mũi tên gợi ý nước đi tối ưu (Best Move)
-    mentorCoach: true,
+    mentorCoach: false,
     // Gia Sư Cờ Tướng Đồng Hành: Phân tích thế trận, gợi ý kế sách & rèn luyện tư duy
     liveBoardAura: true,
     // Tự động hiển thị viền xanh/đỏ focus quân có thể ăn trực tiếp trên bàn cờ
+    boardAura: true,
+    // Alias cho liveBoardAura
     liveAuraMode: "targets",
     // 'targets': Chỉ quân cờ có thể ăn được (chuẩn xác, gọn gàng), 'all': Cả quân ăn và bị ăn
     auraCustom: {
@@ -14780,7 +14786,7 @@
       // 'neon' hoặc 'image'
       theme: "default",
       // 'default', 'ice_fire', 'gold_purple', 'cyberpunk', 'jade_crimson', 'thunder_magma', 'royal_blood', 'toxic_violet', 'custom'
-      animation: "spin_pulse",
+      animation: "spin",
       // 'spin_pulse', 'spin', 'pulse', 'heartbeat', 'static'
       spinSpeed: 3.5,
       // Thời gian 1 vòng quay 360° (1.0s - 8.0s, mặc định 3.5s)
@@ -14811,7 +14817,7 @@
     toxic_violet: { id: "toxic_violet", name: "L\u1EE5c Quang & T\u1EED Tinh", myColor: "#a3e635", oppColor: "#c026d3", desc: "Xanh L\u1EE5c Quang & T\xEDm Ma Gi\u1EDBi" }
   };
   var AURA_ANIMATIONS = {
-    spin_pulse: { id: "spin_pulse", name: "Xoay Tr\xF2n & Ch\u1EDBp Nh\xE1y", desc: "V\u1EEBa quay 360\xB0 v\u1EEBa th\u1EDF nh\u1ECBp nh\xE0ng (\u0110\u1EB9p nh\u1EA5t)" },
+    spin_pulse: { id: "spin_pulse", name: "Xoay Tr\xF2n & Ch\u1EDBp Nh\xE1y", desc: "V\u1EEBa quay 360\xB0 v\u1EEBa th\u1EDF nh\u1ECBp nh\xE0ng" },
     spin: { id: "spin", name: "Xoay Tr\xF2n 360\xB0 Li\xEAn T\u1EE5c", desc: "V\xF2ng quay ma ph\xE1p lu\xE2n chuy\u1EC3n 360\xB0 m\u01B0\u1EE3t m\xE0" },
     pulse: { id: "pulse", name: "Ch\u1EDBp Nh\xE1y H\u01A1i Th\u1EDF (Pulse)", desc: "Ph\xF3ng to thu nh\u1ECF t\u1ECFa s\xE1ng nh\u1ECBp nh\xE0ng" },
     heartbeat: { id: "heartbeat", name: "Nh\u1ECBp Tim D\u1ED3n D\u1EADp (Heartbeat)", desc: "\u0110\u1EADp th\xECnh th\u1ECBch 2 nh\u1ECBp c\u1EA3nh b\xE1o k\u1ECBch t\xEDnh" },
@@ -34346,7 +34352,7 @@
             index_parts_exports3.Track,
             {
               "data-slot": "slider-track",
-              className: "relative grow overflow-hidden rounded-full bg-muted select-none data-horizontal:h-1.5 data-horizontal:w-full data-vertical:h-full data-vertical:w-1.5",
+              className: "relative grow overflow-hidden rounded-full bg-input/30 select-none data-horizontal:h-1.5 data-horizontal:w-full data-vertical:h-full data-vertical:w-1.5",
               children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(
                 index_parts_exports3.Indicator,
                 {
@@ -34360,7 +34366,7 @@
             index_parts_exports3.Thumb,
             {
               "data-slot": "slider-thumb",
-              className: "relative block size-4 shrink-0 cursor-grab rounded-full border-2 border-primary bg-background shadow-sm transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 hover:ring-ring/40 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:cursor-grabbing disabled:pointer-events-none disabled:opacity-50"
+              className: "relative block size-4 shrink-0 cursor-grab rounded-full border-2 border-primary bg-white shadow-sm transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 hover:ring-ring/40 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:cursor-grabbing disabled:pointer-events-none disabled:opacity-50"
             },
             index4
           ))
@@ -38075,7 +38081,7 @@
           index_parts_exports5.Thumb,
           {
             "data-slot": "switch-thumb",
-            className: "pointer-events-none block rounded-full bg-background shadow-xs ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 group-data-[size=default]/switch:data-checked:translate-x-4 group-data-[size=sm]/switch:data-checked:translate-x-3 dark:data-checked:bg-primary-foreground group-data-[size=default]/switch:data-unchecked:translate-x-0.5 group-data-[size=sm]/switch:data-unchecked:translate-x-0.5 dark:data-unchecked:bg-foreground"
+            className: "pointer-events-none block rounded-full bg-white shadow-xs ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 group-data-[size=default]/switch:data-checked:translate-x-4 group-data-[size=sm]/switch:data-checked:translate-x-3 dark:data-checked:bg-primary-foreground group-data-[size=default]/switch:data-unchecked:translate-x-0.5 group-data-[size=sm]/switch:data-unchecked:translate-x-0.5 dark:data-unchecked:bg-foreground"
           }
         )
       }
@@ -38091,12 +38097,14 @@
       desc: "Th\u1ED1ng k\xEA s\u1ED1 l\u01B0\u1EE3ng qu\xE2n \u0111\xE3 m\u1EA5t c\u1EE7a 2 b\xEAn"
     },
     {
-      key: "highlight",
+      key: "highlightTactics",
+      alias: "highlight",
       title: "Highlight t\u1EA7m \u0111\xE1nh tr\xEAn b\xE0n c\u1EDD",
       desc: "B\u1EA5m v\xE0o qu\xE2n \u0111\u1EC3 nh\u1EA5p nh\xE1y qu\xE2n \u0103n \u0111\u01B0\u1EE3c"
     },
     {
-      key: "boardAura",
+      key: "liveBoardAura",
+      alias: "boardAura",
       title: "Aura Live (H\xE0o quang tr\xEAn b\xE0n c\u1EDD)",
       desc: "L\u01B0\u1EE3t ta vi\u1EC1n qu\xE2n \u0103n \u0111\u01B0\u1EE3c, l\u01B0\u1EE3t \u0111\u1ED1i th\u1EE7 vi\u1EC1n qu\xE2n ta b\u1ECB nh\u1EAFm"
     },
@@ -38148,7 +38156,8 @@
       desc: "Ghi ch\xE9p l\u1ECBch s\u1EED n\u01B0\u1EDBc \u0111i \u0111\u1EC3 ph\xE2n t\xEDch AI"
     },
     {
-      key: "rowNumbers",
+      key: "showRowNumbers",
+      alias: "rowNumbers",
       title: "T\u1ECDa \u0111\u1ED9 chu\u1EA9n C\u1EDD T\u01B0\u1EDBng (1 - 9)",
       desc: "Hi\u1EC3n th\u1ECB s\u1ED1 l\u1ED9 d\u1ECDc t\u1EEB ph\u1EA3i sang tr\xE1i chu\u1EA9n k\u1EF3 ph\u1ED5"
     },
@@ -38184,7 +38193,7 @@
             {
               id: `ziga-opt-${item.key}`,
               checked: !!checked2,
-              onCheckedChange: (val) => onToggle(item.key, val)
+              onCheckedChange: (val) => onToggle(item.key, val, item.alias)
             }
           )
         ]
@@ -38192,8 +38201,15 @@
     );
   }
   function FeaturesTab({ draft, updateDraft }) {
-    const handleToggle = (key, val) => {
-      updateDraft({ [key]: val });
+    const handleToggle = (key, val, alias) => {
+      const patch = { [key]: val };
+      if (alias) patch[alias] = val;
+      updateDraft(patch);
+    };
+    const getChecked = (item) => {
+      if (draft[item.key] !== void 0) return draft[item.key];
+      if (item.alias && draft[item.alias] !== void 0) return draft[item.alias];
+      return false;
     };
     return /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "grid grid-cols-1 gap-3 md:grid-cols-2", children: [
       /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(Card, { size: "sm", children: [
@@ -38208,7 +38224,7 @@
           FeatureRow,
           {
             item,
-            checked: draft[item.key],
+            checked: getChecked(item),
             onToggle: handleToggle
           },
           item.key
@@ -38226,7 +38242,7 @@
           FeatureRow,
           {
             item,
-            checked: draft[item.key],
+            checked: getChecked(item),
             onToggle: handleToggle
           },
           item.key
@@ -38301,7 +38317,6 @@
                 isSelected ? "ring-2 ring-primary bg-accent/40" : "hover:bg-accent/30"
               ),
               children: [
-                isSelected && /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "absolute top-2.5 right-2.5 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm z-10", children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Check, { className: "size-3 stroke-[3]" }) }),
                 /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardContent, { className: "flex flex-col gap-2.5", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex items-center justify-center gap-6 rounded-md border bg-muted/40 py-2.5", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "relative flex size-11 items-center justify-center", children: [
@@ -38335,7 +38350,8 @@
                     /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-xs font-semibold text-foreground", children: th.name }),
                     /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-xs text-muted-foreground line-clamp-1", children: th.desc })
                   ] })
-                ] })
+                ] }),
+                isSelected && /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm z-1000", children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Check, { className: "size-3 stroke-3" }) })
               ]
             },
             th.id

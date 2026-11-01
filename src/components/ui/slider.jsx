@@ -33,7 +33,7 @@ function Slider({
       <SliderPrimitive.Control className="relative flex w-full cursor-pointer touch-none items-center py-1 select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col">
         <SliderPrimitive.Track
           data-slot="slider-track"
-          className="relative grow overflow-hidden rounded-full bg-muted select-none data-horizontal:h-1.5 data-horizontal:w-full data-vertical:h-full data-vertical:w-1.5"
+          className="relative grow overflow-hidden rounded-full bg-input/30 select-none data-horizontal:h-1.5 data-horizontal:w-full data-vertical:h-full data-vertical:w-1.5"
         >
           <SliderPrimitive.Indicator
             data-slot="slider-range"
@@ -44,7 +44,7 @@ function Slider({
           <SliderPrimitive.Thumb
             data-slot="slider-thumb"
             key={index}
-            className="relative block size-4 shrink-0 cursor-grab rounded-full border-2 border-primary bg-background shadow-sm transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 hover:ring-ring/40 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:cursor-grabbing disabled:pointer-events-none disabled:opacity-50"
+            className="relative block size-4 shrink-0 cursor-grab rounded-full border-2 border-primary bg-white shadow-sm transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-3 hover:ring-ring/40 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:cursor-grabbing disabled:pointer-events-none disabled:opacity-50"
           />
         ))}
       </SliderPrimitive.Control>

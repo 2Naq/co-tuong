@@ -7,7 +7,8 @@
     "dev": "node scripts/build.js --watch",
     "watch": "node scripts/build.js --watch",
     "build": "node scripts/build.js",
-    "generate:auras": "node scripts/generate_auras.js"
+    "generate:auras": "node scripts/generate_auras.js",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "repository": {
     "type": "git",
@@ -33,7 +34,8 @@
     "recharts": "^3.8.0",
     "shadcn": "^4.23.0",
     "shiki": "^4.5.0",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "prettier": "^3.9.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
