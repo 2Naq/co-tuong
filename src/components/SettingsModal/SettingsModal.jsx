@@ -4,6 +4,7 @@ import {
   Settings,
   Palette,
   Sparkles,
+  Sliders,
   RotateCcw,
   Save,
   Sun,
@@ -22,9 +23,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LivePreviewStage } from "./LivePreviewStage";
 import { FeaturesTab } from "./FeaturesTab";
+import { HudStyleTab } from "./HudStyleTab";
 import { ThemesTab } from "./ThemesTab";
 import { AuraGalleryTab } from "./AuraGalleryTab";
 import { PRESET_AURAS } from "../../aura/aura_presets";
+import { DEFAULT_HUD_STYLE } from "../../core/constants";
+import { applyHudStyle, saveHudStyleToStorage } from "../../ui/hud_theme";
 import { uiStore, useUiStore } from "../../lib/ui_store";
 
 const AURA_KEYS = [
@@ -72,6 +76,10 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
       ...(defaultSettings.auraCustom || {}),
       ...((ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {}),
     },
+    hudStyle: {
+      ...(defaultSettings.hudStyle || DEFAULT_HUD_STYLE),
+      ...((ZigaMod.userSettings && ZigaMod.userSettings.hudStyle) || {}),
+    },
   }));
   const [toastMsg, setToastMsg] = useState("");
 
@@ -84,6 +92,10 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
           ...(defaultSettings.auraCustom || {}),
           ...((ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {}),
         },
+        hudStyle: {
+          ...(defaultSettings.hudStyle || DEFAULT_HUD_STYLE),
+          ...((ZigaMod.userSettings && ZigaMod.userSettings.hudStyle) || {}),
+        },
       });
       if (initialTab) setActiveTab(initialTab);
     }
@@ -94,36 +106,52 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
     setTimeout(() => setToastMsg(""), 2200);
   }, []);
 
-  const syncToEngineLive = useCallback((nextDraft) => {
-    const mod = window.ZigaMod;
-    if (!mod) return;
-    mod.userSettings = {
-      ...nextDraft,
-      auraCustom: {
-        ...(mod.DEFAULT_SETTINGS?.auraCustom || {}),
-        ...(nextDraft.auraCustom || {}),
-      },
-    };
-    if (typeof mod.saveSettings === "function") {
-      mod.saveSettings();
-    }
-    if (typeof mod.applySettingsVisibility === "function") {
-      mod.applySettingsVisibility();
-    }
-    if (typeof mod.reloadAuraTextures === "function") {
-      mod.reloadAuraTextures();
-    }
-    if (typeof mod.refreshBoardAuraImmediate === "function") {
-      mod.refreshBoardAuraImmediate();
-    }
-    const activeData =
-      typeof mod.getActiveGameData === "function"
-        ? mod.getActiveGameData()
-        : null;
-    if (activeData && typeof mod.updateBoardAura === "function") {
-      mod.updateBoardAura(activeData);
-    }
-  }, []);
+  const syncToEngineLive = useCallback(
+    (nextDraft) => {
+      const mod = window.ZigaMod;
+      if (!mod) return;
+      mod.userSettings = {
+        ...nextDraft,
+        auraCustom: {
+          ...(mod.DEFAULT_SETTINGS?.auraCustom || {}),
+          ...(nextDraft.auraCustom || {}),
+        },
+        hudStyle: {
+          ...(mod.DEFAULT_SETTINGS?.hudStyle || DEFAULT_HUD_STYLE),
+          ...(nextDraft.hudStyle || {}),
+        },
+      };
+      if (typeof mod.saveSettings === "function") {
+        mod.saveSettings();
+      }
+      if (typeof mod.applySettingsVisibility === "function") {
+        mod.applySettingsVisibility();
+      }
+      if (typeof mod.applyHudStyle === "function" && nextDraft.hudStyle) {
+        mod.applyHudStyle(nextDraft.hudStyle, themeMode);
+      }
+      if (
+        typeof mod.saveHudStyleToStorage === "function" &&
+        nextDraft.hudStyle
+      ) {
+        mod.saveHudStyleToStorage(nextDraft.hudStyle);
+      }
+      if (typeof mod.reloadAuraTextures === "function") {
+        mod.reloadAuraTextures();
+      }
+      if (typeof mod.refreshBoardAuraImmediate === "function") {
+        mod.refreshBoardAuraImmediate();
+      }
+      const activeData =
+        typeof mod.getActiveGameData === "function"
+          ? mod.getActiveGameData()
+          : null;
+      if (activeData && typeof mod.updateBoardAura === "function") {
+        mod.updateBoardAura(activeData);
+      }
+    },
+    [themeMode],
+  );
 
   const updateDraft = useCallback(
     (patch) => {
@@ -136,6 +164,15 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
             auraCustom: {
               ...prev.auraCustom,
               ...patch.auraCustom,
+            },
+          };
+        } else if (patch.hudStyle) {
+          next = {
+            ...prev,
+            ...patch,
+            hudStyle: {
+              ...prev.hudStyle,
+              ...patch.hudStyle,
             },
           };
         } else {
@@ -156,11 +193,14 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
         auraCustom: {
           ...(prev.auraCustom || defaultSettings.auraCustom || {}),
         },
+        hudStyle: {
+          ...(prev.hudStyle || defaultSettings.hudStyle || DEFAULT_HUD_STYLE),
+        },
       };
       syncToEngineLive(next);
       return next;
     });
-    showToast("Đã khôi phục mặc định các Tính Năng (Giữ nguyên Aura)!");
+    showToast("Đã khôi phục mặc định các Tính Năng!");
   };
 
   // Separate Reset #2: Reset Aura Only (Preserve Feature Toggles)
@@ -174,6 +214,19 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
       return next;
     });
     showToast("Đã khôi phục mặc định riêng phần Hào Quang (Aura)!");
+  };
+
+  // Separate Reset #3: Reset HUD Style Only
+  const handleResetHudStyleOnly = () => {
+    setDraft((prev) => {
+      const next = {
+        ...prev,
+        hudStyle: { ...DEFAULT_HUD_STYLE },
+      };
+      syncToEngineLive(next);
+      return next;
+    });
+    showToast("Đã khôi phục mặc định Giao Diện HUD!");
   };
 
   const handleSaveAndClose = () => {
@@ -240,7 +293,7 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
 
         {/* Scrollable Content Body */}
         <div className="flex min-h-0 flex-1 flex-col gap-3.5 overflow-x-hidden overflow-y-auto py-1 pr-1">
-          {activeTab !== "features" && (
+          {(activeTab === "themes" || activeTab === "gallery") && (
             <LivePreviewStage
               draft={draft}
               updateDraft={updateDraft}
@@ -253,10 +306,14 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
             onValueChange={setActiveTab}
             className="w-full"
           >
-            <TabsList className="w-full">
+            <TabsList className="grid h-auto w-full grid-cols-2 gap-1 p-1 sm:grid-cols-4">
               <TabsTrigger value="features">
                 <Settings />
                 <span>Cài Đặt Tính Năng</span>
+              </TabsTrigger>
+              <TabsTrigger value="hud-style">
+                <Sliders />
+                <span>Giao Diện HUD</span>
               </TabsTrigger>
               <TabsTrigger value="themes">
                 <Palette />
@@ -264,12 +321,16 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
               </TabsTrigger>
               <TabsTrigger value="gallery">
                 <Sparkles />
-                <span>Kho {imageCount} Mẫu Aura PNG</span>
+                <span>Kho {imageCount} Mẫu PNG</span>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="features">
               <FeaturesTab draft={draft} updateDraft={updateDraft} />
+            </TabsContent>
+
+            <TabsContent value="hud-style">
+              <HudStyleTab draft={draft} updateDraft={updateDraft} />
             </TabsContent>
 
             <TabsContent value="themes">
@@ -290,7 +351,7 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
           </Tabs>
         </div>
 
-        {/* Footer with 2 Separate Reset Buttons */}
+        {/* Footer with 3 Separate Reset Buttons */}
         <DialogFooter className="shrink-0 items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-2">
             <Button
@@ -298,10 +359,21 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
               size="sm"
               id="ziga-btn-reset-features"
               onClick={handleResetFeaturesOnly}
-              title="Chỉ đặt lại các công tắc tính năng, giữ nguyên mẫu Hào Quang đang chọn"
+              title="Chỉ đặt lại các công tắc tính năng, giữ nguyên mẫu Hào Quang và giao diện HUD"
             >
               <RotateCcw />
               Reset Tính Năng
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              id="ziga-btn-reset-hud-style"
+              onClick={handleResetHudStyleOnly}
+              title="Chỉ đặt lại kiểu dáng & màu sắc của bảng HUD về mặc định"
+            >
+              <Sliders />
+              Reset Style HUD
             </Button>
 
             <Button

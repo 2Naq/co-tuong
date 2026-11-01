@@ -870,4 +870,32 @@ iframe[id^="google_ads"],
   border-color: var(--border) !important;
 }
 
+/* ========================================================================= */
+/* DYNAMIC HUD WIDGET PERSONALIZATION & THEME STYLING                         */
+/* ========================================================================= */
+#ziga-mod-widget {
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, border-radius 0.2s ease, transform 0.2s ease;
+}
+
+#ziga-mod-widget[data-card-opacity="transparent"] [data-slot="card"] {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+.dark #ziga-mod-widget[data-card-opacity="transparent"] [data-slot="card"] {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+:not(.dark) #ziga-mod-widget[data-card-opacity="transparent"] [data-slot="card"] {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+#ziga-mod-widget[data-card-opacity="solid"] [data-slot="card"] {
+  background-color: #1c1c20 !important;
+}
+
+:not(.dark) #ziga-mod-widget[data-card-opacity="solid"] [data-slot="card"] {
+  background-color: #f4f4f5 !important;
+}
+
+
 

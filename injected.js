@@ -786,7 +786,7 @@
   var require_react_dom_production = __commonJS({
     "node_modules/react-dom/cjs/react-dom.production.js"(exports) {
       "use strict";
-      var React181 = require_react();
+      var React182 = require_react();
       function formatProdErrorMessage(code) {
         var url = "https://react.dev/errors/" + code;
         if (1 < arguments.length) {
@@ -828,7 +828,7 @@
           implementation
         };
       }
-      var ReactSharedInternals = React181.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+      var ReactSharedInternals = React182.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
       function getCrossOriginStringAs(as, input) {
         if ("font" === as) return "";
         if ("string" === typeof input)
@@ -970,7 +970,7 @@
     "node_modules/react-dom/cjs/react-dom-client.production.js"(exports) {
       "use strict";
       var Scheduler2 = require_scheduler();
-      var React181 = require_react();
+      var React182 = require_react();
       var ReactDOM9 = require_react_dom();
       function formatProdErrorMessage(code) {
         var url = "https://react.dev/errors/" + code;
@@ -1261,7 +1261,7 @@
         return null;
       }
       var isArrayImpl = Array.isArray;
-      var ReactSharedInternals = React181.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+      var ReactSharedInternals = React182.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
       var ReactDOMSharedInternals = ReactDOM9.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
       var sharedNotPendingObject = {
         pending: false,
@@ -14410,7 +14410,7 @@
           0 === i && attemptExplicitHydrationTarget(target);
         }
       };
-      var isomorphicReactPackageVersion$jscomp$inline_2043 = React181.version;
+      var isomorphicReactPackageVersion$jscomp$inline_2043 = React182.version;
       if ("19.3.1" !== isomorphicReactPackageVersion$jscomp$inline_2043)
         throw Error(
           formatProdErrorMessage(
@@ -14581,15 +14581,15 @@
   var require_use_sync_external_store_shim_production = __commonJS({
     "node_modules/use-sync-external-store/cjs/use-sync-external-store-shim.production.js"(exports) {
       "use strict";
-      var React181 = require_react();
+      var React182 = require_react();
       function is(x, y) {
         return x === y && (0 !== x || 1 / x === 1 / y) || x !== x && y !== y;
       }
       var objectIs = "function" === typeof Object.is ? Object.is : is;
-      var useState37 = React181.useState;
-      var useEffect25 = React181.useEffect;
-      var useLayoutEffect3 = React181.useLayoutEffect;
-      var useDebugValue2 = React181.useDebugValue;
+      var useState37 = React182.useState;
+      var useEffect25 = React182.useEffect;
+      var useLayoutEffect3 = React182.useLayoutEffect;
+      var useDebugValue2 = React182.useDebugValue;
       function useSyncExternalStore$2(subscribe, getSnapshot) {
         var value = getSnapshot(), _useState = useState37({ inst: { value, getSnapshot } }), inst = _useState[0].inst, forceUpdate = _useState[1];
         useLayoutEffect3(
@@ -14626,7 +14626,7 @@
         return getSnapshot();
       }
       var shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
-      exports.useSyncExternalStore = void 0 !== React181.useSyncExternalStore ? React181.useSyncExternalStore : shim;
+      exports.useSyncExternalStore = void 0 !== React182.useSyncExternalStore ? React182.useSyncExternalStore : shim;
     }
   });
 
@@ -14646,17 +14646,17 @@
   var require_with_selector_production = __commonJS({
     "node_modules/use-sync-external-store/cjs/use-sync-external-store-shim/with-selector.production.js"(exports) {
       "use strict";
-      var React181 = require_react();
+      var React182 = require_react();
       var shim = require_shim();
       function is(x, y) {
         return x === y && (0 !== x || 1 / x === 1 / y) || x !== x && y !== y;
       }
       var objectIs = "function" === typeof Object.is ? Object.is : is;
       var useSyncExternalStore5 = shim.useSyncExternalStore;
-      var useRef53 = React181.useRef;
-      var useEffect25 = React181.useEffect;
-      var useMemo37 = React181.useMemo;
-      var useDebugValue2 = React181.useDebugValue;
+      var useRef53 = React182.useRef;
+      var useEffect25 = React182.useEffect;
+      var useMemo37 = React182.useMemo;
+      var useDebugValue2 = React182.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
         var instRef = useRef53(null);
         if (null === instRef.current) {
@@ -14853,8 +14853,81 @@
       // Base64 DataURL ảnh PNG tùy chọn lượt đối thủ
       scale: 1
       // Tỷ lệ độ lớn vòng Aura (0.7 đến 1.3, mặc định 1.0)
+    },
+    hudStyle: {
+      preset: "default_orange",
+      customColor: "#f97316",
+      bgMode: "glass",
+      // 'glass' (Kính mờ), 'solid' (Đặc), 'clear' (Trong suốt)
+      borderGlow: true,
+      // Hiệu ứng viền neon phát sáng
+      borderRadius: "rounded_xl",
+      // 'rounded_xl', 'rounded_lg', 'rounded_sm'
+      cardOpacity: "default",
+      // 'default', 'transparent', 'solid'
+      hudScale: 1
+      // Tỷ lệ thu phóng HUD (0.85 - 1.15)
     }
   };
+  var DEFAULT_HUD_STYLE = {
+    preset: "default_orange",
+    customColor: "#f97316",
+    bgMode: "glass",
+    borderGlow: true,
+    borderRadius: "rounded_xl",
+    cardOpacity: "default",
+    hudScale: 1
+  };
+  var HUD_STYLE_PRESETS = [
+    {
+      id: "default_orange",
+      name: "Cam Ziga",
+      color: "#f97316",
+      desc: "M\xE0u cam r\u1EF1c r\u1EE1 \u0111\u1EB7c tr\u01B0ng phong c\xE1ch Ziga"
+    },
+    {
+      id: "cyber_cyan",
+      name: "Th\u1EA7n Long Lam",
+      color: "#06b6d4",
+      desc: "Xanh Cyan ma ph\xE1p l\xF4i \u0111i\u1EC7n, s\u1EAFc s\u1EA3o"
+    },
+    {
+      id: "crimson_red",
+      name: "Huy\u1EBFt Nguy\u1EC7t",
+      color: "#ef4444",
+      desc: "\u0110\u1ECF chi\u1EBFn \xFD cu\u1ED3n cu\u1ED9n, kh\xED th\u1EBF \xE1p \u0111\u1EA3o"
+    },
+    {
+      id: "emerald_jade",
+      name: "Ng\u1ECDc L\u1EE5c B\u1EA3o",
+      color: "#10b981",
+      desc: "Xanh ng\u1ECDc \u0111i\u1EC1m t\u0129nh, t\u0129nh t\xE2m k\u1EF3 \u0111\u1EA1o"
+    },
+    {
+      id: "imperial_gold",
+      name: "Ho\xE0ng Kim",
+      color: "#eab308",
+      desc: "V\xE0ng kim qu\xFD ph\xE1i, quy\u1EC1n uy ho\xE0ng gia"
+    },
+    {
+      id: "neon_purple",
+      name: "T\u1EED \u0110i\u1EC7n",
+      color: "#a855f7",
+      desc: "T\xEDm huy\u1EC1n \u1EA3o, b\xED \u1EA9n v\xE0 cu\u1ED1n h\xFAt"
+    },
+    {
+      id: "sakura_pink",
+      name: "H\u1ED3ng Anh \u0110\xE0o",
+      color: "#ec4899",
+      desc: "H\u1ED3ng tinh t\u1EBF thanh nh\xE3, n\u1ED5i b\u1EADt \u0111\u1ED9c \u0111\xE1o"
+    },
+    {
+      id: "pure_oled",
+      name: "H\u1EAFc \xC1m OLED",
+      color: "#64748b",
+      desc: "\u0110en tuy\u1EC1n s\xE2u th\u1EB3m, t\u1ED1i gi\u1EA3n t\u1EADp trung"
+    }
+  ];
   var AURA_THEMES = {
     default: {
       id: "default",
@@ -14966,6 +15039,8 @@
     ZigaMod.PIECE_DEFS = PIECE_DEFS;
     ZigaMod.DISPLAY_ORDER = DISPLAY_ORDER;
     ZigaMod.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
+    ZigaMod.DEFAULT_HUD_STYLE = DEFAULT_HUD_STYLE;
+    ZigaMod.HUD_STYLE_PRESETS = HUD_STYLE_PRESETS;
     ZigaMod.AURA_THEMES = AURA_THEMES;
     ZigaMod.AURA_ANIMATIONS = AURA_ANIMATIONS;
     ZigaMod.formatXiangqiCoord = formatXiangqiCoord;
@@ -15000,6 +15075,13 @@
               {},
               ZigaMod.DEFAULT_SETTINGS.auraCustom,
               parsed.auraCustom
+            );
+          }
+          if (parsed.hudStyle) {
+            userSettings.hudStyle = Object.assign(
+              {},
+              ZigaMod.DEFAULT_SETTINGS && ZigaMod.DEFAULT_SETTINGS.hudStyle || ZigaMod.DEFAULT_HUD_STYLE,
+              parsed.hudStyle
             );
           }
         }
@@ -17150,7 +17232,7 @@
     "use strict";
     const textureCache = {};
     const decodedImageCache = {};
-    function hexToRgba(hex, alpha) {
+    function hexToRgba2(hex, alpha) {
       if (!hex || typeof hex !== "string") return `rgba(57, 255, 20, ${alpha})`;
       let c = hex.replace("#", "").trim();
       if (c.length === 3)
@@ -17235,9 +17317,9 @@
       if (!mainColor) {
         mainColor = colorType === "green" ? custom.myColor || "#39ff14" : custom.oppColor || "#ff1744";
       }
-      const outerGlow = hexToRgba(mainColor, 0.45);
-      const midGlow = hexToRgba(mainColor, 0.82);
-      const softGlow = hexToRgba(mainColor, 0.25);
+      const outerGlow = hexToRgba2(mainColor, 0.45);
+      const midGlow = hexToRgba2(mainColor, 0.82);
+      const softGlow = hexToRgba2(mainColor, 0.25);
       ctx.save();
       ctx.beginPath();
       ctx.arc(center, center, radius + 3, 0, Math.PI * 2);
@@ -17799,7 +17881,7 @@
     }
     setTimeout(preloadActiveAndPresetImages, 50);
     ZigaMod.createAuraCanvas = createAuraCanvas;
-    ZigaMod.hexToRgba = hexToRgba;
+    ZigaMod.hexToRgba = hexToRgba2;
     ZigaMod.canPieceAttackSquare = canPieceAttackSquare;
     ZigaMod.analyzeBoardAuras = analyzeBoardAuras;
     ZigaMod.updateBoardAura = updateBoardAura;
@@ -17810,7 +17892,7 @@
   })(window.ZigaMod = window.ZigaMod || {});
 
   // src/components/SettingsModal/SettingsModal.jsx
-  var import_react11 = __toESM(require_react());
+  var import_react12 = __toESM(require_react());
   var import_client = __toESM(require_client());
 
   // node_modules/lucide-react/dist/esm/createLucideIcon.mjs
@@ -18237,17 +18319,49 @@
   __iconData14.node;
   var GraduationCap = createLucideIcon(__iconData14);
 
-  // node_modules/lucide-react/dist/esm/icons/minus.mjs
+  // node_modules/lucide-react/dist/esm/icons/layers.mjs
   var __iconData15 = {
+    name: "layers",
+    size: 24,
+    node: [
+      [
+        "path",
+        {
+          d: "M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z",
+          key: "zw3jo"
+        }
+      ],
+      [
+        "path",
+        {
+          d: "M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12",
+          key: "1wduqc"
+        }
+      ],
+      [
+        "path",
+        {
+          d: "M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17",
+          key: "kqbvx6"
+        }
+      ]
+    ],
+    aliases: ["layers-3"]
+  };
+  __iconData15.node;
+  var Layers = createLucideIcon(__iconData15);
+
+  // node_modules/lucide-react/dist/esm/icons/minus.mjs
+  var __iconData16 = {
     name: "minus",
     size: 24,
     node: [["path", { d: "M5 12h14", key: "1ays0h" }]]
   };
-  __iconData15.node;
-  var Minus = createLucideIcon(__iconData15);
+  __iconData16.node;
+  var Minus = createLucideIcon(__iconData16);
 
   // node_modules/lucide-react/dist/esm/icons/moon.mjs
-  var __iconData16 = {
+  var __iconData17 = {
     name: "moon",
     size: 24,
     node: [
@@ -18260,11 +18374,11 @@
       ]
     ]
   };
-  __iconData16.node;
-  var Moon = createLucideIcon(__iconData16);
+  __iconData17.node;
+  var Moon = createLucideIcon(__iconData17);
 
   // node_modules/lucide-react/dist/esm/icons/palette.mjs
-  var __iconData17 = {
+  var __iconData18 = {
     name: "palette",
     size: 24,
     node: [
@@ -18281,11 +18395,11 @@
       ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
     ]
   };
-  __iconData17.node;
-  var Palette = createLucideIcon(__iconData17);
+  __iconData18.node;
+  var Palette = createLucideIcon(__iconData18);
 
   // node_modules/lucide-react/dist/esm/icons/pipette.mjs
-  var __iconData18 = {
+  var __iconData19 = {
     name: "pipette",
     size: 24,
     node: [
@@ -18306,11 +18420,11 @@
       ["path", { d: "m2 22 .414-.414", key: "jhxm08" }]
     ]
   };
-  __iconData18.node;
-  var Pipette = createLucideIcon(__iconData18);
+  __iconData19.node;
+  var Pipette = createLucideIcon(__iconData19);
 
   // node_modules/lucide-react/dist/esm/icons/plus.mjs
-  var __iconData19 = {
+  var __iconData20 = {
     name: "plus",
     size: 24,
     node: [
@@ -18318,11 +18432,11 @@
       ["path", { d: "M12 5v14", key: "s699le" }]
     ]
   };
-  __iconData19.node;
-  var Plus = createLucideIcon(__iconData19);
+  __iconData20.node;
+  var Plus = createLucideIcon(__iconData20);
 
   // node_modules/lucide-react/dist/esm/icons/rotate-ccw.mjs
-  var __iconData20 = {
+  var __iconData21 = {
     name: "rotate-ccw",
     size: 24,
     node: [
@@ -18330,11 +18444,11 @@
       ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
     ]
   };
-  __iconData20.node;
-  var RotateCcw = createLucideIcon(__iconData20);
+  __iconData21.node;
+  var RotateCcw = createLucideIcon(__iconData21);
 
   // node_modules/lucide-react/dist/esm/icons/save.mjs
-  var __iconData21 = {
+  var __iconData22 = {
     name: "save",
     size: 24,
     node: [
@@ -18349,11 +18463,11 @@
       ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
     ]
   };
-  __iconData21.node;
-  var Save = createLucideIcon(__iconData21);
+  __iconData22.node;
+  var Save = createLucideIcon(__iconData22);
 
   // node_modules/lucide-react/dist/esm/icons/scale.mjs
-  var __iconData22 = {
+  var __iconData23 = {
     name: "scale",
     size: 24,
     node: [
@@ -18364,11 +18478,11 @@
       ["path", { d: "M7 21h10", key: "1b0cd5" }]
     ]
   };
-  __iconData22.node;
-  var Scale = createLucideIcon(__iconData22);
+  __iconData23.node;
+  var Scale = createLucideIcon(__iconData23);
 
   // node_modules/lucide-react/dist/esm/icons/scroll-text.mjs
-  var __iconData23 = {
+  var __iconData24 = {
     name: "scroll-text",
     size: 24,
     node: [
@@ -18384,11 +18498,11 @@
       ]
     ]
   };
-  __iconData23.node;
-  var ScrollText = createLucideIcon(__iconData23);
+  __iconData24.node;
+  var ScrollText = createLucideIcon(__iconData24);
 
   // node_modules/lucide-react/dist/esm/icons/settings.mjs
-  var __iconData24 = {
+  var __iconData25 = {
     name: "settings",
     size: 24,
     node: [
@@ -18402,11 +18516,11 @@
       ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
     ]
   };
-  __iconData24.node;
-  var Settings = createLucideIcon(__iconData24);
+  __iconData25.node;
+  var Settings = createLucideIcon(__iconData25);
 
   // node_modules/lucide-react/dist/esm/icons/shield.mjs
-  var __iconData25 = {
+  var __iconData26 = {
     name: "shield",
     size: 24,
     node: [
@@ -18419,11 +18533,31 @@
       ]
     ]
   };
-  __iconData25.node;
-  var Shield = createLucideIcon(__iconData25);
+  __iconData26.node;
+  var Shield = createLucideIcon(__iconData26);
+
+  // node_modules/lucide-react/dist/esm/icons/sliders-vertical.mjs
+  var __iconData27 = {
+    name: "sliders-vertical",
+    size: 24,
+    node: [
+      ["path", { d: "M10 8h4", key: "1sr2af" }],
+      ["path", { d: "M12 21v-9", key: "17s77i" }],
+      ["path", { d: "M12 8V3", key: "13r4qs" }],
+      ["path", { d: "M17 16h4", key: "h1uq16" }],
+      ["path", { d: "M19 12V3", key: "o1uvq1" }],
+      ["path", { d: "M19 21v-5", key: "qua636" }],
+      ["path", { d: "M3 14h4", key: "bcjad9" }],
+      ["path", { d: "M5 10V3", key: "cb8scm" }],
+      ["path", { d: "M5 21v-7", key: "1w1uti" }]
+    ],
+    aliases: ["sliders"]
+  };
+  __iconData27.node;
+  var SlidersVertical = createLucideIcon(__iconData27);
 
   // node_modules/lucide-react/dist/esm/icons/sparkles.mjs
-  var __iconData26 = {
+  var __iconData28 = {
     name: "sparkles",
     size: 24,
     node: [
@@ -18440,11 +18574,11 @@
     ],
     aliases: ["stars"]
   };
-  __iconData26.node;
-  var Sparkles = createLucideIcon(__iconData26);
+  __iconData28.node;
+  var Sparkles = createLucideIcon(__iconData28);
 
   // node_modules/lucide-react/dist/esm/icons/sun.mjs
-  var __iconData27 = {
+  var __iconData29 = {
     name: "sun",
     size: 24,
     node: [
@@ -18459,11 +18593,11 @@
       ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }]
     ]
   };
-  __iconData27.node;
-  var Sun = createLucideIcon(__iconData27);
+  __iconData29.node;
+  var Sun = createLucideIcon(__iconData29);
 
   // node_modules/lucide-react/dist/esm/icons/swords.mjs
-  var __iconData28 = {
+  var __iconData30 = {
     name: "swords",
     size: 24,
     node: [
@@ -18489,11 +18623,11 @@
       ["path", { d: "M7.5 16.5 4 20", key: "14nozp" }]
     ]
   };
-  __iconData28.node;
-  var Swords = createLucideIcon(__iconData28);
+  __iconData30.node;
+  var Swords = createLucideIcon(__iconData30);
 
   // node_modules/lucide-react/dist/esm/icons/trash.mjs
-  var __iconData29 = {
+  var __iconData31 = {
     name: "trash",
     size: 24,
     node: [
@@ -18505,11 +18639,11 @@
     ],
     aliases: ["trash-2"]
   };
-  __iconData29.node;
-  var Trash = createLucideIcon(__iconData29);
+  __iconData31.node;
+  var Trash = createLucideIcon(__iconData31);
 
   // node_modules/lucide-react/dist/esm/icons/triangle-alert.mjs
-  var __iconData30 = {
+  var __iconData32 = {
     name: "triangle-alert",
     size: 24,
     node: [
@@ -18525,11 +18659,11 @@
     ],
     aliases: ["alert-triangle"]
   };
-  __iconData30.node;
-  var TriangleAlert = createLucideIcon(__iconData30);
+  __iconData32.node;
+  var TriangleAlert = createLucideIcon(__iconData32);
 
   // node_modules/lucide-react/dist/esm/icons/upload.mjs
-  var __iconData31 = {
+  var __iconData33 = {
     name: "upload",
     size: 24,
     node: [
@@ -18538,11 +18672,11 @@
       ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }]
     ]
   };
-  __iconData31.node;
-  var Upload = createLucideIcon(__iconData31);
+  __iconData33.node;
+  var Upload = createLucideIcon(__iconData33);
 
   // node_modules/lucide-react/dist/esm/icons/x.mjs
-  var __iconData32 = {
+  var __iconData34 = {
     name: "x",
     size: 24,
     node: [
@@ -18550,8 +18684,8 @@
       ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
     ]
   };
-  __iconData32.node;
-  var X = createLucideIcon(__iconData32);
+  __iconData34.node;
+  var X = createLucideIcon(__iconData34);
 
   // src/components/ui/dialog.jsx
   var React50 = __toESM(require_react());
@@ -38624,9 +38758,604 @@
     ] });
   }
 
-  // src/components/SettingsModal/ThemesTab.jsx
+  // src/components/SettingsModal/HudStyleTab.jsx
   var import_react8 = __toESM(require_react());
+
+  // src/ui/hud_theme.js
+  function getContrastYIQ(hexcolor) {
+    if (!hexcolor || typeof hexcolor !== "string") return "#ffffff";
+    const hex = hexcolor.replace("#", "");
+    if (hex.length < 6) return "#ffffff";
+    const r2 = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const yiq = (r2 * 299 + g * 587 + b * 114) / 1e3;
+    return yiq >= 150 ? "#000000" : "#ffffff";
+  }
+  function hexToRgba(hexcolor, alpha = 1) {
+    if (!hexcolor || typeof hexcolor !== "string")
+      return `rgba(249, 115, 22, ${alpha})`;
+    const hex = hexcolor.replace("#", "");
+    let r2 = 249, g = 115, b = 22;
+    if (hex.length === 3) {
+      r2 = parseInt(hex[0] + hex[0], 16);
+      g = parseInt(hex[1] + hex[1], 16);
+      b = parseInt(hex[2] + hex[2], 16);
+    } else if (hex.length >= 6) {
+      r2 = parseInt(hex.substring(0, 2), 16);
+      g = parseInt(hex.substring(2, 4), 16);
+      b = parseInt(hex.substring(4, 6), 16);
+    }
+    return `rgba(${r2}, ${g}, ${b}, ${alpha})`;
+  }
+  function resolveHudAccent(styleConfig) {
+    const cfg = styleConfig || DEFAULT_HUD_STYLE;
+    if (cfg.preset === "custom" && cfg.customColor) {
+      return cfg.customColor;
+    }
+    const match = HUD_STYLE_PRESETS.find((p) => p.id === cfg.preset);
+    return match ? match.color : DEFAULT_HUD_STYLE.customColor;
+  }
+  function applyHudStyle(styleConfig, themeMode = "dark") {
+    const cfg = {
+      ...DEFAULT_HUD_STYLE,
+      ...styleConfig || {}
+    };
+    const widgetEl = document.getElementById("ziga-mod-widget");
+    const bodyEl = document.getElementById("ziga-mod-body");
+    const headerEl = document.getElementById("ziga-mod-drag-handle");
+    if (!widgetEl) return;
+    const accentHex = resolveHudAccent(cfg);
+    const textColor = getContrastYIQ(accentHex);
+    const isDark = themeMode === "dark" || widgetEl.classList.contains("dark");
+    widgetEl.style.setProperty("--primary", accentHex);
+    widgetEl.style.setProperty("--primary-foreground", textColor);
+    widgetEl.style.setProperty("--ring", accentHex);
+    let bgColor = "";
+    let backdrop = "";
+    if (cfg.bgMode === "solid") {
+      bgColor = isDark ? "#141416" : "#ffffff";
+      backdrop = "none";
+    } else if (cfg.bgMode === "clear") {
+      bgColor = isDark ? "rgba(12, 12, 15, 0.65)" : "rgba(255, 255, 255, 0.65)";
+      backdrop = "blur(8px) saturate(160%)";
+    } else {
+      bgColor = isDark ? "rgba(18, 18, 22, 0.88)" : "rgba(255, 255, 255, 0.88)";
+      backdrop = "blur(14px) saturate(180%)";
+    }
+    widgetEl.style.setProperty("background-color", bgColor, "important");
+    widgetEl.style.setProperty("backdrop-filter", backdrop, "important");
+    widgetEl.style.setProperty("-webkit-backdrop-filter", backdrop, "important");
+    if (bodyEl) {
+      bodyEl.style.setProperty("background-color", "transparent", "important");
+    }
+    if (headerEl) {
+      headerEl.style.setProperty("background-color", "transparent", "important");
+    }
+    if (cfg.borderGlow) {
+      widgetEl.style.setProperty(
+        "box-shadow",
+        `0 20px 45px rgba(0, 0, 0, 0.65), 0 0 16px ${hexToRgba(accentHex, 0.38)}`,
+        "important"
+      );
+      widgetEl.style.setProperty(
+        "border-color",
+        hexToRgba(accentHex, 0.55),
+        "important"
+      );
+    } else {
+      widgetEl.style.setProperty(
+        "box-shadow",
+        "0 20px 45px rgba(0, 0, 0, 0.55)",
+        "important"
+      );
+      widgetEl.style.removeProperty("border-color");
+    }
+    let radiusPx = "16px";
+    let radiusRem = "1rem";
+    if (cfg.borderRadius === "rounded_lg") {
+      radiusPx = "12px";
+      radiusRem = "0.75rem";
+    } else if (cfg.borderRadius === "rounded_sm") {
+      radiusPx = "5px";
+      radiusRem = "0.3rem";
+    }
+    widgetEl.style.setProperty("border-radius", radiusPx, "important");
+    widgetEl.style.setProperty("--radius", radiusRem);
+    widgetEl.setAttribute("data-card-opacity", cfg.cardOpacity || "default");
+    const cardElements = widgetEl.querySelectorAll(
+      "#ziga-mod-body > [data-slot='card']"
+    );
+    cardElements.forEach((card) => {
+      if (cfg.cardOpacity === "transparent") {
+        card.style.setProperty(
+          "background-color",
+          isDark ? "rgba(255, 255, 255, 0.04)" : "rgba(0, 0, 0, 0.03)",
+          "important"
+        );
+      } else if (cfg.cardOpacity === "solid") {
+        card.style.setProperty(
+          "background-color",
+          isDark ? "#1c1c20" : "#f4f4f5",
+          "important"
+        );
+      } else {
+        card.style.removeProperty("background-color");
+      }
+    });
+    const scale = typeof cfg.hudScale === "number" && cfg.hudScale >= 0.8 && cfg.hudScale <= 1.2 ? cfg.hudScale : 1;
+    if (Math.abs(scale - 1) > 0.01) {
+      widgetEl.style.setProperty("transform", `scale(${scale})`, "important");
+      const rect = widgetEl.getBoundingClientRect();
+      const isLeft = rect.left < window.innerWidth / 2;
+      widgetEl.style.setProperty(
+        "transform-origin",
+        isLeft ? "top left" : "top right",
+        "important"
+      );
+    } else {
+      widgetEl.style.removeProperty("transform");
+      widgetEl.style.removeProperty("transform-origin");
+    }
+  }
+  function saveHudStyleToStorage(styleConfig) {
+    try {
+      localStorage.setItem("ziga_xiangqi_hud_style", JSON.stringify(styleConfig));
+    } catch (e) {
+    }
+  }
+  function loadSavedHudStyle() {
+    try {
+      const raw = localStorage.getItem("ziga_xiangqi_hud_style");
+      if (raw) {
+        return { ...DEFAULT_HUD_STYLE, ...JSON.parse(raw) };
+      }
+    } catch (e) {
+    }
+    return { ...DEFAULT_HUD_STYLE };
+  }
+  if (typeof window !== "undefined") {
+    const ZigaMod = window.ZigaMod = window.ZigaMod || {};
+    ZigaMod.applyHudStyle = applyHudStyle;
+    ZigaMod.saveHudStyleToStorage = saveHudStyleToStorage;
+    ZigaMod.loadSavedHudStyle = loadSavedHudStyle;
+  }
+
+  // src/components/SettingsModal/HudStyleTab.jsx
   var import_jsx_runtime40 = __toESM(require_jsx_runtime());
+  function HudStyleTab({ draft, updateDraft }) {
+    const ZigaMod = window.ZigaMod || {};
+    const presets = Array.isArray(ZigaMod.HUD_STYLE_PRESETS) && ZigaMod.HUD_STYLE_PRESETS.length > 0 ? ZigaMod.HUD_STYLE_PRESETS : HUD_STYLE_PRESETS;
+    const hudStyle = {
+      ...DEFAULT_HUD_STYLE,
+      ...draft.hudStyle || {}
+    };
+    const activeColor = resolveHudAccent(hudStyle);
+    const textColor = getContrastYIQ(activeColor);
+    const handleUpdate = (patch) => {
+      updateDraft({
+        hudStyle: {
+          ...hudStyle,
+          ...patch
+        }
+      });
+    };
+    const radiusMap = {
+      rounded_xl: "16px",
+      rounded_lg: "12px",
+      rounded_sm: "4px"
+    };
+    let previewBg = "rgba(18, 18, 22, 0.88)";
+    let previewBackdrop = "blur(12px)";
+    if (hudStyle.bgMode === "solid") {
+      previewBg = "#141416";
+      previewBackdrop = "none";
+    } else if (hudStyle.bgMode === "clear") {
+      previewBg = "rgba(12, 12, 15, 0.65)";
+      previewBackdrop = "blur(6px)";
+    }
+    const previewShadow = hudStyle.borderGlow ? `0 12px 30px rgba(0, 0, 0, 0.6), 0 0 14px ${hexToRgba(activeColor, 0.35)}` : "0 10px 25px rgba(0, 0, 0, 0.5)";
+    const previewBorderColor = hudStyle.borderGlow ? hexToRgba(activeColor, 0.55) : "rgba(255, 255, 255, 0.1)";
+    return /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex flex-col gap-4", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(Card, { size: "sm", className: "border-border/80 relative overflow-hidden", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardHeader, { className: "pb-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardTitle, { className: "flex items-center gap-2 text-sm", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Sparkles, { className: "text-primary size-4" }),
+              /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { children: "Xem Tr\u01B0\u1EDBc HUD Th\u1EDDi Gian Th\u1EF1c (Live Mini Preview)" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+              Badge,
+              {
+                variant: "outline",
+                style: {
+                  borderColor: hexToRgba(activeColor, 0.5),
+                  color: activeColor
+                },
+                children: hudStyle.preset === "custom" ? `Custom: ${activeColor}` : presets.find((p) => p.id === hudStyle.preset)?.name || "M\u1EB7c \u0111\u1ECBnh"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(CardDescription, { children: "Khung b\xEAn d\u01B0\u1EDBi m\xF4 ph\u1ECFng tr\u1EF1c ti\u1EBFp di\u1EC7n m\u1EA1o b\u1EA3ng \u0111i\u1EC1u khi\u1EC3n HUD khi \xE1p d\u1EE5ng" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(CardContent, { className: "flex justify-center p-3", children: /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(
+          "div",
+          {
+            style: {
+              width: "100%",
+              maxWidth: "380px",
+              backgroundColor: previewBg,
+              backdropFilter: previewBackdrop,
+              WebkitBackdropFilter: previewBackdrop,
+              borderRadius: radiusMap[hudStyle.borderRadius] || "16px",
+              boxShadow: previewShadow,
+              border: `1px solid ${previewBorderColor}`,
+              transition: "all 0.25s ease"
+            },
+            className: "text-foreground flex flex-col overflow-hidden select-none",
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "border-border/40 flex items-center justify-between border-b px-3.5 py-2.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex items-center gap-2", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                    "span",
+                    {
+                      style: {
+                        backgroundColor: activeColor,
+                        color: textColor
+                      },
+                      className: "flex size-5.5 items-center justify-center rounded text-[11px] font-black",
+                      children: "AN"
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-xs font-bold tracking-tight", children: "TOOLS SUPPORT" })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex items-center gap-1", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                    "span",
+                    {
+                      style: { backgroundColor: hexToRgba(activeColor, 0.15) },
+                      className: "border-border/40 flex size-6 items-center justify-center rounded border text-[10px]",
+                      children: "\u{1F319}"
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                    "span",
+                    {
+                      style: { backgroundColor: hexToRgba(activeColor, 0.15) },
+                      className: "border-border/40 flex size-6 items-center justify-center rounded border text-[10px]",
+                      children: "\u2699\uFE0F"
+                    }
+                  )
+                ] })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex flex-col gap-2 p-3 text-xs", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(
+                  "div",
+                  {
+                    style: {
+                      backgroundColor: hudStyle.cardOpacity === "transparent" ? "rgba(255, 255, 255, 0.04)" : hudStyle.cardOpacity === "solid" ? "#1c1c20" : "rgba(255, 255, 255, 0.07)",
+                      borderRadius: "8px"
+                    },
+                    className: "border-border/30 flex items-center gap-2 border px-2.5 py-1.5",
+                    children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                        "span",
+                        {
+                          style: { backgroundColor: activeColor },
+                          className: "size-2 animate-pulse rounded-full"
+                        }
+                      ),
+                      /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-foreground font-medium", children: "\u0110ang xem v\xE1n (Phuong_HN vs Quang_SG)" })
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(
+                  "div",
+                  {
+                    style: {
+                      backgroundColor: hudStyle.cardOpacity === "transparent" ? "rgba(255, 255, 255, 0.04)" : hudStyle.cardOpacity === "solid" ? "#1c1c20" : "rgba(255, 255, 255, 0.07)",
+                      borderRadius: "8px"
+                    },
+                    className: "border-border/30 flex flex-col gap-1.5 border p-2.5",
+                    children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex items-center justify-between", children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-foreground font-semibold", children: "\u0110i\u1EC3m L\u1EF1c L\u01B0\u1EE3ng" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                          "span",
+                          {
+                            style: {
+                              backgroundColor: hexToRgba(activeColor, 0.2),
+                              color: activeColor,
+                              border: `1px solid ${hexToRgba(activeColor, 0.4)}`
+                            },
+                            className: "rounded-full px-2 py-0.5 text-[10px] font-bold",
+                            children: "+1.5 (B\u1EA1n \u01B0u)"
+                          }
+                        )
+                      ] }),
+                      /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("div", { className: "bg-muted/60 relative h-2 w-full overflow-hidden rounded-full", children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                        "div",
+                        {
+                          style: {
+                            width: "60%",
+                            backgroundColor: activeColor
+                          },
+                          className: "h-full rounded-full transition-all"
+                        }
+                      ) }),
+                      /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "text-muted-foreground flex justify-between text-[11px]", children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("span", { children: [
+                          "B\u1EA1n: ",
+                          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("strong", { className: "text-foreground", children: "49.0 \u0111" })
+                        ] }),
+                        /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("span", { children: [
+                          "\u0110\u1ED1i th\u1EE7: ",
+                          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("strong", { className: "text-foreground", children: "47.5 \u0111" })
+                        ] })
+                      ] })
+                    ]
+                  }
+                )
+              ] })
+            ]
+          }
+        ) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(Card, { size: "sm", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardHeader, { className: "pb-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardTitle, { className: "flex items-center gap-2 text-sm", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Palette, { className: "text-primary size-4" }),
+            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { children: "Ch\u1EE7 \u0110\u1EC1 & M\xE0u S\u1EAFc N\u1ED5i B\u1EADt (Accent Color)" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(CardDescription, { children: "Ch\u1ECDn m\u1ED9t trong 8 phong c\xE1ch ph\u1ED1i m\xE0u tinh t\u1EBF ho\u1EB7c t\u1EF1 ch\u1ECDn m\xE3 m\xE0u Hex" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardContent, { className: "grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4", children: [
+          presets.map((preset) => {
+            const isSelected = hudStyle.preset === preset.id;
+            return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+              Card,
+              {
+                size: "sm",
+                onClick: () => handleUpdate({ preset: preset.id }),
+                className: cn(
+                  "hover:border-primary/60 relative cursor-pointer transition-all select-none",
+                  isSelected ? "bg-accent/40 ring-2" : "hover:bg-accent/20"
+                ),
+                style: isSelected ? {
+                  borderColor: preset.color,
+                  boxShadow: `0 0 10px ${hexToRgba(preset.color, 0.3)}`
+                } : {},
+                children: /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardContent, { className: "flex flex-col gap-2 p-3", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex items-center justify-between", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                      "div",
+                      {
+                        style: {
+                          backgroundColor: preset.color,
+                          boxShadow: `0 0 8px ${preset.color}`
+                        },
+                        className: "size-5 rounded-full border border-white/20"
+                      }
+                    ),
+                    isSelected && /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                      Check,
+                      {
+                        style: { color: preset.color },
+                        className: "size-4 font-bold"
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("div", { className: "text-foreground text-xs font-bold", children: preset.name }),
+                    /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("div", { className: "text-muted-foreground line-clamp-1 text-[11px]", children: preset.desc })
+                  ] })
+                ] })
+              },
+              preset.id
+            );
+          }),
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+            Card,
+            {
+              size: "sm",
+              onClick: () => handleUpdate({ preset: "custom" }),
+              className: cn(
+                "hover:border-primary/60 relative cursor-pointer transition-all select-none",
+                hudStyle.preset === "custom" ? "bg-accent/40 ring-2" : "hover:bg-accent/20"
+              ),
+              style: hudStyle.preset === "custom" ? {
+                borderColor: hudStyle.customColor || "#f97316",
+                boxShadow: `0 0 10px ${hexToRgba(hudStyle.customColor || "#f97316", 0.3)}`
+              } : {},
+              children: /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardContent, { className: "flex flex-col gap-2 p-3", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex items-center justify-between", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "relative flex items-center", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                      "input",
+                      {
+                        type: "color",
+                        id: "ziga-custom-hud-color-input",
+                        value: hudStyle.customColor || "#f97316",
+                        onChange: (e) => {
+                          handleUpdate({
+                            preset: "custom",
+                            customColor: e.target.value
+                          });
+                        },
+                        onClick: (e) => e.stopPropagation(),
+                        className: "absolute inset-0 size-5 cursor-pointer rounded-full border-0 p-0 opacity-0"
+                      }
+                    ),
+                    /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                      "div",
+                      {
+                        style: {
+                          backgroundColor: hudStyle.customColor || "#f97316",
+                          boxShadow: `0 0 8px ${hudStyle.customColor || "#f97316"}`
+                        },
+                        className: "flex size-5 cursor-pointer items-center justify-center rounded-full border border-white/20",
+                        children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Pipette, { className: "size-2.5 text-white mix-blend-difference" })
+                      }
+                    )
+                  ] }),
+                  hudStyle.preset === "custom" && /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                    Check,
+                    {
+                      style: { color: hudStyle.customColor || "#f97316" },
+                      className: "size-4 font-bold"
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("div", { className: "text-foreground flex items-center gap-1 text-xs font-bold", children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { children: "T\u1EF1 ch\u1ECDn m\xE3 m\xE0u" }) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("div", { className: "text-muted-foreground font-mono text-[11px]", children: hudStyle.customColor || "#f97316" })
+                ] })
+              ] })
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(Card, { size: "sm", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardHeader, { className: "pb-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardTitle, { className: "flex items-center gap-2 text-sm", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Layers, { className: "text-primary size-4" }),
+            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { children: "Ch\u1EBF \u0110\u1ED9 N\u1EC1n & Hi\u1EC7u \u1EE8ng K\xEDnh M\u1EDD (Glassmorphism)" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(CardDescription, { children: "\u0110i\u1EC1u ch\u1EC9nh \u0111\u1ED9 trong su\u1ED1t v\xE0 m\u1EE9c \u0111\u1ED9 m\u1EDD nh\xF2e h\u1EADu c\u1EA3nh b\xE0n c\u1EDD" })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(CardContent, { className: "grid grid-cols-1 gap-2.5 sm:grid-cols-3", children: [
+          {
+            id: "glass",
+            title: "K\xEDnh M\u1EDD (Glass)",
+            desc: "N\u1EC1n m\u1EDD nh\xF2e sang tr\u1ECDng, xuy\xEAn th\u1EA5u b\xE0n c\u1EDD nh\u1EB9 nh\xE0ng (Khuy\xEAn d\xF9ng)"
+          },
+          {
+            id: "solid",
+            title: "N\u1EC1n \u0110\u1EB7c (Solid 100%)",
+            desc: "N\u1EC1n \u0111en/tr\u1EAFng \u0111\u1EB7c 100%, r\xF5 r\xE0ng s\u1EAFc n\xE9t, tri\u1EC7t ti\xEAu ph\xE2n t\xE2m"
+          },
+          {
+            id: "clear",
+            title: "Trong Su\u1ED1t Cao (Clear)",
+            desc: "\u0110\u1ED9 trong su\u1ED1t 65%, quan s\xE1t t\u1ED1i \u0111a c\xE1c n\u01B0\u1EDBc \u0111i ph\xEDa sau HUD"
+          }
+        ].map((mode) => {
+          const isSelected = hudStyle.bgMode === mode.id;
+          return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+            Card,
+            {
+              size: "sm",
+              onClick: () => handleUpdate({ bgMode: mode.id }),
+              className: cn(
+                "cursor-pointer transition-all select-none",
+                isSelected ? "border-primary bg-primary/10 ring-primary ring-1" : "hover:bg-accent/20"
+              ),
+              children: /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardContent, { className: "flex flex-col gap-1 p-3", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex items-center justify-between", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-foreground text-xs font-bold", children: mode.title }),
+                  isSelected && /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Check, { className: "text-primary size-3.5" })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("p", { className: "text-muted-foreground text-[11px]", children: mode.desc })
+              ] })
+            },
+            mode.id
+          );
+        }) })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "grid grid-cols-1 gap-3 sm:grid-cols-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Card, { size: "sm", children: /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardContent, { className: "flex items-center justify-between p-3.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex flex-col gap-0.5 pr-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Label, { className: "text-foreground cursor-pointer text-xs font-semibold", children: "Vi\u1EC1n Neon Ph\xE1t S\xE1ng (Border Glow)" }),
+            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-muted-foreground text-[11px]", children: "T\u1ECFa v\u1EA7ng s\xE1ng h\xE0o quang neon theo m\xE0u ch\u1EE7 \u0111\u1EA1o xung quanh vi\u1EC1n HUD" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+            Switch,
+            {
+              checked: hudStyle.borderGlow,
+              onCheckedChange: (val) => handleUpdate({ borderGlow: val })
+            }
+          )
+        ] }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Card, { size: "sm", children: /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardContent, { className: "flex flex-col gap-2 p-3.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Label, { className: "text-foreground text-xs font-semibold", children: "\u0110\u1ED9 Bo G\xF3c Khung HUD" }),
+            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-muted-foreground text-[11px]", children: hudStyle.borderRadius === "rounded_xl" ? "16px (Bo tr\xF2n)" : hudStyle.borderRadius === "rounded_lg" ? "12px (V\u1EEBa)" : "4px (G\xF3c vu\xF4ng)" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("div", { className: "grid grid-cols-3 gap-1.5", children: [
+            { id: "rounded_xl", label: "Bo Tr\xF2n" },
+            { id: "rounded_lg", label: "Bo V\u1EEBa" },
+            { id: "rounded_sm", label: "G\xF3c Vu\xF4ng" }
+          ].map((r2) => /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+            Button3,
+            {
+              variant: hudStyle.borderRadius === r2.id ? "default" : "outline",
+              size: "xs",
+              onClick: () => handleUpdate({ borderRadius: r2.id }),
+              className: "text-[11px]",
+              children: r2.label
+            },
+            r2.id
+          )) })
+        ] }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Card, { size: "sm", children: /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardContent, { className: "flex flex-col gap-2 p-3.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Label, { className: "text-foreground text-xs font-semibold", children: "\u0110\u1ED9 T\u01B0\u01A1ng Ph\u1EA3n Th\u1EBB Th\u1ED1ng K\xEA" }),
+            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-muted-foreground text-[11px]", children: hudStyle.cardOpacity === "transparent" ? "Xuy\xEAn th\u1EA5u" : hudStyle.cardOpacity === "solid" ? "\u0110\u1EADm n\xE9t" : "Ti\xEAu chu\u1EA9n" })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("div", { className: "grid grid-cols-3 gap-1.5", children: [
+            { id: "default", label: "Ti\xEAu Chu\u1EA9n" },
+            { id: "transparent", label: "Xuy\xEAn Th\u1EA5u" },
+            { id: "solid", label: "\u0110\u1EADm N\xE9t" }
+          ].map((c) => /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+            Button3,
+            {
+              variant: hudStyle.cardOpacity === c.id ? "default" : "outline",
+              size: "xs",
+              onClick: () => handleUpdate({ cardOpacity: c.id }),
+              className: "text-[11px]",
+              children: c.label
+            },
+            c.id
+          )) })
+        ] }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Card, { size: "sm", children: /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardContent, { className: "flex flex-col gap-2 p-3.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex items-center justify-between", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Label, { className: "text-foreground text-xs font-semibold", children: "T\u1EF7 L\u1EC7 Thu Ph\xF3ng HUD" }),
+            /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex items-center gap-1.5", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(Badge, { variant: "secondary", className: "font-mono text-[11px]", children: [
+                Math.round((hudStyle.hudScale || 1) * 100),
+                "%"
+              ] }),
+              hudStyle.hudScale !== 1 && /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                Button3,
+                {
+                  variant: "ghost",
+                  size: "icon-xs",
+                  onClick: () => handleUpdate({ hudScale: 1 }),
+                  title: "\u0110\u1EB7t l\u1EA1i 100%",
+                  children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(RotateCcw, { className: "text-muted-foreground size-3" })
+                }
+              )
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+            Slider,
+            {
+              value: [Math.round((hudStyle.hudScale || 1) * 100)],
+              min: 85,
+              max: 115,
+              step: 5,
+              onValueChange: ([val]) => handleUpdate({ hudScale: val / 100 })
+            }
+          )
+        ] }) })
+      ] })
+    ] });
+  }
+
+  // src/components/SettingsModal/ThemesTab.jsx
+  var import_react9 = __toESM(require_react());
+  var import_jsx_runtime41 = __toESM(require_jsx_runtime());
   function ThemesTab({ draft, updateDraft }) {
     const ZigaMod = window.ZigaMod || {};
     const custom = draft.auraCustom || {};
@@ -38640,24 +39369,24 @@
       desc: "T\u1EF1 do ch\u1ECDn m\xE3 m\xE0u Hex b\u1EB1ng Color Picker"
     });
     const activeThemeId = custom.mode === "neon" && custom.theme ? custom.theme : "default";
-    return /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex flex-col gap-3", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(Card, { size: "sm", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardHeader, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardTitle, { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Palette, { className: "text-primary size-4" }),
-            /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("span", { children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "flex flex-col gap-3", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(Card, { size: "sm", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(CardHeader, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(CardTitle, { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(Palette, { className: "text-primary size-4" }),
+            /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("span", { children: [
               "B\u1ED9 S\u01B0u T\u1EADp Ch\u1EE7 \u0110\u1EC1 M\xE0u Aura (",
               themesList.length,
               " m\u1EABu)"
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(CardDescription, { children: "B\u1EA5m ch\u1ECDn \u0111\u1EC3 \xE1p d\u1EE5ng tr\u1EF1c ti\u1EBFp l\xEAn b\xE0n c\u1EDD Ziga th\u1EDDi gian th\u1EF1c" })
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(CardDescription, { children: "B\u1EA5m ch\u1ECDn \u0111\u1EC3 \xE1p d\u1EE5ng tr\u1EF1c ti\u1EBFp l\xEAn b\xE0n c\u1EDD Ziga th\u1EDDi gian th\u1EF1c" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(CardContent, { className: "grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3", children: themesList.map((th) => {
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(CardContent, { className: "grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3", children: themesList.map((th) => {
           const isSelected = activeThemeId === th.id;
           const myCol = th.id === "custom" ? custom.myColor || "#39ff14" : th.myColor;
           const oppCol = th.id === "custom" ? custom.oppColor || "#ff1744" : th.oppColor;
-          return /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(
+          return /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(
             Card,
             {
               size: "sm",
@@ -38687,10 +39416,10 @@
                 isSelected ? "ring-primary bg-accent/40 ring-2" : "hover:bg-accent/30"
               ),
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardContent, { className: "flex flex-col gap-2.5", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "bg-muted/40 flex items-center justify-center gap-6 rounded-md border py-2.5", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "relative flex size-11 items-center justify-center", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(CardContent, { className: "flex flex-col gap-2.5", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "bg-muted/40 flex items-center justify-center gap-6 rounded-md border py-2.5", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "relative flex size-11 items-center justify-center", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
                         "div",
                         {
                           style: {
@@ -38700,10 +39429,10 @@
                           className: "pointer-events-none absolute inset-0 rounded-full"
                         }
                       ),
-                      /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(PieceToken, { char: "\u8ECA", color: "red", size: "default" })
+                      /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(PieceToken, { char: "\u8ECA", color: "red", size: "default" })
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "relative flex size-11 items-center justify-center", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+                    /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "relative flex size-11 items-center justify-center", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
                         "div",
                         {
                           style: {
@@ -38713,33 +39442,33 @@
                           className: "pointer-events-none absolute inset-0 rounded-full"
                         }
                       ),
-                      /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(PieceToken, { char: "\u99AC", color: "black", size: "default" })
+                      /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(PieceToken, { char: "\u99AC", color: "black", size: "default" })
                     ] })
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex flex-col gap-0.5 pr-6", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-foreground text-xs font-semibold", children: th.name }),
-                    /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-muted-foreground line-clamp-1 text-xs", children: th.desc })
+                  /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "flex flex-col gap-0.5 pr-6", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("span", { className: "text-foreground text-xs font-semibold", children: th.name }),
+                    /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("span", { className: "text-muted-foreground line-clamp-1 text-xs", children: th.desc })
                   ] })
                 ] }),
-                isSelected && /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "bg-primary text-primary-foreground absolute -top-2 -right-2 z-1000 flex size-5 items-center justify-center rounded-full shadow-sm", children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Check, { className: "size-3 stroke-3" }) })
+                isSelected && /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("span", { className: "bg-primary text-primary-foreground absolute -top-2 -right-2 z-1000 flex size-5 items-center justify-center rounded-full shadow-sm", children: /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(Check, { className: "size-3 stroke-3" }) })
               ]
             },
             th.id
           );
         }) })
       ] }),
-      activeThemeId === "custom" && /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(Card, { size: "sm", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(CardHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardTitle, { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Pipette, { className: "text-primary size-4" }),
-          /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { children: "T\xF9y Ch\u1EC9nh B\u1EA3ng M\xE0u C\xE1 Nh\xE2n (Color Picker)" })
+      activeThemeId === "custom" && /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(Card, { size: "sm", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(CardHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(CardTitle, { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(Pipette, { className: "text-primary size-4" }),
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("span", { children: "T\xF9y Ch\u1EC9nh B\u1EA3ng M\xE0u C\xE1 Nh\xE2n (Color Picker)" })
         ] }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(CardContent, { className: "grid grid-cols-1 gap-3 sm:grid-cols-2", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(Label, { className: "bg-muted/20 flex cursor-pointer items-center justify-between rounded-lg border p-3", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex flex-col gap-0.5", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-foreground text-xs font-medium", children: "M\xE0u H\xE0o Quang L\u01B0\u1EE3t T\xF4i \u0110i" }),
-              /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-muted-foreground font-mono text-xs", children: custom.myColor || "#39ff14" })
+        /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(CardContent, { className: "grid grid-cols-1 gap-3 sm:grid-cols-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(Label, { className: "bg-muted/20 flex cursor-pointer items-center justify-between rounded-lg border p-3", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "flex flex-col gap-0.5", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("span", { className: "text-foreground text-xs font-medium", children: "M\xE0u H\xE0o Quang L\u01B0\u1EE3t T\xF4i \u0110i" }),
+              /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("span", { className: "text-muted-foreground font-mono text-xs", children: custom.myColor || "#39ff14" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
               "input",
               {
                 type: "color",
@@ -38756,12 +39485,12 @@
               }
             )
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(Label, { className: "bg-muted/20 flex cursor-pointer items-center justify-between rounded-lg border p-3", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)("div", { className: "flex flex-col gap-0.5", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-foreground text-xs font-medium", children: "M\xE0u C\u1EA3nh B\xE1o L\u01B0\u1EE3t \u0110\u1ED1i Th\u1EE7" }),
-              /* @__PURE__ */ (0, import_jsx_runtime40.jsx)("span", { className: "text-muted-foreground font-mono text-xs", children: custom.oppColor || "#ff1744" })
+          /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)(Label, { className: "bg-muted/20 flex cursor-pointer items-center justify-between rounded-lg border p-3", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime41.jsxs)("div", { className: "flex flex-col gap-0.5", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("span", { className: "text-foreground text-xs font-medium", children: "M\xE0u C\u1EA3nh B\xE1o L\u01B0\u1EE3t \u0110\u1ED1i Th\u1EE7" }),
+              /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("span", { className: "text-muted-foreground font-mono text-xs", children: custom.oppColor || "#ff1744" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(
               "input",
               {
                 type: "color",
@@ -38784,20 +39513,20 @@
   }
 
   // src/components/SettingsModal/AuraGalleryTab.jsx
-  var import_react9 = __toESM(require_react());
+  var import_react10 = __toESM(require_react());
 
   // src/components/ui/toggle-group.jsx
-  var React129 = __toESM(require_react());
+  var React130 = __toESM(require_react());
 
   // node_modules/@base-ui/react/toggle/Toggle.mjs
-  var React126 = __toESM(require_react(), 1);
+  var React127 = __toESM(require_react(), 1);
 
   // node_modules/@base-ui/react/toggle-group/ToggleGroupContext.mjs
-  var React125 = __toESM(require_react(), 1);
-  var ToggleGroupContext = /* @__PURE__ */ React125.createContext(void 0);
+  var React126 = __toESM(require_react(), 1);
+  var ToggleGroupContext = /* @__PURE__ */ React126.createContext(void 0);
   if (false) ToggleGroupContext.displayName = "ToggleGroupContext";
   function useToggleGroupContext() {
-    return React125.useContext(ToggleGroupContext);
+    return React126.useContext(ToggleGroupContext);
   }
 
   // node_modules/@base-ui/react/internals/composite/item/CompositeItem.mjs
@@ -38830,8 +39559,8 @@
   }
 
   // node_modules/@base-ui/react/toggle/Toggle.mjs
-  var import_jsx_runtime41 = __toESM(require_jsx_runtime(), 1);
-  var Toggle = /* @__PURE__ */ React126.forwardRef(function Toggle2(componentProps, forwardedRef) {
+  var import_jsx_runtime42 = __toESM(require_jsx_runtime(), 1);
+  var Toggle = /* @__PURE__ */ React127.forwardRef(function Toggle2(componentProps, forwardedRef) {
     const {
       className,
       defaultPressed = false,
@@ -38853,7 +39582,7 @@
     const groupValue = groupContext?.value ?? [];
     const disabled2 = (disabledProp || groupContext?.disabled) ?? false;
     if (false) {
-      React126.useEffect(() => {
+      React127.useEffect(() => {
         if (groupContext && valueProp === void 0 && groupContext.isValueInitialized) {
           error("A `<Toggle>` component rendered in a `<ToggleGroup>` has no explicit `value` prop.", "This will cause issues between the Toggle Group and Toggle values.", "Provide the `<Toggle>` with a `value` prop matching the `<ToggleGroup>` values prop type.");
         }
@@ -38901,12 +39630,12 @@
       ref: refs,
       props
     });
-    const itemMetadata = React126.useMemo(() => ({
+    const itemMetadata = React127.useMemo(() => ({
       disabled: disabled2,
       focusableWhenDisabled: false
     }), [disabled2]);
     if (groupContext) {
-      return /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(CompositeItem, {
+      return /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(CompositeItem, {
         tag: "button",
         render,
         className,
@@ -38922,19 +39651,19 @@
   if (false) Toggle.displayName = "Toggle";
 
   // node_modules/@base-ui/react/toggle-group/ToggleGroup.mjs
-  var React128 = __toESM(require_react(), 1);
+  var React129 = __toESM(require_react(), 1);
 
   // node_modules/@base-ui/react/toolbar/group/ToolbarGroupContext.mjs
-  var React127 = __toESM(require_react(), 1);
-  var ToolbarGroupContext = /* @__PURE__ */ React127.createContext(void 0);
+  var React128 = __toESM(require_react(), 1);
+  var ToolbarGroupContext = /* @__PURE__ */ React128.createContext(void 0);
   if (false) ToolbarGroupContext.displayName = "ToolbarGroupContext";
   function useToolbarGroupContext() {
-    return React127.useContext(ToolbarGroupContext);
+    return React128.useContext(ToolbarGroupContext);
   }
 
   // node_modules/@base-ui/react/toggle-group/ToggleGroup.mjs
-  var import_jsx_runtime42 = __toESM(require_jsx_runtime(), 1);
-  var ToggleGroup = /* @__PURE__ */ React128.forwardRef(function ToggleGroup2(componentProps, forwardedRef) {
+  var import_jsx_runtime43 = __toESM(require_jsx_runtime(), 1);
+  var ToggleGroup = /* @__PURE__ */ React129.forwardRef(function ToggleGroup2(componentProps, forwardedRef) {
     const {
       defaultValue: defaultValueProp,
       disabled: disabledProp = false,
@@ -38982,7 +39711,7 @@
       multiple,
       orientation
     };
-    const contextValue = React128.useMemo(() => ({
+    const contextValue = React129.useMemo(() => ({
       disabled: disabled2,
       setGroupValue,
       value: groupValue,
@@ -38997,9 +39726,9 @@
       ref: forwardedRef,
       props: [defaultProps, elementProps]
     });
-    return /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(ToggleGroupContext.Provider, {
+    return /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(ToggleGroupContext.Provider, {
       value: contextValue,
-      children: toolbarContext ? element : /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(CompositeRoot, {
+      children: toolbarContext ? element : /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(CompositeRoot, {
         render,
         className,
         style,
@@ -39015,7 +39744,7 @@
   if (false) ToggleGroup.displayName = "ToggleGroup";
 
   // src/components/ui/toggle.jsx
-  var import_jsx_runtime43 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime44 = __toESM(require_jsx_runtime());
   var toggleVariants = cva(
     "group/toggle inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all outline-none hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-pressed:bg-muted data-[state=on]:bg-muted dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
     {
@@ -39038,8 +39767,8 @@
   );
 
   // src/components/ui/toggle-group.jsx
-  var import_jsx_runtime44 = __toESM(require_jsx_runtime());
-  var ToggleGroupContext2 = React129.createContext({
+  var import_jsx_runtime45 = __toESM(require_jsx_runtime());
+  var ToggleGroupContext2 = React130.createContext({
     size: "default",
     variant: "default",
     spacing: 2,
@@ -39054,7 +39783,7 @@
     children,
     ...props
   }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
       ToggleGroup,
       {
         "data-slot": "toggle-group",
@@ -39070,7 +39799,7 @@
           className
         ),
         ...props,
-        children: /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(
+        children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
           ToggleGroupContext2.Provider,
           {
             value: { variant, size: size4, spacing, orientation },
@@ -39087,8 +39816,8 @@
     size: size4 = "default",
     ...props
   }) {
-    const context = React129.useContext(ToggleGroupContext2);
-    return /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(
+    const context = React130.useContext(ToggleGroupContext2);
+    return /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
       Toggle,
       {
         "data-slot": "toggle-group-item",
@@ -39110,9 +39839,9 @@
   }
 
   // src/components/SettingsModal/AuraGalleryTab.jsx
-  var import_jsx_runtime45 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime46 = __toESM(require_jsx_runtime());
   function AuraGalleryTab({ draft, updateDraft, auraPresets = [] }) {
-    const [filterMode, setFilterMode] = (0, import_react9.useState)("all");
+    const [filterMode, setFilterMode] = (0, import_react10.useState)("all");
     const custom = draft.auraCustom || {};
     const effectivePresets = Array.isArray(auraPresets) && auraPresets.length > 0 ? auraPresets : PRESET_AURAS;
     const filteredPresets = effectivePresets.filter((p) => {
@@ -39181,19 +39910,19 @@
       };
       reader.readAsDataURL(file);
     };
-    return /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "flex flex-col gap-3", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(Card, { size: "sm", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(CardHeader, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(CardTitle, { className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(Sparkles, { className: "text-primary size-4" }),
-            /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("span", { children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "flex flex-col gap-3", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(Card, { size: "sm", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(CardHeader, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(CardTitle, { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Sparkles, { className: "text-primary size-4" }),
+            /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("span", { children: [
               "Kho H\xE0o Quang \u0110\u1ED3 H\u1ECDa PNG (",
               effectivePresets.length,
               " m\u1EABu)"
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(CardDescription, { children: "Hi\u1EC7u \u1EE9ng v\xF2ng ph\xE1p tr\u1EADn, r\u1ED3ng l\u1EEDa, l\xF4i \u0111i\u1EC7n t\xE1ch n\u1EC1n trong su\u1ED1t ch\u1EA5t l\u01B0\u1EE3ng cao" }),
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(
+          /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(CardDescription, { children: "Hi\u1EC7u \u1EE9ng v\xF2ng ph\xE1p tr\u1EADn, r\u1ED3ng l\u1EEDa, l\xF4i \u0111i\u1EC7n t\xE1ch n\u1EC1n trong su\u1ED1t ch\u1EA5t l\u01B0\u1EE3ng cao" }),
+          /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(
             ToggleGroup3,
             {
               variant: "outline",
@@ -39204,24 +39933,24 @@
                 if (next) setFilterMode(next);
               },
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(ToggleGroupItem, { value: "all", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(ToggleGroupItem, { value: "all", children: [
                   "T\u1EA5t c\u1EA3 (",
                   effectivePresets.length,
                   ")"
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(ToggleGroupItem, { value: "new", children: "12 M\u1EABu M\u1EDBi" }),
-                /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(ToggleGroupItem, { value: "my", children: "L\u01B0\u1EE3t T\xF4i" }),
-                /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(ToggleGroupItem, { value: "opp", children: "L\u01B0\u1EE3t \u0110\u1ED1i Th\u1EE7" })
+                /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(ToggleGroupItem, { value: "new", children: "12 M\u1EABu M\u1EDBi" }),
+                /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(ToggleGroupItem, { value: "my", children: "L\u01B0\u1EE3t T\xF4i" }),
+                /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(ToggleGroupItem, { value: "opp", children: "L\u01B0\u1EE3t \u0110\u1ED1i Th\u1EE7" })
               ]
             }
           ) })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(CardContent, { className: "grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3", children: filteredPresets.map((preset) => {
+        /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(CardContent, { className: "grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3", children: filteredPresets.map((preset) => {
           const isSelectedMy = custom.mode === "image" && custom.presetMy === preset.id;
           const isSelectedOpp = custom.mode === "image" && custom.presetOpp === preset.id;
           const isSelected = isSelectedMy || isSelectedOpp;
           const imgSrc = preset.base64;
-          return /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(
+          return /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(
             Card,
             {
               size: "sm",
@@ -39230,7 +39959,7 @@
                 isSelected ? "ring-primary bg-accent/40 ring-2" : "hover:bg-accent/30"
               ),
               children: [
-                preset.isNew && /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+                preset.isNew && /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
                   Badge,
                   {
                     variant: "default",
@@ -39238,8 +39967,8 @@
                     children: "M\u1EDAI"
                   }
                 ),
-                isSelected && /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "absolute top-2 right-2 z-20 flex items-center gap-1", children: [
-                  isSelectedMy && /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+                isSelected && /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "absolute top-2 right-2 z-20 flex items-center gap-1", children: [
+                  isSelectedMy && /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
                     Badge,
                     {
                       variant: "outline",
@@ -39247,7 +39976,7 @@
                       children: "T\xF4i"
                     }
                   ),
-                  isSelectedOpp && /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+                  isSelectedOpp && /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
                     Badge,
                     {
                       variant: "outline",
@@ -39256,9 +39985,9 @@
                     }
                   )
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(CardContent, { className: "flex flex-col gap-2 p-3", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "bg-muted/40 relative flex h-24 items-center justify-center overflow-hidden rounded-md border", children: [
-                    imgSrc ? /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(CardContent, { className: "flex flex-col gap-2 p-3", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "bg-muted/40 relative flex h-24 items-center justify-center overflow-hidden rounded-md border", children: [
+                    imgSrc ? /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
                       "div",
                       {
                         style: {
@@ -39275,7 +40004,7 @@
                         className: "pointer-events-none absolute z-10 animate-[zigaAuraSpin_6s_linear_infinite]"
                       }
                     ) : null,
-                    /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+                    /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
                       PieceToken,
                       {
                         char: preset.cat === "opp" ? "\u5C07" : "\u5E25",
@@ -39285,8 +40014,8 @@
                       }
                     )
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "flex flex-col gap-0.5", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "flex flex-col gap-0.5", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
                       "span",
                       {
                         className: "text-foreground truncate text-xs font-semibold",
@@ -39294,10 +40023,10 @@
                         children: preset.title
                       }
                     ),
-                    /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("span", { className: "text-muted-foreground line-clamp-1 text-[11px]", children: preset.tag || (preset.cat === "my" ? "Khuy\xEAn d\xF9ng L\u01B0\u1EE3t T\xF4i" : "Khuy\xEAn d\xF9ng \u0110\u1ED1i Th\u1EE7") })
+                    /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("span", { className: "text-muted-foreground line-clamp-1 text-[11px]", children: preset.tag || (preset.cat === "my" ? "Khuy\xEAn d\xF9ng L\u01B0\u1EE3t T\xF4i" : "Khuy\xEAn d\xF9ng \u0110\u1ED1i Th\u1EE7") })
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "grid grid-cols-3 gap-1 border-t pt-1", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(
+                  /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "grid grid-cols-3 gap-1 border-t pt-1", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(
                       Button3,
                       {
                         variant: isSelectedMy ? "default" : "outline",
@@ -39306,12 +40035,12 @@
                         onClick: () => handleApplyPreset(preset, "my"),
                         title: "\xC1p d\u1EE5ng m\u1EABu n\xE0y cho L\u01B0\u1EE3t T\xF4i \u0110i",
                         children: [
-                          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(Shield, { className: "mr-0.5 size-2.5" }),
+                          /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Shield, { className: "mr-0.5 size-2.5" }),
                           "T\xF4i"
                         ]
                       }
                     ),
-                    /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(
+                    /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(
                       Button3,
                       {
                         variant: isSelectedOpp ? "destructive" : "outline",
@@ -39320,12 +40049,12 @@
                         onClick: () => handleApplyPreset(preset, "opp"),
                         title: "\xC1p d\u1EE5ng m\u1EABu n\xE0y cho L\u01B0\u1EE3t \u0110\u1ED1i Th\u1EE7 \u0110i",
                         children: [
-                          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(Swords, { className: "mr-0.5 size-2.5" }),
+                          /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Swords, { className: "mr-0.5 size-2.5" }),
                           "\u0110\u1ECBch"
                         ]
                       }
                     ),
-                    /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+                    /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
                       Button3,
                       {
                         variant: "secondary",
@@ -39344,16 +40073,16 @@
           );
         }) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(Card, { size: "sm", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(CardHeader, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(CardTitle, { children: "T\u1EA3i \u1EA3nh H\xE0o Quang c\xE1 nh\xE2n (PNG / WebP / SVG)" }),
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(CardDescription, { children: "T\u1EF1 t\u1EA3i l\xEAn h\xECnh \u1EA3nh v\xF2ng ph\xE1p tr\u1EADn t\xE1ch n\u1EC1n PNG trong su\u1ED1t t\u1EEB m\xE1y t\xEDnh c\u1EE7a b\u1EA1n" })
+      /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(Card, { size: "sm", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(CardHeader, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(CardTitle, { children: "T\u1EA3i \u1EA3nh H\xE0o Quang c\xE1 nh\xE2n (PNG / WebP / SVG)" }),
+          /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(CardDescription, { children: "T\u1EF1 t\u1EA3i l\xEAn h\xECnh \u1EA3nh v\xF2ng ph\xE1p tr\u1EADn t\xE1ch n\u1EC1n PNG trong su\u1ED1t t\u1EEB m\xE1y t\xEDnh c\u1EE7a b\u1EA1n" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(CardContent, { className: "grid grid-cols-1 gap-3 sm:grid-cols-2", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "bg-muted/20 flex flex-col gap-2 rounded-lg border p-3", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("span", { className: "text-foreground text-xs font-medium", children: "\u1EA2nh L\u01B0\u1EE3t T\xF4i \u0110i (Qu\xE2n Ta)" }),
-            /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "flex items-center gap-2", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(CardContent, { className: "grid grid-cols-1 gap-3 sm:grid-cols-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "bg-muted/20 flex flex-col gap-2 rounded-lg border p-3", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("span", { className: "text-foreground text-xs font-medium", children: "\u1EA2nh L\u01B0\u1EE3t T\xF4i \u0110i (Qu\xE2n Ta)" }),
+            /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
                 "input",
                 {
                   id: "ziga-upload-my",
@@ -39363,19 +40092,19 @@
                   className: "hidden"
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(
+              /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(
                 Button3,
                 {
                   variant: "outline",
                   size: "sm",
                   onClick: () => document.getElementById("ziga-upload-my")?.click(),
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(Upload, { className: "mr-1 size-3.5" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Upload, { className: "mr-1 size-3.5" }),
                     "Ch\u1ECDn File \u1EA2nh"
                   ]
                 }
               ),
-              custom.customImageMy && /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+              custom.customImageMy && /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
                 Button3,
                 {
                   variant: "ghost",
@@ -39384,15 +40113,15 @@
                     auraCustom: { ...custom, customImageMy: "" }
                   }),
                   title: "X\xF3a \u1EA3nh t\u1EA3i l\xEAn l\u01B0\u1EE3t t\xF4i",
-                  children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(Trash, { className: "text-destructive size-3.5" })
+                  children: /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Trash, { className: "text-destructive size-3.5" })
                 }
               )
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "bg-muted/20 flex flex-col gap-2 rounded-lg border p-3", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime45.jsx)("span", { className: "text-foreground text-xs font-medium", children: "\u1EA2nh L\u01B0\u1EE3t \u0110\u1ED1i Th\u1EE7 (Qu\xE2n \u0110\u1ECBch)" }),
-            /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)("div", { className: "flex items-center gap-2", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "bg-muted/20 flex flex-col gap-2 rounded-lg border p-3", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("span", { className: "text-foreground text-xs font-medium", children: "\u1EA2nh L\u01B0\u1EE3t \u0110\u1ED1i Th\u1EE7 (Qu\xE2n \u0110\u1ECBch)" }),
+            /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
                 "input",
                 {
                   id: "ziga-upload-opp",
@@ -39402,19 +40131,19 @@
                   className: "hidden"
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime45.jsxs)(
+              /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(
                 Button3,
                 {
                   variant: "outline",
                   size: "sm",
                   onClick: () => document.getElementById("ziga-upload-opp")?.click(),
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(Upload, { className: "mr-1 size-3.5" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Upload, { className: "mr-1 size-3.5" }),
                     "Ch\u1ECDn File \u1EA2nh"
                   ]
                 }
               ),
-              custom.customImageOpp && /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
+              custom.customImageOpp && /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
                 Button3,
                 {
                   variant: "ghost",
@@ -39423,7 +40152,7 @@
                     auraCustom: { ...custom, customImageOpp: "" }
                   }),
                   title: "X\xF3a \u1EA3nh t\u1EA3i l\xEAn l\u01B0\u1EE3t \u0111\u1ED1i th\u1EE7",
-                  children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(Trash, { className: "text-destructive size-3.5" })
+                  children: /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Trash, { className: "text-destructive size-3.5" })
                 }
               )
             ] })
@@ -39434,7 +40163,7 @@
   }
 
   // src/lib/ui_store.js
-  var import_react10 = __toESM(require_react());
+  var import_react11 = __toESM(require_react());
   var initialState = {
     inGame: false,
     isSpectator: false,
@@ -39484,7 +40213,7 @@
     }
   };
   function useUiStore(selector = (s) => s) {
-    return (0, import_react10.useSyncExternalStore)(
+    return (0, import_react11.useSyncExternalStore)(
       uiStore.subscribe,
       () => selector(uiStore.getState()),
       () => selector(initialState)
@@ -39492,7 +40221,7 @@
   }
 
   // src/components/SettingsModal/SettingsModal.jsx
-  var import_jsx_runtime46 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime47 = __toESM(require_jsx_runtime());
   function applyGlobalThemeMode(mode) {
     const nextMode = mode === "light" ? "light" : "dark";
     uiStore.setState({ themeMode: nextMode });
@@ -39515,17 +40244,21 @@
     const defaultSettings = ZigaMod.DEFAULT_SETTINGS || {};
     const auraPresets = Array.isArray(ZigaMod.PRESET_AURAS) && ZigaMod.PRESET_AURAS.length > 0 ? ZigaMod.PRESET_AURAS : PRESET_AURAS;
     const themeMode = useUiStore((s) => s.themeMode) || "dark";
-    const [activeTab, setActiveTab] = (0, import_react11.useState)(initialTab);
-    const [draft, setDraft] = (0, import_react11.useState)(() => ({
+    const [activeTab, setActiveTab] = (0, import_react12.useState)(initialTab);
+    const [draft, setDraft] = (0, import_react12.useState)(() => ({
       ...defaultSettings,
       ...ZigaMod.userSettings || {},
       auraCustom: {
         ...defaultSettings.auraCustom || {},
         ...ZigaMod.userSettings && ZigaMod.userSettings.auraCustom || {}
+      },
+      hudStyle: {
+        ...defaultSettings.hudStyle || DEFAULT_HUD_STYLE,
+        ...ZigaMod.userSettings && ZigaMod.userSettings.hudStyle || {}
       }
     }));
-    const [toastMsg, setToastMsg] = (0, import_react11.useState)("");
-    (0, import_react11.useEffect)(() => {
+    const [toastMsg, setToastMsg] = (0, import_react12.useState)("");
+    (0, import_react12.useEffect)(() => {
       if (isOpen) {
         setDraft({
           ...defaultSettings,
@@ -39533,43 +40266,60 @@
           auraCustom: {
             ...defaultSettings.auraCustom || {},
             ...ZigaMod.userSettings && ZigaMod.userSettings.auraCustom || {}
+          },
+          hudStyle: {
+            ...defaultSettings.hudStyle || DEFAULT_HUD_STYLE,
+            ...ZigaMod.userSettings && ZigaMod.userSettings.hudStyle || {}
           }
         });
         if (initialTab) setActiveTab(initialTab);
       }
     }, [isOpen, initialTab]);
-    const showToast = (0, import_react11.useCallback)((msg) => {
+    const showToast = (0, import_react12.useCallback)((msg) => {
       setToastMsg(msg);
       setTimeout(() => setToastMsg(""), 2200);
     }, []);
-    const syncToEngineLive = (0, import_react11.useCallback)((nextDraft) => {
-      const mod = window.ZigaMod;
-      if (!mod) return;
-      mod.userSettings = {
-        ...nextDraft,
-        auraCustom: {
-          ...mod.DEFAULT_SETTINGS?.auraCustom || {},
-          ...nextDraft.auraCustom || {}
+    const syncToEngineLive = (0, import_react12.useCallback)(
+      (nextDraft) => {
+        const mod = window.ZigaMod;
+        if (!mod) return;
+        mod.userSettings = {
+          ...nextDraft,
+          auraCustom: {
+            ...mod.DEFAULT_SETTINGS?.auraCustom || {},
+            ...nextDraft.auraCustom || {}
+          },
+          hudStyle: {
+            ...mod.DEFAULT_SETTINGS?.hudStyle || DEFAULT_HUD_STYLE,
+            ...nextDraft.hudStyle || {}
+          }
+        };
+        if (typeof mod.saveSettings === "function") {
+          mod.saveSettings();
         }
-      };
-      if (typeof mod.saveSettings === "function") {
-        mod.saveSettings();
-      }
-      if (typeof mod.applySettingsVisibility === "function") {
-        mod.applySettingsVisibility();
-      }
-      if (typeof mod.reloadAuraTextures === "function") {
-        mod.reloadAuraTextures();
-      }
-      if (typeof mod.refreshBoardAuraImmediate === "function") {
-        mod.refreshBoardAuraImmediate();
-      }
-      const activeData = typeof mod.getActiveGameData === "function" ? mod.getActiveGameData() : null;
-      if (activeData && typeof mod.updateBoardAura === "function") {
-        mod.updateBoardAura(activeData);
-      }
-    }, []);
-    const updateDraft = (0, import_react11.useCallback)(
+        if (typeof mod.applySettingsVisibility === "function") {
+          mod.applySettingsVisibility();
+        }
+        if (typeof mod.applyHudStyle === "function" && nextDraft.hudStyle) {
+          mod.applyHudStyle(nextDraft.hudStyle, themeMode);
+        }
+        if (typeof mod.saveHudStyleToStorage === "function" && nextDraft.hudStyle) {
+          mod.saveHudStyleToStorage(nextDraft.hudStyle);
+        }
+        if (typeof mod.reloadAuraTextures === "function") {
+          mod.reloadAuraTextures();
+        }
+        if (typeof mod.refreshBoardAuraImmediate === "function") {
+          mod.refreshBoardAuraImmediate();
+        }
+        const activeData = typeof mod.getActiveGameData === "function" ? mod.getActiveGameData() : null;
+        if (activeData && typeof mod.updateBoardAura === "function") {
+          mod.updateBoardAura(activeData);
+        }
+      },
+      [themeMode]
+    );
+    const updateDraft = (0, import_react12.useCallback)(
       (patch) => {
         setDraft((prev) => {
           let next;
@@ -39580,6 +40330,15 @@
               auraCustom: {
                 ...prev.auraCustom,
                 ...patch.auraCustom
+              }
+            };
+          } else if (patch.hudStyle) {
+            next = {
+              ...prev,
+              ...patch,
+              hudStyle: {
+                ...prev.hudStyle,
+                ...patch.hudStyle
               }
             };
           } else {
@@ -39597,12 +40356,15 @@
           ...defaultSettings,
           auraCustom: {
             ...prev.auraCustom || defaultSettings.auraCustom || {}
+          },
+          hudStyle: {
+            ...prev.hudStyle || defaultSettings.hudStyle || DEFAULT_HUD_STYLE
           }
         };
         syncToEngineLive(next);
         return next;
       });
-      showToast("\u0110\xE3 kh\xF4i ph\u1EE5c m\u1EB7c \u0111\u1ECBnh c\xE1c T\xEDnh N\u0103ng (Gi\u1EEF nguy\xEAn Aura)!");
+      showToast("\u0110\xE3 kh\xF4i ph\u1EE5c m\u1EB7c \u0111\u1ECBnh c\xE1c T\xEDnh N\u0103ng!");
     };
     const handleResetAuraOnly = () => {
       setDraft((prev) => {
@@ -39614,6 +40376,17 @@
         return next;
       });
       showToast("\u0110\xE3 kh\xF4i ph\u1EE5c m\u1EB7c \u0111\u1ECBnh ri\xEAng ph\u1EA7n H\xE0o Quang (Aura)!");
+    };
+    const handleResetHudStyleOnly = () => {
+      setDraft((prev) => {
+        const next = {
+          ...prev,
+          hudStyle: { ...DEFAULT_HUD_STYLE }
+        };
+        syncToEngineLive(next);
+        return next;
+      });
+      showToast("\u0110\xE3 kh\xF4i ph\u1EE5c m\u1EB7c \u0111\u1ECBnh Giao Di\u1EC7n HUD!");
     };
     const handleSaveAndClose = () => {
       syncToEngineLive(draft);
@@ -39627,43 +40400,43 @@
       );
     };
     const imageCount = auraPresets.length;
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(
       Dialog,
       {
         open: isOpen,
         onOpenChange: (open3) => !open3 && onClose(),
         modal: false,
-        children: /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(DialogContent, { className: "flex max-h-[88vh] flex-col overflow-hidden sm:max-w-3xl", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(DialogHeader, { className: "flex shrink-0 flex-row items-center justify-between border-b pr-8 pb-3", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "flex items-center gap-3", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("div", { className: "bg-primary text-primary-foreground flex size-9 shrink-0 items-center justify-center rounded-lg", children: /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Settings, { className: "size-4" }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "flex flex-col gap-0.5", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "flex items-center gap-2", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(DialogTitle3, { children: "C\xE0i \u0110\u1EB7t & T\xF9y Bi\u1EBFn Mod" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Badge, { variant: "secondary", children: "shadcn/ui" })
+        children: /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(DialogContent, { className: "flex max-h-[88vh] flex-col overflow-hidden sm:max-w-3xl", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(DialogHeader, { className: "flex shrink-0 flex-row items-center justify-between border-b pr-8 pb-3", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("div", { className: "flex items-center gap-3", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("div", { className: "bg-primary text-primary-foreground flex size-9 shrink-0 items-center justify-center rounded-lg", children: /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Settings, { className: "size-4" }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("div", { className: "flex flex-col gap-0.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("div", { className: "flex items-center gap-2", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(DialogTitle3, { children: "C\xE0i \u0110\u1EB7t & T\xF9y Bi\u1EBFn Mod" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Badge, { variant: "secondary", children: "shadcn/ui" })
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(DialogDescription3, { children: "B\u1EADt/t\u1EAFt c\xF4ng c\u1EE5 h\u1ED7 tr\u1EE3 & t\xF9y ch\u1EC9nh h\xE0o quang b\xE0n c\u1EDD Ziga th\u1EDDi gian th\u1EF1c" })
+                /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(DialogDescription3, { children: "B\u1EADt/t\u1EAFt c\xF4ng c\u1EE5 h\u1ED7 tr\u1EE3 & t\xF9y ch\u1EC9nh h\xE0o quang b\xE0n c\u1EDD Ziga th\u1EDDi gian th\u1EF1c" })
               ] })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(
               Button3,
               {
                 variant: "outline",
                 size: "sm",
                 onClick: toggleThemeMode,
                 title: "Chuy\u1EC3n \u0111\u1ED5i giao di\u1EC7n S\xE1ng / T\u1ED1i (Dark / Light Mode)",
-                children: themeMode === "dark" ? /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(import_jsx_runtime46.Fragment, { children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Moon, {}),
-                  /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("span", { children: "Dark" })
-                ] }) : /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(import_jsx_runtime46.Fragment, { children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Sun, {}),
-                  /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("span", { children: "Light" })
+                children: themeMode === "dark" ? /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(import_jsx_runtime47.Fragment, { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Moon, {}),
+                  /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("span", { children: "Dark" })
+                ] }) : /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(import_jsx_runtime47.Fragment, { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Sun, {}),
+                  /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("span", { children: "Light" })
                 ] })
               }
             )
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "flex min-h-0 flex-1 flex-col gap-3.5 overflow-x-hidden overflow-y-auto py-1 pr-1", children: [
-            activeTab !== "features" && /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("div", { className: "flex min-h-0 flex-1 flex-col gap-3.5 overflow-x-hidden overflow-y-auto py-1 pr-1", children: [
+            (activeTab === "themes" || activeTab === "gallery") && /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(
               LivePreviewStage,
               {
                 draft,
@@ -39671,33 +40444,38 @@
                 auraPresets
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(
+            /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(
               Tabs,
               {
                 value: activeTab,
                 onValueChange: setActiveTab,
                 className: "w-full",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(TabsList3, { className: "w-full", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(TabsTrigger, { value: "features", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Settings, {}),
-                      /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("span", { children: "C\xE0i \u0110\u1EB7t T\xEDnh N\u0103ng" })
+                  /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(TabsList3, { className: "grid h-auto w-full grid-cols-2 gap-1 p-1 sm:grid-cols-4", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(TabsTrigger, { value: "features", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Settings, {}),
+                      /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("span", { children: "C\xE0i \u0110\u1EB7t T\xEDnh N\u0103ng" })
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(TabsTrigger, { value: "themes", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Palette, {}),
-                      /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("span", { children: "Ch\u1EE7 \u0110\u1EC1 & M\xE0u Aura" })
+                    /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(TabsTrigger, { value: "hud-style", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SlidersVertical, {}),
+                      /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("span", { children: "Giao Di\u1EC7n HUD" })
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(TabsTrigger, { value: "gallery", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Sparkles, {}),
-                      /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("span", { children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(TabsTrigger, { value: "themes", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Palette, {}),
+                      /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("span", { children: "Ch\u1EE7 \u0110\u1EC1 & M\xE0u Aura" })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(TabsTrigger, { value: "gallery", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Sparkles, {}),
+                      /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("span", { children: [
                         "Kho ",
                         imageCount,
-                        " M\u1EABu Aura PNG"
+                        " M\u1EABu PNG"
                       ] })
                     ] })
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(TabsContent, { value: "features", children: /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(FeaturesTab, { draft, updateDraft }) }),
-                  /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(TabsContent, { value: "themes", children: /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(TabsContent, { value: "features", children: /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(FeaturesTab, { draft, updateDraft }) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(TabsContent, { value: "hud-style", children: /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(HudStyleTab, { draft, updateDraft }) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(TabsContent, { value: "themes", children: /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(
                     ThemesTab,
                     {
                       draft,
@@ -39705,7 +40483,7 @@
                       auraPresets
                     }
                   ) }),
-                  /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(TabsContent, { value: "gallery", children: /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(TabsContent, { value: "gallery", children: /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(
                     AuraGalleryTab,
                     {
                       draft,
@@ -39717,23 +40495,37 @@
               }
             )
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(DialogFooter, { className: "shrink-0 items-center sm:justify-between", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "flex flex-wrap items-center gap-2", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(
+          /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(DialogFooter, { className: "shrink-0 items-center sm:justify-between", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)("div", { className: "flex flex-wrap items-center gap-2", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(
                 Button3,
                 {
                   variant: "outline",
                   size: "sm",
                   id: "ziga-btn-reset-features",
                   onClick: handleResetFeaturesOnly,
-                  title: "Ch\u1EC9 \u0111\u1EB7t l\u1EA1i c\xE1c c\xF4ng t\u1EAFc t\xEDnh n\u0103ng, gi\u1EEF nguy\xEAn m\u1EABu H\xE0o Quang \u0111ang ch\u1ECDn",
+                  title: "Ch\u1EC9 \u0111\u1EB7t l\u1EA1i c\xE1c c\xF4ng t\u1EAFc t\xEDnh n\u0103ng, gi\u1EEF nguy\xEAn m\u1EABu H\xE0o Quang v\xE0 giao di\u1EC7n HUD",
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(RotateCcw, {}),
+                    /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(RotateCcw, {}),
                     "Reset T\xEDnh N\u0103ng"
                   ]
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(
+              /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(
+                Button3,
+                {
+                  variant: "outline",
+                  size: "sm",
+                  id: "ziga-btn-reset-hud-style",
+                  onClick: handleResetHudStyleOnly,
+                  title: "Ch\u1EC9 \u0111\u1EB7t l\u1EA1i ki\u1EC3u d\xE1ng & m\xE0u s\u1EAFc c\u1EE7a b\u1EA3ng HUD v\u1EC1 m\u1EB7c \u0111\u1ECBnh",
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(SlidersVertical, {}),
+                    "Reset Style HUD"
+                  ]
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(
                 Button3,
                 {
                   variant: "outline",
@@ -39742,14 +40534,14 @@
                   onClick: handleResetAuraOnly,
                   title: "Ch\u1EC9 \u0111\u1EB7t l\u1EA1i ri\xEAng ph\u1EA7n H\xE0o Quang (Aura) v\u1EC1 m\u1EB7c \u0111\u1ECBnh, gi\u1EEF nguy\xEAn c\xE1c t\xEDnh n\u0103ng kh\xE1c",
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Sparkles, {}),
+                    /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Sparkles, {}),
                     "Reset Ri\xEAng Aura"
                   ]
                 }
               ),
-              toastMsg && /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("span", { className: "text-primary ml-1 text-xs font-medium", children: toastMsg })
+              toastMsg && /* @__PURE__ */ (0, import_jsx_runtime47.jsx)("span", { className: "text-primary ml-1 text-xs font-medium", children: toastMsg })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(
+            /* @__PURE__ */ (0, import_jsx_runtime47.jsxs)(
               Button3,
               {
                 variant: "default",
@@ -39757,7 +40549,7 @@
                 id: "ziga-btn-save-close",
                 onClick: handleSaveAndClose,
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Save, {}),
+                  /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(Save, {}),
                   "\u0110\xF3ng & L\u01B0u"
                 ]
               }
@@ -39771,11 +40563,11 @@
   var modalHost = null;
   var setModalStateExternal = null;
   function ModalHostWrapper() {
-    const [state, setState] = (0, import_react11.useState)({ open: false, tab: "features" });
-    (0, import_react11.useEffect)(() => {
+    const [state, setState] = (0, import_react12.useState)({ open: false, tab: "features" });
+    (0, import_react12.useEffect)(() => {
       setModalStateExternal = setState;
     }, []);
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(
       SettingsModal,
       {
         isOpen: state.open,
@@ -39803,7 +40595,7 @@
         document.body.appendChild(modalHost);
       }
       modalRoot = (0, import_client.createRoot)(modalHost);
-      modalRoot.render(/* @__PURE__ */ (0, import_jsx_runtime46.jsx)(ModalHostWrapper, {}));
+      modalRoot.render(/* @__PURE__ */ (0, import_jsx_runtime47.jsx)(ModalHostWrapper, {}));
     }
   }
   function mountSettingsModal() {
@@ -40554,14 +41346,14 @@
   })(window.ZigaMod = window.ZigaMod || {});
 
   // src/features/opening_book.js
-  var import_react12 = __toESM(require_react());
+  var import_react13 = __toESM(require_react());
   var import_client2 = __toESM(require_client());
 
   // src/components/ui/input.jsx
-  var React145 = __toESM(require_react());
+  var React146 = __toESM(require_react());
 
   // node_modules/@base-ui/react/input/Input.mjs
-  var React144 = __toESM(require_react(), 1);
+  var React145 = __toESM(require_react(), 1);
 
   // node_modules/@base-ui/react/field/index.parts.mjs
   var index_parts_exports6 = {};
@@ -40576,14 +41368,14 @@
   });
 
   // node_modules/@base-ui/react/field/root/FieldRoot.mjs
-  var React136 = __toESM(require_react(), 1);
+  var React137 = __toESM(require_react(), 1);
 
   // node_modules/@base-ui/react/fieldset/root/FieldsetRootContext.mjs
-  var React132 = __toESM(require_react(), 1);
-  var FieldsetRootContext = /* @__PURE__ */ React132.createContext(void 0);
+  var React133 = __toESM(require_react(), 1);
+  var FieldsetRootContext = /* @__PURE__ */ React133.createContext(void 0);
   if (false) FieldsetRootContext.displayName = "FieldsetRootContext";
   function useFieldsetRootContext(optional = false) {
-    const context = React132.useContext(FieldsetRootContext);
+    const context = React133.useContext(FieldsetRootContext);
     if (!context && !optional) {
       throw new Error(false ? "Base UI: FieldsetRootContext is missing. Fieldset parts must be placed within <Fieldset.Root>." : formatErrorMessage_default(86));
     }
@@ -40591,13 +41383,13 @@
   }
 
   // node_modules/@base-ui/react/internals/labelable-provider/LabelableProvider.mjs
-  var React133 = __toESM(require_react(), 1);
-  var import_jsx_runtime47 = __toESM(require_jsx_runtime(), 1);
+  var React134 = __toESM(require_react(), 1);
+  var import_jsx_runtime48 = __toESM(require_jsx_runtime(), 1);
   var LabelableProvider = function LabelableProvider2(props) {
     const defaultId = useBaseUiId();
-    const [controlIdState, setControlIdState] = React133.useState(defaultId);
-    const [labelId, setLabelId] = React133.useState();
-    const [messageIds, setMessageIds] = React133.useState([]);
+    const [controlIdState, setControlIdState] = React134.useState(defaultId);
+    const [labelId, setLabelId] = React134.useState();
+    const [messageIds, setMessageIds] = React134.useState([]);
     const controlId = controlIdState === void 0 ? defaultId : controlIdState;
     const registrationsRef = useRefWithInit(() => /* @__PURE__ */ new Map());
     const {
@@ -40631,7 +41423,7 @@
         setControlIdState(defaultId);
       }
     });
-    const getDescriptionProps = React133.useCallback((externalProps) => {
+    const getDescriptionProps = React134.useCallback((externalProps) => {
       const ids = externalProps["aria-describedby"] ? externalProps["aria-describedby"].split(" ") : [];
       ids.push(...parentMessageIds, ...messageIds);
       return {
@@ -40639,7 +41431,7 @@
         "aria-describedby": Array.from(new Set(ids)).join(" ") || void 0
       };
     }, [parentMessageIds, messageIds]);
-    const contextValue = React133.useMemo(() => ({
+    const contextValue = React134.useMemo(() => ({
       controlId,
       registerControlId,
       resetControlId,
@@ -40649,7 +41441,7 @@
       setMessageIds,
       getDescriptionProps
     }), [controlId, registerControlId, resetControlId, labelId, setLabelId, messageIds, setMessageIds, getDescriptionProps]);
-    return /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(LabelableContext.Provider, {
+    return /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(LabelableContext.Provider, {
       value: contextValue,
       children: props.children
     });
@@ -40657,7 +41449,7 @@
   if (false) LabelableProvider.displayName = "LabelableProvider";
 
   // node_modules/@base-ui/react/field/root/useFieldValidation.mjs
-  var React134 = __toESM(require_react(), 1);
+  var React135 = __toESM(require_react(), 1);
 
   // node_modules/@base-ui/react/field/utils/getCombinedFieldValidityData.mjs
   function getCombinedFieldValidityData(validityData, invalid2) {
@@ -40726,11 +41518,11 @@
       getDescriptionProps
     } = useLabelableContext();
     const timeout = useTimeout();
-    const inputRef = React134.useRef(null);
+    const inputRef = React135.useRef(null);
     const registeredInputs = useRefWithInit(() => /* @__PURE__ */ new Map()).current;
-    const validationCommitIdRef = React134.useRef(0);
-    const customValidityRef = React134.useRef(null);
-    const registerInput = React134.useCallback((element, registration) => {
+    const validationCommitIdRef = React135.useRef(0);
+    const customValidityRef = React135.useRef(null);
+    const registerInput = React135.useCallback((element, registration) => {
       registeredInputs.set(element, registration);
       return () => {
         registeredInputs.delete(element);
@@ -40890,10 +41682,10 @@
         commit(value, !validateOnChange);
       }
     });
-    const getValidationProps = React134.useCallback((disabled2, externalProps = {}) => mergeProps(getDescriptionProps(externalProps), state.valid === false && !state.disabled && !disabled2 ? {
+    const getValidationProps = React135.useCallback((disabled2, externalProps = {}) => mergeProps(getDescriptionProps(externalProps), state.valid === false && !state.disabled && !disabled2 ? {
       "aria-invalid": true
     } : EMPTY_OBJECT), [getDescriptionProps, state.disabled, state.valid]);
-    return React134.useMemo(() => ({
+    return React135.useMemo(() => ({
       getValidationProps,
       inputRef,
       registeredInputs,
@@ -40905,7 +41697,7 @@
   }
 
   // node_modules/@base-ui/react/internals/field-register-control/useFieldControlRegistration.mjs
-  var React135 = __toESM(require_react(), 1);
+  var React136 = __toESM(require_react(), 1);
   function useFieldControlRegistration(params) {
     const {
       change,
@@ -40921,9 +41713,9 @@
     const {
       formRef
     } = useFormContext();
-    const activeFieldControlSourceRef = React135.useRef(null);
-    const registrationRef = React135.useRef(null);
-    const initialValueCapturedRef = React135.useRef(false);
+    const activeFieldControlSourceRef = React136.useRef(null);
+    const registrationRef = React136.useRef(null);
+    const initialValueCapturedRef = React136.useRef(false);
     const getValueForForm = useStableCallback(() => {
       const registration = registrationRef.current;
       if (!registration) {
@@ -41031,8 +41823,8 @@
   }
 
   // node_modules/@base-ui/react/field/root/FieldRoot.mjs
-  var import_jsx_runtime48 = __toESM(require_jsx_runtime(), 1);
-  var FieldRootInner = /* @__PURE__ */ React136.forwardRef(function FieldRootInner2(componentProps, forwardedRef) {
+  var import_jsx_runtime49 = __toESM(require_jsx_runtime(), 1);
+  var FieldRootInner = /* @__PURE__ */ React137.forwardRef(function FieldRootInner2(componentProps, forwardedRef) {
     const {
       errors,
       validationMode: formValidationMode,
@@ -41056,16 +41848,16 @@
     const disabledFieldset = useFieldsetRootContext(true)?.disabled;
     const validate = useStableCallback(validateProp || (() => null));
     const disabled2 = disabledFieldset || disabledProp;
-    const [touchedState, setTouchedUnwrapped] = React136.useState(false);
-    const [dirtyState, setDirtyUnwrapped] = React136.useState(false);
-    const [filled, setFilled] = React136.useState(false);
-    const [focused, setFocused] = React136.useState(false);
-    const focusOwnerRef = React136.useRef(void 0);
+    const [touchedState, setTouchedUnwrapped] = React137.useState(false);
+    const [dirtyState, setDirtyUnwrapped] = React137.useState(false);
+    const [filled, setFilled] = React137.useState(false);
+    const [focused, setFocused] = React137.useState(false);
+    const focusOwnerRef = React137.useRef(void 0);
     const dirty = dirtyProp ?? dirtyState;
     const touched = touchedProp ?? touchedState;
-    const markedDirtyRef = React136.useRef(dirty);
-    const registeredFieldIdRef = React136.useRef(void 0);
-    const [registeredFieldName, setRegisteredFieldName] = React136.useState();
+    const markedDirtyRef = React137.useRef(dirty);
+    const registeredFieldIdRef = React137.useRef(void 0);
+    const [registeredFieldName, setRegisteredFieldName] = React137.useState();
     const effectiveName = name ?? registeredFieldName;
     useIsoLayoutEffect(() => {
       if (dirtyProp !== void 0) {
@@ -41091,7 +41883,7 @@
     const formError = effectiveName && Object.hasOwn(errors, effectiveName) ? errors[effectiveName] : null;
     const hasFormError = !!(Array.isArray(formError) ? formError.length : formError);
     const invalid2 = invalidProp === true || hasFormError;
-    const [validityData, setValidityData] = React136.useState({
+    const [validityData, setValidityData] = React137.useState({
       state: DEFAULT_VALIDITY_STATE,
       error: "",
       errors: [],
@@ -41099,7 +41891,7 @@
       initialValue: null
     });
     const valid2 = !invalid2 && (disabled2 ? null : validityData.state.valid);
-    const state = React136.useMemo(() => ({
+    const state = React137.useMemo(() => ({
       disabled: disabled2,
       touched,
       dirty,
@@ -41130,10 +41922,10 @@
       setValidityData,
       validityData
     });
-    React136.useImperativeHandle(actionsRef, () => ({
+    React137.useImperativeHandle(actionsRef, () => ({
       validate: validateFieldControl
     }), [validateFieldControl]);
-    const contextValue = React136.useMemo(() => ({
+    const contextValue = React137.useMemo(() => ({
       invalid: invalid2,
       name: effectiveName,
       validityData,
@@ -41156,15 +41948,15 @@
       props: elementProps,
       stateAttributesMapping: fieldValidityMapping
     });
-    return /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(FieldRootContext.Provider, {
+    return /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(FieldRootContext.Provider, {
       value: contextValue,
       children: element
     });
   });
   if (false) FieldRootInner.displayName = "FieldRootInner";
-  var FieldRoot = /* @__PURE__ */ React136.forwardRef(function FieldRoot2(componentProps, forwardedRef) {
-    return /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(LabelableProvider, {
-      children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(FieldRootInner, {
+  var FieldRoot = /* @__PURE__ */ React137.forwardRef(function FieldRoot2(componentProps, forwardedRef) {
+    return /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(LabelableProvider, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(FieldRootInner, {
         ...componentProps,
         ref: forwardedRef
       })
@@ -41173,21 +41965,21 @@
   if (false) FieldRoot.displayName = "FieldRoot";
 
   // node_modules/@base-ui/react/field/label/FieldLabel.mjs
-  var React138 = __toESM(require_react(), 1);
+  var React139 = __toESM(require_react(), 1);
 
   // node_modules/@base-ui/react/field/item/FieldItemContext.mjs
-  var React137 = __toESM(require_react(), 1);
-  var FieldItemContext = /* @__PURE__ */ React137.createContext({
+  var React138 = __toESM(require_react(), 1);
+  var FieldItemContext = /* @__PURE__ */ React138.createContext({
     disabled: false
   });
   if (false) FieldItemContext.displayName = "FieldItemContext";
   function useFieldItemContext() {
-    const context = React137.useContext(FieldItemContext);
+    const context = React138.useContext(FieldItemContext);
     return context;
   }
 
   // node_modules/@base-ui/react/field/label/FieldLabel.mjs
-  var FieldLabel = /* @__PURE__ */ React138.forwardRef(function FieldLabel2(componentProps, forwardedRef) {
+  var FieldLabel = /* @__PURE__ */ React139.forwardRef(function FieldLabel2(componentProps, forwardedRef) {
     const {
       render,
       className,
@@ -41205,13 +41997,13 @@
       ...fieldRootContext.state,
       disabled: fieldRootContext.disabled || fieldItemContext.disabled
     };
-    const labelRef = React138.useRef(null);
+    const labelRef = React139.useRef(null);
     const labelProps = useLabel({
       id: labelId ?? idProp,
       native: nativeLabel
     });
     if (false) {
-      React138.useEffect(() => {
+      React139.useEffect(() => {
         if (!labelRef.current) {
           return;
         }
@@ -41240,13 +42032,13 @@
   if (false) FieldLabel.displayName = "FieldLabel";
 
   // node_modules/@base-ui/react/field/error/FieldError.mjs
-  var React139 = __toESM(require_react(), 1);
-  var import_jsx_runtime49 = __toESM(require_jsx_runtime(), 1);
+  var React140 = __toESM(require_react(), 1);
+  var import_jsx_runtime50 = __toESM(require_jsx_runtime(), 1);
   var stateAttributesMapping8 = {
     ...fieldValidityMapping,
     ...transitionStatusMapping
   };
-  var FieldError = /* @__PURE__ */ React139.forwardRef(function FieldError2(componentProps, forwardedRef) {
+  var FieldError = /* @__PURE__ */ React140.forwardRef(function FieldError2(componentProps, forwardedRef) {
     const {
       render,
       id: idProp,
@@ -41294,9 +42086,9 @@
         setMessageIds((v) => v.filter((item) => item !== id));
       };
     }, [rendered, id, setMessageIds]);
-    const errorRef = React139.useRef(null);
-    const [lastRenderedMessage, setLastRenderedMessage] = React139.useState(null);
-    const [lastRenderedMessageKey, setLastRenderedMessageKey] = React139.useState(null);
+    const errorRef = React140.useRef(null);
+    const [lastRenderedMessage, setLastRenderedMessage] = React140.useState(null);
+    const [lastRenderedMessageKey, setLastRenderedMessageKey] = React140.useState(null);
     let error = validityData.error;
     if (!hasSpecificMatch && hasFormError) {
       error = formError;
@@ -41305,8 +42097,8 @@
     }
     let errorMessage = error;
     if (Array.isArray(error)) {
-      errorMessage = error.length > 1 ? /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("ul", {
-        children: error.map((message) => /* @__PURE__ */ (0, import_jsx_runtime49.jsx)("li", {
+      errorMessage = error.length > 1 ? /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("ul", {
+        children: error.map((message) => /* @__PURE__ */ (0, import_jsx_runtime50.jsx)("li", {
           children: message
         }, message))
       }) : error[0];
@@ -41347,8 +42139,8 @@
   if (false) FieldError.displayName = "FieldError";
 
   // node_modules/@base-ui/react/field/description/FieldDescription.mjs
-  var React140 = __toESM(require_react(), 1);
-  var FieldDescription = /* @__PURE__ */ React140.forwardRef(function FieldDescription2(componentProps, forwardedRef) {
+  var React141 = __toESM(require_react(), 1);
+  var FieldDescription = /* @__PURE__ */ React141.forwardRef(function FieldDescription2(componentProps, forwardedRef) {
     const {
       render,
       id: idProp,
@@ -41388,8 +42180,8 @@
   if (false) FieldDescription.displayName = "FieldDescription";
 
   // node_modules/@base-ui/react/field/control/FieldControl.mjs
-  var React141 = __toESM(require_react(), 1);
-  var FieldControl = /* @__PURE__ */ React141.forwardRef(function FieldControl2(componentProps, forwardedRef) {
+  var React142 = __toESM(require_react(), 1);
+  var FieldControl = /* @__PURE__ */ React142.forwardRef(function FieldControl2(componentProps, forwardedRef) {
     const {
       render,
       className,
@@ -41449,7 +42241,7 @@
       setDirty(serializedValue !== (validityData.initialValue ?? ""));
       validation.change(serializedValue);
     });
-    const inputRef = React141.useRef(null);
+    const inputRef = React142.useRef(null);
     const setFocused = useSetFieldFocused(disabled2, inputRef);
     const enterValidationTimeout = useTimeout();
     const element = useRenderElement("input", componentProps, {
@@ -41526,8 +42318,8 @@
   if (false) FieldControl.displayName = "FieldControl";
 
   // node_modules/@base-ui/react/field/validity/FieldValidity.mjs
-  var React142 = __toESM(require_react(), 1);
-  var import_jsx_runtime50 = __toESM(require_jsx_runtime(), 1);
+  var React143 = __toESM(require_react(), 1);
+  var import_jsx_runtime51 = __toESM(require_jsx_runtime(), 1);
   var FieldValidity = function FieldValidity2(props) {
     const {
       children
@@ -41536,28 +42328,28 @@
       validityData,
       invalid: invalid2
     } = useFieldRootContext(false);
-    const combinedFieldValidityData = React142.useMemo(() => getCombinedFieldValidityData(validityData, invalid2), [validityData, invalid2]);
+    const combinedFieldValidityData = React143.useMemo(() => getCombinedFieldValidityData(validityData, invalid2), [validityData, invalid2]);
     const isInvalid = combinedFieldValidityData.state.valid === false;
     const {
       transitionStatus
     } = useTransitionStatus(isInvalid);
-    const fieldValidityState = React142.useMemo(() => {
+    const fieldValidityState = React143.useMemo(() => {
       return {
         ...combinedFieldValidityData,
         validity: combinedFieldValidityData.state,
         transitionStatus
       };
     }, [combinedFieldValidityData, transitionStatus]);
-    return /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(React142.Fragment, {
+    return /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(React143.Fragment, {
       children: children(fieldValidityState)
     });
   };
   if (false) FieldValidity.displayName = "FieldValidity";
 
   // node_modules/@base-ui/react/field/item/FieldItem.mjs
-  var React143 = __toESM(require_react(), 1);
-  var import_jsx_runtime51 = __toESM(require_jsx_runtime(), 1);
-  var FieldItem = /* @__PURE__ */ React143.forwardRef(function FieldItem2(componentProps, forwardedRef) {
+  var React144 = __toESM(require_react(), 1);
+  var import_jsx_runtime52 = __toESM(require_jsx_runtime(), 1);
+  var FieldItem = /* @__PURE__ */ React144.forwardRef(function FieldItem2(componentProps, forwardedRef) {
     const {
       render,
       className,
@@ -41574,7 +42366,7 @@
       ...fieldState,
       disabled: disabled2
     };
-    const fieldItemContext = React143.useMemo(() => ({
+    const fieldItemContext = React144.useMemo(() => ({
       disabled: disabled2
     }), [disabled2]);
     const element = useRenderElement("div", componentProps, {
@@ -41583,8 +42375,8 @@
       props: elementProps,
       stateAttributesMapping: fieldValidityMapping
     });
-    return /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(LabelableProvider, {
-      children: /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(FieldItemContext.Provider, {
+    return /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(LabelableProvider, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(FieldItemContext.Provider, {
         value: fieldItemContext,
         children: element
       })
@@ -41593,9 +42385,9 @@
   if (false) FieldItem.displayName = "FieldItem";
 
   // node_modules/@base-ui/react/input/Input.mjs
-  var import_jsx_runtime52 = __toESM(require_jsx_runtime(), 1);
-  var Input = /* @__PURE__ */ React144.forwardRef(function Input2(props, forwardedRef) {
-    return /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(index_parts_exports6.Control, {
+  var import_jsx_runtime53 = __toESM(require_jsx_runtime(), 1);
+  var Input = /* @__PURE__ */ React145.forwardRef(function Input2(props, forwardedRef) {
+    return /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(index_parts_exports6.Control, {
       ref: forwardedRef,
       ...props
     });
@@ -41603,9 +42395,9 @@
   if (false) Input.displayName = "Input";
 
   // src/components/ui/input.jsx
-  var import_jsx_runtime53 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime54 = __toESM(require_jsx_runtime());
   function Input3({ className, type, ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(
       Input,
       {
         type,
@@ -41620,8 +42412,8 @@
   }
 
   // node_modules/@base-ui/react/separator/Separator.mjs
-  var React146 = __toESM(require_react(), 1);
-  var Separator = /* @__PURE__ */ React146.forwardRef(function SeparatorComponent(componentProps, forwardedRef) {
+  var React147 = __toESM(require_react(), 1);
+  var Separator = /* @__PURE__ */ React147.forwardRef(function SeparatorComponent(componentProps, forwardedRef) {
     const {
       className,
       render,
@@ -41645,9 +42437,9 @@
   if (false) Separator.displayName = "Separator";
 
   // src/components/ui/separator.jsx
-  var import_jsx_runtime54 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime55 = __toESM(require_jsx_runtime());
   function Separator2({ className, orientation = "horizontal", ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
       Separator,
       {
         "data-slot": "separator",
@@ -41662,7 +42454,7 @@
   }
 
   // src/features/opening_book.js
-  var import_jsx_runtime55 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime56 = __toESM(require_jsx_runtime());
   (function(ZigaMod) {
     "use strict";
     console.log("[AN Mod] Opening Book module initializing...");
@@ -42029,16 +42821,16 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     let openingModalRoot = null;
     let openingModalSetter = null;
     function OpeningBookModal({ initialOpening, detectedOpening }) {
-      const [open3, setOpen] = (0, import_react12.useState)(true);
-      const [activeOp, setActiveOp] = (0, import_react12.useState)(
+      const [open3, setOpen] = (0, import_react13.useState)(true);
+      const [activeOp, setActiveOp] = (0, import_react13.useState)(
         initialOpening || OPENING_DATABASE[0]
       );
-      const [searchTerm, setSearchTerm] = (0, import_react12.useState)("");
+      const [searchTerm, setSearchTerm] = (0, import_react13.useState)("");
       openingModalSetter = (nextOpen, nextOp) => {
         if (nextOp) setActiveOp(nextOp);
         setOpen(nextOpen);
       };
-      const filteredList = (0, import_react12.useMemo)(() => {
+      const filteredList = (0, import_react13.useMemo)(() => {
         const term = (searchTerm || "").trim().toLowerCase();
         if (!term) return OPENING_DATABASE;
         return OPENING_DATABASE.filter(
@@ -42046,39 +42838,39 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         );
       }, [searchTerm]);
       const isMatchCurrent = detectedOpening && detectedOpening.opening && detectedOpening.opening.id === activeOp.id;
-      return /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(Dialog, { open: open3, onOpenChange: setOpen, children: /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)(DialogContent, { className: "flex max-h-[88vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-[740px]", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)(DialogHeader, { className: "border-border bg-muted/20 shrink-0 border-b p-4", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("div", { className: "flex items-center justify-between gap-2 pr-6", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("div", { className: "flex items-center gap-2", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(DialogTitle3, { className: "text-base font-bold", children: activeOp.name }),
-              isMatchCurrent && /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(Badge, { variant: "default", children: "\u0110ang kh\u1EDBp v\xE1n \u0111\u1EA5u" })
+      return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Dialog, { open: open3, onOpenChange: setOpen, children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(DialogContent, { className: "flex max-h-[88vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-[740px]", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(DialogHeader, { className: "border-border bg-muted/20 shrink-0 border-b p-4", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between gap-2 pr-6", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(DialogTitle3, { className: "text-base font-bold", children: activeOp.name }),
+              isMatchCurrent && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Badge, { variant: "default", children: "\u0110ang kh\u1EDBp v\xE1n \u0111\u1EA5u" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(Badge, { variant: "outline", className: "font-mono text-[11px]", children: activeOp.category })
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Badge, { variant: "outline", className: "font-mono text-[11px]", children: activeOp.category })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)(DialogDescription3, { className: "text-xs", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(DialogDescription3, { className: "text-xs", children: [
             "T\u1EF7 l\u1EC7 th\u1ED1ng k\xEA: ",
             activeOp.winRate
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("div", { className: "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)(Card, { size: "sm", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(CardHeader, { className: "pb-1", children: /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(CardTitle, { className: "text-primary text-xs font-bold tracking-wider uppercase", children: "\xDD \u0110\u1ED3 Chi\u1EBFn Thu\u1EADt" }) }),
-            /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(CardContent, { children: /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("p", { className: "text-foreground text-xs leading-relaxed", children: activeOp.strategy }) })
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Card, { size: "sm", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardHeader, { className: "pb-1", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardTitle, { className: "text-primary text-xs font-bold tracking-wider uppercase", children: "\xDD \u0110\u1ED3 Chi\u1EBFn Thu\u1EADt" }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardContent, { children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("p", { className: "text-foreground text-xs leading-relaxed", children: activeOp.strategy }) })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("div", { className: "grid grid-cols-1 gap-3 sm:grid-cols-2", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)(Card, { size: "sm", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(CardHeader, { className: "pb-1", children: /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(CardTitle, { className: "text-primary text-xs font-bold", children: "L\u1EDDi Khuy\xEAn B\xEAn \u0110\u1ECF" }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(CardContent, { children: /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("p", { className: "text-muted-foreground text-xs leading-relaxed", children: activeOp.redAdvise }) })
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "grid grid-cols-1 gap-3 sm:grid-cols-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Card, { size: "sm", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardHeader, { className: "pb-1", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardTitle, { className: "text-primary text-xs font-bold", children: "L\u1EDDi Khuy\xEAn B\xEAn \u0110\u1ECF" }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardContent, { children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("p", { className: "text-muted-foreground text-xs leading-relaxed", children: activeOp.redAdvise }) })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)(Card, { size: "sm", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(CardHeader, { className: "pb-1", children: /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(CardTitle, { className: "text-foreground text-xs font-bold", children: "L\u1EDDi Khuy\xEAn B\xEAn \u0110en" }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(CardContent, { children: /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("p", { className: "text-muted-foreground text-xs leading-relaxed", children: activeOp.blackAdvise }) })
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Card, { size: "sm", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardHeader, { className: "pb-1", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardTitle, { className: "text-foreground text-xs font-bold", children: "L\u1EDDi Khuy\xEAn B\xEAn \u0110en" }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardContent, { children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("p", { className: "text-muted-foreground text-xs leading-relaxed", children: activeOp.blackAdvise }) })
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)(Card, { size: "sm", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)(CardHeader, { className: "flex flex-row items-center justify-between pb-1.5", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(CardTitle, { className: "text-xs font-bold tracking-wider uppercase", children: "Tr\xECnh T\u1EF1 N\u01B0\u1EDBc \u0110i Chu\u1EA9n" }),
-              /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Card, { size: "sm", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(CardHeader, { className: "flex flex-row items-center justify-between pb-1.5", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardTitle, { className: "text-xs font-bold tracking-wider uppercase", children: "Tr\xECnh T\u1EF1 N\u01B0\u1EDBc \u0110i Chu\u1EA9n" }),
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                 Button3,
                 {
                   variant: "outline",
@@ -42092,13 +42884,13 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                 }
               )
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(CardContent, { className: "flex flex-wrap gap-1.5", children: activeOp.moves.map((m, idx) => /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)(
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardContent, { className: "flex flex-wrap gap-1.5", children: activeOp.moves.map((m, idx) => /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
               Badge,
               {
                 variant: "secondary",
                 className: "font-mono text-xs",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("span", { className: "text-primary mr-1 font-bold", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-primary mr-1 font-bold", children: [
                     idx + 1,
                     "."
                   ] }),
@@ -42108,15 +42900,15 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               idx
             )) })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(Separator2, {}),
-          /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("div", { className: "flex flex-col gap-2.5", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("div", { className: "flex items-center justify-between gap-3", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)("span", { className: "text-foreground text-xs font-bold tracking-wider uppercase", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Separator2, {}),
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-2.5", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between gap-3", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-foreground text-xs font-bold tracking-wider uppercase", children: [
                 "Tra C\u1EE9u 60+ Th\u1EBF Tr\u1EADn C\u1EDD T\u01B0\u1EDBng (",
                 filteredList.length,
                 ")"
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                 Input3,
                 {
                   type: "text",
@@ -42127,9 +42919,9 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                 }
               )
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("div", { className: "grid max-h-[200px] grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-3", children: filteredList.map((item) => {
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "grid max-h-[200px] grid-cols-1 gap-2 overflow-y-auto pr-1 sm:grid-cols-3", children: filteredList.map((item) => {
               const isSelected = item.id === activeOp.id;
-              return /* @__PURE__ */ (0, import_jsx_runtime55.jsxs)(
+              return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
                 Button3,
                 {
                   type: "button",
@@ -42140,8 +42932,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     setActiveOp(item);
                   },
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime55.jsx)("span", { className: "w-full truncate text-xs font-semibold", children: item.name }),
-                    /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "w-full truncate text-xs font-semibold", children: item.name }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                       "span",
                       {
                         className: `w-full truncate text-[10px] ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`,
@@ -42155,7 +42947,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             }) })
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(DialogFooter, { className: "border-border bg-muted/20 shrink-0 border-t p-3", children: /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(Button3, { variant: "default", size: "sm", onClick: () => setOpen(false), children: "\u0110\xF3ng" }) })
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(DialogFooter, { className: "border-border bg-muted/20 shrink-0 border-t p-3", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Button3, { variant: "default", size: "sm", onClick: () => setOpen(false), children: "\u0110\xF3ng" }) })
       ] }) });
     }
     function showOpeningModal(overrideOpening) {
@@ -42169,7 +42961,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         document.body.appendChild(host);
         openingModalRoot = (0, import_client2.createRoot)(host);
         openingModalRoot.render(
-          /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
             OpeningBookModal,
             {
               initialOpening: activeOp,
@@ -42619,19 +43411,19 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   })(window.ZigaMod = window.ZigaMod || {});
 
   // src/features/game_review.js
-  var import_react13 = __toESM(require_react());
+  var import_react14 = __toESM(require_react());
   var import_client3 = __toESM(require_client());
 
   // src/components/ui/table.jsx
-  var React148 = __toESM(require_react());
-  var import_jsx_runtime56 = __toESM(require_jsx_runtime());
+  var React149 = __toESM(require_react());
+  var import_jsx_runtime57 = __toESM(require_jsx_runtime());
   function Table({ className, ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
       "div",
       {
         "data-slot": "table-container",
         className: "relative w-full overflow-x-auto",
-        children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+        children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
           "table",
           {
             "data-slot": "table",
@@ -42643,7 +43435,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     );
   }
   function TableHeader({ className, ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
       "thead",
       {
         "data-slot": "table-header",
@@ -42653,7 +43445,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     );
   }
   function TableBody({ className, ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
       "tbody",
       {
         "data-slot": "table-body",
@@ -42663,7 +43455,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     );
   }
   function TableRow({ className, ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
       "tr",
       {
         "data-slot": "table-row",
@@ -42676,7 +43468,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     );
   }
   function TableHead({ className, ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
       "th",
       {
         "data-slot": "table-head",
@@ -42689,7 +43481,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     );
   }
   function TableCell({ className, ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
       "td",
       {
         "data-slot": "table-cell",
@@ -42703,7 +43495,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // src/features/game_review.js
-  var import_jsx_runtime57 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime58 = __toESM(require_jsx_runtime());
   (function(ZigaMod) {
     "use strict";
     function classifyMoveQuality(scoreBefore, scoreAfter, isRed) {
@@ -42801,13 +43593,13 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     let reviewHost = null;
     let setReviewStateExternal = null;
     function GameReviewDialogHost() {
-      const [state, setState] = (0, import_react13.useState)({
+      const [state, setState] = (0, import_react14.useState)({
         open: false,
         analysis: null,
         redPlayer: "B\xEAn \u0110\u1ECF",
         blackPlayer: "B\xEAn \u0110en"
       });
-      (0, import_react13.useEffect)(() => {
+      (0, import_react14.useEffect)(() => {
         setReviewStateExternal = setState;
       }, []);
       const { open: open3, analysis, redPlayer, blackPlayer } = state;
@@ -42822,91 +43614,91 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         { key: "mistake", label: "N\u01B0\u1EDBc sai l\u1EA7m (Mistake)" },
         { key: "blunder", label: "S\u01A1 h\u1EDF ch\xED m\u1EA1ng (Blunder)" }
       ];
-      return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
         Dialog,
         {
           open: open3,
           onOpenChange: (val) => setState((s) => ({ ...s, open: val })),
-          children: /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(DialogContent, { className: "flex max-h-[88vh] flex-col overflow-hidden sm:max-w-xl", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(DialogHeader, { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(DialogTitle3, { className: "flex items-center gap-2", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(ChartNoAxesColumn, { className: "text-primary size-4" }),
-                /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("span", { children: "T\u1ED5ng K\u1EBFt & Ph\xE2n T\xEDch V\xE1n \u0110\u1EA5u" })
+          children: /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(DialogContent, { className: "flex max-h-[88vh] flex-col overflow-hidden sm:max-w-xl", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(DialogHeader, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(DialogTitle3, { className: "flex items-center gap-2", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(ChartNoAxesColumn, { className: "text-primary size-4" }),
+                /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("span", { children: "T\u1ED5ng K\u1EBFt & Ph\xE2n T\xEDch V\xE1n \u0110\u1EA5u" })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(DialogDescription3, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(DialogDescription3, { children: [
                 "\u0110\xE1nh gi\xE1 ch\u1EA5t l\u01B0\u1EE3ng n\u01B0\u1EDBc \u0111i v\xE0 sai l\u1EA7m then ch\u1ED1t (",
                 analysis.totalRounds,
                 " hi\u1EC7p)"
               ] })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto py-1", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("div", { className: "grid grid-cols-2 gap-3", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Card, { size: "sm", children: /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(CardContent, { className: "flex flex-col items-center gap-1 py-1 text-center", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("span", { className: "text-muted-foreground text-xs font-medium", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto py-1", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("div", { className: "grid grid-cols-2 gap-3", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Card, { size: "sm", children: /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(CardContent, { className: "flex flex-col items-center gap-1 py-1 text-center", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("span", { className: "text-muted-foreground text-xs font-medium", children: [
                     redPlayer,
                     " (\u0110\u1ECF)"
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("span", { className: "text-primary text-2xl font-bold", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("span", { className: "text-primary text-2xl font-bold", children: [
                     analysis.redAccuracy,
                     "%"
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Badge, { variant: "secondary", children: "\u0110\u1ED9 ch\xEDnh x\xE1c" })
+                  /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Badge, { variant: "secondary", children: "\u0110\u1ED9 ch\xEDnh x\xE1c" })
                 ] }) }),
-                /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Card, { size: "sm", children: /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(CardContent, { className: "flex flex-col items-center gap-1 py-1 text-center", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("span", { className: "text-muted-foreground text-xs font-medium", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Card, { size: "sm", children: /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(CardContent, { className: "flex flex-col items-center gap-1 py-1 text-center", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("span", { className: "text-muted-foreground text-xs font-medium", children: [
                     blackPlayer,
                     " (\u0110en)"
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("span", { className: "text-foreground text-2xl font-bold", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("span", { className: "text-foreground text-2xl font-bold", children: [
                     analysis.blackAccuracy,
                     "%"
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Badge, { variant: "secondary", children: "\u0110\u1ED9 ch\xEDnh x\xE1c" })
+                  /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Badge, { variant: "secondary", children: "\u0110\u1ED9 ch\xEDnh x\xE1c" })
                 ] }) })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(Card, { size: "sm", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(CardHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(CardTitle, { children: "Th\u1ED1ng k\xEA ph\xE2n lo\u1EA1i n\u01B0\u1EDBc \u0111i" }) }),
-                /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(CardContent, { children: /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(Table, { children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(TableHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(TableRow, { children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(TableHead, { className: "text-center", children: "\u0110\u1ECF" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(TableHead, { children: "Ph\xE2n lo\u1EA1i n\u01B0\u1EDBc \u0111i" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(TableHead, { className: "text-center", children: "\u0110en" })
+              /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(Card, { size: "sm", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(CardHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(CardTitle, { children: "Th\u1ED1ng k\xEA ph\xE2n lo\u1EA1i n\u01B0\u1EDBc \u0111i" }) }),
+                /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(CardContent, { children: /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(Table, { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(TableHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(TableRow, { children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(TableHead, { className: "text-center", children: "\u0110\u1ECF" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(TableHead, { children: "Ph\xE2n lo\u1EA1i n\u01B0\u1EDBc \u0111i" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(TableHead, { className: "text-center", children: "\u0110en" })
                   ] }) }),
-                  /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(TableBody, { children: rows.map((r2) => /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(TableRow, { children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(TableCell, { className: "text-primary text-center font-semibold", children: analysis.redStats[r2.key] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(TableCell, { className: "font-medium", children: r2.label }),
-                    /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(TableCell, { className: "text-foreground text-center font-semibold", children: analysis.blackStats[r2.key] })
+                  /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(TableBody, { children: rows.map((r2) => /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(TableRow, { children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(TableCell, { className: "text-primary text-center font-semibold", children: analysis.redStats[r2.key] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(TableCell, { className: "font-medium", children: r2.label }),
+                    /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(TableCell, { className: "text-foreground text-center font-semibold", children: analysis.blackStats[r2.key] })
                   ] }, r2.key)) })
                 ] }) })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(Card, { size: "sm", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(CardHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(CardTitle, { className: "flex items-center gap-1.5", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Sparkles, { className: "text-primary size-4" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("span", { children: "C\xE1c n\u01B0\u1EDBc \u0111i \u0111\xE1ng ch\xFA \xFD" })
+              /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(Card, { size: "sm", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(CardHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(CardTitle, { className: "flex items-center gap-1.5", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Sparkles, { className: "text-primary size-4" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("span", { children: "C\xE1c n\u01B0\u1EDBc \u0111i \u0111\xE1ng ch\xFA \xFD" })
                 ] }) }),
-                /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(CardContent, { className: "flex flex-col gap-1.5", children: notableMoves.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("span", { className: "text-muted-foreground text-xs", children: "V\xE1n \u0111\u1EA5u di\u1EC5n ra ch\u1EB7t ch\u1EBD, kh\xF4ng c\xF3 sai l\u1EA7m nghi\xEAm tr\u1ECDng!" }) : notableMoves.map((m) => /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(
+                /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(CardContent, { className: "flex flex-col gap-1.5", children: notableMoves.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("span", { className: "text-muted-foreground text-xs", children: "V\xE1n \u0111\u1EA5u di\u1EC5n ra ch\u1EB7t ch\u1EBD, kh\xF4ng c\xF3 sai l\u1EA7m nghi\xEAm tr\u1ECDng!" }) : notableMoves.map((m) => /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(
                   "div",
                   {
                     className: "bg-muted/20 flex items-center justify-between rounded-md border px-2.5 py-1.5 text-xs",
                     children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)("span", { children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)("span", { children: [
                         "N\u01B0\u1EDBc ",
-                        /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("strong", { children: m.moveNumber }),
+                        /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("strong", { children: m.moveNumber }),
                         " (",
                         m.turnColor === 0 ? "\u0110\u1ECF" : "\u0110en",
                         "):",
                         " ",
-                        /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("strong", { className: "text-primary font-mono", children: m.notation })
+                        /* @__PURE__ */ (0, import_jsx_runtime58.jsx)("strong", { className: "text-primary font-mono", children: m.notation })
                       ] }),
-                      /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Badge, { variant: m.quality.variant, children: m.quality.label })
+                      /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Badge, { variant: m.quality.variant, children: m.quality.label })
                     ]
                   },
                   m.moveIndex
                 )) })
               ] })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(DialogFooter, { className: "shrink-0 sm:justify-between", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime57.jsxs)(
+            /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(DialogFooter, { className: "shrink-0 sm:justify-between", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(
                 Button3,
                 {
                   variant: "outline",
@@ -42916,12 +43708,12 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     ZigaMod.openTacticalSandbox?.();
                   },
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Compass, {}),
+                    /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Compass, {}),
                     "M\u1EDF B\xE0n C\u1EDD \u1EA2o \u0110\u1EC3 R\xFAt Kinh Nghi\u1EC7m"
                   ]
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
                 Button3,
                 {
                   variant: "default",
@@ -42957,7 +43749,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         reviewHost.className = "ziga-shadcn-root";
         document.body.appendChild(reviewHost);
         reviewRoot = (0, import_client3.createRoot)(reviewHost);
-        reviewRoot.render(/* @__PURE__ */ (0, import_jsx_runtime57.jsx)(GameReviewDialogHost, {}));
+        reviewRoot.render(/* @__PURE__ */ (0, import_jsx_runtime58.jsx)(GameReviewDialogHost, {}));
       }
       setTimeout(() => {
         if (setReviewStateExternal) {
@@ -42975,12 +43767,12 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   })(window.ZigaMod = window.ZigaMod || {});
 
   // src/features/mentor_coach.js
-  var import_react14 = __toESM(require_react());
+  var import_react15 = __toESM(require_react());
   var import_client4 = __toESM(require_client());
 
   // src/components/ui/alert.jsx
-  var React150 = __toESM(require_react());
-  var import_jsx_runtime58 = __toESM(require_jsx_runtime());
+  var React151 = __toESM(require_react());
+  var import_jsx_runtime59 = __toESM(require_jsx_runtime());
   var alertVariants = cva(
     "group/alert relative grid w-full gap-0.5 rounded-lg border px-2.5 py-2 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
     {
@@ -42996,7 +43788,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     }
   );
   function Alert({ className, variant, ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
       "div",
       {
         "data-slot": "alert",
@@ -43007,7 +43799,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     );
   }
   function AlertTitle({ className, ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
       "div",
       {
         "data-slot": "alert-title",
@@ -43020,7 +43812,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     );
   }
   function AlertDescription({ className, ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
       "div",
       {
         "data-slot": "alert-description",
@@ -43033,7 +43825,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     );
   }
   function AlertAction({ className, ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
       "div",
       {
         "data-slot": "alert-action",
@@ -43044,7 +43836,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // src/features/mentor_coach.js
-  var import_jsx_runtime59 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime60 = __toESM(require_jsx_runtime());
   (function(ZigaMod) {
     "use strict";
     console.log("[AN Mod] Mentor Coach module initializing...");
@@ -43427,26 +44219,26 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     let mentorRoot = null;
     let mentorSetter = null;
     function MentorFloatingPanel({ initialAnalysis, onClose }) {
-      const [analysis, setAnalysis] = (0, import_react14.useState)(initialAnalysis);
-      const [tab, setTab] = (0, import_react14.useState)("plans");
+      const [analysis, setAnalysis] = (0, import_react15.useState)(initialAnalysis);
+      const [tab, setTab] = (0, import_react15.useState)("plans");
       mentorSetter = (nextAnalysis) => {
         if (nextAnalysis) setAnalysis(nextAnalysis);
       };
       if (!analysis) {
-        return /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(Card, { className: "border-border bg-card text-card-foreground w-[340px] shadow-2xl", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(CardHeader, { className: "border-border cursor-move border-b pb-2", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardTitle, { className: "text-primary text-xs font-bold tracking-wider uppercase", children: "K\u1EF3 \u0110\u1EA1o S\u01B0 (AI Mentor)" }),
-            /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardDescription, { className: "text-[11px]", children: "Gia s\u01B0 \u0111\u1ED3ng h\xE0nh n\xE2ng cao t\u01B0 duy c\u1EDD t\u01B0\u1EDBng" }),
-            /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(Button3, { variant: "ghost", size: "icon-xs", onClick: onClose, children: "\u2715" }) })
+        return /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(Card, { className: "border-border bg-card text-card-foreground w-[340px] shadow-2xl", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(CardHeader, { className: "border-border cursor-move border-b pb-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardTitle, { className: "text-primary text-xs font-bold tracking-wider uppercase", children: "K\u1EF3 \u0110\u1EA1o S\u01B0 (AI Mentor)" }),
+            /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardDescription, { className: "text-[11px]", children: "Gia s\u01B0 \u0111\u1ED3ng h\xE0nh n\xE2ng cao t\u01B0 duy c\u1EDD t\u01B0\u1EDBng" }),
+            /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(Button3, { variant: "ghost", size: "icon-xs", onClick: onClose, children: "\u2715" }) })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardContent, { className: "text-muted-foreground p-4 text-xs", children: "Ch\u1EDD v\xE1n c\u1EDD b\u1EAFt \u0111\u1EA7u \u0111\u1EC3 ph\xE2n t\xEDch th\u1EBF tr\u1EADn..." })
+          /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardContent, { className: "text-muted-foreground p-4 text-xs", children: "Ch\u1EDD v\xE1n c\u1EDD b\u1EAFt \u0111\u1EA7u \u0111\u1EC3 ph\xE2n t\xEDch th\u1EBF tr\u1EADn..." })
         ] });
       }
-      return /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(Card, { className: "border-border bg-card text-card-foreground flex max-h-[82vh] w-[340px] flex-col overflow-hidden shadow-2xl", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(CardHeader, { className: "border-border bg-muted/20 shrink-0 cursor-move border-b pb-2", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardTitle, { className: "text-primary text-xs font-bold tracking-wider uppercase", children: "K\u1EF3 \u0110\u1EA1o S\u01B0 (AI Mentor)" }),
-          /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardDescription, { className: "text-[11px]", children: "Gia s\u01B0 \u0111\u1ED3ng h\xE0nh n\xE2ng cao t\u01B0 duy c\u1EDD t\u01B0\u1EDBng" }),
-          /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(Card, { className: "border-border bg-card text-card-foreground flex max-h-[82vh] w-[340px] flex-col overflow-hidden shadow-2xl", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(CardHeader, { className: "border-border bg-muted/20 shrink-0 cursor-move border-b pb-2", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardTitle, { className: "text-primary text-xs font-bold tracking-wider uppercase", children: "K\u1EF3 \u0110\u1EA1o S\u01B0 (AI Mentor)" }),
+          /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardDescription, { className: "text-[11px]", children: "Gia s\u01B0 \u0111\u1ED3ng h\xE0nh n\xE2ng cao t\u01B0 duy c\u1EDD t\u01B0\u1EDBng" }),
+          /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(
             Button3,
             {
               variant: "ghost",
@@ -43457,25 +44249,25 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             }
           ) })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(CardContent, { className: "flex min-h-0 flex-col gap-3 overflow-y-auto p-3", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(Alert, { className: "bg-muted/40 px-3 py-2", children: /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(AlertDescription, { className: "text-foreground text-xs leading-relaxed", children: analysis.coachCommentary }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(Tabs, { value: tab, onValueChange: setTab, className: "w-full", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(TabsList3, { className: "grid h-8 w-full grid-cols-3", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(TabsTrigger, { value: "plans", className: "text-[11px]", children: "3 K\u1EBF S\xE1ch" }),
-              /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(TabsTrigger, { value: "weakness", className: "text-[11px]", children: "\u0110i\u1EC3m Y\u1EBFu" }),
-              /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(TabsTrigger, { value: "maxims", className: "text-[11px]", children: "Kh\u1EA9u Quy\u1EBFt" })
+        /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(CardContent, { className: "flex min-h-0 flex-col gap-3 overflow-y-auto p-3", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(Alert, { className: "bg-muted/40 px-3 py-2", children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(AlertDescription, { className: "text-foreground text-xs leading-relaxed", children: analysis.coachCommentary }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(Tabs, { value: tab, onValueChange: setTab, className: "w-full", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(TabsList3, { className: "grid h-8 w-full grid-cols-3", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(TabsTrigger, { value: "plans", className: "text-[11px]", children: "3 K\u1EBF S\xE1ch" }),
+              /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(TabsTrigger, { value: "weakness", className: "text-[11px]", children: "\u0110i\u1EC3m Y\u1EBFu" }),
+              /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(TabsTrigger, { value: "maxims", className: "text-[11px]", children: "Kh\u1EA9u Quy\u1EBFt" })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(TabsContent, { value: "plans", className: "mt-2.5 flex flex-col gap-2", children: analysis.plans.map((p, idx) => /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(Card, { size: "sm", className: "bg-muted/20", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(CardHeader, { className: "pb-1", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)("div", { className: "flex items-center justify-between gap-2", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(TabsContent, { value: "plans", className: "mt-2.5 flex flex-col gap-2", children: analysis.plans.map((p, idx) => /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(Card, { size: "sm", className: "bg-muted/20", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(CardHeader, { className: "pb-1", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("div", { className: "flex items-center justify-between gap-2", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(
                     Badge,
                     {
                       variant: p.type === "attack" ? "default" : p.type === "defend" ? "destructive" : "secondary",
                       children: p.badge
                     }
                   ),
-                  p.moveNotation && /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
+                  p.moveNotation && /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(
                     Badge,
                     {
                       variant: "outline",
@@ -43484,17 +44276,17 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     }
                   )
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardTitle, { className: "mt-1 text-xs font-bold", children: p.name })
+                /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardTitle, { className: "mt-1 text-xs font-bold", children: p.name })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(CardContent, { className: "flex flex-col gap-2", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)("p", { className: "text-muted-foreground text-[11px] leading-relaxed", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("strong", { className: "text-foreground", children: "\xDD \u0111\u1ED3:" }),
+              /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(CardContent, { className: "flex flex-col gap-2", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("p", { className: "text-muted-foreground text-[11px] leading-relaxed", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("strong", { className: "text-foreground", children: "\xDD \u0111\u1ED3:" }),
                   " ",
                   p.why
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("div", { className: "text-muted-foreground bg-muted/50 border-border/60 rounded-md border p-2 text-[11px]", children: p.mentorTip }),
-                /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)("div", { className: "flex items-center gap-1.5 pt-1", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("div", { className: "text-muted-foreground bg-muted/50 border-border/60 rounded-md border p-2 text-[11px]", children: p.mentorTip }),
+                /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("div", { className: "flex items-center gap-1.5 pt-1", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(
                     Button3,
                     {
                       variant: "default",
@@ -43504,7 +44296,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                       children: "Ch\u1EC9 \u0110\u01B0\u1EDDng"
                     }
                   ),
-                  /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(
                     Button3,
                     {
                       variant: "outline",
@@ -43520,53 +44312,53 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                 ] })
               ] })
             ] }, idx)) }),
-            /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(
+            /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(
               TabsContent,
               {
                 value: "weakness",
                 className: "mt-2.5 flex flex-col gap-2.5",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)("div", { className: "flex flex-col gap-1.5", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("span", { className: "text-primary text-[11px] font-bold tracking-wider uppercase", children: "C\u01A1 H\u1ED9i T\u1EA5n C\xF4ng \u0110\u1ED1i Th\u1EE7" }),
-                    analysis.opportunities.length > 0 ? analysis.opportunities.map((o, idx) => /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(Card, { size: "sm", className: "bg-muted/20", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardHeader, { className: "pb-0.5", children: /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardTitle, { className: "text-xs font-semibold", children: o.title }) }),
-                      /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardContent, { className: "text-muted-foreground text-[11px]", children: o.desc })
-                    ] }, idx)) : /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("p", { className: "text-muted-foreground text-xs italic", children: "\u0110\u1ED1i ph\u01B0\u01A1ng \u0111ang gi\u1EEF th\u1EBF tr\u1EADn kh\xE1 k\xEDn k\u1EBD, ch\u01B0a c\xF3 s\u01A1 h\u1EDF l\u1EDBn." })
+                  /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("div", { className: "flex flex-col gap-1.5", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("span", { className: "text-primary text-[11px] font-bold tracking-wider uppercase", children: "C\u01A1 H\u1ED9i T\u1EA5n C\xF4ng \u0110\u1ED1i Th\u1EE7" }),
+                    analysis.opportunities.length > 0 ? analysis.opportunities.map((o, idx) => /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(Card, { size: "sm", className: "bg-muted/20", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardHeader, { className: "pb-0.5", children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardTitle, { className: "text-xs font-semibold", children: o.title }) }),
+                      /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardContent, { className: "text-muted-foreground text-[11px]", children: o.desc })
+                    ] }, idx)) : /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("p", { className: "text-muted-foreground text-xs italic", children: "\u0110\u1ED1i ph\u01B0\u01A1ng \u0111ang gi\u1EEF th\u1EBF tr\u1EADn kh\xE1 k\xEDn k\u1EBD, ch\u01B0a c\xF3 s\u01A1 h\u1EDF l\u1EDBn." })
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)("div", { className: "flex flex-col gap-1.5", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("span", { className: "text-destructive text-[11px] font-bold tracking-wider uppercase", children: "L\u1ED7 H\u1ED5ng Ph\xF2ng Th\u1EE7 C\u1EE7a B\u1EA1n" }),
-                    analysis.weaknesses.length > 0 ? analysis.weaknesses.map((w, idx) => /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(Card, { size: "sm", className: "bg-muted/20", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardHeader, { className: "pb-0.5", children: /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardTitle, { className: "text-destructive text-xs font-semibold", children: w.title }) }),
-                      /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardContent, { className: "text-muted-foreground text-[11px]", children: w.desc })
-                    ] }, idx)) : /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("p", { className: "text-muted-foreground text-xs italic", children: "H\u1EC7 th\u1ED1ng ph\xF2ng th\u1EE7 c\u1EE7a b\u1EA1n \u0111ang r\u1EA5t tr\xF2n tr\u1ECBa v\xE0 an to\xE0n." })
+                  /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("div", { className: "flex flex-col gap-1.5", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("span", { className: "text-destructive text-[11px] font-bold tracking-wider uppercase", children: "L\u1ED7 H\u1ED5ng Ph\xF2ng Th\u1EE7 C\u1EE7a B\u1EA1n" }),
+                    analysis.weaknesses.length > 0 ? analysis.weaknesses.map((w, idx) => /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(Card, { size: "sm", className: "bg-muted/20", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardHeader, { className: "pb-0.5", children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardTitle, { className: "text-destructive text-xs font-semibold", children: w.title }) }),
+                      /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardContent, { className: "text-muted-foreground text-[11px]", children: w.desc })
+                    ] }, idx)) : /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("p", { className: "text-muted-foreground text-xs italic", children: "H\u1EC7 th\u1ED1ng ph\xF2ng th\u1EE7 c\u1EE7a b\u1EA1n \u0111ang r\u1EA5t tr\xF2n tr\u1ECBa v\xE0 an to\xE0n." })
                   ] })
                 ]
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(
+            /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(
               TabsContent,
               {
                 value: "maxims",
                 className: "mt-2.5 flex flex-col gap-2.5",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(Alert, { className: "bg-primary/10 border-primary/30", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(AlertTitle, { className: "text-primary text-xs font-bold", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(Alert, { className: "bg-primary/10 border-primary/30", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(AlertTitle, { className: "text-primary text-xs font-bold", children: [
                       '"',
                       analysis.maxim.rule,
                       '"'
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(AlertDescription, { className: "text-muted-foreground mt-1 text-[11px]", children: analysis.maxim.desc })
+                    /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(AlertDescription, { className: "text-muted-foreground mt-1 text-[11px]", children: analysis.maxim.desc })
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("span", { className: "text-muted-foreground text-[11px] font-bold tracking-wider uppercase", children: "10 \u0110\u1EA1o C\u1EDD T\u01B0\u1EDBng T\xE2m Ph\xE1p" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime59.jsx)("div", { className: "flex max-h-[220px] flex-col gap-1.5 overflow-y-auto pr-1", children: XIANGQI_MAXIMS.map((m, idx) => /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(Card, { size: "sm", className: "bg-muted/15", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardHeader, { className: "pb-0.5", children: /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)(CardTitle, { className: "text-[11px] font-semibold", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime59.jsxs)("span", { className: "text-primary mr-1 font-bold", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("span", { className: "text-muted-foreground text-[11px] font-bold tracking-wider uppercase", children: "10 \u0110\u1EA1o C\u1EDD T\u01B0\u1EDBng T\xE2m Ph\xE1p" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("div", { className: "flex max-h-[220px] flex-col gap-1.5 overflow-y-auto pr-1", children: XIANGQI_MAXIMS.map((m, idx) => /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(Card, { size: "sm", className: "bg-muted/15", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardHeader, { className: "pb-0.5", children: /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(CardTitle, { className: "text-[11px] font-semibold", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("span", { className: "text-primary mr-1 font-bold", children: [
                         idx + 1,
                         "."
                       ] }),
                       m.rule
                     ] }) }),
-                    /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(CardContent, { className: "text-muted-foreground text-[11px] leading-relaxed", children: m.desc })
+                    /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(CardContent, { className: "text-muted-foreground text-[11px] leading-relaxed", children: m.desc })
                   ] }, idx)) })
                 ]
               }
@@ -43604,7 +44396,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       document.body.appendChild(mentorPanelEl);
       mentorRoot = (0, import_client4.createRoot)(mentorPanelEl);
       mentorRoot.render(
-        /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(
           MentorFloatingPanel,
           {
             initialAnalysis: cachedAnalysis,
@@ -43686,26 +44478,26 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   })(window.ZigaMod = window.ZigaMod || {});
 
   // src/ui/ui.js
-  var import_react23 = __toESM(require_react());
+  var import_react24 = __toESM(require_react());
   var import_react_dom3 = __toESM(require_react_dom());
   var import_client5 = __toESM(require_client());
 
   // src/components/HudWidget/HudWidget.jsx
-  var import_react22 = __toESM(require_react());
+  var import_react23 = __toESM(require_react());
 
   // src/components/HudWidget/ThreatAlertCard.jsx
-  var import_react15 = __toESM(require_react());
-  var import_jsx_runtime60 = __toESM(require_jsx_runtime());
+  var import_react16 = __toESM(require_react());
+  var import_jsx_runtime61 = __toESM(require_jsx_runtime());
   function ThreatAlertCard({ threats = [], visible }) {
     const ZigaMod = window.ZigaMod || {};
     if (!visible || !Array.isArray(threats) || threats.length === 0) {
       return null;
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(Alert, { id: "ziga-threat-banner", variant: "destructive", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(TriangleAlert, {}),
-      /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(AlertTitle, { children: "C\u1EA3nh b\xE1o qu\xE2n \u0111ang b\u1ECB d\u1ECDa \u0103n" }),
-      /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(AlertAction, { children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(Badge, { variant: "destructive", children: threats.length }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(AlertDescription, { children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("div", { id: "ziga-threat-list", className: "mt-2 flex flex-col gap-1.5", children: threats.slice(0, 4).map((t, idx) => {
+    return /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)(Alert, { id: "ziga-threat-banner", variant: "destructive", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(TriangleAlert, {}),
+      /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(AlertTitle, { children: "C\u1EA3nh b\xE1o qu\xE2n \u0111ang b\u1ECB d\u1ECDa \u0103n" }),
+      /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(AlertAction, { children: /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(Badge, { variant: "destructive", children: threats.length }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(AlertDescription, { children: /* @__PURE__ */ (0, import_jsx_runtime61.jsx)("div", { id: "ziga-threat-list", className: "mt-2 flex flex-col gap-1.5", children: threats.slice(0, 4).map((t, idx) => {
         if (!t) return null;
         const targetPiece = t.target || t.victim || {};
         const targetType = t.targetType !== void 0 ? t.targetType : targetPiece.Ga !== void 0 ? targetPiece.Ga : targetPiece.type;
@@ -43729,13 +44521,13 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             attackerNames = "\u0110\u1ED1i ph\u01B0\u01A1ng";
           }
         }
-        return /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)(
+        return /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)(
           "div",
           {
             className: "border-border bg-background/80 text-foreground flex items-center justify-between gap-2 rounded-md border px-2.5 py-1.5 text-xs",
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("div", { className: "flex items-center gap-1.5 truncate", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)("div", { className: "flex items-center gap-1.5 truncate", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(
                   Badge,
                   {
                     variant: "outline",
@@ -43743,13 +44535,13 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     children: victimChar
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("span", { className: "text-foreground truncate font-medium", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)("span", { className: "text-foreground truncate font-medium", children: [
                   victimName,
                   " ",
                   coordLabel ? `(${coordLabel})` : ""
                 ] })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime60.jsxs)("span", { className: "text-destructive shrink-0 text-xs font-medium", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)("span", { className: "text-destructive shrink-0 text-xs font-medium", children: [
                 "B\u1ECB ",
                 attackerNames,
                 " nh\u1EAFm"
@@ -43763,10 +44555,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // src/components/HudWidget/MaterialBarCard.jsx
-  var import_react16 = __toESM(require_react());
+  var import_react17 = __toESM(require_react());
 
   // src/components/ui/popover.jsx
-  var React172 = __toESM(require_react());
+  var React173 = __toESM(require_react());
 
   // node_modules/@base-ui/react/popover/index.parts.mjs
   var index_parts_exports7 = {};
@@ -43787,14 +44579,14 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   });
 
   // node_modules/@base-ui/react/popover/root/PopoverRoot.mjs
-  var React155 = __toESM(require_react(), 1);
+  var React156 = __toESM(require_react(), 1);
 
   // node_modules/@base-ui/react/popover/root/PopoverRootContext.mjs
-  var React153 = __toESM(require_react(), 1);
-  var PopoverRootContext = /* @__PURE__ */ React153.createContext(void 0);
+  var React154 = __toESM(require_react(), 1);
+  var PopoverRootContext = /* @__PURE__ */ React154.createContext(void 0);
   if (false) PopoverRootContext.displayName = "PopoverRootContext";
   function usePopoverRootContext(optional) {
-    const context = React153.useContext(PopoverRootContext);
+    const context = React154.useContext(PopoverRootContext);
     if (context === void 0 && !optional) {
       throw new Error(false ? "Base UI: PopoverRootContext is missing. Popover parts must be placed within <Popover.Root>." : formatErrorMessage_default(47));
     }
@@ -43802,7 +44594,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // node_modules/@base-ui/react/popover/store/PopoverStore.mjs
-  var React154 = __toESM(require_react(), 1);
+  var React155 = __toESM(require_react(), 1);
   var ReactDOM6 = __toESM(require_react_dom(), 1);
   var selectors4 = {
     ...popupStoreSelectors,
@@ -43901,12 +44693,12 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
   function createInitialContext2(triggerElements) {
     return {
-      popupRef: /* @__PURE__ */ React154.createRef(),
+      popupRef: /* @__PURE__ */ React155.createRef(),
       onOpenChange: void 0,
       onOpenChangeComplete: void 0,
-      triggerFocusTargetRef: /* @__PURE__ */ React154.createRef(),
-      beforeTriggerFocusGuardRef: /* @__PURE__ */ React154.createRef(),
-      beforeContentFocusGuardRef: /* @__PURE__ */ React154.createRef(),
+      triggerFocusTargetRef: /* @__PURE__ */ React155.createRef(),
+      beforeTriggerFocusGuardRef: /* @__PURE__ */ React155.createRef(),
+      beforeContentFocusGuardRef: /* @__PURE__ */ React155.createRef(),
       stickIfOpenTimeout: new Timeout(),
       stickIfOpen: true,
       triggerElements
@@ -43914,7 +44706,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // node_modules/@base-ui/react/popover/root/PopoverRoot.mjs
-  var import_jsx_runtime61 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime62 = __toESM(require_jsx_runtime(), 1);
   var PopoverRootComponent = fastComponent(function PopoverRootComponent2({
     props
   }) {
@@ -43954,22 +44746,22 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     store.useSyncedValues({
       modal
     });
-    React155.useEffect(() => {
+    React156.useEffect(() => {
       if (!open3) {
         store.context.stickIfOpenTimeout.clear();
       }
     }, [store, open3]);
-    React155.useImperativeHandle(props.actionsRef, () => ({
+    React156.useImperativeHandle(props.actionsRef, () => ({
       unmount: forceUnmount,
       close: () => store.setOpen(false, createChangeEventDetails(reason_parts_exports.imperativeAction))
     }), [forceUnmount, store]);
     const shouldRenderInteractions = open3 || mounted || handle != null;
-    return /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)(PopoverRootContext.Provider, {
+    return /* @__PURE__ */ (0, import_jsx_runtime62.jsxs)(PopoverRootContext.Provider, {
       value: store,
-      children: [handle && /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(PopupHandleAttachment, {
+      children: [handle && /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(PopupHandleAttachment, {
         handle,
         store
-      }), shouldRenderInteractions && /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(PopoverInteractions, {
+      }), shouldRenderInteractions && /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(PopoverInteractions, {
         store,
         modal
       }), typeof children === "function" ? children({
@@ -43980,19 +44772,19 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   if (false) PopoverRootComponent.displayName = "PopoverRootComponent";
   function PopoverRoot(props) {
     if (usePopoverRootContext(true)) {
-      return /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(PopoverRootComponent, {
+      return /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(PopoverRootComponent, {
         props
       });
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(FloatingTree, {
-      children: /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(PopoverRootComponent, {
+    return /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(FloatingTree, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(PopoverRootComponent, {
         props
       })
     });
   }
   function usePopoverRootStore(handle, initialState2) {
     const store = usePopupRootStore((floatingId, nested) => new PopoverStore(initialState2, floatingId, nested));
-    React155.useEffect(() => store.context.stickIfOpenTimeout.disposeEffect(), [store]);
+    React156.useEffect(() => store.context.stickIfOpenTimeout.disposeEffect(), [store]);
     return store;
   }
   function PopoverInteractions({
@@ -44019,7 +44811,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // node_modules/@base-ui/react/popover/trigger/PopoverTrigger.mjs
-  var React156 = __toESM(require_react(), 1);
+  var React157 = __toESM(require_react(), 1);
 
   // node_modules/@base-ui/react/popover/utils/constants.mjs
   var OPEN_DELAY = 300;
@@ -44052,7 +44844,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // node_modules/@base-ui/react/popover/trigger/PopoverTrigger.mjs
-  var import_jsx_runtime62 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime63 = __toESM(require_jsx_runtime(), 1);
   var PopoverTrigger = fastComponentRef(function PopoverTrigger2(componentProps, forwardedRef) {
     const {
       render,
@@ -44079,7 +44871,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     const floatingContext = store.useState("floatingRootContext");
     const isOpenedByThisTrigger = store.useState("isOpenedByTrigger", thisTriggerId);
     const popupId = store.useState("triggerPopupId", thisTriggerId);
-    const triggerElementRef = React156.useRef(null);
+    const triggerElementRef = React157.useRef(null);
     const {
       registerTrigger,
       isMountedByThisTrigger
@@ -44148,15 +44940,15 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       }, elementProps, getButtonProps],
       stateAttributesMapping: stateAttributesMapping9
     });
-    const keyedElement = /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(React156.Fragment, {
+    const keyedElement = /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(React157.Fragment, {
       children: element
     }, thisTriggerId);
     if (hasFocusGuards) {
-      return /* @__PURE__ */ (0, import_jsx_runtime62.jsxs)(React156.Fragment, {
-        children: [/* @__PURE__ */ (0, import_jsx_runtime62.jsx)(FocusGuard, {
+      return /* @__PURE__ */ (0, import_jsx_runtime63.jsxs)(React157.Fragment, {
+        children: [/* @__PURE__ */ (0, import_jsx_runtime63.jsx)(FocusGuard, {
           ref: store.context.beforeTriggerFocusGuardRef,
           onFocus: handlePreFocusGuardFocus
-        }), keyedElement, /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(FocusGuard, {
+        }), keyedElement, /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(FocusGuard, {
           ref: store.context.triggerFocusTargetRef,
           onFocus: handleFocusTargetFocus
         })]
@@ -44167,14 +44959,14 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   if (false) PopoverTrigger.displayName = "PopoverTrigger";
 
   // node_modules/@base-ui/react/popover/portal/PopoverPortal.mjs
-  var React158 = __toESM(require_react(), 1);
+  var React159 = __toESM(require_react(), 1);
 
   // node_modules/@base-ui/react/popover/portal/PopoverPortalContext.mjs
-  var React157 = __toESM(require_react(), 1);
-  var PopoverPortalContext = /* @__PURE__ */ React157.createContext(void 0);
+  var React158 = __toESM(require_react(), 1);
+  var PopoverPortalContext = /* @__PURE__ */ React158.createContext(void 0);
   if (false) PopoverPortalContext.displayName = "PopoverPortalContext";
   function usePopoverPortalContext() {
-    const value = React157.useContext(PopoverPortalContext);
+    const value = React158.useContext(PopoverPortalContext);
     if (value === void 0) {
       throw new Error(false ? "Base UI: <Popover.Portal> is missing." : formatErrorMessage_default(45));
     }
@@ -44182,8 +44974,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // node_modules/@base-ui/react/popover/portal/PopoverPortal.mjs
-  var import_jsx_runtime63 = __toESM(require_jsx_runtime(), 1);
-  var PopoverPortal = /* @__PURE__ */ React158.forwardRef(function PopoverPortal2(props, forwardedRef) {
+  var import_jsx_runtime64 = __toESM(require_jsx_runtime(), 1);
+  var PopoverPortal = /* @__PURE__ */ React159.forwardRef(function PopoverPortal2(props, forwardedRef) {
     const {
       keepMounted = false,
       ...portalProps
@@ -44194,9 +44986,9 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     if (!shouldRender) {
       return null;
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(PopoverPortalContext.Provider, {
+    return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(PopoverPortalContext.Provider, {
       value: keepMounted,
-      children: /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(FloatingPortal, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(FloatingPortal, {
         ref: forwardedRef,
         ...portalProps
       })
@@ -44205,14 +44997,14 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   if (false) PopoverPortal.displayName = "PopoverPortal";
 
   // node_modules/@base-ui/react/popover/positioner/PopoverPositioner.mjs
-  var React161 = __toESM(require_react(), 1);
+  var React162 = __toESM(require_react(), 1);
 
   // node_modules/@base-ui/react/popover/positioner/PopoverPositionerContext.mjs
-  var React159 = __toESM(require_react(), 1);
-  var PopoverPositionerContext = /* @__PURE__ */ React159.createContext(void 0);
+  var React160 = __toESM(require_react(), 1);
+  var PopoverPositionerContext = /* @__PURE__ */ React160.createContext(void 0);
   if (false) PopoverPositionerContext.displayName = "PopoverPositionerContext";
   function usePopoverPositionerContext() {
-    const context = React159.useContext(PopoverPositionerContext);
+    const context = React160.useContext(PopoverPositionerContext);
     if (!context) {
       throw new Error(false ? "Base UI: PopoverPositionerContext is missing. PopoverPositioner parts must be placed within <Popover.Positioner>." : formatErrorMessage_default(46));
     }
@@ -44220,7 +45012,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // node_modules/@base-ui/react/internals/useTriggerSwitchTransition.mjs
-  var React160 = __toESM(require_react(), 1);
+  var React161 = __toESM(require_react(), 1);
   function useTriggerSwitchTransition(parameters) {
     const {
       store,
@@ -44228,8 +45020,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       positionerElement,
       open: open3
     } = parameters;
-    const previousTriggerRef = React160.useRef(null);
-    const pendingSwitchRef = React160.useRef(null);
+    const previousTriggerRef = React161.useRef(null);
+    const pendingSwitchRef = React161.useRef(null);
     const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
     useIsoLayoutEffect(() => {
       if (open3) {
@@ -44268,8 +45060,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // node_modules/@base-ui/react/popover/positioner/PopoverPositioner.mjs
-  var import_jsx_runtime64 = __toESM(require_jsx_runtime(), 1);
-  var PopoverPositioner = /* @__PURE__ */ React161.forwardRef(function PopoverPositioner2(componentProps, forwardedRef) {
+  var import_jsx_runtime65 = __toESM(require_jsx_runtime(), 1);
+  var PopoverPositioner = /* @__PURE__ */ React162.forwardRef(function PopoverPositioner2(componentProps, forwardedRef) {
     const {
       render,
       className,
@@ -44348,12 +45140,12 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       hidden: !mounted,
       inert: !open3
     });
-    return /* @__PURE__ */ (0, import_jsx_runtime64.jsxs)(PopoverPositionerContext.Provider, {
+    return /* @__PURE__ */ (0, import_jsx_runtime65.jsxs)(PopoverPositionerContext.Provider, {
       value: positioning,
-      children: [mounted && trueModalNonHover && /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(InternalBackdrop, {
+      children: [mounted && trueModalNonHover && /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(InternalBackdrop, {
         inert: inertValue(!open3),
         cutout: triggerElement
-      }), /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(FloatingNode, {
+      }), /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(FloatingNode, {
         id: nodeId,
         children: element
       })]
@@ -44362,21 +45154,21 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   if (false) PopoverPositioner.displayName = "PopoverPositioner";
 
   // node_modules/@base-ui/react/popover/popup/PopoverPopup.mjs
-  var React163 = __toESM(require_react(), 1);
+  var React164 = __toESM(require_react(), 1);
 
   // node_modules/@base-ui/react/utils/closePart.mjs
-  var React162 = __toESM(require_react(), 1);
-  var ClosePartContext = /* @__PURE__ */ React162.createContext(void 0);
+  var React163 = __toESM(require_react(), 1);
+  var ClosePartContext = /* @__PURE__ */ React163.createContext(void 0);
   if (false) ClosePartContext.displayName = "ClosePartContext";
   function useClosePartCount() {
-    const [closePartCount, setClosePartCount] = React162.useState(0);
+    const [closePartCount, setClosePartCount] = React163.useState(0);
     const register2 = useStableCallback(() => {
       setClosePartCount((count) => count + 1);
       return () => {
         setClosePartCount((count) => Math.max(0, count - 1));
       };
     });
-    const context = React162.useMemo(() => ({
+    const context = React163.useMemo(() => ({
       register: register2
     }), [register2]);
     return {
@@ -44385,15 +45177,15 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     };
   }
   function useClosePartRegistration() {
-    const context = React162.useContext(ClosePartContext);
+    const context = React163.useContext(ClosePartContext);
     useIsoLayoutEffect(() => {
       return context?.register();
     }, [context]);
   }
 
   // node_modules/@base-ui/react/popover/popup/PopoverPopup.mjs
-  var import_jsx_runtime65 = __toESM(require_jsx_runtime(), 1);
-  var PopoverPopup = /* @__PURE__ */ React163.forwardRef(function PopoverPopup2(componentProps, forwardedRef) {
+  var import_jsx_runtime66 = __toESM(require_jsx_runtime(), 1);
+  var PopoverPopup = /* @__PURE__ */ React164.forwardRef(function PopoverPopup2(componentProps, forwardedRef) {
     const {
       render,
       className,
@@ -44466,7 +45258,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       }, getDisabledMountTransitionStyles(transitionStatus), elementProps],
       stateAttributesMapping: popupTransitionStateMapping
     });
-    return /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(FloatingFocusManager, {
+    return /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(FloatingFocusManager, {
       context: floatingContext,
       openInteractionType: openMethod,
       modal: focusManagerModal,
@@ -44478,7 +45270,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       previousFocusableElement: isHTMLElement(activeTriggerElement) ? activeTriggerElement : void 0,
       nextFocusableElement: store.context.triggerFocusTargetRef,
       beforeContentFocusGuardRef: store.context.beforeContentFocusGuardRef,
-      children: /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(ClosePartContext.Provider, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(ClosePartContext.Provider, {
         value: closePartContext,
         children: element
       })
@@ -44487,8 +45279,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   if (false) PopoverPopup.displayName = "PopoverPopup";
 
   // node_modules/@base-ui/react/popover/arrow/PopoverArrow.mjs
-  var React164 = __toESM(require_react(), 1);
-  var PopoverArrow = /* @__PURE__ */ React164.forwardRef(function PopoverArrow2(componentProps, forwardedRef) {
+  var React165 = __toESM(require_react(), 1);
+  var PopoverArrow = /* @__PURE__ */ React165.forwardRef(function PopoverArrow2(componentProps, forwardedRef) {
     const {
       render,
       className,
@@ -44524,8 +45316,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   if (false) PopoverArrow.displayName = "PopoverArrow";
 
   // node_modules/@base-ui/react/popover/backdrop/PopoverBackdrop.mjs
-  var React165 = __toESM(require_react(), 1);
-  var PopoverBackdrop = /* @__PURE__ */ React165.forwardRef(function PopoverBackdrop2(props, forwardedRef) {
+  var React166 = __toESM(require_react(), 1);
+  var PopoverBackdrop = /* @__PURE__ */ React166.forwardRef(function PopoverBackdrop2(props, forwardedRef) {
     const {
       render,
       className,
@@ -44560,8 +45352,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   if (false) PopoverBackdrop.displayName = "PopoverBackdrop";
 
   // node_modules/@base-ui/react/popover/title/PopoverTitle.mjs
-  var React166 = __toESM(require_react(), 1);
-  var PopoverTitle = /* @__PURE__ */ React166.forwardRef(function PopoverTitle2(componentProps, forwardedRef) {
+  var React167 = __toESM(require_react(), 1);
+  var PopoverTitle = /* @__PURE__ */ React167.forwardRef(function PopoverTitle2(componentProps, forwardedRef) {
     const {
       render,
       className,
@@ -44582,8 +45374,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   if (false) PopoverTitle.displayName = "PopoverTitle";
 
   // node_modules/@base-ui/react/popover/description/PopoverDescription.mjs
-  var React167 = __toESM(require_react(), 1);
-  var PopoverDescription = /* @__PURE__ */ React167.forwardRef(function PopoverDescription2(componentProps, forwardedRef) {
+  var React168 = __toESM(require_react(), 1);
+  var PopoverDescription = /* @__PURE__ */ React168.forwardRef(function PopoverDescription2(componentProps, forwardedRef) {
     const {
       render,
       className,
@@ -44604,8 +45396,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   if (false) PopoverDescription.displayName = "PopoverDescription";
 
   // node_modules/@base-ui/react/popover/close/PopoverClose.mjs
-  var React168 = __toESM(require_react(), 1);
-  var PopoverClose = /* @__PURE__ */ React168.forwardRef(function PopoverClose2(componentProps, forwardedRef) {
+  var React169 = __toESM(require_react(), 1);
+  var PopoverClose = /* @__PURE__ */ React169.forwardRef(function PopoverClose2(componentProps, forwardedRef) {
     const {
       render,
       className,
@@ -44637,14 +45429,14 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   if (false) PopoverClose.displayName = "PopoverClose";
 
   // node_modules/@base-ui/react/popover/viewport/PopoverViewport.mjs
-  var React171 = __toESM(require_react(), 1);
+  var React172 = __toESM(require_react(), 1);
 
   // node_modules/@base-ui/react/utils/usePopupViewport.mjs
-  var React170 = __toESM(require_react(), 1);
+  var React171 = __toESM(require_react(), 1);
   var ReactDOM8 = __toESM(require_react_dom(), 1);
 
   // node_modules/@base-ui/react/utils/usePopupAutoResize.mjs
-  var React169 = __toESM(require_react(), 1);
+  var React170 = __toESM(require_react(), 1);
 
   // node_modules/@base-ui/react/utils/CommonPopupCssVars.mjs
   var popupWidth = "--popup-width";
@@ -44664,10 +45456,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     } = parameters;
     const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true);
     const animationFrame = useAnimationFrame();
-    const committedDimensionsRef = React169.useRef(null);
+    const committedDimensionsRef = React170.useRef(null);
     const onMeasureLayout = useStableCallback(onMeasureLayoutParam);
     const onMeasureLayoutComplete = useStableCallback(onMeasureLayoutCompleteParam);
-    const anchoringStyles = React169.useMemo(() => getPopupAnchoringStyles(side2, direction), [side2, direction]);
+    const anchoringStyles = React170.useMemo(() => getPopupAnchoringStyles(side2, direction), [side2, direction]);
     useIsoLayoutEffect(() => {
       if (!mounted) {
         committedDimensionsRef.current = null;
@@ -44837,7 +45629,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   var activationDirection2 = "data-activation-direction";
 
   // node_modules/@base-ui/react/utils/usePopupViewport.mjs
-  var import_jsx_runtime66 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime67 = __toESM(require_jsx_runtime(), 1);
   var popupViewportStateMapping = {
     activationDirection: (value) => value ? {
       [activationDirection2]: value
@@ -44859,16 +45651,16 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     const positionerElement = store.useState("positionerElement");
     const previousActiveTrigger = usePreviousValue(open3 ? activeTrigger : null);
     const currentContentKey = usePopupContentKey(activeTriggerId, payload);
-    const capturedNodeRef = React170.useRef(null);
-    const [previousContentNode, setPreviousContentNode] = React170.useState(null);
-    const [newTriggerOffset, setNewTriggerOffset] = React170.useState(null);
-    const currentContainerRef = React170.useRef(null);
-    const previousContainerRef = React170.useRef(null);
+    const capturedNodeRef = React171.useRef(null);
+    const [previousContentNode, setPreviousContentNode] = React171.useState(null);
+    const [newTriggerOffset, setNewTriggerOffset] = React171.useState(null);
+    const currentContainerRef = React171.useRef(null);
+    const previousContainerRef = React171.useRef(null);
     const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true);
     const cleanupFrame = useAnimationFrame();
-    const cleanupControllerRef = React170.useRef(null);
-    const [previousContentDimensions, setPreviousContentDimensions] = React170.useState(null);
-    const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React170.useState(false);
+    const cleanupControllerRef = React171.useRef(null);
+    const [previousContentDimensions, setPreviousContentDimensions] = React171.useState(null);
+    const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React171.useState(false);
     useIsoLayoutEffect(() => {
       store.set("adaptiveOrigin", adaptiveOrigin);
       return () => {
@@ -44898,7 +45690,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         capturedNodeRef.current = null;
       }, controller.signal);
     });
-    const lastHandledTriggerRef = React170.useRef(null);
+    const lastHandledTriggerRef = React171.useRef(null);
     useIsoLayoutEffect(() => {
       if (!open3 || !mounted) {
         lastHandledTriggerRef.current = null;
@@ -44940,14 +45732,14 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     const isTransitioning = previousContentNode != null;
     let childrenToRender;
     if (!isTransitioning) {
-      childrenToRender = /* @__PURE__ */ (0, import_jsx_runtime66.jsx)("div", {
+      childrenToRender = /* @__PURE__ */ (0, import_jsx_runtime67.jsx)("div", {
         "data-current": true,
         ref: currentContainerRef,
         children
       }, currentContentKey);
     } else {
-      childrenToRender = /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)(React170.Fragment, {
-        children: [/* @__PURE__ */ (0, import_jsx_runtime66.jsx)("div", {
+      childrenToRender = /* @__PURE__ */ (0, import_jsx_runtime67.jsxs)(React171.Fragment, {
+        children: [/* @__PURE__ */ (0, import_jsx_runtime67.jsx)("div", {
           "data-previous": true,
           inert: inertValue(true),
           ref: previousContainerRef,
@@ -44959,7 +45751,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             position: "absolute"
           },
           "data-ending-style": showStartingStyleAttribute ? void 0 : ""
-        }, "previous"), /* @__PURE__ */ (0, import_jsx_runtime66.jsx)("div", {
+        }, "previous"), /* @__PURE__ */ (0, import_jsx_runtime67.jsx)("div", {
           "data-current": true,
           ref: currentContainerRef,
           "data-starting-style": showStartingStyleAttribute ? "" : void 0,
@@ -45025,10 +45817,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     };
   }
   function usePopupContentKey(activeTriggerId, payload) {
-    const [contentKey, setContentKey] = React170.useState(0);
-    const previousActiveTriggerIdRef = React170.useRef(activeTriggerId);
-    const previousPayloadRef = React170.useRef(payload);
-    const pendingPayloadUpdateRef = React170.useRef(false);
+    const [contentKey, setContentKey] = React171.useState(0);
+    const previousActiveTriggerIdRef = React171.useRef(activeTriggerId);
+    const previousPayloadRef = React171.useRef(payload);
+    const pendingPayloadUpdateRef = React171.useRef(false);
     useIsoLayoutEffect(() => {
       const previousActiveTriggerId = previousActiveTriggerIdRef.current;
       const previousPayload = previousPayloadRef.current;
@@ -45048,7 +45840,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // node_modules/@base-ui/react/popover/viewport/PopoverViewport.mjs
-  var PopoverViewport = /* @__PURE__ */ React171.forwardRef(function PopoverViewport2(componentProps, forwardedRef) {
+  var PopoverViewport = /* @__PURE__ */ React172.forwardRef(function PopoverViewport2(componentProps, forwardedRef) {
     const {
       render,
       className,
@@ -45121,12 +45913,12 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // src/components/ui/popover.jsx
-  var import_jsx_runtime67 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime68 = __toESM(require_jsx_runtime());
   function Popover({ ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(index_parts_exports7.Root, { "data-slot": "popover", ...props });
+    return /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(index_parts_exports7.Root, { "data-slot": "popover", ...props });
   }
   function PopoverTrigger3({ ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(index_parts_exports7.Trigger, { "data-slot": "popover-trigger", ...props });
+    return /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(index_parts_exports7.Trigger, { "data-slot": "popover-trigger", ...props });
   }
   function PopoverContent({
     className,
@@ -45136,7 +45928,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     sideOffset = 4,
     ...props
   }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(index_parts_exports7.Portal, { children: /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(index_parts_exports7.Portal, { children: /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(
       index_parts_exports7.Positioner,
       {
         align: align2,
@@ -45144,7 +45936,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         side: side2,
         sideOffset,
         className: "isolate z-50",
-        children: /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(
+        children: /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(
           index_parts_exports7.Popup,
           {
             "data-slot": "popover-content",
@@ -45159,7 +45951,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     ) });
   }
   function PopoverHeader({ className, ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(
       "div",
       {
         "data-slot": "popover-header",
@@ -45169,7 +45961,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     );
   }
   function PopoverTitle3({ className, ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(
       index_parts_exports7.Title,
       {
         "data-slot": "popover-title",
@@ -45179,7 +45971,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     );
   }
   function PopoverDescription3({ className, ...props }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(
       index_parts_exports7.Description,
       {
         "data-slot": "popover-description",
@@ -45190,7 +45982,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // src/components/HudWidget/MaterialBarCard.jsx
-  var import_jsx_runtime68 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime69 = __toESM(require_jsx_runtime());
   var PIECE_SCORE_REF = [
     { char: "\u8ECA", name: "Xe", pts: "9.0", id: 3 },
     { char: "\u70AE", name: "Ph\xE1o", pts: "4.5", id: 4 },
@@ -45212,16 +46004,16 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     let diffText = "C\xE2n b\u1EB1ng (0)";
     if (diff > 0) diffText = `+${diff.toFixed(1)} (B\u1EA1n \u01B0u)`;
     else if (diff < 0) diffText = `${diff.toFixed(1)} (\u0110\u1ED1i th\u1EE7 \u01B0u)`;
-    return /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(Card, { size: "sm", id: "ziga-material-section", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(CardHeader, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(CardTitle, { className: "flex items-center gap-1.5", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(Scale, { className: "text-primary size-4" }),
-          /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("span", { children: "\u0110i\u1EC3m L\u1EF1c L\u01B0\u1EE3ng" }),
-          /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(Popover, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(Card, { size: "sm", id: "ziga-material-section", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(CardHeader, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(CardTitle, { className: "flex items-center gap-1.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(Scale, { className: "text-primary size-4" }),
+          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("span", { children: "\u0110i\u1EC3m L\u1EF1c L\u01B0\u1EE3ng" }),
+          /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(Popover, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(
               PopoverTrigger3,
               {
-                render: /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(
+                render: /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(
                   Button3,
                   {
                     variant: "ghost",
@@ -45229,22 +46021,22 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     title: "Xem b\u1EA3ng quy \u0111\u1ED5i \u0111i\u1EC3m t\u1EEBng qu\xE2n c\u1EDD"
                   }
                 ),
-                children: /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(CircleQuestionMark, { className: "text-muted-foreground size-3.5" })
+                children: /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(CircleQuestionMark, { className: "text-muted-foreground size-3.5" })
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(PopoverContent, { align: "start", className: "w-80", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(PopoverHeader, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(PopoverTitle3, { children: "B\u1EA3ng quy \u0111\u1ED5i \u0111i\u1EC3m l\u1EF1c l\u01B0\u1EE3ng" }),
-                /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(PopoverDescription3, { children: "Th\u1ED1ng k\xEA \u0111i\u1EC3m s\u1ED1 t\u1EEBng lo\u1EA1i qu\xE2n c\u1EDD tr\xEAn b\xE0n" })
+            /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(PopoverContent, { align: "start", className: "w-80", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(PopoverHeader, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(PopoverTitle3, { children: "B\u1EA3ng quy \u0111\u1ED5i \u0111i\u1EC3m l\u1EF1c l\u01B0\u1EE3ng" }),
+                /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(PopoverDescription3, { children: "Th\u1ED1ng k\xEA \u0111i\u1EC3m s\u1ED1 t\u1EEBng lo\u1EA1i qu\xE2n c\u1EDD tr\xEAn b\xE0n" })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(Table, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(TableHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(TableRow, { children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(TableHead, { children: "Qu\xE2n" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(TableHead, { className: "text-center", children: "H\u1EC7 s\u1ED1" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(TableHead, { className: "text-right", children: myName?.slice(0, 8) || "B\u1EA1n" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(TableHead, { className: "text-right", children: oppName?.slice(0, 8) || "\u0110\u1ED1i th\u1EE7" })
+              /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(Table, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(TableRow, { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableHead, { children: "Qu\xE2n" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableHead, { className: "text-center", children: "H\u1EC7 s\u1ED1" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableHead, { className: "text-right", children: myName?.slice(0, 8) || "B\u1EA1n" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableHead, { className: "text-right", children: oppName?.slice(0, 8) || "\u0110\u1ED1i th\u1EE7" })
                 ] }) }),
-                /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(TableBody, { children: PIECE_SCORE_REF.map((row) => {
+                /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableBody, { children: PIECE_SCORE_REF.map((row) => {
                   const mCount = typeof myCounts[row.id] === "number" ? myCounts[row.id] : 0;
                   const oCount = typeof oppCounts[row.id] === "number" ? oppCounts[row.id] : 0;
                   if (row.id === "up" && mCount === 0 && oCount === 0) {
@@ -45253,22 +46045,22 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                   const unitPts = parseFloat(row.pts) || 0;
                   const mPts = (mCount * unitPts).toFixed(1);
                   const oPts = (oCount * unitPts).toFixed(1);
-                  return /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(TableRow, { children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(TableCell, { className: "font-medium", children: [
+                  return /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(TableRow, { children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(TableCell, { className: "font-medium", children: [
                       row.char,
                       " ",
                       row.name
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(TableCell, { className: "text-muted-foreground text-center", children: row.pts }),
-                    /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(TableCell, { className: "text-right font-medium", children: mCount > 0 ? `${mCount} (${mPts})` : "-" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(TableCell, { className: "text-muted-foreground text-right", children: oCount > 0 ? `${oCount} (${oPts})` : "-" })
+                    /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableCell, { className: "text-muted-foreground text-center", children: row.pts }),
+                    /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableCell, { className: "text-right font-medium", children: mCount > 0 ? `${mCount} (${mPts})` : "-" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableCell, { className: "text-muted-foreground text-right", children: oCount > 0 ? `${oCount} (${oPts})` : "-" })
                   ] }, row.id);
                 }) })
               ] })
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(
           Badge,
           {
             id: "ziga-mat-diff",
@@ -45277,9 +46069,9 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           }
         ) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(CardContent, { className: "flex flex-col gap-2", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)("div", { className: "bg-muted relative h-2 w-full overflow-hidden rounded-full", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(CardContent, { className: "flex flex-col gap-2", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("div", { className: "bg-muted relative h-2 w-full overflow-hidden rounded-full", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(
             "div",
             {
               id: "ziga-mat-fill-self",
@@ -45287,20 +46079,20 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               className: "bg-primary h-full transition-all duration-300"
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("div", { className: "bg-border pointer-events-none absolute top-0 bottom-0 left-1/2 w-px" })
+          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("div", { className: "bg-border pointer-events-none absolute top-0 bottom-0 left-1/2 w-px" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)("div", { className: "text-muted-foreground flex items-center justify-between text-xs", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)("span", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("div", { className: "text-muted-foreground flex items-center justify-between text-xs", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("span", { children: [
             "B\u1EA1n:",
             " ",
-            /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("strong", { id: "ziga-mat-self-pts", className: "text-foreground", children: myScore.toFixed(1) }),
+            /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("strong", { id: "ziga-mat-self-pts", className: "text-foreground", children: myScore.toFixed(1) }),
             " ",
             "\u0111"
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)("span", { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("span", { children: [
             "\u0110\u1ED1i th\u1EE7:",
             " ",
-            /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("strong", { id: "ziga-mat-opp-pts", className: "text-foreground", children: oppScore.toFixed(1) }),
+            /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("strong", { id: "ziga-mat-opp-pts", className: "text-foreground", children: oppScore.toFixed(1) }),
             " ",
             "\u0111"
           ] })
@@ -45310,8 +46102,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // src/components/HudWidget/CoUpTrackerCard.jsx
-  var import_react17 = __toESM(require_react());
-  var import_jsx_runtime69 = __toESM(require_jsx_runtime());
+  var import_react18 = __toESM(require_react());
+  var import_jsx_runtime70 = __toESM(require_jsx_runtime());
   function CoUpTrackerCard({ stats, oppName, myName, visible }) {
     const ZigaMod = window.ZigaMod || {};
     if (!visible || !stats) return null;
@@ -45342,13 +46134,13 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         (a, b) => (ZigaMod.PIECE_ORDER?.[a] ?? 99) - (ZigaMod.PIECE_ORDER?.[b] ?? 99)
       );
       if (types.length === 0) {
-        return /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("span", { className: "text-muted-foreground text-xs", children: "\u0110\xE3 m\u1EDF h\u1EBFt to\xE0n b\u1ED9 qu\xE2n!" });
+        return /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { className: "text-muted-foreground text-xs", children: "\u0110\xE3 m\u1EDF h\u1EBFt to\xE0n b\u1ED9 qu\xE2n!" });
       }
       return types.map((typeId) => {
         const count = pool[typeId];
         const char = ZigaMod.getPieceChar ? ZigaMod.getPieceChar(typeId, colorCode) : "?";
         const vnName = ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(typeId) : "";
-        return /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(
           PieceChip,
           {
             char,
@@ -45360,75 +46152,75 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         );
       });
     };
-    return /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(Card, { size: "sm", id: "ziga-coup-section", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(CardHeader, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(CardTitle, { className: "flex items-center gap-1.5", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(Dices, { className: "text-primary size-4" }),
-          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("span", { children: "Th\u1ED1ng K\xEA C\u1EDD \xDAp & X\xE1c Su\u1EA5t" })
+    return /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(Card, { size: "sm", id: "ziga-coup-section", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(CardHeader, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(CardTitle, { className: "flex items-center gap-1.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(Dices, { className: "text-primary size-4" }),
+          /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { children: "Th\u1ED1ng K\xEA C\u1EDD \xDAp & X\xE1c Su\u1EA5t" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(Badge, { variant: "default", children: "C\u1EDD \xDAp" }) })
+        /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(Badge, { variant: "default", children: "C\u1EDD \xDAp" }) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(CardContent, { className: "flex flex-col gap-2.5", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("div", { className: "bg-muted/20 flex flex-col gap-1.5 rounded-lg border p-2.5", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("div", { className: "flex items-center justify-between text-xs", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("span", { className: "text-foreground font-medium", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(CardContent, { className: "flex flex-col gap-2.5", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)("div", { className: "bg-muted/20 flex flex-col gap-1.5 rounded-lg border p-2.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)("div", { className: "flex items-center justify-between text-xs", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)("span", { className: "text-foreground font-medium", children: [
               oppName || "\u0110\u1ED1i th\u1EE7",
               " ch\u01B0a l\u1EADt:"
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(Badge, { variant: "secondary", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(Badge, { variant: "secondary", children: [
               oppUnopened,
               " qu\xE2n \xFAp"
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("div", { className: "flex flex-wrap gap-1.5", children: renderPoolList(oppPool, oppColor) })
+          /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("div", { className: "flex flex-wrap gap-1.5", children: renderPoolList(oppPool, oppColor) })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("div", { className: "bg-muted/20 flex flex-col gap-1.5 rounded-lg border p-2.5", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("div", { className: "flex items-center justify-between text-xs", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)("span", { className: "text-foreground font-medium", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)("div", { className: "bg-muted/20 flex flex-col gap-1.5 rounded-lg border p-2.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)("div", { className: "flex items-center justify-between text-xs", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)("span", { className: "text-foreground font-medium", children: [
               myName || "B\u1EA1n",
               " ch\u01B0a l\u1EADt:"
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(Badge, { variant: "secondary", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(Badge, { variant: "secondary", children: [
               myUnopened,
               " qu\xE2n \xFAp"
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)("div", { className: "flex flex-wrap gap-1.5", children: renderPoolList(myPool, myColor) })
+          /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("div", { className: "flex flex-wrap gap-1.5", children: renderPoolList(myPool, myColor) })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(Table, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(TableRow, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableHead, { children: "X\xE1c su\u1EA5t m\u1EDF" }),
-            /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableHead, { className: "text-right", children: "Xe" }),
-            /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableHead, { className: "text-right", children: "Ph\xE1o" }),
-            /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableHead, { className: "text-right", children: "M\xE3" })
+        /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(Table, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(TableHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(TableRow, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(TableHead, { children: "X\xE1c su\u1EA5t m\u1EDF" }),
+            /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(TableHead, { className: "text-right", children: "Xe" }),
+            /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(TableHead, { className: "text-right", children: "Ph\xE1o" }),
+            /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(TableHead, { className: "text-right", children: "M\xE3" })
           ] }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(TableBody, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(TableRow, { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableCell, { className: "text-xs font-medium", children: oppName?.slice(0, 8) || "\u0110\u1ED1i th\u1EE7" }),
-              /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(TableCell, { className: "text-right text-xs", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(TableBody, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(TableRow, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(TableCell, { className: "text-xs font-medium", children: oppName?.slice(0, 8) || "\u0110\u1ED1i th\u1EE7" }),
+              /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(TableCell, { className: "text-right text-xs", children: [
                 oppData.probXe ?? stats.oppProbs?.[3] ?? 0,
                 "%"
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(TableCell, { className: "text-right text-xs", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(TableCell, { className: "text-right text-xs", children: [
                 oppData.probPhao ?? stats.oppProbs?.[4] ?? 0,
                 "%"
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(TableCell, { className: "text-right text-xs", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(TableCell, { className: "text-right text-xs", children: [
                 oppData.probMa ?? stats.oppProbs?.[5] ?? 0,
                 "%"
               ] })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(TableRow, { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(TableCell, { className: "text-xs font-medium", children: myName?.slice(0, 8) || "B\u1EA1n" }),
-              /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(TableCell, { className: "text-primary text-right text-xs font-medium", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(TableRow, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(TableCell, { className: "text-xs font-medium", children: myName?.slice(0, 8) || "B\u1EA1n" }),
+              /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(TableCell, { className: "text-primary text-right text-xs font-medium", children: [
                 myData.probXe ?? stats.myProbs?.[3] ?? 0,
                 "%"
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(TableCell, { className: "text-primary text-right text-xs font-medium", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(TableCell, { className: "text-primary text-right text-xs font-medium", children: [
                 myData.probPhao ?? stats.myProbs?.[4] ?? 0,
                 "%"
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime69.jsxs)(TableCell, { className: "text-primary text-right text-xs font-medium", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(TableCell, { className: "text-primary text-right text-xs font-medium", children: [
                 myData.probMa ?? stats.myProbs?.[5] ?? 0,
                 "%"
               ] })
@@ -45440,8 +46232,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // src/components/HudWidget/LostPiecesCard.jsx
-  var import_react18 = __toESM(require_react());
-  var import_jsx_runtime70 = __toESM(require_jsx_runtime());
+  var import_react19 = __toESM(require_react());
+  var import_jsx_runtime71 = __toESM(require_jsx_runtime());
   function LostPiecesCard({
     inGame,
     myName,
@@ -45475,24 +46267,24 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     };
     const oppGroups = groupPieces(deadOppPieces, oppColor);
     const myGroups = groupPieces(deadMyPieces, myColor);
-    return /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)("div", { id: "ziga-section-lost-pieces", className: "flex flex-col gap-2.5", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(Card, { size: "sm", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(CardHeader, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(CardTitle, { id: "ziga-opp-label", className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { className: "bg-destructive size-2 rounded-full" }),
-            /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { children: inGame ? `${oppName} \u0111\xE3 m\u1EA5t (${oppColor === 0 ? "\u0110\u1ECF" : "\u0110en"})` : "Qu\xE2n \u0111\u1ED1i th\u1EE7 \u0111\xE3 m\u1EA5t" })
+    return /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)("div", { id: "ziga-section-lost-pieces", className: "flex flex-col gap-2.5", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)(Card, { size: "sm", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)(CardHeader, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)(CardTitle, { id: "ziga-opp-label", className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("span", { className: "bg-destructive size-2 rounded-full" }),
+            /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("span", { children: inGame ? `${oppName} \u0111\xE3 m\u1EA5t (${oppColor === 0 ? "\u0110\u1ECF" : "\u0110en"})` : "Qu\xE2n \u0111\u1ED1i th\u1EE7 \u0111\xE3 m\u1EA5t" })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(Badge, { id: "ziga-opp-count", variant: "secondary", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)(Badge, { id: "ziga-opp-count", variant: "secondary", children: [
             deadOppPieces.length,
             "/16"
           ] }) })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(CardContent, { children: /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(CardContent, { children: /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(
           "div",
           {
             id: "ziga-opp-lost-grid",
             className: "flex min-h-6 flex-wrap items-center gap-1.5",
-            children: !inGame ? /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { className: "text-muted-foreground text-xs", children: "Ch\u1EDD b\u1EAFt \u0111\u1EA7u v\xE1n \u0111\u1EA5u..." }) : oppGroups.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { className: "text-muted-foreground text-xs", children: "Ch\u01B0a m\u1EA5t qu\xE2n n\xE0o" }) : oppGroups.map((g) => /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(
+            children: !inGame ? /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("span", { className: "text-muted-foreground text-xs", children: "Ch\u1EDD b\u1EAFt \u0111\u1EA7u v\xE1n \u0111\u1EA5u..." }) : oppGroups.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("span", { className: "text-muted-foreground text-xs", children: "Ch\u01B0a m\u1EA5t qu\xE2n n\xE0o" }) : oppGroups.map((g) => /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(
               PieceChip,
               {
                 char: g.char,
@@ -45505,23 +46297,23 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           }
         ) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(Card, { size: "sm", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(CardHeader, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(CardTitle, { id: "ziga-self-label", className: "flex items-center gap-2", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { className: "bg-primary size-2 rounded-full" }),
-            /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { children: inGame ? `${myName} \u0111\xE3 m\u1EA5t (${myColor === 0 ? "\u0110\u1ECF" : "\u0110en"})` : "Qu\xE2n c\u1EE7a b\u1EA1n \u0111\xE3 m\u1EA5t" })
+      /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)(Card, { size: "sm", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)(CardHeader, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)(CardTitle, { id: "ziga-self-label", className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("span", { className: "bg-primary size-2 rounded-full" }),
+            /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("span", { children: inGame ? `${myName} \u0111\xE3 m\u1EA5t (${myColor === 0 ? "\u0110\u1ECF" : "\u0110en"})` : "Qu\xE2n c\u1EE7a b\u1EA1n \u0111\xE3 m\u1EA5t" })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(Badge, { id: "ziga-self-count", variant: "secondary", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)(Badge, { id: "ziga-self-count", variant: "secondary", children: [
             deadMyPieces.length,
             "/16"
           ] }) })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(CardContent, { children: /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(CardContent, { children: /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(
           "div",
           {
             id: "ziga-self-lost-grid",
             className: "flex min-h-6 flex-wrap items-center gap-1.5",
-            children: !inGame ? /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { className: "text-muted-foreground text-xs", children: "Ch\u1EDD b\u1EAFt \u0111\u1EA7u v\xE1n \u0111\u1EA5u..." }) : myGroups.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { className: "text-muted-foreground text-xs", children: "Ch\u01B0a m\u1EA5t qu\xE2n n\xE0o" }) : myGroups.map((g) => /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(
+            children: !inGame ? /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("span", { className: "text-muted-foreground text-xs", children: "Ch\u1EDD b\u1EAFt \u0111\u1EA7u v\xE1n \u0111\u1EA5u..." }) : myGroups.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("span", { className: "text-muted-foreground text-xs", children: "Ch\u01B0a m\u1EA5t qu\xE2n n\xE0o" }) : myGroups.map((g) => /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(
               PieceChip,
               {
                 char: g.char,
@@ -45538,8 +46330,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // src/components/HudWidget/TacticalInspectorCard.jsx
-  var import_react19 = __toESM(require_react());
-  var import_jsx_runtime71 = __toESM(require_jsx_runtime());
+  var import_react20 = __toESM(require_react());
+  var import_jsx_runtime72 = __toESM(require_jsx_runtime());
   function TacticalInspectorCard({ tactical, visible }) {
     const ZigaMod = window.ZigaMod || {};
     const piece = tactical?.piece;
@@ -45549,15 +46341,15 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     const pChar = ZigaMod.getPieceChar ? ZigaMod.getPieceChar(piece.Ga, piece.ka) : "?";
     const pName = ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(piece.Ga) : "";
     const colorName = piece.ka === 0 ? "\u0110\u1ECF" : "\u0110en";
-    return /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)(Card, { size: "sm", id: "ziga-section-tactical", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)(CardHeader, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)(CardTitle, { className: "flex items-center gap-1.5", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(Crosshair, { className: "text-primary size-4" }),
-          /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("span", { children: "T\u1EA7m \u0110\xE1nh C\u1EE7a Qu\xE2n \u0110ang Ch\u1ECDn" })
+    return /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(Card, { size: "sm", id: "ziga-section-tactical", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(CardHeader, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(CardTitle, { className: "flex items-center gap-1.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(Crosshair, { className: "text-primary size-4" }),
+          /* @__PURE__ */ (0, import_jsx_runtime72.jsx)("span", { children: "T\u1EA7m \u0110\xE1nh C\u1EE7a Qu\xE2n \u0110ang Ch\u1ECDn" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)(CardDescription, { className: "flex items-center gap-2 pt-1", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(PieceToken, { char: pChar, color: piece.ka, size: "sm" }),
-          /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)("span", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(CardDescription, { className: "flex items-center gap-2 pt-1", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(PieceToken, { char: pChar, color: piece.ka, size: "sm" }),
+          /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)("span", { children: [
             pName,
             " ",
             colorName,
@@ -45571,17 +46363,17 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           ] })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)(CardContent, { className: "flex flex-col gap-2.5", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(Separator2, {}),
-        /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)("div", { className: "flex flex-col gap-1.5", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)("div", { className: "flex items-center justify-between text-xs font-medium", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)("span", { className: "flex items-center gap-1.5", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(Swords, { className: "text-primary size-3.5" }),
+      /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(CardContent, { className: "flex flex-col gap-2.5", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(Separator2, {}),
+        /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)("div", { className: "flex flex-col gap-1.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)("div", { className: "flex items-center justify-between text-xs font-medium", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)("span", { className: "flex items-center gap-1.5", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(Swords, { className: "text-primary size-3.5" }),
               "C\xF3 th\u1EC3 \u0103n ngay"
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(Badge, { variant: "default", children: targets.length })
+            /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(Badge, { variant: "default", children: targets.length })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("div", { className: "flex flex-wrap gap-1.5", children: targets.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("span", { className: "text-muted-foreground text-xs", children: "Kh\xF4ng c\xF3 qu\xE2n \u0111\u1ED1i ph\u01B0\u01A1ng trong t\u1EA7m \u0103n" }) : targets.map((t, idx) => {
+          /* @__PURE__ */ (0, import_jsx_runtime72.jsx)("div", { className: "flex flex-wrap gap-1.5", children: targets.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime72.jsx)("span", { className: "text-muted-foreground text-xs", children: "Kh\xF4ng c\xF3 qu\xE2n \u0111\u1ED1i ph\u01B0\u01A1ng trong t\u1EA7m \u0103n" }) : targets.map((t, idx) => {
             const tType = t?.type !== void 0 ? t.type : t?.Ga;
             const tColor = t?.color !== void 0 ? t.color : t?.ka;
             const tCol = t?.col !== void 0 ? t.col : t?.fa;
@@ -45589,7 +46381,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             const tChar = t?.char || (ZigaMod.getPieceChar && tType !== void 0 ? ZigaMod.getPieceChar(tType, tColor) : "?");
             const tName = t?.name || (ZigaMod.getPieceVnName && tType !== void 0 ? ZigaMod.getPieceVnName(tType) : "Qu\xE2n");
             const coordStr = tCol !== void 0 && tRow !== void 0 ? ` (${tCol + 1},${tRow + 1})` : "";
-            return /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
               PieceChip,
               {
                 char: tChar,
@@ -45600,20 +46392,20 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             );
           }) })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)("div", { className: "flex flex-col gap-1.5", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)("div", { className: "flex items-center justify-between text-xs font-medium", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime71.jsxs)("span", { className: "flex items-center gap-1.5", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(Shield, { className: "text-muted-foreground size-3.5" }),
+        /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)("div", { className: "flex flex-col gap-1.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)("div", { className: "flex items-center justify-between text-xs font-medium", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)("span", { className: "flex items-center gap-1.5", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(Shield, { className: "text-muted-foreground size-3.5" }),
               "\u0110ang b\u1EA3o v\u1EC7 \u0111\u1ED3ng \u0111\u1ED9i"
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(Badge, { variant: "secondary", children: defended.length })
+            /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(Badge, { variant: "secondary", children: defended.length })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("div", { className: "flex flex-wrap gap-1.5", children: defended.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime71.jsx)("span", { className: "text-muted-foreground text-xs", children: "Kh\xF4ng b\u1EA3o v\u1EC7 qu\xE2n n\xE0o" }) : defended.map((d, idx) => {
+          /* @__PURE__ */ (0, import_jsx_runtime72.jsx)("div", { className: "flex flex-wrap gap-1.5", children: defended.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime72.jsx)("span", { className: "text-muted-foreground text-xs", children: "Kh\xF4ng b\u1EA3o v\u1EC7 qu\xE2n n\xE0o" }) : defended.map((d, idx) => {
             const dType = d?.type !== void 0 ? d.type : d?.Ga;
             const dColor = d?.color !== void 0 ? d.color : d?.ka;
             const dChar = d?.char || (ZigaMod.getPieceChar && dType !== void 0 ? ZigaMod.getPieceChar(dType, dColor) : "?");
             const dName = d?.name || (ZigaMod.getPieceVnName && dType !== void 0 ? ZigaMod.getPieceVnName(dType) : "Qu\xE2n");
-            return /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(
+            return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
               PieceChip,
               {
                 char: dChar,
@@ -45629,12 +46421,12 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // src/components/HudWidget/MoveHistoryCard.jsx
-  var import_react20 = __toESM(require_react());
-  var import_jsx_runtime72 = __toESM(require_jsx_runtime());
+  var import_react21 = __toESM(require_react());
+  var import_jsx_runtime73 = __toESM(require_jsx_runtime());
   function MoveHistoryCard({ moves = [], visible }) {
-    const scrollRef = (0, import_react20.useRef)(null);
+    const scrollRef = (0, import_react21.useRef)(null);
     const ZigaMod = window.ZigaMod || {};
-    (0, import_react20.useEffect)(() => {
+    (0, import_react21.useEffect)(() => {
       if (scrollRef.current) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       }
@@ -45648,20 +46440,20 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         second: moves[i + 1] || null
       });
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(Card, { size: "sm", id: "ziga-section-history", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(CardHeader, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(CardTitle, { className: "flex items-center gap-1.5", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(ScrollText, { className: "text-primary size-4" }),
-          /* @__PURE__ */ (0, import_jsx_runtime72.jsx)("span", { children: "Bi\xEAn B\u1EA3n V\xE1n \u0110\u1EA5u" })
+    return /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(Card, { size: "sm", id: "ziga-section-history", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(CardHeader, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(CardTitle, { className: "flex items-center gap-1.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(ScrollText, { className: "text-primary size-4" }),
+          /* @__PURE__ */ (0, import_jsx_runtime73.jsx)("span", { children: "Bi\xEAn B\u1EA3n V\xE1n \u0110\u1EA5u" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(Badge, { id: "ziga-move-counter", variant: "secondary", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(Badge, { id: "ziga-move-counter", variant: "secondary", children: [
           moves.length,
           " n\u01B0\u1EDBc"
         ] }) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(CardContent, { className: "flex flex-col gap-2.5", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)("div", { className: "flex flex-wrap items-center gap-1.5", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(
+      /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(CardContent, { className: "flex flex-col gap-2.5", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)("div", { className: "flex flex-wrap items-center gap-1.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(
             Button3,
             {
               variant: "outline",
@@ -45671,12 +46463,12 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               title: "Sao ch\xE9p m\xE3 FEN th\u1EBF c\u1EDD hi\u1EC7n t\u1EA1i",
               className: "flex-1",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(Copy, {}),
+                /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(Copy, {}),
                 "FEN"
               ]
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(
+          /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(
             Button3,
             {
               variant: "outline",
@@ -45686,12 +46478,12 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               title: "Sao ch\xE9p to\xE0n b\u1ED9 bi\xEAn b\u1EA3n v\xE1n \u0111\u1EA5u",
               className: "flex-1",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(Copy, {}),
+                /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(Copy, {}),
                 "PGN"
               ]
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(
+          /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(
             Button3,
             {
               variant: "default",
@@ -45701,12 +46493,12 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               title: "Ph\xE2n t\xEDch ch\u1EA5t l\u01B0\u1EE3ng n\u01B0\u1EDBc \u0111i & sai l\u1EA7m",
               className: "flex-1",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(ChartNoAxesColumn, {}),
+                /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(ChartNoAxesColumn, {}),
                 "Review"
               ]
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
             Button3,
             {
               variant: "destructive",
@@ -45714,38 +46506,38 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               id: "ziga-btn-clear-moves",
               onClick: () => ZigaMod.resetMoveRecorder?.(),
               title: "X\xF3a bi\xEAn b\u1EA3n hi\u1EC7n t\u1EA1i",
-              children: /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(Trash, {})
+              children: /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(Trash, {})
             }
           )
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
           "div",
           {
             id: "ziga-move-list",
             ref: scrollRef,
             className: "bg-muted/20 max-h-36 min-h-14 overflow-y-auto rounded-lg border",
-            children: pairs.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime72.jsx)("div", { className: "text-muted-foreground p-3 text-center text-xs", children: "\u0110ang theo d\xF5i... C\xE1c n\u01B0\u1EDBc \u0111i s\u1EBD t\u1EF1 \u0111\u1ED9ng xu\u1EA5t hi\u1EC7n t\u1EA1i \u0111\xE2y." }) : /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(Table, { children: [
-              /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(TableHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(TableRow, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(TableHead, { className: "w-10", children: "#" }),
-                /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(TableHead, { children: "Ti\xEAn (\u0110\u1ECF)" }),
-                /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(TableHead, { children: "H\u1EADu (\u0110en)" })
+            children: pairs.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime73.jsx)("div", { className: "text-muted-foreground p-3 text-center text-xs", children: "\u0110ang theo d\xF5i... C\xE1c n\u01B0\u1EDBc \u0111i s\u1EBD t\u1EF1 \u0111\u1ED9ng xu\u1EA5t hi\u1EC7n t\u1EA1i \u0111\xE2y." }) : /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(Table, { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(TableHeader, { children: /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(TableRow, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(TableHead, { className: "w-10", children: "#" }),
+                /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(TableHead, { children: "Ti\xEAn (\u0110\u1ECF)" }),
+                /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(TableHead, { children: "H\u1EADu (\u0110en)" })
               ] }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(TableBody, { children: pairs.map((p) => /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(TableRow, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(TableCell, { className: "text-muted-foreground font-mono text-xs", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(TableBody, { children: pairs.map((p) => /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(TableRow, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(TableCell, { className: "text-muted-foreground font-mono text-xs", children: [
                   p.round,
                   "."
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(TableCell, { className: "font-mono text-xs font-medium", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(TableCell, { className: "font-mono text-xs font-medium", children: [
                   p.first?.notation || "",
-                  p.first?.capturedChar ? /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)("span", { className: "text-primary ml-1", children: [
+                  p.first?.capturedChar ? /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)("span", { className: "text-primary ml-1", children: [
                     "(",
                     p.first.capturedChar,
                     ")"
                   ] }) : null
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)(TableCell, { className: "text-muted-foreground font-mono text-xs", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(TableCell, { className: "text-muted-foreground font-mono text-xs", children: [
                   p.second?.notation || "",
-                  p.second?.capturedChar ? /* @__PURE__ */ (0, import_jsx_runtime72.jsxs)("span", { className: "text-primary ml-1", children: [
+                  p.second?.capturedChar ? /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)("span", { className: "text-primary ml-1", children: [
                     "(",
                     p.second.capturedChar,
                     ")"
@@ -45760,8 +46552,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // src/components/common/ErrorBoundary.jsx
-  var import_react21 = __toESM(require_react());
-  var ErrorBoundary = class extends import_react21.default.Component {
+  var import_react22 = __toESM(require_react());
+  var ErrorBoundary = class extends import_react22.default.Component {
     constructor(props) {
       super(props);
       this.state = { hasError: false, error: null };
@@ -45784,14 +46576,14 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   };
 
   // src/components/HudWidget/HudWidget.jsx
-  var import_jsx_runtime73 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime74 = __toESM(require_jsx_runtime());
   function HudWidget() {
     const ZigaMod = window.ZigaMod || {};
-    const [isMinimized, setIsMinimized] = (0, import_react22.useState)(false);
+    const [isMinimized, setIsMinimized] = (0, import_react23.useState)(false);
     const state = useUiStore((s) => s);
     const settings = ZigaMod.userSettings || ZigaMod.DEFAULT_SETTINGS || {};
     const themeMode = state.themeMode || "dark";
-    (0, import_react22.useEffect)(() => {
+    (0, import_react23.useEffect)(() => {
       const widgetEl = document.getElementById("ziga-mod-widget");
       if (!widgetEl) return;
       widgetEl.classList.toggle("minimized", isMinimized);
@@ -45820,8 +46612,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         ZigaMod.openTacticalSandbox();
       }
     };
-    return /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(import_jsx_runtime73.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(import_jsx_runtime74.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(
         "div",
         {
           id: "ziga-mod-drag-handle",
@@ -45830,7 +46622,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             isMinimized ? "gap-2.5 rounded-xl px-3 py-2" : "border-border border-b"
           ),
           children: [
-            /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(
+            /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(
               "div",
               {
                 id: "ziga-mod-title-click",
@@ -45846,7 +46638,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                 },
                 className: "flex items-center gap-2",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(
+                  /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(
                     "span",
                     {
                       className: "ziga-mod-badge-icon border-input/30 flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-md border",
@@ -45858,7 +46650,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                         maxHeight: "22px"
                       },
                       children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+                        /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
                           "img",
                           {
                             src: typeof document !== "undefined" && document.documentElement?.dataset?.zigaLogoUrl || "",
@@ -45878,7 +46670,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                             }
                           }
                         ),
-                        /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(
+                        /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(
                           "svg",
                           {
                             viewBox: "0 0 512 512",
@@ -45890,8 +46682,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                               maxHeight: "22px"
                             },
                             children: [
-                              /* @__PURE__ */ (0, import_jsx_runtime73.jsx)("rect", { width: "512", height: "512", rx: "64", fill: "#000000" }),
-                              /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+                              /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("rect", { width: "512", height: "512", rx: "64", fill: "#000000" }),
+                              /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
                                 "path",
                                 {
                                   d: "M118.141 347H76.9482L139.714 165.182H189.253L251.93 347H210.737L165.194 206.73H163.773L118.141 347ZM115.567 275.533H212.868V305.54H115.567V275.533ZM425.892 165.182V347H392.689L313.587 232.565H312.255V347H273.814V165.182H307.55L386.03 279.528H387.628V165.182H425.892Z",
@@ -45904,13 +46696,13 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                       ]
                     }
                   ),
-                  /* @__PURE__ */ (0, import_jsx_runtime73.jsx)("span", { className: "text-foreground text-xs font-bold tracking-tight select-none", children: "TOOLS SUPPORT" })
+                  /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("span", { className: "text-foreground text-xs font-bold tracking-tight select-none", children: "TOOLS SUPPORT" })
                 ]
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)("div", { className: "flex items-center gap-1", children: [
-              !isMinimized && /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(import_jsx_runtime73.Fragment, { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)("div", { className: "flex items-center gap-1", children: [
+              !isMinimized && /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(import_jsx_runtime74.Fragment, { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
                   Button3,
                   {
                     variant: "outline",
@@ -45918,10 +46710,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     id: "ziga-mod-btn-theme",
                     onClick: handleToggleTheme,
                     title: themeMode === "dark" ? "Chuy\u1EC3n sang Giao di\u1EC7n S\xE1ng (Light Mode)" : "Chuy\u1EC3n sang Giao di\u1EC7n T\u1ED1i (Dark Mode)",
-                    children: themeMode === "dark" ? /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(Moon, {}) : /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(Sun, {})
+                    children: themeMode === "dark" ? /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Moon, {}) : /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Sun, {})
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
                   Button3,
                   {
                     variant: "outline",
@@ -45929,10 +46721,24 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     id: "ziga-mod-btn-sandbox",
                     onClick: handleOpenSandbox,
                     title: "M\u1EDF Sa B\xE0n Chi\u1EBFn Thu\u1EADt (Tactical Sandbox)",
-                    children: /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(Compass, {})
+                    children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Compass, {})
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
+                  Button3,
+                  {
+                    variant: "outline",
+                    size: "icon-xs",
+                    id: "ziga-mod-btn-palette",
+                    onClick: (e) => {
+                      e.stopPropagation();
+                      openReactSettingsModal("hud-style");
+                    },
+                    title: "T\xF9y bi\u1EBFn m\xE0u s\u1EAFc & Giao di\u1EC7n HUD (Personalize Widget)",
+                    children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Palette, {})
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
                   Button3,
                   {
                     variant: "outline",
@@ -45940,11 +46746,11 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     id: "ziga-mod-btn-settings",
                     onClick: handleOpenSettings,
                     title: "C\xE0i \u0111\u1EB7t t\xEDnh n\u0103ng & H\xE0o quang (Aura)",
-                    children: /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(Settings, {})
+                    children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Settings, {})
                   }
                 )
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
                 Button3,
                 {
                   variant: "outline",
@@ -45952,22 +46758,22 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                   id: "ziga-mod-btn-min",
                   onClick: handleToggleMinimize,
                   title: isMinimized ? "M\u1EDF r\u1ED9ng b\u1EA3ng" : "Thu g\u1ECDn th\xE0nh bong b\xF3ng",
-                  children: isMinimized ? /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(Plus, {}) : /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(Minus, {})
+                  children: isMinimized ? /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Plus, {}) : /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Minus, {})
                 }
               )
             ] })
           ]
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(
+      /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(
         "div",
         {
           id: "ziga-mod-body",
           style: { display: isMinimized ? "none" : "flex" },
           className: "bg-background text-foreground flex max-h-[560px] flex-col gap-2.5 overflow-x-hidden overflow-y-auto p-3",
           children: [
-            /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(Card, { size: "sm", className: "py-2", children: /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(CardContent, { className: "flex items-center gap-2 text-xs font-medium", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Card, { size: "sm", className: "py-2", children: /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(CardContent, { className: "flex items-center gap-2 text-xs font-medium", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
                 "span",
                 {
                   className: cn(
@@ -45976,9 +46782,9 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                   )
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime73.jsx)("span", { id: "ziga-status-text", className: "truncate", children: state.statusText })
+              /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("span", { id: "ziga-status-text", className: "truncate", children: state.statusText })
             ] }) }),
-            /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
               Card,
               {
                 size: "sm",
@@ -45986,16 +46792,16 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                 style: { display: "none" },
                 onClick: () => ZigaMod.showOpeningModal?.(),
                 className: "hover:bg-accent/50 cursor-pointer py-2 transition-colors",
-                children: /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(CardContent, { className: "flex w-full items-center justify-between gap-2 text-xs", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)("div", { className: "flex items-center gap-1.5 truncate", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(BookOpen, { className: "text-primary size-3.5 shrink-0" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime73.jsx)("span", { id: "ziga-opening-name", className: "truncate font-medium", children: "B\xE1ch Khoa Khai Cu\u1ED9c" })
+                children: /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(CardContent, { className: "flex w-full items-center justify-between gap-2 text-xs", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)("div", { className: "flex items-center gap-1.5 truncate", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(BookOpen, { className: "text-primary size-3.5 shrink-0" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("span", { id: "ziga-opening-name", className: "truncate font-medium", children: "B\xE1ch Khoa Khai Cu\u1ED9c" })
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(Badge, { id: "ziga-opening-cat", variant: "secondary", children: "Tra c\u1EE9u" })
+                  /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(Badge, { id: "ziga-opening-cat", variant: "secondary", children: "Tra c\u1EE9u" })
                 ] })
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(
+            /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(
               Card,
               {
                 size: "sm",
@@ -46007,13 +46813,13 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                 },
                 className: "hover:bg-accent/30 cursor-pointer transition-colors",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(CardHeader, { id: "ziga-mentor-toggle-btn", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(CardTitle, { className: "flex items-center gap-1.5", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(GraduationCap, { className: "text-primary size-4" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime73.jsx)("span", { children: "Gia S\u01B0 \u0110\u1ED3ng H\xE0nh" })
+                  /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(CardHeader, { id: "ziga-mentor-toggle-btn", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(CardTitle, { className: "flex items-center gap-1.5", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(GraduationCap, { className: "text-primary size-4" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("span", { children: "Gia S\u01B0 \u0110\u1ED3ng H\xE0nh" })
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(CardDescription, { id: "ziga-mentor-phase-val", children: "Khai Cu\u1ED9c" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(
+                    /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(CardDescription, { id: "ziga-mentor-phase-val", children: "Khai Cu\u1ED9c" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(
                       Button3,
                       {
                         variant: "outline",
@@ -46025,13 +46831,13 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                         },
                         title: "M\u1EDF b\u1EA3ng c\u1ED1 v\u1EA5n n\u1ED5i c\u1EA1nh b\xE0n c\u1EDD",
                         children: [
-                          /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(ExternalLink, {}),
+                          /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(ExternalLink, {}),
                           "C\u1ED1 V\u1EA5n"
                         ]
                       }
                     ) })
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(CardContent, { children: /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(CardContent, { children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
                     "p",
                     {
                       id: "ziga-mentor-comment-val",
@@ -46041,14 +46847,14 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                 ]
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
               ThreatAlertCard,
               {
                 threats: state.threats,
                 visible: !!settings.threatAlert
               }
             ) }),
-            /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
               MaterialBarCard,
               {
                 material: state.material,
@@ -46057,7 +46863,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                 visible: !!settings.materialAdvantage
               }
             ) }),
-            /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
               CoUpTrackerCard,
               {
                 stats: state.coUpStats,
@@ -46066,7 +46872,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                 visible: !!settings.showCoUpTracker
               }
             ) }),
-            /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
               LostPiecesCard,
               {
                 inGame: state.inGame,
@@ -46079,29 +46885,29 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                 visible: !!settings.showLostPieces
               }
             ) }),
-            /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
               TacticalInspectorCard,
               {
                 tactical: state.tactical,
                 visible: !!settings.showTacticalHud
               }
             ) }),
-            /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
               MoveHistoryCard,
               {
                 moves: state.moveHistory,
                 visible: !!settings.showMoveHistory
               }
             ) }),
-            /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
               Card,
               {
                 size: "sm",
                 id: "ziga-section-key-pieces",
                 style: { display: settings.showKeyPieces ? "flex" : "none" },
-                children: /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(CardContent, { className: "grid grid-cols-2 gap-2 text-xs", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)("div", { className: "bg-muted/30 flex flex-col rounded-md border px-2.5 py-1.5", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+                children: /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(CardContent, { className: "grid grid-cols-2 gap-2 text-xs", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)("div", { className: "bg-muted/30 flex flex-col rounded-md border px-2.5 py-1.5", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
                       "span",
                       {
                         id: "ziga-stat-opp-name",
@@ -46109,7 +46915,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                         children: state.inGame ? state.oppName.slice(0, 12) : "Ch\u1EE7 l\u1EF1c \u0110\u1ED1i th\u1EE7:"
                       }
                     ),
-                    /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+                    /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
                       "strong",
                       {
                         id: "ziga-stat-opp-val",
@@ -46118,8 +46924,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                       }
                     )
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)("div", { className: "bg-muted/30 flex flex-col rounded-md border px-2.5 py-1.5", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+                  /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)("div", { className: "bg-muted/30 flex flex-col rounded-md border px-2.5 py-1.5", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
                       "span",
                       {
                         id: "ziga-stat-self-name",
@@ -46127,7 +46933,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                         children: state.inGame ? state.myName.slice(0, 12) : "Ch\u1EE7 l\u1EF1c B\u1EA1n:"
                       }
                     ),
-                    /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+                    /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
                       "strong",
                       {
                         id: "ziga-stat-self-val",
@@ -46142,8 +46948,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           ]
         }
       ),
-      !isMinimized && /* @__PURE__ */ (0, import_jsx_runtime73.jsxs)(import_jsx_runtime73.Fragment, { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+      !isMinimized && /* @__PURE__ */ (0, import_jsx_runtime74.jsxs)(import_jsx_runtime74.Fragment, { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
           "div",
           {
             id: "ziga-resize-edge-r",
@@ -46151,7 +46957,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             className: "hover:bg-primary/20 absolute top-0 right-0 bottom-4 z-50 w-2 cursor-ew-resize transition-colors"
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
           "div",
           {
             id: "ziga-resize-edge-b",
@@ -46159,13 +46965,13 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             className: "hover:bg-primary/20 absolute right-4 bottom-0 left-0 z-50 h-2 cursor-ns-resize transition-colors"
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime73.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(
           "div",
           {
             id: "ziga-resize-corner",
             title: "K\xE9o \u0111\u1EC3 ph\xF3ng to / thu nh\u1ECF b\u1EA3ng",
             className: "absolute right-0 bottom-0 z-50 flex size-4 cursor-nwse-resize items-end justify-end p-1 opacity-60 transition-opacity hover:opacity-100",
-            children: /* @__PURE__ */ (0, import_jsx_runtime73.jsx)("span", { className: "border-primary size-2 rounded-br-xs border-r-2 border-b-2" })
+            children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)("span", { className: "border-primary size-2 rounded-br-xs border-r-2 border-b-2" })
           }
         )
       ] })
@@ -46173,7 +46979,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // src/ui/ui.js
-  var import_jsx_runtime74 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime75 = __toESM(require_jsx_runtime());
   (function(ZigaMod) {
     "use strict";
     ZigaMod.widgetEl = null;
@@ -46183,6 +46989,9 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       uiStore.setState((prev) => ({
         settingsVersion: (prev.settingsVersion || 0) + 1
       }));
+      const currentHudStyle = ZigaMod.userSettings && ZigaMod.userSettings.hudStyle || loadSavedHudStyle();
+      const currentTheme = getSavedThemeMode();
+      applyHudStyle(currentHudStyle, currentTheme);
     }
     function getSavedThemeMode() {
       try {
@@ -46226,9 +47035,11 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       hudRoot = (0, import_client5.createRoot)(widgetEl);
       (0, import_react_dom3.flushSync)(() => {
         hudRoot.render(
-          /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime74.jsx)(HudWidget, {}) })
+          /* @__PURE__ */ (0, import_jsx_runtime75.jsx)(ErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime75.jsx)(HudWidget, {}) })
         );
       });
+      const savedHudStyle = ZigaMod.userSettings && ZigaMod.userSettings.hudStyle || loadSavedHudStyle();
+      applyHudStyle(savedHudStyle, initialTheme);
       const bodyEl = document.getElementById("ziga-mod-body");
       if (savedSize && savedSize.bodyMaxHeight && bodyEl && savedSize.bodyMaxHeight >= 150) {
         bodyEl.style.maxHeight = savedSize.bodyMaxHeight + "px";
@@ -46856,6 +47667,7 @@ lucide-react/dist/esm/icons/dices.mjs:
 lucide-react/dist/esm/icons/external-link.mjs:
 lucide-react/dist/esm/icons/eye.mjs:
 lucide-react/dist/esm/icons/graduation-cap.mjs:
+lucide-react/dist/esm/icons/layers.mjs:
 lucide-react/dist/esm/icons/minus.mjs:
 lucide-react/dist/esm/icons/moon.mjs:
 lucide-react/dist/esm/icons/palette.mjs:
@@ -46867,6 +47679,7 @@ lucide-react/dist/esm/icons/scale.mjs:
 lucide-react/dist/esm/icons/scroll-text.mjs:
 lucide-react/dist/esm/icons/settings.mjs:
 lucide-react/dist/esm/icons/shield.mjs:
+lucide-react/dist/esm/icons/sliders-vertical.mjs:
 lucide-react/dist/esm/icons/sparkles.mjs:
 lucide-react/dist/esm/icons/sun.mjs:
 lucide-react/dist/esm/icons/swords.mjs:

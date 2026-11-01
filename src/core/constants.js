@@ -101,7 +101,77 @@ export const DEFAULT_SETTINGS = {
     customImageOpp: "", // Base64 DataURL ảnh PNG tùy chọn lượt đối thủ
     scale: 1.0, // Tỷ lệ độ lớn vòng Aura (0.7 đến 1.3, mặc định 1.0)
   },
+  hudStyle: {
+    preset: "default_orange",
+    customColor: "#f97316",
+    bgMode: "glass", // 'glass' (Kính mờ), 'solid' (Đặc), 'clear' (Trong suốt)
+    borderGlow: true, // Hiệu ứng viền neon phát sáng
+    borderRadius: "rounded_xl", // 'rounded_xl', 'rounded_lg', 'rounded_sm'
+    cardOpacity: "default", // 'default', 'transparent', 'solid'
+    hudScale: 1.0, // Tỷ lệ thu phóng HUD (0.85 - 1.15)
+  },
 };
+
+export const DEFAULT_HUD_STYLE = {
+  preset: "default_orange",
+  customColor: "#f97316",
+  bgMode: "glass",
+  borderGlow: true,
+  borderRadius: "rounded_xl",
+  cardOpacity: "default",
+  hudScale: 1.0,
+};
+
+export const HUD_STYLE_PRESETS = [
+  {
+    id: "default_orange",
+    name: "Cam Ziga",
+    color: "#f97316",
+    desc: "Màu cam rực rỡ đặc trưng phong cách Ziga",
+  },
+  {
+    id: "cyber_cyan",
+    name: "Thần Long Lam",
+    color: "#06b6d4",
+    desc: "Xanh Cyan ma pháp lôi điện, sắc sảo",
+  },
+  {
+    id: "crimson_red",
+    name: "Huyết Nguyệt",
+    color: "#ef4444",
+    desc: "Đỏ chiến ý cuồn cuộn, khí thế áp đảo",
+  },
+  {
+    id: "emerald_jade",
+    name: "Ngọc Lục Bảo",
+    color: "#10b981",
+    desc: "Xanh ngọc điềm tĩnh, tĩnh tâm kỳ đạo",
+  },
+  {
+    id: "imperial_gold",
+    name: "Hoàng Kim",
+    color: "#eab308",
+    desc: "Vàng kim quý phái, quyền uy hoàng gia",
+  },
+  {
+    id: "neon_purple",
+    name: "Tử Điện",
+    color: "#a855f7",
+    desc: "Tím huyền ảo, bí ẩn và cuốn hút",
+  },
+  {
+    id: "sakura_pink",
+    name: "Hồng Anh Đào",
+    color: "#ec4899",
+    desc: "Hồng tinh tế thanh nhã, nổi bật độc đáo",
+  },
+  {
+    id: "pure_oled",
+    name: "Hắc Ám OLED",
+    color: "#64748b",
+    desc: "Đen tuyền sâu thẳm, tối giản tập trung",
+  },
+];
 
 export const AURA_THEMES = {
   default: {
@@ -221,6 +291,8 @@ if (typeof window !== "undefined") {
   ZigaMod.PIECE_DEFS = PIECE_DEFS;
   ZigaMod.DISPLAY_ORDER = DISPLAY_ORDER;
   ZigaMod.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
+  ZigaMod.DEFAULT_HUD_STYLE = DEFAULT_HUD_STYLE;
+  ZigaMod.HUD_STYLE_PRESETS = HUD_STYLE_PRESETS;
   ZigaMod.AURA_THEMES = AURA_THEMES;
   ZigaMod.AURA_ANIMATIONS = AURA_ANIMATIONS;
   ZigaMod.formatXiangqiCoord = formatXiangqiCoord;

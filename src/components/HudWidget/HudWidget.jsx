@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Settings,
+  Palette,
   Minus,
   Plus,
   Crown,
@@ -181,6 +182,18 @@ export function HudWidget() {
                 title="Mở Sa Bàn Chiến Thuật (Tactical Sandbox)"
               >
                 <Compass />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon-xs"
+                id="ziga-mod-btn-palette"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openReactSettingsModal("hud-style");
+                }}
+                title="Tùy biến màu sắc & Giao diện HUD (Personalize Widget)"
+              >
+                <Palette />
               </Button>
               <Button
                 variant="outline"

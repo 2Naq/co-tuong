@@ -41,6 +41,14 @@
             parsed.auraCustom,
           );
         }
+        if (parsed.hudStyle) {
+          userSettings.hudStyle = Object.assign(
+            {},
+            (ZigaMod.DEFAULT_SETTINGS && ZigaMod.DEFAULT_SETTINGS.hudStyle) ||
+              ZigaMod.DEFAULT_HUD_STYLE,
+            parsed.hudStyle,
+          );
+        }
       }
     } catch (e) {}
   }

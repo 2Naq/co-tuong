@@ -4,6 +4,7 @@ import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { HudWidget } from "../components/HudWidget/HudWidget";
 import { ErrorBoundary } from "../components/common/ErrorBoundary";
+import { applyHudStyle, loadSavedHudStyle } from "./hud_theme";
 import { uiStore } from "../lib/ui_store";
 
 (function (ZigaMod) {
@@ -17,6 +18,11 @@ import { uiStore } from "../lib/ui_store";
     uiStore.setState((prev) => ({
       settingsVersion: (prev.settingsVersion || 0) + 1,
     }));
+    const currentHudStyle =
+      (ZigaMod.userSettings && ZigaMod.userSettings.hudStyle) ||
+      loadSavedHudStyle();
+    const currentTheme = getSavedThemeMode();
+    applyHudStyle(currentHudStyle, currentTheme);
   }
 
   function getSavedThemeMode() {
@@ -89,6 +95,12 @@ import { uiStore } from "../lib/ui_store";
         </ErrorBoundary>,
       );
     });
+
+    // Apply saved or default HUD style (accent color, glassmorphism, border glow, radius, scale)
+    const savedHudStyle =
+      (ZigaMod.userSettings && ZigaMod.userSettings.hudStyle) ||
+      loadSavedHudStyle();
+    applyHudStyle(savedHudStyle, initialTheme);
 
     // Restore body max height if saved
     const bodyEl = document.getElementById("ziga-mod-body");
