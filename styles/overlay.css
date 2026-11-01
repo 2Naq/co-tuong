@@ -801,25 +801,60 @@ iframe[id^="google_ads"],
   z-index: 2147483647 !important;
 }
 
+/* Base UI Portals & Popups (Select, Popover, Tooltip) - Top-most layer */
+[data-base-ui-portal],
 [data-base-ui-portal] > div,
 [data-base-ui-portal] .isolate,
 [data-base-ui-portal] [data-slot],
 [data-slot="popover-content"],
 [data-slot="select-content"],
 [data-slot="tooltip-content"],
-[data-slot="dialog-content"],
-[data-slot="dialog-overlay"],
 :has(> [data-slot="popover-content"]),
 :has(> [data-slot="select-content"]),
-:has(> [data-slot="tooltip-content"]),
-.ziga-sandbox-overlay,
-#ziga-sandbox-modal,
-#ziga-react-settings-host {
+:has(> [data-slot="tooltip-content"]) {
   z-index: 2147483647 !important;
 }
 
+/* React Settings Host: fixed viewport container that takes zero layout space in document */
+#ziga-react-settings-host {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+  z-index: 2147483647 !important;
+}
+
+#ziga-react-settings-host > * {
+  pointer-events: auto !important;
+}
+
+/* Modals & Dialog contents */
+[data-slot="dialog-content"],
+#ziga-sandbox-modal {
+  z-index: 2147483646 !important;
+}
+
+/* Fullscreen Backdrops / Overlays */
+[data-slot="dialog-overlay"],
+.ziga-sandbox-overlay {
+  z-index: 2147483645 !important;
+}
+
+/* Floating HUD Widget - sits beneath modals & dropdowns */
 #ziga-mod-widget {
   z-index: 2147483600 !important;
+}
+
+/* Contain scroll chaining: scrolling inside HUD or Modals will never scroll the outer webpage */
+#ziga-mod-widget,
+#ziga-mod-body,
+[data-slot="dialog-content"],
+[data-slot="select-content"],
+[data-slot="popover-content"] {
+  overscroll-behavior: contain !important;
 }
 
 /* ========================================================================= */
@@ -1175,6 +1210,9 @@ iframe[id^="google_ads"],
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .z-1000, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).z-1000 {
   z-index: 1000 !important;
+}
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .z-2147483647, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).z-2147483647 {
+  z-index: 2147483647 !important;
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .z-\[2147483600\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).z-\[2147483600\] {
   z-index: 2147483600 !important;
@@ -1730,6 +1768,9 @@ iframe[id^="google_ads"],
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .max-w-\(--skeleton-width\), :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).max-w-\(--skeleton-width\) {
   max-width: var(--skeleton-width);
+}
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .max-w-55, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).max-w-55 {
+  max-width: calc(var(--spacing) * 55);
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .max-w-\[80\%\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).max-w-\[80\%\] {
   max-width: 80%;
@@ -3323,6 +3364,9 @@ iframe[id^="google_ads"],
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .ring-background, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).ring-background {
   --tw-ring-color: var(--background);
+}
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .ring-border, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).ring-border {
+  --tw-ring-color: var(--border);
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .ring-card, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).ring-card {
   --tw-ring-color: var(--card);

@@ -194,7 +194,7 @@ export function SettingsModal({
   const imageCount = auraPresets.length;
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()} modal={false}>
       <DialogContent className="sm:max-w-3xl max-h-[88vh] flex flex-col overflow-hidden">
         {/* Header */}
         <DialogHeader className="shrink-0 flex flex-row items-center justify-between border-b pb-3 pr-8">
@@ -358,12 +358,19 @@ export function ensureSettingsModalMounted() {
     if (!modalHost) {
       modalHost = document.createElement('div');
       modalHost.id = 'ziga-react-settings-host';
+      modalHost.style.position = 'fixed';
+      modalHost.style.top = '0';
+      modalHost.style.left = '0';
+      modalHost.style.width = '0';
+      modalHost.style.height = '0';
+      modalHost.style.overflow = 'visible';
+      modalHost.style.pointerEvents = 'none';
       const savedTheme =
         typeof localStorage !== 'undefined'
           ? localStorage.getItem('ziga_xiangqi_theme_mode') || 'dark'
           : 'dark';
       document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-      modalHost.className = `ziga-shadcn-root ${savedTheme === 'dark' ? 'dark' : ''}`;
+      modalHost.className = `ziga-shadcn-root fixed inset-0 pointer-events-none z-[2147483647] ${savedTheme === 'dark' ? 'dark' : ''}`;
       document.body.appendChild(modalHost);
     }
     modalRoot = createRoot(modalHost);

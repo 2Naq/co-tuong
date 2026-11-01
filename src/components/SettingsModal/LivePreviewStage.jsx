@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Eye, RotateCcw } from 'lucide-react';
 import {
   Card,
@@ -45,8 +45,35 @@ export function LivePreviewStage({
   const isImageMode = custom.mode === 'image';
   const scaleVal = typeof custom.scale === 'number' ? custom.scale : 1.0;
   const speedVal = typeof custom.spinSpeed === 'number' ? custom.spinSpeed : 3.5;
-  const animType = custom.animation || 'spin_pulse';
+  const animType = custom.animation || 'spin';
   const scalePercent = Math.round(scaleVal * 100);
+
+  const [selectOpen, setSelectOpen] = useState(false);
+
+  const handleOpenChange = (open) => {
+    const scrollY = window.scrollY;
+    setSelectOpen(open);
+    if (open) {
+      // Prevent browser from scrolling window to bottom on focus
+      requestAnimationFrame(() => {
+        if (window.scrollY !== scrollY) {
+          window.scrollTo(window.scrollX, scrollY);
+        }
+      });
+    }
+  };
+
+  const handleSelectAnim = (val) => {
+    if (val) {
+      updateDraft({
+        auraCustom: {
+          ...custom,
+          animation: val
+        }
+      });
+      setSelectOpen(false);
+    }
+  };
 
   const myCol = custom.myColor || '#39ff14';
   const oppCol = custom.oppColor || '#ff1744';
@@ -134,7 +161,7 @@ export function LivePreviewStage({
           <span>Xem trước hiệu ứng Hào Quang (Live Preview)</span>
         </CardTitle>
         <CardAction>
-          <Badge variant="secondary" className="max-w-[220px] truncate" title={badgeTitle}>
+          <Badge variant="secondary" className="max-w-55 truncate" title={badgeTitle}>
             {badgeTitle}
           </Badge>
         </CardAction>
@@ -234,26 +261,53 @@ export function LivePreviewStage({
         <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/20 px-3 py-2">
           <Label>Chế độ chuyển động</Label>
           <Select
+            modal={false}
+            open={selectOpen}
+            onOpenChange={handleOpenChange}
             value={animType}
-            onValueChange={(val) => {
-              if (val) updateDraft({ auraCustom: { ...custom, animation: val } });
-            }}
+            onValueChange={handleSelectAnim}
           >
-            <SelectTrigger className="w-64">
+            <SelectTrigger className="w-64 cursor-pointer">
               <SelectValue placeholder="Chọn hiệu ứng chuyển động">
                 {ANIMATION_LABELS[animType] || animType}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="spin_pulse">
+            <SelectContent alignItemWithTrigger={false} positionMethod="fixed">
+              <SelectItem
+                value="spin_pulse"
+                onClick={() => handleSelectAnim('spin_pulse')}
+                onPointerDown={() => handleSelectAnim('spin_pulse')}
+              >
                 Xoay 360° & Nhịp Thở (Mặc định)
               </SelectItem>
-              <SelectItem value="spin">Xoay Tròn 360° Liên Tục</SelectItem>
-              <SelectItem value="pulse">
+              <SelectItem
+                value="spin"
+                onClick={() => handleSelectAnim('spin')}
+                onPointerDown={() => handleSelectAnim('spin')}
+              >
+                Xoay Tròn 360° Liên Tục
+              </SelectItem>
+              <SelectItem
+                value="pulse"
+                onClick={() => handleSelectAnim('pulse')}
+                onPointerDown={() => handleSelectAnim('pulse')}
+              >
                 Nhịp Thở Hào Quang (Không xoay)
               </SelectItem>
-              <SelectItem value="heartbeat">Nhịp Đập Cảnh Báo Nhanh</SelectItem>
-              <SelectItem value="static">Đứng Yên (Tĩnh)</SelectItem>
+              <SelectItem
+                value="heartbeat"
+                onClick={() => handleSelectAnim('heartbeat')}
+                onPointerDown={() => handleSelectAnim('heartbeat')}
+              >
+                Nhịp Đập Cảnh Báo Nhanh
+              </SelectItem>
+              <SelectItem
+                value="static"
+                onClick={() => handleSelectAnim('static')}
+                onPointerDown={() => handleSelectAnim('static')}
+              >
+                Đứng Yên (Tĩnh)
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>

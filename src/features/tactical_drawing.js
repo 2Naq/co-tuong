@@ -180,6 +180,8 @@
     return !!(
       e.target.closest('#ziga-mod-widget') ||
       e.target.closest('#ziga-mentor-floating-panel') ||
+      e.target.closest('#ziga-react-settings-host') ||
+      e.target.closest('[data-base-ui-portal]') ||
       e.target.closest('.ziga-settings-modal') ||
       e.target.closest('.ziga-tactical-sandbox-modal') ||
       e.target.closest('.ziga-op-modal') ||

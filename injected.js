@@ -14586,12 +14586,12 @@
         return x === y && (0 !== x || 1 / x === 1 / y) || x !== x && y !== y;
       }
       var objectIs = "function" === typeof Object.is ? Object.is : is;
-      var useState36 = React181.useState;
+      var useState37 = React181.useState;
       var useEffect25 = React181.useEffect;
       var useLayoutEffect3 = React181.useLayoutEffect;
       var useDebugValue2 = React181.useDebugValue;
       function useSyncExternalStore$2(subscribe, getSnapshot) {
-        var value = getSnapshot(), _useState = useState36({ inst: { value, getSnapshot } }), inst = _useState[0].inst, forceUpdate = _useState[1];
+        var value = getSnapshot(), _useState = useState37({ inst: { value, getSnapshot } }), inst = _useState[0].inst, forceUpdate = _useState[1];
         useLayoutEffect3(
           function() {
             inst.value = value;
@@ -37327,7 +37327,12 @@
 
   // src/components/ui/select.jsx
   var import_jsx_runtime34 = __toESM(require_jsx_runtime());
-  var Select = index_parts_exports4.Root;
+  function Select({
+    modal = false,
+    ...props
+  }) {
+    return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(index_parts_exports4.Root, { modal, ...props });
+  }
   function SelectValue3({
     className,
     ...props
@@ -37374,12 +37379,15 @@
     children,
     side: side2 = "bottom",
     sideOffset = 4,
-    align: align2 = "center",
+    align: align2 = "start",
     alignOffset = 0,
-    alignItemWithTrigger = true,
+    alignItemWithTrigger = false,
+    positionMethod = "fixed",
+    container,
     ...props
   }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(index_parts_exports4.Portal, { children: /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(
+    const portalContainer = container || (typeof document !== "undefined" ? document.getElementById("ziga-react-settings-host") || document.body : void 0);
+    return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(index_parts_exports4.Portal, { container: portalContainer, children: /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(
       index_parts_exports4.Positioner,
       {
         side: side2,
@@ -37387,13 +37395,17 @@
         align: align2,
         alignOffset,
         alignItemWithTrigger,
-        className: "isolate z-50",
+        positionMethod,
+        className: "isolate z-[2147483647]",
         children: /* @__PURE__ */ (0, import_jsx_runtime34.jsxs)(
           index_parts_exports4.Popup,
           {
             "data-slot": "select-content",
             "data-align-trigger": alignItemWithTrigger,
-            className: cn("relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className),
+            className: cn(
+              "relative isolate z-[2147483647] max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-xl ring-1 ring-border duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+              className
+            ),
             ...props,
             children: [
               /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(SelectScrollUpButton, {}),
@@ -37415,7 +37427,7 @@
       {
         "data-slot": "select-item",
         className: cn(
-          "relative flex w-full cursor-default items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+          "relative flex w-full cursor-pointer items-center gap-1.5 rounded-md py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-highlighted:bg-accent data-highlighted:text-accent-foreground focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
           className
         ),
         ...props,
@@ -37445,10 +37457,7 @@
           className
         ),
         ...props,
-        children: /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(
-          ChevronUp,
-          {}
-        )
+        children: /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ChevronUp, {})
       }
     );
   }
@@ -37465,10 +37474,7 @@
           className
         ),
         ...props,
-        children: /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(
-          ChevronDown,
-          {}
-        )
+        children: /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ChevronDown, {})
       }
     );
   }
@@ -37586,8 +37592,31 @@
     const isImageMode = custom.mode === "image";
     const scaleVal = typeof custom.scale === "number" ? custom.scale : 1;
     const speedVal = typeof custom.spinSpeed === "number" ? custom.spinSpeed : 3.5;
-    const animType = custom.animation || "spin_pulse";
+    const animType = custom.animation || "spin";
     const scalePercent = Math.round(scaleVal * 100);
+    const [selectOpen, setSelectOpen] = (0, import_react6.useState)(false);
+    const handleOpenChange = (open3) => {
+      const scrollY = window.scrollY;
+      setSelectOpen(open3);
+      if (open3) {
+        requestAnimationFrame(() => {
+          if (window.scrollY !== scrollY) {
+            window.scrollTo(window.scrollX, scrollY);
+          }
+        });
+      }
+    };
+    const handleSelectAnim = (val) => {
+      if (val) {
+        updateDraft({
+          auraCustom: {
+            ...custom,
+            animation: val
+          }
+        });
+        setSelectOpen(false);
+      }
+    };
     const myCol = custom.myColor || "#39ff14";
     const oppCol = custom.oppColor || "#ff1744";
     const myImg = ZigaMod.resolveAuraImageData ? ZigaMod.resolveAuraImageData(custom, "my") : custom.customImageMy || "";
@@ -37656,7 +37685,7 @@
           /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Eye, { className: "size-4 text-primary" }),
           /* @__PURE__ */ (0, import_jsx_runtime36.jsx)("span", { children: "Xem tr\u01B0\u1EDBc hi\u1EC7u \u1EE9ng H\xE0o Quang (Live Preview)" })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Badge, { variant: "secondary", className: "max-w-[220px] truncate", title: badgeTitle, children: badgeTitle }) })
+        /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(Badge, { variant: "secondary", className: "max-w-55 truncate", title: badgeTitle, children: badgeTitle }) })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(CardContent, { className: "flex flex-col gap-3", children: [
         /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)("div", { className: "grid grid-cols-[1fr_auto_1fr] items-center gap-4 rounded-lg border bg-muted/30 px-4 py-3.5", children: [
@@ -37754,18 +37783,59 @@
           /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(
             Select,
             {
+              modal: false,
+              open: selectOpen,
+              onOpenChange: handleOpenChange,
               value: animType,
-              onValueChange: (val) => {
-                if (val) updateDraft({ auraCustom: { ...custom, animation: val } });
-              },
+              onValueChange: handleSelectAnim,
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(SelectTrigger3, { className: "w-64", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(SelectValue3, { placeholder: "Ch\u1ECDn hi\u1EC7u \u1EE9ng chuy\u1EC3n \u0111\u1ED9ng", children: ANIMATION_LABELS[animType] || animType }) }),
-                /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(SelectContent, { children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(SelectItem3, { value: "spin_pulse", children: "Xoay 360\xB0 & Nh\u1ECBp Th\u1EDF (M\u1EB7c \u0111\u1ECBnh)" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(SelectItem3, { value: "spin", children: "Xoay Tr\xF2n 360\xB0 Li\xEAn T\u1EE5c" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(SelectItem3, { value: "pulse", children: "Nh\u1ECBp Th\u1EDF H\xE0o Quang (Kh\xF4ng xoay)" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(SelectItem3, { value: "heartbeat", children: "Nh\u1ECBp \u0110\u1EADp C\u1EA3nh B\xE1o Nhanh" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(SelectItem3, { value: "static", children: "\u0110\u1EE9ng Y\xEAn (T\u0129nh)" })
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(SelectTrigger3, { className: "w-64 cursor-pointer", children: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(SelectValue3, { placeholder: "Ch\u1ECDn hi\u1EC7u \u1EE9ng chuy\u1EC3n \u0111\u1ED9ng", children: ANIMATION_LABELS[animType] || animType }) }),
+                /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(SelectContent, { alignItemWithTrigger: false, positionMethod: "fixed", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+                    SelectItem3,
+                    {
+                      value: "spin_pulse",
+                      onClick: () => handleSelectAnim("spin_pulse"),
+                      onPointerDown: () => handleSelectAnim("spin_pulse"),
+                      children: "Xoay 360\xB0 & Nh\u1ECBp Th\u1EDF (M\u1EB7c \u0111\u1ECBnh)"
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+                    SelectItem3,
+                    {
+                      value: "spin",
+                      onClick: () => handleSelectAnim("spin"),
+                      onPointerDown: () => handleSelectAnim("spin"),
+                      children: "Xoay Tr\xF2n 360\xB0 Li\xEAn T\u1EE5c"
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+                    SelectItem3,
+                    {
+                      value: "pulse",
+                      onClick: () => handleSelectAnim("pulse"),
+                      onPointerDown: () => handleSelectAnim("pulse"),
+                      children: "Nh\u1ECBp Th\u1EDF H\xE0o Quang (Kh\xF4ng xoay)"
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+                    SelectItem3,
+                    {
+                      value: "heartbeat",
+                      onClick: () => handleSelectAnim("heartbeat"),
+                      onPointerDown: () => handleSelectAnim("heartbeat"),
+                      children: "Nh\u1ECBp \u0110\u1EADp C\u1EA3nh B\xE1o Nhanh"
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(
+                    SelectItem3,
+                    {
+                      value: "static",
+                      onClick: () => handleSelectAnim("static"),
+                      onPointerDown: () => handleSelectAnim("static"),
+                      children: "\u0110\u1EE9ng Y\xEAn (T\u0129nh)"
+                    }
+                  )
                 ] })
               ]
             }
@@ -39235,7 +39305,7 @@
       );
     };
     const imageCount = auraPresets.length;
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Dialog, { open: isOpen, onOpenChange: (open3) => !open3 && onClose(), children: /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(DialogContent, { className: "sm:max-w-3xl max-h-[88vh] flex flex-col overflow-hidden", children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Dialog, { open: isOpen, onOpenChange: (open3) => !open3 && onClose(), modal: false, children: /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(DialogContent, { className: "sm:max-w-3xl max-h-[88vh] flex flex-col overflow-hidden", children: [
       /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(DialogHeader, { className: "shrink-0 flex flex-row items-center justify-between border-b pb-3 pr-8", children: [
         /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)("div", { className: "flex items-center gap-3", children: [
           /* @__PURE__ */ (0, import_jsx_runtime46.jsx)("div", { className: "flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground", children: /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Settings, { className: "size-4" }) }),
@@ -39390,9 +39460,16 @@
       if (!modalHost) {
         modalHost = document.createElement("div");
         modalHost.id = "ziga-react-settings-host";
+        modalHost.style.position = "fixed";
+        modalHost.style.top = "0";
+        modalHost.style.left = "0";
+        modalHost.style.width = "0";
+        modalHost.style.height = "0";
+        modalHost.style.overflow = "visible";
+        modalHost.style.pointerEvents = "none";
         const savedTheme = typeof localStorage !== "undefined" ? localStorage.getItem("ziga_xiangqi_theme_mode") || "dark" : "dark";
         document.documentElement.classList.toggle("dark", savedTheme === "dark");
-        modalHost.className = `ziga-shadcn-root ${savedTheme === "dark" ? "dark" : ""}`;
+        modalHost.className = `ziga-shadcn-root fixed inset-0 pointer-events-none z-[2147483647] ${savedTheme === "dark" ? "dark" : ""}`;
         document.body.appendChild(modalHost);
       }
       modalRoot = (0, import_client.createRoot)(modalHost);
@@ -39889,7 +39966,7 @@
     }
     function isClickOnModUI(e) {
       if (!e || !e.target) return false;
-      return !!(e.target.closest("#ziga-mod-widget") || e.target.closest("#ziga-mentor-floating-panel") || e.target.closest(".ziga-settings-modal") || e.target.closest(".ziga-tactical-sandbox-modal") || e.target.closest(".ziga-op-modal") || e.target.closest(".ziga-review-modal"));
+      return !!(e.target.closest("#ziga-mod-widget") || e.target.closest("#ziga-mentor-floating-panel") || e.target.closest("#ziga-react-settings-host") || e.target.closest("[data-base-ui-portal]") || e.target.closest(".ziga-settings-modal") || e.target.closest(".ziga-tactical-sandbox-modal") || e.target.closest(".ziga-op-modal") || e.target.closest(".ziga-review-modal"));
     }
     let mouseListenersBound = false;
     function bindMouseEvents(targetEl) {
@@ -45604,11 +45681,40 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       if (savedSize && savedSize.bodyMaxHeight && bodyEl && savedSize.bodyMaxHeight >= 150) {
         bodyEl.style.maxHeight = savedSize.bodyMaxHeight + "px";
       }
-      ["mousedown", "click", "dblclick", "contextmenu", "wheel"].forEach((evtName) => {
+      ["mousedown", "click", "dblclick", "contextmenu"].forEach((evtName) => {
         widgetEl.addEventListener(evtName, (e) => {
           e.stopPropagation();
         });
       });
+      widgetEl.addEventListener(
+        "wheel",
+        (e) => {
+          e.stopPropagation();
+          const bodyEl2 = document.getElementById("ziga-mod-body");
+          if (!bodyEl2 || widgetEl.classList.contains("minimized")) {
+            e.preventDefault();
+            return;
+          }
+          const isScrollable = bodyEl2.scrollHeight > bodyEl2.clientHeight;
+          if (!isScrollable) {
+            e.preventDefault();
+            return;
+          }
+          const isOverBody = e.target && bodyEl2.contains(e.target);
+          if (!isOverBody) {
+            bodyEl2.scrollTop += e.deltaY;
+            e.preventDefault();
+            return;
+          }
+          const delta = e.deltaY;
+          const atTop = bodyEl2.scrollTop <= 0 && delta < 0;
+          const atBottom = bodyEl2.scrollTop + bodyEl2.clientHeight >= bodyEl2.scrollHeight - 1 && delta > 0;
+          if (atTop || atBottom) {
+            e.preventDefault();
+          }
+        },
+        { passive: false }
+      );
       setupDragAndResize(widgetEl);
       return widgetEl;
     }

@@ -99,11 +99,50 @@ import { uiStore } from '../lib/ui_store';
     }
 
     // Isolate clicks from #gameCanvas WITHOUT blocking mouseup/pointerup from reaching window
-    ['mousedown', 'click', 'dblclick', 'contextmenu', 'wheel'].forEach((evtName) => {
+    ['mousedown', 'click', 'dblclick', 'contextmenu'].forEach((evtName) => {
       widgetEl.addEventListener(evtName, (e) => {
         e.stopPropagation();
       });
     });
+
+    // Isolate mouse wheel so scrolling inside HUD never scrolls the outer webpage (zigavn.com)
+    widgetEl.addEventListener(
+      'wheel',
+      (e) => {
+        e.stopPropagation();
+        const bodyEl = document.getElementById('ziga-mod-body');
+
+        // If widget is minimized or body not available, prevent default page scroll
+        if (!bodyEl || widgetEl.classList.contains('minimized')) {
+          e.preventDefault();
+          return;
+        }
+
+        const isScrollable = bodyEl.scrollHeight > bodyEl.clientHeight;
+        if (!isScrollable) {
+          e.preventDefault();
+          return;
+        }
+
+        const isOverBody = e.target && bodyEl.contains(e.target);
+        if (!isOverBody) {
+          // Cursor is on header, buttons, or border: scroll the body directly & prevent window scroll
+          bodyEl.scrollTop += e.deltaY;
+          e.preventDefault();
+          return;
+        }
+
+        // Cursor is inside bodyEl: prevent scroll chaining when reaching boundaries
+        const delta = e.deltaY;
+        const atTop = bodyEl.scrollTop <= 0 && delta < 0;
+        const atBottom =
+          bodyEl.scrollTop + bodyEl.clientHeight >= bodyEl.scrollHeight - 1 && delta > 0;
+        if (atTop || atBottom) {
+          e.preventDefault();
+        }
+      },
+      { passive: false }
+    );
 
     setupDragAndResize(widgetEl);
     return widgetEl;
