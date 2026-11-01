@@ -1,15 +1,15 @@
-import React from 'react';
-import { Crosshair, Swords, Shield } from 'lucide-react';
+import React from "react";
+import { Crosshair, Swords, Shield } from "lucide-react";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
-  CardContent
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { PieceToken, PieceChip } from '@/components/ui/piece-token';
+  CardContent,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { PieceToken, PieceChip } from "@/components/ui/piece-token";
 
 export function TacticalInspectorCard({ tactical, visible }) {
   const ZigaMod = window.ZigaMod || {};
@@ -21,23 +21,22 @@ export function TacticalInspectorCard({ tactical, visible }) {
 
   const pChar = ZigaMod.getPieceChar
     ? ZigaMod.getPieceChar(piece.Ga, piece.ka)
-    : '?';
-  const pName = ZigaMod.getPieceVnName
-    ? ZigaMod.getPieceVnName(piece.Ga)
-    : '';
-  const colorName = piece.ka === 0 ? 'Đỏ' : 'Đen';
+    : "?";
+  const pName = ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(piece.Ga) : "";
+  const colorName = piece.ka === 0 ? "Đỏ" : "Đen";
 
   return (
     <Card size="sm" id="ziga-section-tactical">
       <CardHeader>
         <CardTitle className="flex items-center gap-1.5">
-          <Crosshair className="size-4 text-primary" />
+          <Crosshair className="text-primary size-4" />
           <span>Tầm Đánh Của Quân Đang Chọn</span>
         </CardTitle>
         <CardDescription className="flex items-center gap-2 pt-1">
           <PieceToken char={pChar} color={piece.ka} size="sm" />
           <span>
-            {pName} {colorName} ({pChar}) · Cột {piece.fa + 1}, Hàng {piece.rowIndex + 1}
+            {pName} {colorName} ({pChar}) · Cột {piece.fa + 1}, Hàng{" "}
+            {piece.rowIndex + 1}
           </span>
         </CardDescription>
       </CardHeader>
@@ -49,14 +48,14 @@ export function TacticalInspectorCard({ tactical, visible }) {
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between text-xs font-medium">
             <span className="flex items-center gap-1.5">
-              <Swords className="size-3.5 text-primary" />
+              <Swords className="text-primary size-3.5" />
               Có thể ăn ngay
             </span>
             <Badge variant="default">{targets.length}</Badge>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {targets.length === 0 ? (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 Không có quân đối phương trong tầm ăn
               </span>
             ) : (
@@ -69,16 +68,16 @@ export function TacticalInspectorCard({ tactical, visible }) {
                   t?.char ||
                   (ZigaMod.getPieceChar && tType !== undefined
                     ? ZigaMod.getPieceChar(tType, tColor)
-                    : '?');
+                    : "?");
                 const tName =
                   t?.name ||
                   (ZigaMod.getPieceVnName && tType !== undefined
                     ? ZigaMod.getPieceVnName(tType)
-                    : 'Quân');
+                    : "Quân");
                 const coordStr =
                   tCol !== undefined && tRow !== undefined
                     ? ` (${tCol + 1},${tRow + 1})`
-                    : '';
+                    : "";
                 return (
                   <PieceChip
                     key={idx}
@@ -96,14 +95,14 @@ export function TacticalInspectorCard({ tactical, visible }) {
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between text-xs font-medium">
             <span className="flex items-center gap-1.5">
-              <Shield className="size-3.5 text-muted-foreground" />
+              <Shield className="text-muted-foreground size-3.5" />
               Đang bảo vệ đồng đội
             </span>
             <Badge variant="secondary">{defended.length}</Badge>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {defended.length === 0 ? (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 Không bảo vệ quân nào
               </span>
             ) : (
@@ -114,12 +113,12 @@ export function TacticalInspectorCard({ tactical, visible }) {
                   d?.char ||
                   (ZigaMod.getPieceChar && dType !== undefined
                     ? ZigaMod.getPieceChar(dType, dColor)
-                    : '?');
+                    : "?");
                 const dName =
                   d?.name ||
                   (ZigaMod.getPieceVnName && dType !== undefined
                     ? ZigaMod.getPieceVnName(dType)
-                    : 'Quân');
+                    : "Quân");
                 return (
                   <PieceChip
                     key={idx}

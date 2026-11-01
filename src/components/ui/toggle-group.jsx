@@ -1,16 +1,16 @@
-import * as React from "react"
-import { Toggle as TogglePrimitive } from "@base-ui/react/toggle"
-import { ToggleGroup as ToggleGroupPrimitive } from "@base-ui/react/toggle-group"
-import { cn } from "cn"
+import * as React from "react";
+import { Toggle as TogglePrimitive } from "@base-ui/react/toggle";
+import { ToggleGroup as ToggleGroupPrimitive } from "@base-ui/react/toggle-group";
+import { cn } from "cn";
 
-import { toggleVariants } from "@/components/ui/toggle"
+import { toggleVariants } from "@/components/ui/toggle";
 
 const ToggleGroupContext = React.createContext({
   size: "default",
   variant: "default",
   spacing: 2,
   orientation: "horizontal",
-})
+});
 
 function ToggleGroup({
   className,
@@ -29,11 +29,11 @@ function ToggleGroup({
       data-spacing={spacing}
       data-orientation={orientation}
       style={{
-        "--gap": spacing
+        "--gap": spacing,
       }}
       className={cn(
-        "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-lg data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-vertical:flex-col data-vertical:items-stretch",
-        className
+        "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-lg data-vertical:flex-col data-vertical:items-stretch data-[size=sm]:rounded-[min(var(--radius-md),10px)]",
+        className,
       )}
       {...props}
     >
@@ -53,7 +53,7 @@ function ToggleGroupItem({
   size = "default",
   ...props
 }) {
-  const context = React.useContext(ToggleGroupContext)
+  const context = React.useContext(ToggleGroupContext);
 
   return (
     <TogglePrimitive
@@ -67,13 +67,13 @@ function ToggleGroupItem({
           variant: context.variant || variant,
           size: context.size || size,
         }),
-        className
+        className,
       )}
       {...props}
     >
       {children}
     </TogglePrimitive>
-  )
+  );
 }
 
-export { ToggleGroup, ToggleGroupItem }
+export { ToggleGroup, ToggleGroupItem };

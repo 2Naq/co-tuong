@@ -2,19 +2,19 @@
 import {
   mountSettingsModal,
   openReactSettingsModal,
-  closeReactSettingsModal
-} from '../components/SettingsModal/SettingsModal';
+  closeReactSettingsModal,
+} from "../components/SettingsModal/SettingsModal";
 
 (function (ZigaMod) {
-  'use strict';
+  "use strict";
 
   function createSettingsModal() {
     mountSettingsModal();
-    return document.getElementById('ziga-settings-modal');
+    return document.getElementById("ziga-settings-modal");
   }
 
   function openSettingsModal(initialTab) {
-    openReactSettingsModal(initialTab || 'features');
+    openReactSettingsModal(initialTab || "features");
   }
 
   function closeSettingsModal() {
@@ -29,4 +29,4 @@ import {
   ZigaMod.openSettingsModal = openSettingsModal;
   ZigaMod.closeSettingsModal = closeSettingsModal;
   ZigaMod.syncSettingsModalUI = syncSettingsModalUI;
-})(window.ZigaMod = window.ZigaMod || {});
+})((window.ZigaMod = window.ZigaMod || {}));

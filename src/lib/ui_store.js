@@ -1,28 +1,28 @@
-import { useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from "react";
 
 const initialState = {
   inGame: false,
   isSpectator: false,
-  statusText: 'Chờ vào ván cờ...',
-  myName: 'Bạn',
-  oppName: 'Đối thủ',
+  statusText: "Chờ vào ván cờ...",
+  myName: "Bạn",
+  oppName: "Đối thủ",
   myColor: 0,
   oppColor: 1,
   deadMyPieces: [],
   deadOppPieces: [],
-  keyPiecesSelf: '-',
-  keyPiecesOpp: '-',
+  keyPiecesSelf: "-",
+  keyPiecesOpp: "-",
   material: null,
   threats: [],
   coUpStats: null,
   tactical: {
     piece: null,
     targets: [],
-    defended: []
+    defended: [],
   },
   moveHistory: [],
-  themeMode: 'dark',
-  settingsVersion: 0
+  themeMode: "dark",
+  settingsVersion: 0,
 };
 
 let currentState = { ...initialState };
@@ -33,7 +33,8 @@ export const uiStore = {
     return currentState;
   },
   setState(partial) {
-    const next = typeof partial === 'function' ? partial(currentState) : partial;
+    const next =
+      typeof partial === "function" ? partial(currentState) : partial;
     currentState = { ...currentState, ...next };
     listeners.forEach((l) => l());
   },
@@ -41,20 +42,20 @@ export const uiStore = {
     currentState = {
       ...initialState,
       themeMode: currentState.themeMode,
-      settingsVersion: currentState.settingsVersion + 1
+      settingsVersion: currentState.settingsVersion + 1,
     };
     listeners.forEach((l) => l());
   },
   subscribe(listener) {
     listeners.add(listener);
     return () => listeners.delete(listener);
-  }
+  },
 };
 
 export function useUiStore(selector = (s) => s) {
   return useSyncExternalStore(
     uiStore.subscribe,
     () => selector(uiStore.getState()),
-    () => selector(initialState)
+    () => selector(initialState),
   );
 }

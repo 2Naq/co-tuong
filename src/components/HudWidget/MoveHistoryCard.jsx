@@ -1,22 +1,22 @@
-import React, { useEffect, useRef } from 'react';
-import { ScrollText, Copy, Trash2, BarChart2 } from 'lucide-react';
+import React, { useEffect, useRef } from "react";
+import { ScrollText, Copy, Trash2, BarChart2 } from "lucide-react";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardAction,
-  CardContent
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+  CardContent,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableHeader,
   TableBody,
   TableRow,
   TableHead,
-  TableCell
-} from '@/components/ui/table';
+  TableCell,
+} from "@/components/ui/table";
 
 export function MoveHistoryCard({ moves = [], visible }) {
   const scrollRef = useRef(null);
@@ -35,7 +35,7 @@ export function MoveHistoryCard({ moves = [], visible }) {
     pairs.push({
       round: Math.floor(i / 2) + 1,
       first: moves[i],
-      second: moves[i + 1] || null
+      second: moves[i + 1] || null,
     });
   }
 
@@ -43,7 +43,7 @@ export function MoveHistoryCard({ moves = [], visible }) {
     <Card size="sm" id="ziga-section-history">
       <CardHeader>
         <CardTitle className="flex items-center gap-1.5">
-          <ScrollText className="size-4 text-primary" />
+          <ScrollText className="text-primary size-4" />
           <span>Biên Bản Ván Đấu</span>
         </CardTitle>
         <CardAction>
@@ -105,10 +105,10 @@ export function MoveHistoryCard({ moves = [], visible }) {
         <div
           id="ziga-move-list"
           ref={scrollRef}
-          className="max-h-36 min-h-14 overflow-y-auto rounded-lg border bg-muted/20"
+          className="bg-muted/20 max-h-36 min-h-14 overflow-y-auto rounded-lg border"
         >
           {pairs.length === 0 ? (
-            <div className="p-3 text-center text-xs text-muted-foreground">
+            <div className="text-muted-foreground p-3 text-center text-xs">
               Đang theo dõi... Các nước đi sẽ tự động xuất hiện tại đây.
             </div>
           ) : (
@@ -127,17 +127,17 @@ export function MoveHistoryCard({ moves = [], visible }) {
                       {p.round}.
                     </TableCell>
                     <TableCell className="font-mono text-xs font-medium">
-                      {p.first?.notation || ''}
+                      {p.first?.notation || ""}
                       {p.first?.capturedChar ? (
-                        <span className="ml-1 text-primary">
+                        <span className="text-primary ml-1">
                           ({p.first.capturedChar})
                         </span>
                       ) : null}
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
-                      {p.second?.notation || ''}
+                    <TableCell className="text-muted-foreground font-mono text-xs">
+                      {p.second?.notation || ""}
                       {p.second?.capturedChar ? (
-                        <span className="ml-1 text-primary">
+                        <span className="text-primary ml-1">
                           ({p.second.capturedChar})
                         </span>
                       ) : null}

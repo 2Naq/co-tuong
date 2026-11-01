@@ -1,55 +1,57 @@
 // src/features/game_review.js - Post-game Blunder Analysis, Move Accuracy & shadcn/ui Review Modal
-import React, { useState, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
-import { BarChart2, Compass, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { createRoot } from "react-dom/client";
+import { BarChart2, Compass, Sparkles } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter
-} from '@/components/ui/dialog';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent
-} from '@/components/ui/card';
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableHeader,
   TableBody,
   TableRow,
   TableHead,
-  TableCell
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+  TableCell,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 (function (ZigaMod) {
-  'use strict';
+  "use strict";
 
   function classifyMoveQuality(scoreBefore, scoreAfter, isRed) {
-    const evalChange = isRed ? scoreAfter - scoreBefore : scoreBefore - scoreAfter;
+    const evalChange = isRed
+      ? scoreAfter - scoreBefore
+      : scoreBefore - scoreAfter;
 
     if (evalChange >= 1.5) {
-      return { type: 'brilliant', label: 'Tuyệt chiêu', variant: 'default' };
+      return { type: "brilliant", label: "Tuyệt chiêu", variant: "default" };
     }
     if (evalChange >= -0.2) {
-      return { type: 'best', label: 'Nước tốt nhất', variant: 'secondary' };
+      return { type: "best", label: "Nước tốt nhất", variant: "secondary" };
     }
     if (evalChange >= -0.7) {
-      return { type: 'inaccuracy', label: 'Chưa tối ưu', variant: 'outline' };
+      return { type: "inaccuracy", label: "Chưa tối ưu", variant: "outline" };
     }
     if (evalChange >= -1.6) {
-      return { type: 'mistake', label: 'Nước sai lầm', variant: 'secondary' };
+      return { type: "mistake", label: "Nước sai lầm", variant: "secondary" };
     }
-    return { type: 'blunder', label: 'Sai lầm chí mạng', variant: 'destructive' };
+    return {
+      type: "blunder",
+      label: "Sai lầm chí mạng",
+      variant: "destructive",
+    };
   }
 
   function analyzeGame(history) {
-    if (!history || !Array.isArray(history) || history.length === 0) return null;
+    if (!history || !Array.isArray(history) || history.length === 0)
+      return null;
 
     const redStats = {
       brilliant: 0,
@@ -58,7 +60,7 @@ import { Button } from '@/components/ui/button';
       mistake: 0,
       blunder: 0,
       totalMoves: 0,
-      scoreAccSum: 0
+      scoreAccSum: 0,
     };
     const blackStats = {
       brilliant: 0,
@@ -67,7 +69,7 @@ import { Button } from '@/components/ui/button';
       mistake: 0,
       blunder: 0,
       totalMoves: 0,
-      scoreAccSum: 0
+      scoreAccSum: 0,
     };
     const analyzedMoves = [];
 
@@ -79,7 +81,15 @@ import { Button } from '@/components/ui/button';
 
       let currentScore = prevScore;
       if (move.capturedType !== null && move.capturedType !== undefined) {
-        const valMap = { 3: 4.5, 4: 2.5, 5: 2.0, 1: 1.0, 2: 1.0, 6: 0.8, 0: 10.0 };
+        const valMap = {
+          3: 4.5,
+          4: 2.5,
+          5: 2.0,
+          1: 1.0,
+          2: 1.0,
+          6: 0.8,
+          0: 10.0,
+        };
         const capVal = valMap[move.capturedType] || 1.0;
         currentScore += isRed ? capVal : -capVal;
       }
@@ -91,9 +101,9 @@ import { Button } from '@/components/ui/button';
       targetStats.totalMoves++;
 
       let moveAcc = 100;
-      if (quality.type === 'inaccuracy') moveAcc = 82;
-      else if (quality.type === 'mistake') moveAcc = 55;
-      else if (quality.type === 'blunder') moveAcc = 15;
+      if (quality.type === "inaccuracy") moveAcc = 82;
+      else if (quality.type === "mistake") moveAcc = 55;
+      else if (quality.type === "blunder") moveAcc = 15;
       targetStats.scoreAccSum += moveAcc;
 
       analyzedMoves.push({
@@ -103,7 +113,7 @@ import { Button } from '@/components/ui/button';
         notation: move.notation,
         quality,
         scoreBefore: prevScore,
-        scoreAfter: currentScore
+        scoreAfter: currentScore,
       });
 
       prevScore = currentScore;
@@ -112,11 +122,11 @@ import { Button } from '@/components/ui/button';
     const redAccuracy =
       redStats.totalMoves > 0
         ? (redStats.scoreAccSum / redStats.totalMoves).toFixed(1)
-        : '100.0';
+        : "100.0";
     const blackAccuracy =
       blackStats.totalMoves > 0
         ? (blackStats.scoreAccSum / blackStats.totalMoves).toFixed(1)
-        : '100.0';
+        : "100.0";
 
     return {
       totalRounds: Math.ceil(history.length / 2),
@@ -124,7 +134,7 @@ import { Button } from '@/components/ui/button';
       blackStats,
       redAccuracy,
       blackAccuracy,
-      analyzedMoves
+      analyzedMoves,
     };
   }
 
@@ -136,8 +146,8 @@ import { Button } from '@/components/ui/button';
     const [state, setState] = useState({
       open: false,
       analysis: null,
-      redPlayer: 'Bên Đỏ',
-      blackPlayer: 'Bên Đen'
+      redPlayer: "Bên Đỏ",
+      blackPlayer: "Bên Đen",
     });
 
     useEffect(() => {
@@ -150,18 +160,18 @@ import { Button } from '@/components/ui/button';
     const notableMoves = analysis.analyzedMoves
       .filter(
         (m) =>
-          m.quality.type === 'blunder' ||
-          m.quality.type === 'mistake' ||
-          m.quality.type === 'brilliant'
+          m.quality.type === "blunder" ||
+          m.quality.type === "mistake" ||
+          m.quality.type === "brilliant",
       )
       .slice(0, 8);
 
     const rows = [
-      { key: 'brilliant', label: 'Tuyệt chiêu (Brilliant)' },
-      { key: 'best', label: 'Tốt nhất (Best Move)' },
-      { key: 'inaccuracy', label: 'Chưa tối ưu (Inaccuracy)' },
-      { key: 'mistake', label: 'Nước sai lầm (Mistake)' },
-      { key: 'blunder', label: 'Sơ hở chí mạng (Blunder)' }
+      { key: "brilliant", label: "Tuyệt chiêu (Brilliant)" },
+      { key: "best", label: "Tốt nhất (Best Move)" },
+      { key: "inaccuracy", label: "Chưa tối ưu (Inaccuracy)" },
+      { key: "mistake", label: "Nước sai lầm (Mistake)" },
+      { key: "blunder", label: "Sơ hở chí mạng (Blunder)" },
     ];
 
     return (
@@ -169,26 +179,27 @@ import { Button } from '@/components/ui/button';
         open={open}
         onOpenChange={(val) => setState((s) => ({ ...s, open: val }))}
       >
-        <DialogContent className="sm:max-w-xl max-h-[88vh] flex flex-col overflow-hidden">
+        <DialogContent className="flex max-h-[88vh] flex-col overflow-hidden sm:max-w-xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <BarChart2 className="size-4 text-primary" />
+              <BarChart2 className="text-primary size-4" />
               <span>Tổng Kết & Phân Tích Ván Đấu</span>
             </DialogTitle>
             <DialogDescription>
-              Đánh giá chất lượng nước đi và sai lầm then chốt ({analysis.totalRounds} hiệp)
+              Đánh giá chất lượng nước đi và sai lầm then chốt (
+              {analysis.totalRounds} hiệp)
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 py-1">
+          <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto py-1">
             {/* Accuracy Cards */}
             <div className="grid grid-cols-2 gap-3">
               <Card size="sm">
                 <CardContent className="flex flex-col items-center gap-1 py-1 text-center">
-                  <span className="text-xs font-medium text-muted-foreground">
+                  <span className="text-muted-foreground text-xs font-medium">
                     {redPlayer} (Đỏ)
                   </span>
-                  <span className="text-2xl font-bold text-primary">
+                  <span className="text-primary text-2xl font-bold">
                     {analysis.redAccuracy}%
                   </span>
                   <Badge variant="secondary">Độ chính xác</Badge>
@@ -197,10 +208,10 @@ import { Button } from '@/components/ui/button';
 
               <Card size="sm">
                 <CardContent className="flex flex-col items-center gap-1 py-1 text-center">
-                  <span className="text-xs font-medium text-muted-foreground">
+                  <span className="text-muted-foreground text-xs font-medium">
                     {blackPlayer} (Đen)
                   </span>
-                  <span className="text-2xl font-bold text-foreground">
+                  <span className="text-foreground text-2xl font-bold">
                     {analysis.blackAccuracy}%
                   </span>
                   <Badge variant="secondary">Độ chính xác</Badge>
@@ -225,11 +236,11 @@ import { Button } from '@/components/ui/button';
                   <TableBody>
                     {rows.map((r) => (
                       <TableRow key={r.key}>
-                        <TableCell className="text-center font-semibold text-primary">
+                        <TableCell className="text-primary text-center font-semibold">
                           {analysis.redStats[r.key]}
                         </TableCell>
                         <TableCell className="font-medium">{r.label}</TableCell>
-                        <TableCell className="text-center font-semibold text-foreground">
+                        <TableCell className="text-foreground text-center font-semibold">
                           {analysis.blackStats[r.key]}
                         </TableCell>
                       </TableRow>
@@ -243,29 +254,31 @@ import { Button } from '@/components/ui/button';
             <Card size="sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-1.5">
-                  <Sparkles className="size-4 text-primary" />
+                  <Sparkles className="text-primary size-4" />
                   <span>Các nước đi đáng chú ý</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-1.5">
                 {notableMoves.length === 0 ? (
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-muted-foreground text-xs">
                     Ván đấu diễn ra chặt chẽ, không có sai lầm nghiêm trọng!
                   </span>
                 ) : (
                   notableMoves.map((m) => (
                     <div
                       key={m.moveIndex}
-                      className="flex items-center justify-between rounded-md border bg-muted/20 px-2.5 py-1.5 text-xs"
+                      className="bg-muted/20 flex items-center justify-between rounded-md border px-2.5 py-1.5 text-xs"
                     >
                       <span>
                         Nước <strong>{m.moveNumber}</strong> (
-                        {m.turnColor === 0 ? 'Đỏ' : 'Đen'}):{' '}
-                        <strong className="font-mono text-primary">
+                        {m.turnColor === 0 ? "Đỏ" : "Đen"}):{" "}
+                        <strong className="text-primary font-mono">
                           {m.notation}
                         </strong>
                       </span>
-                      <Badge variant={m.quality.variant}>{m.quality.label}</Badge>
+                      <Badge variant={m.quality.variant}>
+                        {m.quality.label}
+                      </Badge>
                     </div>
                   ))
                 )}
@@ -305,8 +318,8 @@ import { Button } from '@/components/ui/button';
     if (history.length === 0) {
       if (ZigaMod.copyToClipboard) {
         ZigaMod.copyToClipboard(
-          '',
-          'ℹ️ Chưa có nước đi nào trong ván đấu để phân tích!'
+          "",
+          "ℹ️ Chưa có nước đi nào trong ván đấu để phân tích!",
         );
       }
       return;
@@ -317,21 +330,21 @@ import { Button } from '@/components/ui/button';
 
     const redPlayer =
       data && data.myColor === 0
-        ? data.myName || 'Bên Đỏ'
+        ? data.myName || "Bên Đỏ"
         : data && data.oppName
           ? data.oppName
-          : 'Bên Đỏ';
+          : "Bên Đỏ";
     const blackPlayer =
       data && data.myColor === 1
-        ? data.myName || 'Bên Đen'
+        ? data.myName || "Bên Đen"
         : data && data.oppName
           ? data.oppName
-          : 'Bên Đen';
+          : "Bên Đen";
 
     if (!reviewHost) {
-      reviewHost = document.createElement('div');
-      reviewHost.id = 'ziga-game-review-modal';
-      reviewHost.className = 'ziga-shadcn-root';
+      reviewHost = document.createElement("div");
+      reviewHost.id = "ziga-game-review-modal";
+      reviewHost.className = "ziga-shadcn-root";
       document.body.appendChild(reviewHost);
       reviewRoot = createRoot(reviewHost);
       reviewRoot.render(<GameReviewDialogHost />);
@@ -343,7 +356,7 @@ import { Button } from '@/components/ui/button';
           open: true,
           analysis,
           redPlayer,
-          blackPlayer
+          blackPlayer,
         });
       }
     }, 0);
@@ -351,4 +364,4 @@ import { Button } from '@/components/ui/button';
 
   ZigaMod.analyzeGame = analyzeGame;
   ZigaMod.showGameReviewModal = showGameReviewModal;
-})(window.ZigaMod = window.ZigaMod || {});
+})((window.ZigaMod = window.ZigaMod || {}));

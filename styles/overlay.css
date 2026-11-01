@@ -1115,9 +1115,6 @@ iframe[id^="google_ads"],
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .top-2, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).top-2 {
   top: calc(var(--spacing) * 2);
 }
-:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .top-2\.5, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).top-2\.5 {
-  top: calc(var(--spacing) * 2.5);
-}
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .top-3, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).top-3 {
   top: calc(var(--spacing) * 3);
 }
@@ -1774,9 +1771,6 @@ iframe[id^="google_ads"],
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .max-w-\[80\%\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).max-w-\[80\%\] {
   max-width: 80%;
-}
-:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .max-w-\[220px\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).max-w-\[220px\] {
-  max-width: 220px;
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .max-w-\[280px\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).max-w-\[280px\] {
   max-width: 280px;
@@ -2780,9 +2774,6 @@ iframe[id^="google_ads"],
   fill: var(--foreground) !important;
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .stroke-3, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).stroke-3 {
-  stroke-width: 3 !important;
-}
-:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .stroke-\[3\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).stroke-\[3\] {
   stroke-width: 3 !important;
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .object-contain, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).object-contain {

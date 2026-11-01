@@ -1,7 +1,7 @@
 // src/aura/board_aura.js - 100% In-Engine Cocos2d Live Glowing Aura Rings
 // Supports Dynamic Color Themes, Custom HEX Pickers, 22 Built-in HD Presets & Custom Image Uploads
 (function (ZigaMod) {
-  'use strict';
+  "use strict";
 
   const textureCache = {};
   const decodedImageCache = {};
@@ -13,9 +13,13 @@
    * @returns {string}
    */
   function hexToRgba(hex, alpha) {
-    if (!hex || typeof hex !== 'string') return `rgba(57, 255, 20, ${alpha})`;
-    let c = hex.replace('#', '').trim();
-    if (c.length === 3) c = c.split('').map(x => x + x).join('');
+    if (!hex || typeof hex !== "string") return `rgba(57, 255, 20, ${alpha})`;
+    let c = hex.replace("#", "").trim();
+    if (c.length === 3)
+      c = c
+        .split("")
+        .map((x) => x + x)
+        .join("");
     const num = parseInt(c, 16);
     if (isNaN(num)) return `rgba(57, 255, 20, ${alpha})`;
     const r = (num >> 16) & 255;
@@ -31,18 +35,26 @@
    * @returns {string}
    */
   function getResolvedCustomImageData(colorType) {
-    const custom = (ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {};
+    const custom =
+      (ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {};
     if (ZigaMod.resolveAuraImageData) {
-      return ZigaMod.resolveAuraImageData(custom, colorType === 'green' ? 'my' : 'opp');
+      return ZigaMod.resolveAuraImageData(
+        custom,
+        colorType === "green" ? "my" : "opp",
+      );
     }
-    const isMy = (colorType === 'green');
+    const isMy = colorType === "green";
     const presetId = isMy ? custom.presetMy : custom.presetOpp;
     if (presetId && Array.isArray(ZigaMod.PRESET_AURAS)) {
-      const found = ZigaMod.PRESET_AURAS.find(p => p.id === presetId);
+      const found = ZigaMod.PRESET_AURAS.find((p) => p.id === presetId);
       if (found && found.base64) return found.base64;
     }
     const direct = isMy ? custom.customImageMy : custom.customImageOpp;
-    return (direct && typeof direct === 'string' && direct.startsWith('data:image')) ? direct : '';
+    return direct &&
+      typeof direct === "string" &&
+      direct.startsWith("data:image")
+      ? direct
+      : "";
   }
 
   /**
@@ -52,15 +64,20 @@
    * @returns {HTMLImageElement|null}
    */
   function ensureDecodedImage(dataUrl, onReady) {
-    if (!dataUrl || typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image')) return null;
+    if (
+      !dataUrl ||
+      typeof dataUrl !== "string" ||
+      !dataUrl.startsWith("data:image")
+    )
+      return null;
 
     let img = decodedImageCache[dataUrl];
     if (img) {
       if (img.complete && img.naturalWidth > 0) {
         if (onReady) onReady(img);
       } else if (onReady) {
-        img.addEventListener('load', function onImgLoad() {
-          img.removeEventListener('load', onImgLoad);
+        img.addEventListener("load", function onImgLoad() {
+          img.removeEventListener("load", onImgLoad);
           onReady(img);
         });
       }
@@ -68,11 +85,11 @@
     }
 
     img = new Image();
-    img.crossOrigin = 'anonymous';
+    img.crossOrigin = "anonymous";
     decodedImageCache[dataUrl] = img;
 
-    img.addEventListener('load', function onFirstLoad() {
-      img.removeEventListener('load', onFirstLoad);
+    img.addEventListener("load", function onFirstLoad() {
+      img.removeEventListener("load", onFirstLoad);
       if (onReady) onReady(img);
     });
 
@@ -85,8 +102,8 @@
    */
   function preloadActiveAndPresetImages() {
     try {
-      const myImg = getResolvedCustomImageData('green');
-      const oppImg = getResolvedCustomImageData('red');
+      const myImg = getResolvedCustomImageData("green");
+      const oppImg = getResolvedCustomImageData("red");
       if (myImg) ensureDecodedImage(myImg, () => reloadAuraTextures());
       if (oppImg) ensureDecodedImage(oppImg, () => reloadAuraTextures());
 
@@ -113,19 +130,23 @@
    */
   function createAuraCanvas(colorType, overrideHex, targetCanvas) {
     const size = 256;
-    const canvas = targetCanvas || document.createElement('canvas');
+    const canvas = targetCanvas || document.createElement("canvas");
     canvas.width = size;
     canvas.height = size;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     const center = size / 2;
     const radius = 94; // Inner hollow diameter ~188px (73.4% of 256px)
 
     ctx.clearRect(0, 0, size, size);
 
-    const custom = (ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {};
+    const custom =
+      (ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {};
     let mainColor = overrideHex;
     if (!mainColor) {
-      mainColor = (colorType === 'green') ? (custom.myColor || '#39ff14') : (custom.oppColor || '#ff1744');
+      mainColor =
+        colorType === "green"
+          ? custom.myColor || "#39ff14"
+          : custom.oppColor || "#ff1744";
     }
 
     const outerGlow = hexToRgba(mainColor, 0.45);
@@ -179,7 +200,7 @@
     ctx.beginPath();
     ctx.arc(center, center, radius - 1.5, 0, Math.PI * 2);
     ctx.lineWidth = 1.8;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
     ctx.shadowBlur = 0;
     ctx.stroke();
 
@@ -188,11 +209,11 @@
       const angle = (i * Math.PI) / 4;
       const nx = center + Math.cos(angle) * (radius + 4);
       const ny = center + Math.sin(angle) * (radius + 4);
-      const nodeRadius = (i % 2 === 0) ? 5.2 : 3.6;
+      const nodeRadius = i % 2 === 0 ? 5.2 : 3.6;
 
       ctx.beginPath();
       ctx.arc(nx, ny, nodeRadius, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = "#ffffff";
       ctx.shadowColor = mainColor;
       ctx.shadowBlur = 12;
       ctx.fill();
@@ -212,17 +233,17 @@
    */
   function createImageAuraCanvas(colorType, customImgData) {
     const size = 256;
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement("canvas");
     canvas.width = size;
     canvas.height = size;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
 
     const img = ensureDecodedImage(customImgData, (loadedImg) => {
       try {
         ctx.clearRect(0, 0, size, size);
         ctx.drawImage(loadedImg, 0, 0, size, size);
         const cachedTex = textureCache[colorType];
-        if (cachedTex && typeof cachedTex.handleLoadedTexture === 'function') {
+        if (cachedTex && typeof cachedTex.handleLoadedTexture === "function") {
           cachedTex.handleLoadedTexture();
         }
         // Re-attach to pieces if this finished loading asynchronously after initial attach
@@ -231,7 +252,7 @@
           reloadAuraTextures();
         }
       } catch (e) {
-        console.warn('[AN Mod] Async aura image draw failed:', e);
+        console.warn("[AN Mod] Async aura image draw failed:", e);
       }
     });
 
@@ -255,27 +276,29 @@
   function getAuraTexture(colorType) {
     if (textureCache[colorType]) return textureCache[colorType];
 
-    const custom = (ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {};
-    const isImageMode = (custom.mode === 'image');
+    const custom =
+      (ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {};
+    const isImageMode = custom.mode === "image";
     const customImgData = getResolvedCustomImageData(colorType);
 
-    const canvas = (isImageMode && customImgData)
-      ? createImageAuraCanvas(colorType, customImgData)
-      : createAuraCanvas(colorType);
+    const canvas =
+      isImageMode && customImgData
+        ? createImageAuraCanvas(colorType, customImgData)
+        : createAuraCanvas(colorType);
 
     if (window.cc && cc.Texture2D) {
       try {
         const tex = new cc.Texture2D();
-        if (typeof tex.initWithElement === 'function') {
+        if (typeof tex.initWithElement === "function") {
           tex.initWithElement(canvas);
-          if (typeof tex.handleLoadedTexture === 'function') {
+          if (typeof tex.handleLoadedTexture === "function") {
             tex.handleLoadedTexture();
           }
           textureCache[colorType] = tex;
           return tex;
         }
       } catch (err) {
-        console.warn('[AN Mod] Texture2D.initWithElement failed:', err);
+        console.warn("[AN Mod] Texture2D.initWithElement failed:", err);
       }
     }
 
@@ -294,20 +317,24 @@
 
     try {
       let spr = null;
-      if (typeof cc.Sprite === 'function') {
+      if (typeof cc.Sprite === "function") {
         spr = new cc.Sprite(tex);
-      } else if (cc.Sprite && typeof cc.Sprite.create === 'function') {
+      } else if (cc.Sprite && typeof cc.Sprite.create === "function") {
         spr = cc.Sprite.create(tex);
       }
       if (spr) {
         const sz = spr.getContentSize ? spr.getContentSize() : null;
-        if ((!sz || !sz.width || sz.width <= 0) && spr.setTextureRect && cc.rect) {
+        if (
+          (!sz || !sz.width || sz.width <= 0) &&
+          spr.setTextureRect &&
+          cc.rect
+        ) {
           spr.setTextureRect(cc.rect(0, 0, 256, 256));
         }
       }
       return spr;
     } catch (e) {
-      console.warn('[AN Mod] cc.Sprite creation failed:', e);
+      console.warn("[AN Mod] cc.Sprite creation failed:", e);
     }
     return null;
   }
@@ -327,43 +354,60 @@
       sprite.setScale(baseScale);
       sprite.setOpacity(235);
 
-      const custom = (ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {};
-      const animType = custom.animation || 'spin_pulse';
-      const speed = Math.max(1.0, Math.min(8.0, Number(custom.spinSpeed) || 3.5));
+      const custom =
+        (ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {};
+      const animType = custom.animation || "spin_pulse";
+      const speed = Math.max(
+        1.0,
+        Math.min(8.0, Number(custom.spinSpeed) || 3.5),
+      );
 
-      if (animType === 'static') {
+      if (animType === "static") {
         sprite.setOpacity(245);
         return;
       }
 
-      if (animType === 'spin') {
+      if (animType === "spin") {
         const spinAction = cc.rotateBy(speed, 360).repeatForever();
         sprite.runAction(spinAction);
         return;
       }
 
-      if (animType === 'pulse') {
+      if (animType === "pulse") {
         const scaleUp = cc.scaleTo(0.75, baseScale * 1.08);
         const scaleDown = cc.scaleTo(0.75, baseScale * 0.95);
         const fadeOut = cc.fadeTo(0.75, 135);
         const fadeIn = cc.fadeTo(0.75, 255);
 
-        const pulseAction = cc.sequence(
-          cc.spawn(scaleUp, fadeIn),
-          cc.spawn(scaleDown, fadeOut)
-        ).repeatForever();
+        const pulseAction = cc
+          .sequence(cc.spawn(scaleUp, fadeIn), cc.spawn(scaleDown, fadeOut))
+          .repeatForever();
         sprite.runAction(pulseAction);
         return;
       }
 
-      if (animType === 'heartbeat') {
-        const beat1Up = cc.spawn(cc.scaleTo(0.12, baseScale * 1.15), cc.fadeTo(0.12, 255));
-        const beat1Dn = cc.spawn(cc.scaleTo(0.12, baseScale * 0.98), cc.fadeTo(0.12, 185));
-        const beat2Up = cc.spawn(cc.scaleTo(0.15, baseScale * 1.22), cc.fadeTo(0.15, 255));
-        const beat2Dn = cc.spawn(cc.scaleTo(0.2, baseScale), cc.fadeTo(0.2, 165));
+      if (animType === "heartbeat") {
+        const beat1Up = cc.spawn(
+          cc.scaleTo(0.12, baseScale * 1.15),
+          cc.fadeTo(0.12, 255),
+        );
+        const beat1Dn = cc.spawn(
+          cc.scaleTo(0.12, baseScale * 0.98),
+          cc.fadeTo(0.12, 185),
+        );
+        const beat2Up = cc.spawn(
+          cc.scaleTo(0.15, baseScale * 1.22),
+          cc.fadeTo(0.15, 255),
+        );
+        const beat2Dn = cc.spawn(
+          cc.scaleTo(0.2, baseScale),
+          cc.fadeTo(0.2, 165),
+        );
         const wait = cc.delayTime(0.7);
 
-        const heartbeat = cc.sequence(beat1Up, beat1Dn, beat2Up, beat2Dn, wait).repeatForever();
+        const heartbeat = cc
+          .sequence(beat1Up, beat1Dn, beat2Up, beat2Dn, wait)
+          .repeatForever();
         sprite.runAction(heartbeat);
         return;
       }
@@ -376,15 +420,14 @@
       const fadeOut = cc.fadeTo(0.8, 155);
       const fadeIn = cc.fadeTo(0.8, 255);
 
-      const pulseAction = cc.sequence(
-        cc.spawn(scaleUp, fadeIn),
-        cc.spawn(scaleDown, fadeOut)
-      ).repeatForever();
+      const pulseAction = cc
+        .sequence(cc.spawn(scaleUp, fadeIn), cc.spawn(scaleDown, fadeOut))
+        .repeatForever();
 
       sprite.runAction(spinAction);
       sprite.runAction(pulseAction);
     } catch (e) {
-      console.warn('[AN Mod] Failed to apply aura animation:', e);
+      console.warn("[AN Mod] Failed to apply aura animation:", e);
     }
   }
 
@@ -397,8 +440,10 @@
    * @returns {number}
    */
   function calculateAuraBaseScale(sprite, pieceWidth, colorType) {
-    const custom = (ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {};
-    const userScaleFactor = (typeof custom.scale === 'number' && custom.scale > 0) ? custom.scale : 1.0;
+    const custom =
+      (ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {};
+    const userScaleFactor =
+      typeof custom.scale === "number" && custom.scale > 0 ? custom.scale : 1.0;
 
     let sprW = 256;
     if (sprite && sprite.getContentSize) {
@@ -425,49 +470,55 @@
     if (!piece) return;
 
     if (piece.__zigaAuraGreen) {
-      try { piece.__zigaAuraGreen.removeFromParent(true); } catch (e) {}
+      try {
+        piece.__zigaAuraGreen.removeFromParent(true);
+      } catch (e) {}
       piece.__zigaAuraGreen = null;
     }
     if (piece.__zigaAuraRed) {
-      try { piece.__zigaAuraRed.removeFromParent(true); } catch (e) {}
+      try {
+        piece.__zigaAuraRed.removeFromParent(true);
+      } catch (e) {}
       piece.__zigaAuraRed = null;
     }
 
     try {
-      const size = piece.getContentSize ? piece.getContentSize() : { width: 55, height: 55 };
-      const w = (size && size.width > 0) ? size.width : 55;
-      const h = (size && size.height > 0) ? size.height : 55;
+      const size = piece.getContentSize
+        ? piece.getContentSize()
+        : { width: 55, height: 55 };
+      const w = size && size.width > 0 ? size.width : 55;
+      const h = size && size.height > 0 ? size.height : 55;
       const cx = w / 2;
       const cy = h / 2;
 
       piece.__zigaAuraAttached = true;
-      piece.__zigaAuraPieceW = (size && size.width > 0) ? size.width : 0;
+      piece.__zigaAuraPieceW = size && size.width > 0 ? size.width : 0;
 
       // 1. Green Aura Sprite (My Turn / Capture Target)
-      const greenSprite = createAuraSprite('green');
+      const greenSprite = createAuraSprite("green");
       if (greenSprite) {
         greenSprite.setPosition(cx, cy);
         if (greenSprite.setAnchorPoint) greenSprite.setAnchorPoint(0.5, 0.5);
         greenSprite.setVisible(false);
-        const greenBaseScale = calculateAuraBaseScale(greenSprite, w, 'green');
+        const greenBaseScale = calculateAuraBaseScale(greenSprite, w, "green");
         applyAuraAnimation(greenSprite, greenBaseScale);
         piece.addChild(greenSprite, 10);
         piece.__zigaAuraGreen = greenSprite;
       }
 
       // 2. Red Aura Sprite (Opponent Turn / Threatened Piece)
-      const redSprite = createAuraSprite('red');
+      const redSprite = createAuraSprite("red");
       if (redSprite) {
         redSprite.setPosition(cx, cy);
         if (redSprite.setAnchorPoint) redSprite.setAnchorPoint(0.5, 0.5);
         redSprite.setVisible(false);
-        const redBaseScale = calculateAuraBaseScale(redSprite, w, 'red');
+        const redBaseScale = calculateAuraBaseScale(redSprite, w, "red");
         applyAuraAnimation(redSprite, redBaseScale);
         piece.addChild(redSprite, 10);
         piece.__zigaAuraRed = redSprite;
       }
     } catch (err) {
-      console.warn('[AN Mod] attachAuraToPiece failed:', err);
+      console.warn("[AN Mod] attachAuraToPiece failed:", err);
     }
   }
 
@@ -476,10 +527,12 @@
    * Immediately invokes updateBoardAura so changes appear on the board in the exact same frame!
    */
   function reloadAuraTextures() {
-    delete textureCache['green'];
-    delete textureCache['red'];
+    delete textureCache["green"];
+    delete textureCache["red"];
 
-    const gameLayer = ZigaMod.getActiveGameLayer ? ZigaMod.getActiveGameLayer() : null;
+    const gameLayer = ZigaMod.getActiveGameLayer
+      ? ZigaMod.getActiveGameLayer()
+      : null;
     if (!gameLayer || !gameLayer.V || !Array.isArray(gameLayer.V)) return;
 
     for (let i = 0; i < 32; i++) {
@@ -503,18 +556,25 @@
    */
   function getPieceValue(type, row, baseRow) {
     switch (type) {
-      case 0: return 1000; // Tướng (King)
-      case 3: return 9.0;  // Xe (Chariot)
-      case 4: return 4.5;  // Pháo (Cannon)
-      case 5: return 4.0;  // Mã (Horse)
-      case 1: return 2.0;  // Sĩ (Advisor)
-      case 2: return 2.0;  // Tượng (Elephant)
+      case 0:
+        return 1000; // Tướng (King)
+      case 3:
+        return 9.0; // Xe (Chariot)
+      case 4:
+        return 4.5; // Pháo (Cannon)
+      case 5:
+        return 4.0; // Mã (Horse)
+      case 1:
+        return 2.0; // Sĩ (Advisor)
+      case 2:
+        return 2.0; // Tượng (Elephant)
       case 6: {
         // Tốt (Pawn): 1.5 before river, 2.5 after river
-        const isCrossed = (baseRow <= 2) ? (row >= 5) : (row <= 4);
+        const isCrossed = baseRow <= 2 ? row >= 5 : row <= 4;
         return isCrossed ? 2.5 : 1.5;
       }
-      default: return 1.5;
+      default:
+        return 1.5;
     }
   }
 
@@ -529,22 +589,36 @@
     const baseRow = piece.baseRow;
 
     if (c === targetCol && r === targetRow) return false;
-    if (targetCol < 0 || targetCol > 8 || targetRow < 0 || targetRow > 9) return false;
+    if (targetCol < 0 || targetCol > 8 || targetRow < 0 || targetRow > 9)
+      return false;
 
     // 0: Tướng (King) - 1 step orthogonal in Palace, or Flying General
     if (type === 0) {
-      const minR = (baseRow <= 2) ? 0 : 7;
-      const maxR = (baseRow <= 2) ? 2 : 9;
-      if (targetCol >= 3 && targetCol <= 5 && targetRow >= minR && targetRow <= maxR) {
-        if (Math.abs(c - targetCol) + Math.abs(r - targetRow) === 1) return true;
+      const minR = baseRow <= 2 ? 0 : 7;
+      const maxR = baseRow <= 2 ? 2 : 9;
+      if (
+        targetCol >= 3 &&
+        targetCol <= 5 &&
+        targetRow >= minR &&
+        targetRow <= maxR
+      ) {
+        if (Math.abs(c - targetCol) + Math.abs(r - targetRow) === 1)
+          return true;
       }
       if (c === targetCol) {
         const targetPiece = grid[targetCol][targetRow];
-        if (targetPiece && targetPiece.type === 0 && targetPiece.color !== piece.color) {
-          const step = (targetRow > r) ? 1 : -1;
+        if (
+          targetPiece &&
+          targetPiece.type === 0 &&
+          targetPiece.color !== piece.color
+        ) {
+          const step = targetRow > r ? 1 : -1;
           let blocked = false;
           for (let y = r + step; y !== targetRow; y += step) {
-            if (grid[c][y]) { blocked = true; break; }
+            if (grid[c][y]) {
+              blocked = true;
+              break;
+            }
           }
           if (!blocked) return true;
         }
@@ -554,9 +628,14 @@
 
     // 1: Sĩ (Advisor) - 1 step diagonal in Palace
     if (type === 1) {
-      const minR = (baseRow <= 2) ? 0 : 7;
-      const maxR = (baseRow <= 2) ? 2 : 9;
-      if (targetCol >= 3 && targetCol <= 5 && targetRow >= minR && targetRow <= maxR) {
+      const minR = baseRow <= 2 ? 0 : 7;
+      const maxR = baseRow <= 2 ? 2 : 9;
+      if (
+        targetCol >= 3 &&
+        targetCol <= 5 &&
+        targetRow >= minR &&
+        targetRow <= maxR
+      ) {
         return Math.abs(c - targetCol) === 1 && Math.abs(r - targetRow) === 1;
       }
       return false;
@@ -564,7 +643,7 @@
 
     // 2: Tượng (Elephant) - 2 steps diagonal, eye not blocked, cannot cross river
     if (type === 2) {
-      const riverOk = (baseRow <= 2) ? (targetRow <= 4) : (targetRow >= 5);
+      const riverOk = baseRow <= 2 ? targetRow <= 4 : targetRow >= 5;
       if (!riverOk) return false;
       if (Math.abs(c - targetCol) === 2 && Math.abs(r - targetRow) === 2) {
         const eyeC = (c + targetCol) / 2;
@@ -577,8 +656,8 @@
     // 3: Xe (Chariot) - Straight line with 0 obstacles
     if (type === 3) {
       if (c !== targetCol && r !== targetRow) return false;
-      const dc = (targetCol === c) ? 0 : (targetCol > c ? 1 : -1);
-      const dr = (targetRow === r) ? 0 : (targetRow > r ? 1 : -1);
+      const dc = targetCol === c ? 0 : targetCol > c ? 1 : -1;
+      const dr = targetRow === r ? 0 : targetRow > r ? 1 : -1;
       let curC = c + dc;
       let curR = r + dr;
       while (curC !== targetCol || curR !== targetRow) {
@@ -592,8 +671,8 @@
     // 4: Pháo (Cannon) - Straight line with EXACTLY 1 obstacle (screen / ngòi)
     if (type === 4) {
       if (c !== targetCol && r !== targetRow) return false;
-      const dc = (targetCol === c) ? 0 : (targetCol > c ? 1 : -1);
-      const dr = (targetRow === r) ? 0 : (targetRow > r ? 1 : -1);
+      const dc = targetCol === c ? 0 : targetCol > c ? 1 : -1;
+      const dr = targetRow === r ? 0 : targetRow > r ? 1 : -1;
       let curC = c + dc;
       let curR = r + dr;
       let screens = 0;
@@ -622,11 +701,12 @@
 
     // 6: Tốt (Pawn) - 1 step forward, sideways after river
     if (type === 6) {
-      const forward = (baseRow <= 2) ? 1 : -1;
-      const isCrossed = (baseRow <= 2) ? (r >= 5) : (r <= 4);
+      const forward = baseRow <= 2 ? 1 : -1;
+      const isCrossed = baseRow <= 2 ? r >= 5 : r <= 4;
 
       if (targetCol === c && targetRow === r + forward) return true;
-      if (isCrossed && targetRow === r && Math.abs(targetCol - c) === 1) return true;
+      if (isCrossed && targetRow === r && Math.abs(targetCol - c) === 1)
+        return true;
 
       return false;
     }
@@ -650,14 +730,21 @@
     const pieces = [];
     for (let i = 0; i < 32; i++) {
       const p = gameLayer.V[i];
-      if (p && !p.pa && p.fa >= 0 && p.fa <= 8 && p.rowIndex >= 0 && p.rowIndex <= 9) {
+      if (
+        p &&
+        !p.pa &&
+        p.fa >= 0 &&
+        p.fa <= 8 &&
+        p.rowIndex >= 0 &&
+        p.rowIndex <= 9
+      ) {
         pieces.push({
           index: i,
           col: p.fa,
           row: p.rowIndex,
-          type: (p.Ga !== undefined) ? p.Ga : 6,
-          color: (p.ka !== undefined) ? p.ka : Math.floor(i / 16),
-          sprite: p
+          type: p.Ga !== undefined ? p.Ga : 6,
+          color: p.ka !== undefined ? p.ka : Math.floor(i / 16),
+          sprite: p,
         });
       }
     }
@@ -666,38 +753,44 @@
 
     let redBaseRow = 0;
     let blackBaseRow = 9;
-    const redKing = pieces.find(p => p.type === 0 && p.color === 0);
-    const blackKing = pieces.find(p => p.type === 0 && p.color === 1);
-    if (redKing) redBaseRow = (redKing.row <= 2) ? 0 : 9;
-    if (blackKing) blackBaseRow = (blackKing.row <= 2) ? 0 : 9;
+    const redKing = pieces.find((p) => p.type === 0 && p.color === 0);
+    const blackKing = pieces.find((p) => p.type === 0 && p.color === 1);
+    if (redKing) redBaseRow = redKing.row <= 2 ? 0 : 9;
+    if (blackKing) blackBaseRow = blackKing.row <= 2 ? 0 : 9;
 
-    pieces.forEach(p => {
-      p.baseRow = (p.color === 0) ? redBaseRow : blackBaseRow;
+    pieces.forEach((p) => {
+      p.baseRow = p.color === 0 ? redBaseRow : blackBaseRow;
     });
 
     const grid = Array.from({ length: 9 }, () => Array(10).fill(null));
-    pieces.forEach(p => {
+    pieces.forEach((p) => {
       grid[p.col][p.row] = p;
     });
 
-    const myPieces = pieces.filter(p => p.color === myColor);
-    const oppPieces = pieces.filter(p => p.color === oppColor);
+    const myPieces = pieces.filter((p) => p.color === myColor);
+    const oppPieces = pieces.filter((p) => p.color === oppColor);
 
     // Evaluate GREEN AURAS (Opportunities: opponent pieces player can capture safely)
-    oppPieces.forEach(target => {
-      const myAttackers = myPieces.filter(a => canPieceAttackSquare(a, target.col, target.row, grid));
+    oppPieces.forEach((target) => {
+      const myAttackers = myPieces.filter((a) =>
+        canPieceAttackSquare(a, target.col, target.row, grid),
+      );
       if (myAttackers.length === 0) return;
 
-      const oppDefenders = oppPieces.filter(d => d.index !== target.index && canPieceAttackSquare(d, target.col, target.row, grid));
+      const oppDefenders = oppPieces.filter(
+        (d) =>
+          d.index !== target.index &&
+          canPieceAttackSquare(d, target.col, target.row, grid),
+      );
       const targetVal = getPieceValue(target.type, target.row, target.baseRow);
 
       let canCaptureSafely = false;
       if (oppDefenders.length === 0) {
         canCaptureSafely = true;
       } else {
-        canCaptureSafely = myAttackers.some(a => {
+        canCaptureSafely = myAttackers.some((a) => {
           const atkVal = getPieceValue(a.type, a.row, a.baseRow);
-          return (targetVal - atkVal >= 1.5);
+          return targetVal - atkVal >= 1.5;
         });
       }
 
@@ -707,20 +800,30 @@
     });
 
     // Evaluate RED AURAS (Threats: player pieces that opponent can capture profitably / hanging)
-    myPieces.forEach(myTarget => {
-      const oppAttackers = oppPieces.filter(e => canPieceAttackSquare(e, myTarget.col, myTarget.row, grid));
+    myPieces.forEach((myTarget) => {
+      const oppAttackers = oppPieces.filter((e) =>
+        canPieceAttackSquare(e, myTarget.col, myTarget.row, grid),
+      );
       if (oppAttackers.length === 0) return;
 
-      const myDefenders = myPieces.filter(d => d.index !== myTarget.index && canPieceAttackSquare(d, myTarget.col, myTarget.row, grid));
-      const targetVal = getPieceValue(myTarget.type, myTarget.row, myTarget.baseRow);
+      const myDefenders = myPieces.filter(
+        (d) =>
+          d.index !== myTarget.index &&
+          canPieceAttackSquare(d, myTarget.col, myTarget.row, grid),
+      );
+      const targetVal = getPieceValue(
+        myTarget.type,
+        myTarget.row,
+        myTarget.baseRow,
+      );
 
       let isUnderRealDanger = false;
       if (myDefenders.length === 0) {
         isUnderRealDanger = true;
       } else {
-        isUnderRealDanger = oppAttackers.some(e => {
+        isUnderRealDanger = oppAttackers.some((e) => {
           const oppVal = getPieceValue(e.type, e.row, e.baseRow);
-          return (targetVal - oppVal >= 1.5);
+          return targetVal - oppVal >= 1.5;
         });
       }
 
@@ -733,7 +836,7 @@
   }
 
   function removeOldDomAuraLayer() {
-    const old = document.getElementById('ziga-board-aura-layer');
+    const old = document.getElementById("ziga-board-aura-layer");
     if (old && old.parentElement) {
       old.parentElement.removeChild(old);
     }
@@ -742,7 +845,9 @@
   function clearBoardAura(gameLayer) {
     removeOldDomAuraLayer();
 
-    const gl = gameLayer || (ZigaMod.getActiveGameLayer ? ZigaMod.getActiveGameLayer() : null);
+    const gl =
+      gameLayer ||
+      (ZigaMod.getActiveGameLayer ? ZigaMod.getActiveGameLayer() : null);
     if (!gl || !gl.V || !Array.isArray(gl.V)) return;
 
     for (let i = 0; i < 32; i++) {
@@ -764,7 +869,12 @@
       return;
     }
 
-    if (!data || !data.gameLayer || !data.gameLayer.V || !Array.isArray(data.gameLayer.V)) {
+    if (
+      !data ||
+      !data.gameLayer ||
+      !data.gameLayer.V ||
+      !Array.isArray(data.gameLayer.V)
+    ) {
       clearBoardAura(null);
       return;
     }
@@ -772,9 +882,10 @@
     const gameLayer = data.gameLayer;
     removeOldDomAuraLayer();
 
-    const isPlaying = (gameLayer.T && typeof gameLayer.T === 'function')
-      ? (gameLayer.T().Fb === 2)
-      : (gameLayer.Yc !== undefined && gameLayer.Yc >= 0);
+    const isPlaying =
+      gameLayer.T && typeof gameLayer.T === "function"
+        ? gameLayer.T().Fb === 2
+        : gameLayer.Yc !== undefined && gameLayer.Yc >= 0;
 
     if (!isPlaying) {
       clearBoardAura(gameLayer);
@@ -787,11 +898,22 @@
       if (!p) continue;
 
       const curW = (p.getContentSize && p.getContentSize().width) || 0;
-      const greenDetached = !p.__zigaAuraGreen || (typeof p.__zigaAuraGreen.getParent === 'function' && p.__zigaAuraGreen.getParent() !== p);
-      const redDetached = !p.__zigaAuraRed || (typeof p.__zigaAuraRed.getParent === 'function' && p.__zigaAuraRed.getParent() !== p);
-      const sizeChanged = (curW > 0 && p.__zigaAuraPieceW !== curW);
+      const greenDetached =
+        !p.__zigaAuraGreen ||
+        (typeof p.__zigaAuraGreen.getParent === "function" &&
+          p.__zigaAuraGreen.getParent() !== p);
+      const redDetached =
+        !p.__zigaAuraRed ||
+        (typeof p.__zigaAuraRed.getParent === "function" &&
+          p.__zigaAuraRed.getParent() !== p);
+      const sizeChanged = curW > 0 && p.__zigaAuraPieceW !== curW;
 
-      if (!p.__zigaAuraAttached || greenDetached || redDetached || sizeChanged) {
+      if (
+        !p.__zigaAuraAttached ||
+        greenDetached ||
+        redDetached ||
+        sizeChanged
+      ) {
         attachAuraToPiece(p);
       }
     }
@@ -805,16 +927,20 @@
       }
     }
 
-    const { greenTargets, redTargets } = analyzeBoardAuras(gameLayer, data.myColor, data.oppColor);
+    const { greenTargets, redTargets } = analyzeBoardAuras(
+      gameLayer,
+      data.myColor,
+      data.oppColor,
+    );
 
-    greenTargets.forEach(idx => {
+    greenTargets.forEach((idx) => {
       const piece = gameLayer.V[idx];
       if (piece && !piece.pa && piece.__zigaAuraGreen) {
         piece.__zigaAuraGreen.setVisible(true);
       }
     });
 
-    redTargets.forEach(idx => {
+    redTargets.forEach((idx) => {
       const piece = gameLayer.V[idx];
       if (piece && !piece.pa && piece.__zigaAuraRed) {
         piece.__zigaAuraRed.setVisible(true);
@@ -835,5 +961,4 @@
   ZigaMod.reloadAuraTextures = reloadAuraTextures;
   ZigaMod.applyAuraAnimation = applyAuraAnimation;
   ZigaMod.ensureDecodedImage = ensureDecodedImage;
-
-})(window.ZigaMod = window.ZigaMod || {});
+})((window.ZigaMod = window.ZigaMod || {}));

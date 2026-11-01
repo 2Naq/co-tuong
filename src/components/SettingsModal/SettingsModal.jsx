@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { createRoot } from 'react-dom/client';
+import React, { useState, useEffect, useCallback } from "react";
+import { createRoot } from "react-dom/client";
 import {
   Settings,
   Palette,
@@ -7,66 +7,62 @@ import {
   RotateCcw,
   Save,
   Sun,
-  Moon
-} from 'lucide-react';
+  Moon,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter
-} from '@/components/ui/dialog';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { LivePreviewStage } from './LivePreviewStage';
-import { FeaturesTab } from './FeaturesTab';
-import { ThemesTab } from './ThemesTab';
-import { AuraGalleryTab } from './AuraGalleryTab';
-import { PRESET_AURAS } from '../../aura/aura_presets';
-import { uiStore, useUiStore } from '../../lib/ui_store';
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { LivePreviewStage } from "./LivePreviewStage";
+import { FeaturesTab } from "./FeaturesTab";
+import { ThemesTab } from "./ThemesTab";
+import { AuraGalleryTab } from "./AuraGalleryTab";
+import { PRESET_AURAS } from "../../aura/aura_presets";
+import { uiStore, useUiStore } from "../../lib/ui_store";
 
 const AURA_KEYS = [
-  'auraPreset',
-  'auraScale',
-  'auraSpeed',
-  'auraAnimation',
-  'customMyAuraColor',
-  'customOppAuraColor',
-  'customAuraImage'
+  "auraPreset",
+  "auraScale",
+  "auraSpeed",
+  "auraAnimation",
+  "customMyAuraColor",
+  "customOppAuraColor",
+  "customAuraImage",
 ];
 
 export function applyGlobalThemeMode(mode) {
-  const nextMode = mode === 'light' ? 'light' : 'dark';
+  const nextMode = mode === "light" ? "light" : "dark";
   uiStore.setState({ themeMode: nextMode });
   try {
-    localStorage.setItem('ziga_xiangqi_theme_mode', nextMode);
+    localStorage.setItem("ziga_xiangqi_theme_mode", nextMode);
   } catch (e) {}
 
-  if (typeof document !== 'undefined') {
-    document.documentElement.classList.toggle('dark', nextMode === 'dark');
-    const hudEl = document.getElementById('ziga-mod-widget');
-    const modalHostEl = document.getElementById('ziga-react-settings-host');
+  if (typeof document !== "undefined") {
+    document.documentElement.classList.toggle("dark", nextMode === "dark");
+    const hudEl = document.getElementById("ziga-mod-widget");
+    const modalHostEl = document.getElementById("ziga-react-settings-host");
     [hudEl, modalHostEl].forEach((el) => {
       if (!el) return;
-      el.classList.toggle('dark', nextMode === 'dark');
+      el.classList.toggle("dark", nextMode === "dark");
     });
   }
 }
 
-export function SettingsModal({
-  isOpen,
-  onClose,
-  initialTab = 'features'
-}) {
+export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
   const ZigaMod = window.ZigaMod || {};
   const defaultSettings = ZigaMod.DEFAULT_SETTINGS || {};
   const auraPresets =
     Array.isArray(ZigaMod.PRESET_AURAS) && ZigaMod.PRESET_AURAS.length > 0
       ? ZigaMod.PRESET_AURAS
       : PRESET_AURAS;
-  const themeMode = useUiStore((s) => s.themeMode) || 'dark';
+  const themeMode = useUiStore((s) => s.themeMode) || "dark";
 
   const [activeTab, setActiveTab] = useState(initialTab);
   const [draft, setDraft] = useState(() => ({
@@ -74,10 +70,10 @@ export function SettingsModal({
     ...(ZigaMod.userSettings || {}),
     auraCustom: {
       ...(defaultSettings.auraCustom || {}),
-      ...((ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {})
-    }
+      ...((ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {}),
+    },
   }));
-  const [toastMsg, setToastMsg] = useState('');
+  const [toastMsg, setToastMsg] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -86,8 +82,8 @@ export function SettingsModal({
         ...(ZigaMod.userSettings || {}),
         auraCustom: {
           ...(defaultSettings.auraCustom || {}),
-          ...((ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {})
-        }
+          ...((ZigaMod.userSettings && ZigaMod.userSettings.auraCustom) || {}),
+        },
       });
       if (initialTab) setActiveTab(initialTab);
     }
@@ -95,7 +91,7 @@ export function SettingsModal({
 
   const showToast = useCallback((msg) => {
     setToastMsg(msg);
-    setTimeout(() => setToastMsg(''), 2200);
+    setTimeout(() => setToastMsg(""), 2200);
   }, []);
 
   const syncToEngineLive = useCallback((nextDraft) => {
@@ -105,24 +101,26 @@ export function SettingsModal({
       ...nextDraft,
       auraCustom: {
         ...(mod.DEFAULT_SETTINGS?.auraCustom || {}),
-        ...(nextDraft.auraCustom || {})
-      }
+        ...(nextDraft.auraCustom || {}),
+      },
     };
-    if (typeof mod.saveSettings === 'function') {
+    if (typeof mod.saveSettings === "function") {
       mod.saveSettings();
     }
-    if (typeof mod.applySettingsVisibility === 'function') {
+    if (typeof mod.applySettingsVisibility === "function") {
       mod.applySettingsVisibility();
     }
-    if (typeof mod.reloadAuraTextures === 'function') {
+    if (typeof mod.reloadAuraTextures === "function") {
       mod.reloadAuraTextures();
     }
-    if (typeof mod.refreshBoardAuraImmediate === 'function') {
+    if (typeof mod.refreshBoardAuraImmediate === "function") {
       mod.refreshBoardAuraImmediate();
     }
     const activeData =
-      typeof mod.getActiveGameData === 'function' ? mod.getActiveGameData() : null;
-    if (activeData && typeof mod.updateBoardAura === 'function') {
+      typeof mod.getActiveGameData === "function"
+        ? mod.getActiveGameData()
+        : null;
+    if (activeData && typeof mod.updateBoardAura === "function") {
       mod.updateBoardAura(activeData);
     }
   }, []);
@@ -137,8 +135,8 @@ export function SettingsModal({
             ...patch,
             auraCustom: {
               ...prev.auraCustom,
-              ...patch.auraCustom
-            }
+              ...patch.auraCustom,
+            },
           };
         } else {
           next = { ...prev, ...patch };
@@ -147,7 +145,7 @@ export function SettingsModal({
         return next;
       });
     },
-    [syncToEngineLive]
+    [syncToEngineLive],
   );
 
   // Separate Reset #1: Reset Features Only (Preserve Aura Settings)
@@ -155,12 +153,14 @@ export function SettingsModal({
     setDraft((prev) => {
       const next = {
         ...defaultSettings,
-        auraCustom: { ...(prev.auraCustom || defaultSettings.auraCustom || {}) }
+        auraCustom: {
+          ...(prev.auraCustom || defaultSettings.auraCustom || {}),
+        },
       };
       syncToEngineLive(next);
       return next;
     });
-    showToast('Đã khôi phục mặc định các Tính Năng (Giữ nguyên Aura)!');
+    showToast("Đã khôi phục mặc định các Tính Năng (Giữ nguyên Aura)!");
   };
 
   // Separate Reset #2: Reset Aura Only (Preserve Feature Toggles)
@@ -168,12 +168,12 @@ export function SettingsModal({
     setDraft((prev) => {
       const next = {
         ...prev,
-        auraCustom: { ...(defaultSettings.auraCustom || {}) }
+        auraCustom: { ...(defaultSettings.auraCustom || {}) },
       };
       syncToEngineLive(next);
       return next;
     });
-    showToast('Đã khôi phục mặc định riêng phần Hào Quang (Aura)!');
+    showToast("Đã khôi phục mặc định riêng phần Hào Quang (Aura)!");
   };
 
   const handleSaveAndClose = () => {
@@ -182,24 +182,28 @@ export function SettingsModal({
   };
 
   const toggleThemeMode = () => {
-    const next = themeMode === 'dark' ? 'light' : 'dark';
+    const next = themeMode === "dark" ? "light" : "dark";
     applyGlobalThemeMode(next);
     showToast(
-      next === 'dark'
-        ? 'Đã chuyển sang Chế độ Tối (Dark Mode)'
-        : 'Đã chuyển sang Chế độ Sáng (Light Mode)'
+      next === "dark"
+        ? "Đã chuyển sang Chế độ Tối (Dark Mode)"
+        : "Đã chuyển sang Chế độ Sáng (Light Mode)",
     );
   };
 
   const imageCount = auraPresets.length;
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()} modal={false}>
-      <DialogContent className="sm:max-w-3xl max-h-[88vh] flex flex-col overflow-hidden">
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => !open && onClose()}
+      modal={false}
+    >
+      <DialogContent className="flex max-h-[88vh] flex-col overflow-hidden sm:max-w-3xl">
         {/* Header */}
-        <DialogHeader className="shrink-0 flex flex-row items-center justify-between border-b pb-3 pr-8">
+        <DialogHeader className="flex shrink-0 flex-row items-center justify-between border-b pr-8 pb-3">
           <div className="flex items-center gap-3">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <div className="bg-primary text-primary-foreground flex size-9 shrink-0 items-center justify-center rounded-lg">
               <Settings className="size-4" />
             </div>
             <div className="flex flex-col gap-0.5">
@@ -208,7 +212,8 @@ export function SettingsModal({
                 <Badge variant="secondary">shadcn/ui</Badge>
               </div>
               <DialogDescription>
-                Bật/tắt công cụ hỗ trợ & tùy chỉnh hào quang bàn cờ Ziga thời gian thực
+                Bật/tắt công cụ hỗ trợ & tùy chỉnh hào quang bàn cờ Ziga thời
+                gian thực
               </DialogDescription>
             </div>
           </div>
@@ -219,7 +224,7 @@ export function SettingsModal({
             onClick={toggleThemeMode}
             title="Chuyển đổi giao diện Sáng / Tối (Dark / Light Mode)"
           >
-            {themeMode === 'dark' ? (
+            {themeMode === "dark" ? (
               <>
                 <Moon />
                 <span>Dark</span>
@@ -234,8 +239,8 @@ export function SettingsModal({
         </DialogHeader>
 
         {/* Scrollable Content Body */}
-        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden py-1 pr-1 flex flex-col gap-3.5">
-          {activeTab !== 'features' && (
+        <div className="flex min-h-0 flex-1 flex-col gap-3.5 overflow-x-hidden overflow-y-auto py-1 pr-1">
+          {activeTab !== "features" && (
             <LivePreviewStage
               draft={draft}
               updateDraft={updateDraft}
@@ -286,7 +291,7 @@ export function SettingsModal({
         </div>
 
         {/* Footer with 2 Separate Reset Buttons */}
-        <DialogFooter className="shrink-0 sm:justify-between items-center">
+        <DialogFooter className="shrink-0 items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="outline"
@@ -311,7 +316,7 @@ export function SettingsModal({
             </Button>
 
             {toastMsg && (
-              <span className="ml-1 text-xs font-medium text-primary">
+              <span className="text-primary ml-1 text-xs font-medium">
                 {toastMsg}
               </span>
             )}
@@ -338,7 +343,7 @@ let modalHost = null;
 let setModalStateExternal = null;
 
 function ModalHostWrapper() {
-  const [state, setState] = useState({ open: false, tab: 'features' });
+  const [state, setState] = useState({ open: false, tab: "features" });
   useEffect(() => {
     setModalStateExternal = setState;
   }, []);
@@ -354,23 +359,23 @@ function ModalHostWrapper() {
 
 export function ensureSettingsModalMounted() {
   if (!modalHost) {
-    modalHost = document.getElementById('ziga-react-settings-host');
+    modalHost = document.getElementById("ziga-react-settings-host");
     if (!modalHost) {
-      modalHost = document.createElement('div');
-      modalHost.id = 'ziga-react-settings-host';
-      modalHost.style.position = 'fixed';
-      modalHost.style.top = '0';
-      modalHost.style.left = '0';
-      modalHost.style.width = '0';
-      modalHost.style.height = '0';
-      modalHost.style.overflow = 'visible';
-      modalHost.style.pointerEvents = 'none';
+      modalHost = document.createElement("div");
+      modalHost.id = "ziga-react-settings-host";
+      modalHost.style.position = "fixed";
+      modalHost.style.top = "0";
+      modalHost.style.left = "0";
+      modalHost.style.width = "0";
+      modalHost.style.height = "0";
+      modalHost.style.overflow = "visible";
+      modalHost.style.pointerEvents = "none";
       const savedTheme =
-        typeof localStorage !== 'undefined'
-          ? localStorage.getItem('ziga_xiangqi_theme_mode') || 'dark'
-          : 'dark';
-      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-      modalHost.className = `ziga-shadcn-root fixed inset-0 pointer-events-none z-[2147483647] ${savedTheme === 'dark' ? 'dark' : ''}`;
+        typeof localStorage !== "undefined"
+          ? localStorage.getItem("ziga_xiangqi_theme_mode") || "dark"
+          : "dark";
+      document.documentElement.classList.toggle("dark", savedTheme === "dark");
+      modalHost.className = `ziga-shadcn-root fixed inset-0 pointer-events-none z-[2147483647] ${savedTheme === "dark" ? "dark" : ""}`;
       document.body.appendChild(modalHost);
     }
     modalRoot = createRoot(modalHost);
@@ -382,7 +387,7 @@ export function mountSettingsModal() {
   ensureSettingsModalMounted();
 }
 
-export function openReactSettingsModal(tab = 'features') {
+export function openReactSettingsModal(tab = "features") {
   ensureSettingsModalMounted();
   setTimeout(() => {
     if (setModalStateExternal) {

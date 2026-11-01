@@ -1,12 +1,12 @@
-import React from 'react';
-import { AlertTriangle } from 'lucide-react';
+import React from "react";
+import { AlertTriangle } from "lucide-react";
 import {
   Alert,
   AlertTitle,
   AlertDescription,
-  AlertAction
-} from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
+  AlertAction,
+} from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 
 export function ThreatAlertCard({ threats = [], visible }) {
   const ZigaMod = window.ZigaMod || {};
@@ -31,39 +31,39 @@ export function ThreatAlertCard({ threats = [], visible }) {
               t.targetType !== undefined
                 ? t.targetType
                 : targetPiece.Ga !== undefined
-                ? targetPiece.Ga
-                : targetPiece.type;
+                  ? targetPiece.Ga
+                  : targetPiece.type;
             const targetColor =
               t.targetColor !== undefined
                 ? t.targetColor
                 : targetPiece.ka !== undefined
-                ? targetPiece.ka
-                : targetPiece.color;
+                  ? targetPiece.ka
+                  : targetPiece.color;
 
             const victimChar =
               t.targetChar ||
               (ZigaMod.getPieceChar && targetType !== undefined
                 ? ZigaMod.getPieceChar(targetType, targetColor)
-                : '?');
+                : "?");
             const victimName =
               t.targetName ||
               (ZigaMod.PIECE_DEFS?.[targetType]?.name ??
                 (ZigaMod.getPieceVnName && targetType !== undefined
                   ? ZigaMod.getPieceVnName(targetType)
-                  : 'Quân'));
+                  : "Quân"));
 
             const col = targetPiece.fa !== undefined ? targetPiece.fa : t.col;
             const row =
               targetPiece.rowIndex !== undefined
                 ? targetPiece.rowIndex
                 : targetPiece.row !== undefined
-                ? targetPiece.row
-                : t.row;
+                  ? targetPiece.row
+                  : t.row;
             const coordLabel =
               t.coordText ||
               (col !== undefined && row !== undefined
                 ? `C${col + 1}·H${row + 1}`
-                : '');
+                : "");
 
             let attackerNames = t.attackerName;
             if (!attackerNames) {
@@ -74,39 +74,46 @@ export function ThreatAlertCard({ threats = [], visible }) {
                     const aType = a.Ga !== undefined ? a.Ga : a.type;
                     return (
                       ZigaMod.PIECE_DEFS?.[aType]?.name ||
-                      (ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(aType) : 'Quân')
+                      (ZigaMod.getPieceVnName
+                        ? ZigaMod.getPieceVnName(aType)
+                        : "Quân")
                     );
                   })
-                  .join(', ');
+                  .join(", ");
               } else if (t.attacker) {
                 const aType =
                   t.attackerType !== undefined
                     ? t.attackerType
                     : t.attacker.Ga !== undefined
-                    ? t.attacker.Ga
-                    : t.attacker.type;
+                      ? t.attacker.Ga
+                      : t.attacker.type;
                 attackerNames =
                   ZigaMod.PIECE_DEFS?.[aType]?.name ||
-                  (ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(aType) : 'Đối phương');
+                  (ZigaMod.getPieceVnName
+                    ? ZigaMod.getPieceVnName(aType)
+                    : "Đối phương");
               } else {
-                attackerNames = 'Đối phương';
+                attackerNames = "Đối phương";
               }
             }
 
             return (
               <div
                 key={idx}
-                className="flex items-center justify-between gap-2 rounded-md border border-border bg-background/80 px-2.5 py-1.5 text-xs text-foreground"
+                className="border-border bg-background/80 text-foreground flex items-center justify-between gap-2 rounded-md border px-2.5 py-1.5 text-xs"
               >
                 <div className="flex items-center gap-1.5 truncate">
-                  <Badge variant="outline" className="px-1.5 py-0 font-serif font-bold text-primary">
+                  <Badge
+                    variant="outline"
+                    className="text-primary px-1.5 py-0 font-serif font-bold"
+                  >
                     {victimChar}
                   </Badge>
-                  <span className="truncate font-medium text-foreground">
-                    {victimName} {coordLabel ? `(${coordLabel})` : ''}
+                  <span className="text-foreground truncate font-medium">
+                    {victimName} {coordLabel ? `(${coordLabel})` : ""}
                   </span>
                 </div>
-                <span className="shrink-0 text-xs font-medium text-destructive">
+                <span className="text-destructive shrink-0 text-xs font-medium">
                   Bị {attackerNames} nhắm
                 </span>
               </div>

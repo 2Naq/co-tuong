@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 export class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -11,7 +11,7 @@ export class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('[ZigaMod] UI Component crashed:', error, errorInfo);
+    console.error("[ZigaMod] UI Component crashed:", error, errorInfo);
   }
 
   render() {
@@ -24,4 +24,3 @@ export class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
-

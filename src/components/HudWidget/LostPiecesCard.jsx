@@ -1,13 +1,13 @@
-import React from 'react';
+import React from "react";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardAction,
-  CardContent
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { PieceChip } from '@/components/ui/piece-token';
+  CardContent,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { PieceChip } from "@/components/ui/piece-token";
 
 export function LostPiecesCard({
   inGame,
@@ -17,7 +17,7 @@ export function LostPiecesCard({
   oppColor,
   deadMyPieces = [],
   deadOppPieces = [],
-  visible
+  visible,
 }) {
   const ZigaMod = window.ZigaMod || {};
 
@@ -36,15 +36,15 @@ export function LostPiecesCard({
       .map(Number)
       .sort(
         (a, b) =>
-          (ZigaMod.PIECE_ORDER?.[a] ?? 99) - (ZigaMod.PIECE_ORDER?.[b] ?? 99)
+          (ZigaMod.PIECE_ORDER?.[a] ?? 99) - (ZigaMod.PIECE_ORDER?.[b] ?? 99),
       );
     return sortedTypes.map((typeId) => ({
       typeId,
       count: grouped[typeId],
       char: ZigaMod.getPieceChar
         ? ZigaMod.getPieceChar(typeId, colorCode)
-        : '?',
-      vnName: ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(typeId) : ''
+        : "?",
+      vnName: ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(typeId) : "",
     }));
   };
 
@@ -57,11 +57,11 @@ export function LostPiecesCard({
       <Card size="sm">
         <CardHeader>
           <CardTitle id="ziga-opp-label" className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-destructive" />
+            <span className="bg-destructive size-2 rounded-full" />
             <span>
               {inGame
-                ? `${oppName} đã mất (${oppColor === 0 ? 'Đỏ' : 'Đen'})`
-                : 'Quân đối thủ đã mất'}
+                ? `${oppName} đã mất (${oppColor === 0 ? "Đỏ" : "Đen"})`
+                : "Quân đối thủ đã mất"}
             </span>
           </CardTitle>
           <CardAction>
@@ -76,11 +76,11 @@ export function LostPiecesCard({
             className="flex min-h-6 flex-wrap items-center gap-1.5"
           >
             {!inGame ? (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 Chờ bắt đầu ván đấu...
               </span>
             ) : oppGroups.length === 0 ? (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 Chưa mất quân nào
               </span>
             ) : (
@@ -102,11 +102,11 @@ export function LostPiecesCard({
       <Card size="sm">
         <CardHeader>
           <CardTitle id="ziga-self-label" className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-primary" />
+            <span className="bg-primary size-2 rounded-full" />
             <span>
               {inGame
-                ? `${myName} đã mất (${myColor === 0 ? 'Đỏ' : 'Đen'})`
-                : 'Quân của bạn đã mất'}
+                ? `${myName} đã mất (${myColor === 0 ? "Đỏ" : "Đen"})`
+                : "Quân của bạn đã mất"}
             </span>
           </CardTitle>
           <CardAction>
@@ -121,11 +121,11 @@ export function LostPiecesCard({
             className="flex min-h-6 flex-wrap items-center gap-1.5"
           >
             {!inGame ? (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 Chờ bắt đầu ván đấu...
               </span>
             ) : myGroups.length === 0 ? (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-muted-foreground text-xs">
                 Chưa mất quân nào
               </span>
             ) : (

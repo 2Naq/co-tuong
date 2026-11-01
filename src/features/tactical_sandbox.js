@@ -1,8 +1,8 @@
 // src/tactical_sandbox.js - Tactical simulation board with free 2-side movement, undo history & real-match timer alerts
 (function (ZigaMod) {
-  'use strict';
+  "use strict";
 
-  console.log('[AN Mod] Tactical Sandbox module initializing...');
+  console.log("[AN Mod] Tactical Sandbox module initializing...");
 
   let modalEl = null;
   let isOpen = false;
@@ -37,14 +37,17 @@
 
   function unlockAudioOnGesture() {
     audioUnlocked = true;
-    if (audioCtx && audioCtx.state === 'suspended') {
+    if (audioCtx && audioCtx.state === "suspended") {
       audioCtx.resume().catch(() => {});
     }
   }
 
-  if (typeof window !== 'undefined') {
-    ['click', 'keydown', 'pointerdown', 'touchstart'].forEach((evt) => {
-      window.addEventListener(evt, unlockAudioOnGesture, { capture: true, once: true });
+  if (typeof window !== "undefined") {
+    ["click", "keydown", "pointerdown", "touchstart"].forEach((evt) => {
+      window.addEventListener(evt, unlockAudioOnGesture, {
+        capture: true,
+        once: true,
+      });
     });
   }
 
@@ -59,9 +62,9 @@
         audioCtx = new AudioCtxClass();
       }
 
-      if (audioCtx.state === 'suspended') {
+      if (audioCtx.state === "suspended") {
         audioCtx.resume().catch(() => {});
-        if (audioCtx.state === 'suspended') return;
+        if (audioCtx.state === "suspended") return;
       }
 
       const osc = audioCtx.createOscillator();
@@ -70,19 +73,19 @@
       gain.connect(audioCtx.destination);
 
       const now = audioCtx.currentTime;
-      if (type === 'move') {
+      if (type === "move") {
         osc.frequency.setValueAtTime(480, now);
         gain.gain.setValueAtTime(0.15, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
         osc.start(now);
         osc.stop(now + 0.05);
-      } else if (type === 'capture') {
+      } else if (type === "capture") {
         osc.frequency.setValueAtTime(260, now);
         gain.gain.setValueAtTime(0.25, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
         osc.start(now);
         osc.stop(now + 0.08);
-      } else if (type === 'alert') {
+      } else if (type === "alert") {
         osc.frequency.setValueAtTime(880, now);
         gain.gain.setValueAtTime(0.25, now);
         gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
@@ -103,7 +106,7 @@
           osc2.stop(t2 + 0.15);
         }, 160);
       }
-    } catch (e) { }
+    } catch (e) {}
   }
 
   // ==========================================
@@ -111,7 +114,7 @@
   // ==========================================
   function buildBoardGrid(pieces) {
     const grid = Array.from({ length: 9 }, () => Array(10).fill(null));
-    pieces.forEach(p => {
+    pieces.forEach((p) => {
       if (!p.dead && p.col >= 0 && p.col <= 8 && p.row >= 0 && p.row <= 9) {
         grid[p.col][p.row] = p;
       }
@@ -151,7 +154,12 @@
     // 0: Tướng (General) - 1 step in Palace
     if (type === 0) {
       const palaceRows = color === 0 ? [0, 1, 2] : [7, 8, 9];
-      const deltas = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+      const deltas = [
+        [0, 1],
+        [0, -1],
+        [1, 0],
+        [-1, 0],
+      ];
       deltas.forEach(([dc, dr]) => {
         const tc = c + dc;
         const tr = r + dr;
@@ -160,7 +168,9 @@
         }
       });
       // Flying General check
-      const oppKing = currentPieces.find(p => !p.dead && p.type === 0 && p.color !== color);
+      const oppKing = currentPieces.find(
+        (p) => !p.dead && p.type === 0 && p.color !== color,
+      );
       if (oppKing && oppKing.col === c) {
         let hasObstacle = false;
         const minR = Math.min(r, oppKing.row);
@@ -180,7 +190,12 @@
     // 1: Sĩ (Advisor) - 1 diagonal step in Palace
     else if (type === 1) {
       const palaceRows = color === 0 ? [0, 1, 2] : [7, 8, 9];
-      const deltas = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+      const deltas = [
+        [1, 1],
+        [1, -1],
+        [-1, 1],
+        [-1, -1],
+      ];
       deltas.forEach(([dc, dr]) => {
         const tc = c + dc;
         const tr = r + dr;
@@ -196,7 +211,7 @@
         [2, 2, 1, 1],
         [2, -2, 1, -1],
         [-2, 2, -1, 1],
-        [-2, -2, -1, -1]
+        [-2, -2, -1, -1],
       ];
       deltas.forEach(([dc, dr, eyeDc, eyeDr]) => {
         const tc = c + dc;
@@ -214,7 +229,12 @@
 
     // 3: Xe (Rook) - Slides orthogonally
     else if (type === 3) {
-      const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+      const dirs = [
+        [0, 1],
+        [0, -1],
+        [1, 0],
+        [-1, 0],
+      ];
       dirs.forEach(([dc, dr]) => {
         let tc = c + dc;
         let tr = r + dr;
@@ -236,7 +256,12 @@
 
     // 4: Pháo (Cannon) - Slides, captures by jumping exactly 1 piece
     else if (type === 4) {
-      const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+      const dirs = [
+        [0, 1],
+        [0, -1],
+        [1, 0],
+        [-1, 0],
+      ];
       dirs.forEach(([dc, dr]) => {
         let tc = c + dc;
         let tr = r + dr;
@@ -274,7 +299,7 @@
         [1, 2, 0, 1],
         [-1, 2, 0, 1],
         [1, -2, 0, -1],
-        [-1, -2, 0, -1]
+        [-1, -2, 0, -1],
       ];
       horseMoves.forEach(([dc, dr, legDc, legDr]) => {
         const tc = c + dc;
@@ -302,8 +327,10 @@
 
       // Sideways after river
       if (isCrossRiver) {
-        if (canLand(c - 1, r)) moves.push({ col: c - 1, row: r, capture: !!grid[c - 1][r] });
-        if (canLand(c + 1, r)) moves.push({ col: c + 1, row: r, capture: !!grid[c + 1][r] });
+        if (canLand(c - 1, r))
+          moves.push({ col: c - 1, row: r, capture: !!grid[c - 1][r] });
+        if (canLand(c + 1, r))
+          moves.push({ col: c + 1, row: r, capture: !!grid[c + 1][r] });
       }
     }
 
@@ -316,21 +343,25 @@
   function createSnapshot() {
     const data = ZigaMod.getActiveGameData ? ZigaMod.getActiveGameData() : null;
     if (!data || !data.gameLayer || !data.gameLayer.V) {
-      console.warn('[AN Mod] createSnapshot: No active game layer or pieces array');
+      console.warn(
+        "[AN Mod] createSnapshot: No active game layer or pieces array",
+      );
       return null;
     }
 
-    boardOrientation = (data.myColor !== undefined && data.myColor >= 0) ? data.myColor : 0;
-    currentTurn = data.gameLayer.Yc !== undefined ? data.gameLayer.Yc : (data.myColor || 0);
+    boardOrientation =
+      data.myColor !== undefined && data.myColor >= 0 ? data.myColor : 0;
+    currentTurn =
+      data.gameLayer.Yc !== undefined ? data.gameLayer.Yc : data.myColor || 0;
 
     const pieces = [];
     for (let i = 0; i < 32; i++) {
       const p = data.gameLayer.V[i];
       if (p) {
-        const pType = (p.Ga !== undefined) ? p.Ga : 6;
-        const pColor = (p.ka !== undefined) ? p.ka : (i < 16 ? 0 : 1);
-        const pCol = (p.fa !== undefined) ? p.fa : 0;
-        const pRow = (p.rowIndex !== undefined) ? p.rowIndex : 0;
+        const pType = p.Ga !== undefined ? p.Ga : 6;
+        const pColor = p.ka !== undefined ? p.ka : i < 16 ? 0 : 1;
+        const pCol = p.fa !== undefined ? p.fa : 0;
+        const pRow = p.rowIndex !== undefined ? p.rowIndex : 0;
         const pDead = !!p.pa;
 
         pieces.push({
@@ -340,8 +371,13 @@
           col: pCol,
           row: pRow,
           dead: pDead,
-          name: (ZigaMod.PIECE_DEFS && ZigaMod.PIECE_DEFS[pType]) ? ZigaMod.PIECE_DEFS[pType].name : 'Quân',
-          char: (ZigaMod.getPieceChar) ? ZigaMod.getPieceChar(pType, pColor) : '?'
+          name:
+            ZigaMod.PIECE_DEFS && ZigaMod.PIECE_DEFS[pType]
+              ? ZigaMod.PIECE_DEFS[pType].name
+              : "Quân",
+          char: ZigaMod.getPieceChar
+            ? ZigaMod.getPieceChar(pType, pColor)
+            : "?",
         });
       }
     }
@@ -353,7 +389,7 @@
       oppName: data.oppName,
       myName: data.myName,
       currentTurn: currentTurn,
-      boardOrientation: boardOrientation
+      boardOrientation: boardOrientation,
     };
   }
 
@@ -367,18 +403,22 @@
       return modalEl;
     }
 
-    const existing = document.getElementById('ziga-sandbox-modal');
+    const existing = document.getElementById("ziga-sandbox-modal");
     if (existing) {
       modalEl = existing;
       return modalEl;
     }
 
-    modalEl = document.createElement('div');
-    modalEl.id = 'ziga-sandbox-modal';
-    modalEl.className = 'ziga-sandbox-overlay hidden';
-    modalEl.style.setProperty('display', 'none', 'important');
+    modalEl = document.createElement("div");
+    modalEl.id = "ziga-sandbox-modal";
+    modalEl.className = "ziga-sandbox-overlay hidden";
+    modalEl.style.setProperty("display", "none", "important");
 
-    const logoUrl = (document.documentElement && document.documentElement.dataset && document.documentElement.dataset.zigaLogoUrl) || '';
+    const logoUrl =
+      (document.documentElement &&
+        document.documentElement.dataset &&
+        document.documentElement.dataset.zigaLogoUrl) ||
+      "";
 
     modalEl.innerHTML = `
       <div class="ziga-sb-card" id="ziga-sb-card">
@@ -549,37 +589,37 @@
     }
 
     // Wire events with safe null checks
-    const btnClose = document.getElementById('ziga-sb-btn-close');
-    if (btnClose) btnClose.addEventListener('click', closeTacticalSandbox);
+    const btnClose = document.getElementById("ziga-sb-btn-close");
+    if (btnClose) btnClose.addEventListener("click", closeTacticalSandbox);
 
-    const btnExit = document.getElementById('ziga-sb-btn-exit');
-    if (btnExit) btnExit.addEventListener('click', closeTacticalSandbox);
+    const btnExit = document.getElementById("ziga-sb-btn-exit");
+    if (btnExit) btnExit.addEventListener("click", closeTacticalSandbox);
 
-    const flankJump = document.getElementById('ziga-sb-flank-jump');
-    if (flankJump) flankJump.addEventListener('click', closeTacticalSandbox);
+    const flankJump = document.getElementById("ziga-sb-flank-jump");
+    if (flankJump) flankJump.addEventListener("click", closeTacticalSandbox);
 
-    const flankDismiss = document.getElementById('ziga-sb-flank-dismiss');
+    const flankDismiss = document.getElementById("ziga-sb-flank-dismiss");
     if (flankDismiss) {
-      flankDismiss.addEventListener('click', (e) => {
+      flankDismiss.addEventListener("click", (e) => {
         e.stopPropagation();
         userDismissedAlertThisTurn = true;
-        const flankL = document.getElementById('ziga-sb-flank-left');
-        const boardArea = document.getElementById('ziga-sb-board-area');
-        if (flankL) flankL.classList.remove('urgent');
-        if (boardArea) boardArea.classList.remove('flank-alert-active');
-        flankDismiss.style.display = 'none';
+        const flankL = document.getElementById("ziga-sb-flank-left");
+        const boardArea = document.getElementById("ziga-sb-board-area");
+        if (flankL) flankL.classList.remove("urgent");
+        if (boardArea) boardArea.classList.remove("flank-alert-active");
+        flankDismiss.style.display = "none";
       });
     }
 
-    const btnUndo = document.getElementById('ziga-sb-btn-undo');
-    if (btnUndo) btnUndo.addEventListener('click', undoMove);
+    const btnUndo = document.getElementById("ziga-sb-btn-undo");
+    if (btnUndo) btnUndo.addEventListener("click", undoMove);
 
-    const btnReset = document.getElementById('ziga-sb-btn-reset');
-    if (btnReset) btnReset.addEventListener('click', resetBoard);
+    const btnReset = document.getElementById("ziga-sb-btn-reset");
+    if (btnReset) btnReset.addEventListener("click", resetBoard);
 
-    const turnBtn = document.getElementById('ziga-sb-turn-btn');
+    const turnBtn = document.getElementById("ziga-sb-turn-btn");
     if (turnBtn) {
-      turnBtn.addEventListener('click', () => {
+      turnBtn.addEventListener("click", () => {
         currentTurn = 1 - currentTurn;
         selectedPiece = null;
         legalDestinations = [];
@@ -588,9 +628,9 @@
       });
     }
 
-    const freeCheck = document.getElementById('ziga-sb-free-mode-check');
+    const freeCheck = document.getElementById("ziga-sb-free-mode-check");
     if (freeCheck) {
-      freeCheck.addEventListener('change', (e) => {
+      freeCheck.addEventListener("change", (e) => {
         freeMoveMode = e.target.checked;
         if (selectedPiece) {
           const grid = buildBoardGrid(currentPieces);
@@ -601,8 +641,8 @@
     }
 
     // Close on Escape key
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && isOpen) {
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && isOpen) {
         closeTacticalSandbox();
       }
     });
@@ -614,8 +654,8 @@
   }
 
   function setupModalDrag() {
-    const handle = document.getElementById('ziga-sb-drag-handle');
-    const card = document.getElementById('ziga-sb-card');
+    const handle = document.getElementById("ziga-sb-drag-handle");
+    const card = document.getElementById("ziga-sb-card");
     if (!handle || !card) return;
 
     let isDragging = false;
@@ -624,33 +664,49 @@
     let origLeft = 0;
     let origTop = 0;
 
-    handle.addEventListener('mousedown', (e) => {
-      if (e.target.closest('button')) return;
+    handle.addEventListener("mousedown", (e) => {
+      if (e.target.closest("button")) return;
       isDragging = true;
       startX = e.clientX;
       startY = e.clientY;
       const rect = card.getBoundingClientRect();
       origLeft = rect.left;
       origTop = rect.top;
-      card.style.position = 'fixed';
-      card.style.margin = '0';
-      card.style.left = origLeft + 'px';
-      card.style.top = origTop + 'px';
+      card.style.position = "fixed";
+      card.style.margin = "0";
+      card.style.left = origLeft + "px";
+      card.style.top = origTop + "px";
       e.preventDefault();
     });
 
-    window.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      card.style.left = Math.max(10, Math.min(window.innerWidth - card.offsetWidth - 10, origLeft + dx)) + 'px';
-      card.style.top = Math.max(10, Math.min(window.innerHeight - card.offsetHeight - 10, origTop + dy)) + 'px';
-      e.preventDefault();
-    }, { capture: true });
+    window.addEventListener(
+      "mousemove",
+      (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        card.style.left =
+          Math.max(
+            10,
+            Math.min(window.innerWidth - card.offsetWidth - 10, origLeft + dx),
+          ) + "px";
+        card.style.top =
+          Math.max(
+            10,
+            Math.min(window.innerHeight - card.offsetHeight - 10, origTop + dy),
+          ) + "px";
+        e.preventDefault();
+      },
+      { capture: true },
+    );
 
-    window.addEventListener('mouseup', () => {
-      isDragging = false;
-    }, { capture: true });
+    window.addEventListener(
+      "mouseup",
+      () => {
+        isDragging = false;
+      },
+      { capture: true },
+    );
   }
 
   // ==========================================
@@ -672,8 +728,8 @@
       displayCol = 8 - col;
     }
 
-    const leftPct = (25 + displayCol * 43.75) / 400 * 100;
-    const topPct = (25 + displayRow * 44.44) / 450 * 100;
+    const leftPct = ((25 + displayCol * 43.75) / 400) * 100;
+    const topPct = ((25 + displayRow * 44.44) / 450) * 100;
     return { leftPct, topPct };
   }
 
@@ -681,24 +737,28 @@
   // Board Rendering
   // ==========================================
   function renderBoard() {
-    const piecesLayer = document.getElementById('ziga-sb-pieces-layer');
+    const piecesLayer = document.getElementById("ziga-sb-pieces-layer");
     if (!piecesLayer) return;
 
-    piecesLayer.innerHTML = '';
+    piecesLayer.innerHTML = "";
 
-    currentPieces.forEach(p => {
+    currentPieces.forEach((p) => {
       if (p.dead) return;
 
       const { leftPct, topPct } = getSquarePosPercent(p.col, p.row);
       const isSelected = selectedPiece && selectedPiece.index === p.index;
-      const isCapturableTarget = selectedPiece && legalDestinations.some(d => d.col === p.col && d.row === p.row && d.capture);
-      const isTurnPiece = freeMoveMode || (p.color === currentTurn);
+      const isCapturableTarget =
+        selectedPiece &&
+        legalDestinations.some(
+          (d) => d.col === p.col && d.row === p.row && d.capture,
+        );
+      const isTurnPiece = freeMoveMode || p.color === currentTurn;
 
-      const pieceEl = document.createElement('div');
-      pieceEl.className = `ziga-sb-piece ${p.color === 0 ? 'red-piece' : 'black-piece'} ${isSelected ? 'selected' : ''} ${isTurnPiece ? 'active-turn' : 'inactive-turn'} ${isCapturableTarget ? 'capturable' : ''}`;
-      pieceEl.style.left = leftPct + '%';
-      pieceEl.style.top = topPct + '%';
-      pieceEl.title = `${p.color === 0 ? 'Phe Đỏ' : 'Phe Đen'}: ${p.name}${!isTurnPiece && !freeMoveMode ? ' (Chờ đến lượt)' : ''}`;
+      const pieceEl = document.createElement("div");
+      pieceEl.className = `ziga-sb-piece ${p.color === 0 ? "red-piece" : "black-piece"} ${isSelected ? "selected" : ""} ${isTurnPiece ? "active-turn" : "inactive-turn"} ${isCapturableTarget ? "capturable" : ""}`;
+      pieceEl.style.left = leftPct + "%";
+      pieceEl.style.top = topPct + "%";
+      pieceEl.title = `${p.color === 0 ? "Phe Đỏ" : "Phe Đen"}: ${p.name}${!isTurnPiece && !freeMoveMode ? " (Chờ đến lượt)" : ""}`;
 
       pieceEl.innerHTML = `
         <div class="ziga-sb-piece-inner">
@@ -706,7 +766,7 @@
         </div>
       `;
 
-      pieceEl.addEventListener('click', (e) => {
+      pieceEl.addEventListener("click", (e) => {
         e.stopPropagation();
         handlePieceClick(p);
       });
@@ -719,23 +779,25 @@
   }
 
   function renderDestinations() {
-    const destLayer = document.getElementById('ziga-sb-dest-layer');
+    const destLayer = document.getElementById("ziga-sb-dest-layer");
     if (!destLayer) return;
 
-    destLayer.innerHTML = '';
+    destLayer.innerHTML = "";
 
     if (!selectedPiece || legalDestinations.length === 0) return;
 
-    legalDestinations.forEach(dest => {
+    legalDestinations.forEach((dest) => {
       const { leftPct, topPct } = getSquarePosPercent(dest.col, dest.row);
 
-      const marker = document.createElement('div');
-      marker.className = `ziga-sb-dest-dot ${dest.capture ? 'capture' : 'move'}`;
-      marker.style.left = leftPct + '%';
-      marker.style.top = topPct + '%';
-      marker.title = dest.capture ? `Ăn quân tại ô (${dest.col}, ${dest.row})` : `Đi đến ô (${dest.col}, ${dest.row})`;
+      const marker = document.createElement("div");
+      marker.className = `ziga-sb-dest-dot ${dest.capture ? "capture" : "move"}`;
+      marker.style.left = leftPct + "%";
+      marker.style.top = topPct + "%";
+      marker.title = dest.capture
+        ? `Ăn quân tại ô (${dest.col}, ${dest.row})`
+        : `Đi đến ô (${dest.col}, ${dest.row})`;
 
-      marker.addEventListener('click', (e) => {
+      marker.addEventListener("click", (e) => {
         e.stopPropagation();
         executeMove(selectedPiece, dest.col, dest.row);
       });
@@ -746,7 +808,12 @@
 
   function handlePieceClick(p) {
     // If a piece is already selected and we click an enemy target in legalDestinations: execute capture!
-    if (selectedPiece && legalDestinations.some(d => d.col === p.col && d.row === p.row && d.capture)) {
+    if (
+      selectedPiece &&
+      legalDestinations.some(
+        (d) => d.col === p.col && d.row === p.row && d.capture,
+      )
+    ) {
       executeMove(selectedPiece, p.col, p.row);
       return;
     }
@@ -772,7 +839,9 @@
   }
 
   function executeMove(piece, toCol, toRow) {
-    const destPiece = currentPieces.find(p => !p.dead && p.col === toCol && p.row === toRow);
+    const destPiece = currentPieces.find(
+      (p) => !p.dead && p.col === toCol && p.row === toRow,
+    );
 
     // Save to history with pieceColor tracking
     moveHistory.push({
@@ -783,15 +852,15 @@
       toRow: toRow,
       pieceColor: piece.color,
       capturedPiece: destPiece ? { ...destPiece } : null,
-      previousTurn: currentTurn
+      previousTurn: currentTurn,
     });
 
     // Execute capture
     if (destPiece) {
       destPiece.dead = true;
-      playSound('capture');
+      playSound("capture");
     } else {
-      playSound('move');
+      playSound("move");
     }
 
     // Move piece
@@ -813,7 +882,7 @@
     if (moveHistory.length === 0) return;
 
     const last = moveHistory.pop();
-    const piece = currentPieces.find(p => p.index === last.pieceIndex);
+    const piece = currentPieces.find((p) => p.index === last.pieceIndex);
     if (piece) {
       piece.col = last.fromCol;
       piece.row = last.fromRow;
@@ -821,7 +890,9 @@
 
     // Restore captured piece if any
     if (last.capturedPiece) {
-      const captured = currentPieces.find(p => p.index === last.capturedPiece.index);
+      const captured = currentPieces.find(
+        (p) => p.index === last.capturedPiece.index,
+      );
       if (captured) {
         captured.dead = false;
         captured.col = last.capturedPiece.col;
@@ -835,7 +906,7 @@
     selectedPiece = null;
     legalDestinations = [];
 
-    playSound('move');
+    playSound("move");
     renderBoard();
   }
 
@@ -848,36 +919,37 @@
     legalDestinations = [];
 
     updateTurnIndicator();
-    playSound('move');
+    playSound("move");
     renderBoard();
   }
 
   function updateTurnIndicator() {
-    const dot = document.getElementById('ziga-sb-turn-dot');
-    const txt = document.getElementById('ziga-sb-turn-text');
+    const dot = document.getElementById("ziga-sb-turn-dot");
+    const txt = document.getElementById("ziga-sb-turn-text");
     if (!dot || !txt) return;
 
     if (currentTurn === 0) {
-      dot.className = 'ziga-sb-turn-dot red';
-      txt.textContent = 'Phe Đỏ';
+      dot.className = "ziga-sb-turn-dot red";
+      txt.textContent = "Phe Đỏ";
     } else {
-      dot.className = 'ziga-sb-turn-dot black';
-      txt.textContent = 'Phe Đen';
+      dot.className = "ziga-sb-turn-dot black";
+      txt.textContent = "Phe Đen";
     }
   }
 
   function updateSubbarStats() {
-    const counter = document.getElementById('ziga-sb-move-counter');
-    const undoBtn = document.getElementById('ziga-sb-btn-undo');
+    const counter = document.getElementById("ziga-sb-move-counter");
+    const undoBtn = document.getElementById("ziga-sb-btn-undo");
     if (counter) {
-      const redMoves = moveHistory.filter(m => m.pieceColor === 0).length;
-      const blackMoves = moveHistory.filter(m => m.pieceColor === 1).length;
+      const redMoves = moveHistory.filter((m) => m.pieceColor === 0).length;
+      const blackMoves = moveHistory.filter((m) => m.pieceColor === 1).length;
       counter.innerHTML = `Đã thử: <span class="ziga-sb-move-tag red" title="Nước đã thử phe Đỏ">🔴 Đỏ: <strong>${redMoves}</strong></span> <span class="ziga-sb-move-tag black" title="Nước đã thử phe Đen">⚫ Đen: <strong>${blackMoves}</strong></span>`;
     }
     if (undoBtn) {
       undoBtn.disabled = moveHistory.length === 0;
-      undoBtn.style.opacity = moveHistory.length === 0 ? '0.45' : '1';
-      undoBtn.style.cursor = moveHistory.length === 0 ? 'not-allowed' : 'pointer';
+      undoBtn.style.opacity = moveHistory.length === 0 ? "0.45" : "1";
+      undoBtn.style.cursor =
+        moveHistory.length === 0 ? "not-allowed" : "pointer";
     }
   }
 
@@ -893,50 +965,86 @@
 
     // Check table from gameLayer.T()
     try {
-      const table = (gl.T && typeof gl.T === 'function') ? gl.T() : null;
+      const table = gl.T && typeof gl.T === "function" ? gl.T() : null;
       if (table) {
-        for (const p of ['timePerTurn', 'turnTime', 'timeCountDown', 'countDownTime', 'turnDuration', 'maxTurnTime']) {
-          if (typeof table[p] === 'number' && table[p] >= 10 && table[p] <= 300) {
+        for (const p of [
+          "timePerTurn",
+          "turnTime",
+          "timeCountDown",
+          "countDownTime",
+          "turnDuration",
+          "maxTurnTime",
+        ]) {
+          if (
+            typeof table[p] === "number" &&
+            table[p] >= 10 &&
+            table[p] <= 300
+          ) {
             return table[p];
           }
         }
       }
-    } catch (e) { }
+    } catch (e) {}
 
     // Check LogicManager
     try {
-      const logicMgr = window.BkLogicManager ? window.BkLogicManager.na() : null;
+      const logicMgr = window.BkLogicManager
+        ? window.BkLogicManager.na()
+        : null;
       if (logicMgr) {
         const table = logicMgr.curTable || logicMgr.tableData || logicMgr.oa;
         if (table) {
-          for (const p of ['timePerTurn', 'turnTime', 'timeCountDown', 'countDownTime', 'turnDuration', 'maxTurnTime']) {
-            if (typeof table[p] === 'number' && table[p] >= 10 && table[p] <= 300) {
+          for (const p of [
+            "timePerTurn",
+            "turnTime",
+            "timeCountDown",
+            "countDownTime",
+            "turnDuration",
+            "maxTurnTime",
+          ]) {
+            if (
+              typeof table[p] === "number" &&
+              table[p] >= 10 &&
+              table[p] <= 300
+            ) {
               return table[p];
             }
           }
         }
       }
-    } catch (e) { }
+    } catch (e) {}
 
     // Direct gameLayer properties
-    const props = ['turnTime', 'timePerTurn', 'timeCountDown', 'countDownTime', 'maxTurnTime', 'turnDuration', 'timeOut'];
+    const props = [
+      "turnTime",
+      "timePerTurn",
+      "timeCountDown",
+      "countDownTime",
+      "maxTurnTime",
+      "turnDuration",
+      "timeOut",
+    ];
     for (const p of props) {
-      if (typeof gl[p] === 'number' && gl[p] >= 10 && gl[p] <= 300) {
+      if (typeof gl[p] === "number" && gl[p] >= 10 && gl[p] <= 300) {
         return gl[p];
       }
     }
 
     // Player node properties
-    const pNode = (data.myColor === 0) ? gl.gc : gl.dc;
+    const pNode = data.myColor === 0 ? gl.gc : gl.dc;
     if (pNode) {
-      for (const p of ['turnTime', 'maxTurnTime', 'timePerTurn']) {
-        if (typeof pNode[p] === 'number' && pNode[p] >= 10 && pNode[p] <= 300) {
+      for (const p of ["turnTime", "maxTurnTime", "timePerTurn"]) {
+        if (typeof pNode[p] === "number" && pNode[p] >= 10 && pNode[p] <= 300) {
           return pNode[p];
         }
       }
       if (pNode.Z) {
-        for (const p of ['turnTime', 'maxTurnTime', 'timePerTurn']) {
-          if (typeof pNode.Z[p] === 'number' && pNode.Z[p] >= 10 && pNode.Z[p] <= 300) {
+        for (const p of ["turnTime", "maxTurnTime", "timePerTurn"]) {
+          if (
+            typeof pNode.Z[p] === "number" &&
+            pNode.Z[p] >= 10 &&
+            pNode.Z[p] <= 300
+          ) {
             return pNode.Z[p];
           }
         }
@@ -949,7 +1057,7 @@
   // 1. Dedicated Extractor for Green Radial Progress Ring (cc.ProgressTimer around avatar)
   function findGreenProgressTimer(gl, targetColor) {
     if (!gl) return null;
-    const pNode = (targetColor === 0) ? gl.gc : gl.dc;
+    const pNode = targetColor === 0 ? gl.gc : gl.dc;
     if (!pNode) return null;
 
     function searchProgress(node, depth) {
@@ -957,29 +1065,51 @@
 
       // Direct getPercentage() check (standard Cocos2d cc.ProgressTimer)
       try {
-        if (typeof node.getPercentage === 'function') {
+        if (typeof node.getPercentage === "function") {
           const p = node.getPercentage();
-          if (typeof p === 'number' && !isNaN(p) && p >= 0 && p <= 100) {
+          if (typeof p === "number" && !isNaN(p) && p >= 0 && p <= 100) {
             return p;
           }
         }
-      } catch (e) { }
+      } catch (e) {}
 
       // Direct percentage properties
-      for (const prop of ['_percentage', 'percentage', '_percent', 'percent']) {
-        if (typeof node[prop] === 'number' && !isNaN(node[prop]) && node[prop] >= 0 && node[prop] <= 100) {
+      for (const prop of ["_percentage", "percentage", "_percent", "percent"]) {
+        if (
+          typeof node[prop] === "number" &&
+          !isNaN(node[prop]) &&
+          node[prop] >= 0 &&
+          node[prop] <= 100
+        ) {
           return node[prop];
         }
       }
 
       // Cocos2d ProgressTimer distinctive signatures (midPoint / barChangeRate)
-      if (node.midPoint && (node.barChangeRate || typeof node.getType === 'function')) {
-        const p = (typeof node._percentage === 'number') ? node._percentage : node.percentage;
-        if (typeof p === 'number' && !isNaN(p) && p >= 0 && p <= 100) return p;
+      if (
+        node.midPoint &&
+        (node.barChangeRate || typeof node.getType === "function")
+      ) {
+        const p =
+          typeof node._percentage === "number"
+            ? node._percentage
+            : node.percentage;
+        if (typeof p === "number" && !isNaN(p) && p >= 0 && p <= 100) return p;
       }
 
       // Check known member variables on node
-      for (const k of ['progressTimer', 'progress', 'timer', 'cdTimer', 'cd', 'avatarTimer', 'circleProgress', 'timePrg', 'remainTimer', 'prgTimer']) {
+      for (const k of [
+        "progressTimer",
+        "progress",
+        "timer",
+        "cdTimer",
+        "cd",
+        "avatarTimer",
+        "circleProgress",
+        "timePrg",
+        "remainTimer",
+        "prgTimer",
+      ]) {
         if (node[k]) {
           const res = searchProgress(node[k], depth - 1);
           if (res !== null) return res;
@@ -987,7 +1117,7 @@
       }
 
       // Recursively search children
-      if (node.getChildren && typeof node.getChildren === 'function') {
+      if (node.getChildren && typeof node.getChildren === "function") {
         try {
           const children = node.getChildren();
           if (children && children.length) {
@@ -996,7 +1126,7 @@
               if (res !== null) return res;
             }
           }
-        } catch (e) { }
+        } catch (e) {}
       }
       return null;
     }
@@ -1007,30 +1137,33 @@
   // 2. Dedicated Extractor for Total Match Clock (e.g. 12:26 under avatar)
   function findTotalMatchTime(gl, targetColor) {
     if (!gl) return null;
-    const pNode = (targetColor === 0) ? gl.gc : gl.dc;
+    const pNode = targetColor === 0 ? gl.gc : gl.dc;
 
     function searchForTimeStr(node, depth) {
       if (!node || depth < 0) return null;
       try {
-        if (typeof node.isVisible === 'function' && !node.isVisible()) return null;
-      } catch (e) { }
+        if (typeof node.isVisible === "function" && !node.isVisible())
+          return null;
+      } catch (e) {}
 
-      if (typeof node.getString === 'function') {
+      if (typeof node.getString === "function") {
         try {
-          const str = (node.getString() || '').trim();
+          const str = (node.getString() || "").trim();
           const m = str.match(/(?:^|[^\d])(\d{1,2}:\d{2})(?:[^\d]|$)/);
           if (m) return m[1];
-        } catch (e) { }
+        } catch (e) {}
       }
 
-      for (const prop of ['string', '_string', 'text', '_text']) {
-        if (typeof node[prop] === 'string') {
-          const m = node[prop].trim().match(/(?:^|[^\d])(\d{1,2}:\d{2})(?:[^\d]|$)/);
+      for (const prop of ["string", "_string", "text", "_text"]) {
+        if (typeof node[prop] === "string") {
+          const m = node[prop]
+            .trim()
+            .match(/(?:^|[^\d])(\d{1,2}:\d{2})(?:[^\d]|$)/);
           if (m) return m[1];
         }
       }
 
-      if (node.getChildren && typeof node.getChildren === 'function') {
+      if (node.getChildren && typeof node.getChildren === "function") {
         try {
           const children = node.getChildren();
           if (children && children.length) {
@@ -1039,7 +1172,7 @@
               if (res) return res;
             }
           }
-        } catch (e) { }
+        } catch (e) {}
       }
       return null;
     }
@@ -1051,7 +1184,7 @@
     }
 
     // Then search other gameLayer children
-    if (gl.getChildren && typeof gl.getChildren === 'function') {
+    if (gl.getChildren && typeof gl.getChildren === "function") {
       try {
         const children = gl.getChildren();
         if (children) {
@@ -1063,7 +1196,7 @@
             }
           }
         }
-      } catch (e) { }
+      } catch (e) {}
     }
 
     return null;
@@ -1073,15 +1206,15 @@
     if (!node || maxDepth < 0) return null;
 
     try {
-      if (typeof node.isVisible === 'function' && !node.isVisible()) {
+      if (typeof node.isVisible === "function" && !node.isVisible()) {
         return null;
       }
-    } catch (e) { }
+    } catch (e) {}
 
     // Direct string value check
-    if (typeof node.getString === 'function') {
+    if (typeof node.getString === "function") {
       try {
-        const str = (node.getString() || '').trim();
+        const str = (node.getString() || "").trim();
         if (str) {
           const ss = str.match(/^(\d{1,3})s?$/);
           if (ss) {
@@ -1089,27 +1222,39 @@
             if (s >= 0 && s <= 300) return s;
           }
         }
-      } catch (e) { }
+      } catch (e) {}
     }
 
     // Direct numeric property check
-    for (const k of ['remainTime', 'countDown', 'currentTime', 'timeRemain', 'turnRemainTime', 'currentRemainTime', '_remainTime', '_time']) {
-      if (typeof node[k] === 'number' && node[k] >= 0 && node[k] <= 300) {
+    for (const k of [
+      "remainTime",
+      "countDown",
+      "currentTime",
+      "timeRemain",
+      "turnRemainTime",
+      "currentRemainTime",
+      "_remainTime",
+      "_time",
+    ]) {
+      if (typeof node[k] === "number" && node[k] >= 0 && node[k] <= 300) {
         return Math.round(node[k]);
       }
     }
 
     // Recursive search on children
-    if (node.getChildren && typeof node.getChildren === 'function') {
+    if (node.getChildren && typeof node.getChildren === "function") {
       try {
         const children = node.getChildren();
         if (children && children.length) {
           for (let i = 0; i < children.length; i++) {
-            const found = searchCocosNodeForCountdown(children[i], maxDepth - 1);
+            const found = searchCocosNodeForCountdown(
+              children[i],
+              maxDepth - 1,
+            );
             if (found !== null) return found;
           }
         }
-      } catch (e) { }
+      } catch (e) {}
     }
 
     return null;
@@ -1118,8 +1263,8 @@
   function getLiveCountdown(data, targetColor) {
     if (!data || !data.gameLayer) return null;
     const gl = data.gameLayer;
-    const color = (targetColor !== undefined) ? targetColor : data.myColor;
-    const pNode = (color === 0) ? gl.gc : gl.dc;
+    const color = targetColor !== undefined ? targetColor : data.myColor;
+    const pNode = color === 0 ? gl.gc : gl.dc;
 
     // 1. Search player node view and data
     if (pNode) {
@@ -1127,8 +1272,18 @@
       if (pFound !== null) return pFound;
 
       if (pNode.Z) {
-        for (const k of ['remainTime', 'countDown', 'time', 'turnTime', 'timeRemain']) {
-          if (typeof pNode.Z[k] === 'number' && pNode.Z[k] >= 0 && pNode.Z[k] <= 300) {
+        for (const k of [
+          "remainTime",
+          "countDown",
+          "time",
+          "turnTime",
+          "timeRemain",
+        ]) {
+          if (
+            typeof pNode.Z[k] === "number" &&
+            pNode.Z[k] >= 0 &&
+            pNode.Z[k] <= 300
+          ) {
             return Math.round(pNode.Z[k]);
           }
         }
@@ -1136,23 +1291,39 @@
     }
 
     // 2. Search gameLayer direct properties
-    for (const p of ['remainTime', 'countDown', 'currentTime', 'timeRemain', 'turnRemainTime']) {
-      if (typeof gl[p] === 'number' && gl[p] >= 0 && gl[p] <= 300) {
+    for (const p of [
+      "remainTime",
+      "countDown",
+      "currentTime",
+      "timeRemain",
+      "turnRemainTime",
+    ]) {
+      if (typeof gl[p] === "number" && gl[p] >= 0 && gl[p] <= 300) {
         return Math.round(gl[p]);
       }
     }
 
     // 3. Search table object
     try {
-      const table = (gl.T && typeof gl.T === 'function') ? gl.T() : null;
+      const table = gl.T && typeof gl.T === "function" ? gl.T() : null;
       if (table) {
-        for (const p of ['remainTime', 'countDown', 'currentTime', 'timeRemain', 'turnRemainTime']) {
-          if (typeof table[p] === 'number' && table[p] >= 0 && table[p] <= 300) {
+        for (const p of [
+          "remainTime",
+          "countDown",
+          "currentTime",
+          "timeRemain",
+          "turnRemainTime",
+        ]) {
+          if (
+            typeof table[p] === "number" &&
+            table[p] >= 0 &&
+            table[p] <= 300
+          ) {
             return Math.round(table[p]);
           }
         }
       }
-    } catch (e) { }
+    } catch (e) {}
 
     return null;
   }
@@ -1161,49 +1332,72 @@
     const s = Math.max(0, Math.floor(seconds));
     const mm = Math.floor(s / 60);
     const ss = s % 60;
-    return mm > 0 ? `${mm}:${ss < 10 ? '0' : ''}${ss}` : `${ss}s`;
+    return mm > 0 ? `${mm}:${ss < 10 ? "0" : ""}${ss}` : `${ss}s`;
   }
 
   function getRemainingTurnData() {
     let remainingSec = 60;
     let progressPct = 100;
 
-    if (realMatchLiveProgressPct !== null && (Date.now() - lastLiveSyncTime) < 2500) {
+    if (
+      realMatchLiveProgressPct !== null &&
+      Date.now() - lastLiveSyncTime < 2500
+    ) {
       const elapsedSinceLive = (Date.now() - lastLiveSyncTime) / 1000;
       const pctDrop = (elapsedSinceLive / realMatchTotalDuration) * 100;
-      progressPct = Math.max(0, Math.min(100, realMatchLiveProgressPct - pctDrop));
-      remainingSec = Math.max(0, Math.round(realMatchTotalDuration * (progressPct / 100)));
-    } else if (realMatchLiveSeconds !== null && (Date.now() - lastLiveSyncTime) < 2500) {
+      progressPct = Math.max(
+        0,
+        Math.min(100, realMatchLiveProgressPct - pctDrop),
+      );
+      remainingSec = Math.max(
+        0,
+        Math.round(realMatchTotalDuration * (progressPct / 100)),
+      );
+    } else if (
+      realMatchLiveSeconds !== null &&
+      Date.now() - lastLiveSyncTime < 2500
+    ) {
       const elapsedSinceLive = (Date.now() - lastLiveSyncTime) / 1000;
-      remainingSec = Math.max(0, Math.ceil(realMatchLiveSeconds - elapsedSinceLive));
-      progressPct = Math.max(0, Math.min(100, (remainingSec / realMatchTotalDuration) * 100));
+      remainingSec = Math.max(
+        0,
+        Math.ceil(realMatchLiveSeconds - elapsedSinceLive),
+      );
+      progressPct = Math.max(
+        0,
+        Math.min(100, (remainingSec / realMatchTotalDuration) * 100),
+      );
     } else {
       const elapsed = (Date.now() - realMatchTurnStartTime) / 1000;
       remainingSec = Math.max(0, Math.ceil(realMatchTotalDuration - elapsed));
-      progressPct = Math.max(0, Math.min(100, (remainingSec / realMatchTotalDuration) * 100));
+      progressPct = Math.max(
+        0,
+        Math.min(100, (remainingSec / realMatchTotalDuration) * 100),
+      );
     }
 
     return {
       seconds: remainingSec,
-      percentage: progressPct
+      percentage: progressPct,
     };
   }
 
   function updateSandboxFlankUi(data, isMyTurnInReal) {
-    const flankL = document.getElementById('ziga-sb-flank-left');
+    const flankL = document.getElementById("ziga-sb-flank-left");
     if (!flankL) return;
 
-    const flankLIcon = document.getElementById('ziga-sb-flank-l-icon');
-    const flankLTag = document.getElementById('ziga-sb-flank-l-tag');
-    const flankLTitle = document.getElementById('ziga-sb-flank-l-title');
-    const flankLDesc = document.getElementById('ziga-sb-flank-l-desc');
-    const flankLTime = document.getElementById('ziga-sb-flank-l-time');
-    const flankLProgress = document.getElementById('ziga-sb-flank-l-progress');
-    const flankLTotalTime = document.getElementById('ziga-sb-flank-l-total-time');
-    const flankJumpBtn = document.getElementById('ziga-sb-flank-jump');
-    const flankJumpText = document.getElementById('ziga-sb-flank-jump-text');
-    const flankDismissBtn = document.getElementById('ziga-sb-flank-dismiss');
-    const boardArea = document.getElementById('ziga-sb-board-area');
+    const flankLIcon = document.getElementById("ziga-sb-flank-l-icon");
+    const flankLTag = document.getElementById("ziga-sb-flank-l-tag");
+    const flankLTitle = document.getElementById("ziga-sb-flank-l-title");
+    const flankLDesc = document.getElementById("ziga-sb-flank-l-desc");
+    const flankLTime = document.getElementById("ziga-sb-flank-l-time");
+    const flankLProgress = document.getElementById("ziga-sb-flank-l-progress");
+    const flankLTotalTime = document.getElementById(
+      "ziga-sb-flank-l-total-time",
+    );
+    const flankJumpBtn = document.getElementById("ziga-sb-flank-jump");
+    const flankJumpText = document.getElementById("ziga-sb-flank-jump-text");
+    const flankDismissBtn = document.getElementById("ziga-sb-flank-dismiss");
+    const boardArea = document.getElementById("ziga-sb-board-area");
 
     const turnData = getRemainingTurnData();
     const remainingSeconds = turnData.seconds;
@@ -1212,61 +1406,76 @@
 
     if (flankLTime) flankLTime.textContent = timeStr;
     if (flankLProgress) {
-      flankLProgress.style.width = Math.max(0, Math.min(100, progressPct)).toFixed(1) + '%';
+      flankLProgress.style.width =
+        Math.max(0, Math.min(100, progressPct)).toFixed(1) + "%";
     }
     if (flankLTotalTime) {
-      flankLTotalTime.textContent = realMatchTotalTimeStr || '--:--';
+      flankLTotalTime.textContent = realMatchTotalTimeStr || "--:--";
     }
 
     if (isMyTurnInReal) {
       const isUrgent = remainingSeconds <= 15;
 
-      flankL.className = 'ziga-sb-flank ziga-sb-flank-left state-my-turn' + (isUrgent && !userDismissedAlertThisTurn ? ' urgent' : '');
+      flankL.className =
+        "ziga-sb-flank ziga-sb-flank-left state-my-turn" +
+        (isUrgent && !userDismissedAlertThisTurn ? " urgent" : "");
       if (flankLProgress) {
-        if (isUrgent && !userDismissedAlertThisTurn) flankLProgress.classList.add('urgent');
-        else flankLProgress.classList.remove('urgent');
+        if (isUrgent && !userDismissedAlertThisTurn)
+          flankLProgress.classList.add("urgent");
+        else flankLProgress.classList.remove("urgent");
       }
 
-      if (flankLIcon) flankLIcon.textContent = isUrgent ? '🚨' : '⚠️';
-      if (flankLTag) flankLTag.textContent = 'CẢNH BÁO';
-      if (flankLTitle) flankLTitle.textContent = isUrgent ? 'SẮP HẾT GIỜ!' : 'ĐẾN LƯỢT NÍ!';
-      if (flankLDesc) flankLDesc.textContent = isUrgent ? 'Mau quay lại đánh ĐI nghĩ chi nhiều!' : 'Đối thủ đã đi xong, đến lượt ní ra đòn!';
+      if (flankLIcon) flankLIcon.textContent = isUrgent ? "🚨" : "⚠️";
+      if (flankLTag) flankLTag.textContent = "CẢNH BÁO";
+      if (flankLTitle)
+        flankLTitle.textContent = isUrgent ? "SẮP HẾT GIỜ!" : "ĐẾN LƯỢT NÍ!";
+      if (flankLDesc)
+        flankLDesc.textContent = isUrgent
+          ? "Mau quay lại đánh ĐI nghĩ chi nhiều!"
+          : "Đối thủ đã đi xong, đến lượt ní ra đòn!";
 
-      if (flankJumpBtn) flankJumpBtn.className = 'ziga-sb-flank-jump-btn urgent-pulse';
-      if (flankJumpText) flankJumpText.textContent = isUrgent ? '⚡ VÀO ĐÁNH NGAY' : 'QUAY LẠI VÁN ĐẤU';
-      if (flankDismissBtn) flankDismissBtn.style.display = (isUrgent && !userDismissedAlertThisTurn) ? 'block' : 'none';
+      if (flankJumpBtn)
+        flankJumpBtn.className = "ziga-sb-flank-jump-btn urgent-pulse";
+      if (flankJumpText)
+        flankJumpText.textContent = isUrgent
+          ? "⚡ VÀO ĐÁNH NGAY"
+          : "QUAY LẠI VÁN ĐẤU";
+      if (flankDismissBtn)
+        flankDismissBtn.style.display =
+          isUrgent && !userDismissedAlertThisTurn ? "block" : "none";
 
       if (boardArea) {
         if (!userDismissedAlertThisTurn) {
-          boardArea.classList.add('flank-alert-active');
-          boardArea.classList.remove('state-opp-turn');
+          boardArea.classList.add("flank-alert-active");
+          boardArea.classList.remove("state-opp-turn");
         } else {
-          boardArea.classList.remove('flank-alert-active');
+          boardArea.classList.remove("flank-alert-active");
         }
       }
 
       if (remainingSeconds <= 10 && remainingSeconds % 3 === 0) {
-        playSound('alert');
+        playSound("alert");
       }
-
     } else {
       // Opponent's turn
       hasAlertedForTurn = false;
 
-      flankL.className = 'ziga-sb-flank ziga-sb-flank-left state-opp-turn';
-      if (flankLProgress) flankLProgress.classList.remove('urgent');
-      if (flankLIcon) flankLIcon.textContent = '⏳';
-      if (flankLTag) flankLTag.textContent = 'Ván đấu';
-      if (flankLTitle) flankLTitle.textContent = 'Chờ đối thủ đi...';
-      if (flankLDesc) flankLDesc.textContent = 'Đối thủ đang vắt óc suy nghĩ nước đi tiếp theo';
+      flankL.className = "ziga-sb-flank ziga-sb-flank-left state-opp-turn";
+      if (flankLProgress) flankLProgress.classList.remove("urgent");
+      if (flankLIcon) flankLIcon.textContent = "⏳";
+      if (flankLTag) flankLTag.textContent = "Ván đấu";
+      if (flankLTitle) flankLTitle.textContent = "Chờ đối thủ đi...";
+      if (flankLDesc)
+        flankLDesc.textContent =
+          "Đối thủ đang vắt óc suy nghĩ nước đi tiếp theo";
 
-      if (flankJumpBtn) flankJumpBtn.className = 'ziga-sb-flank-jump-btn calm';
-      if (flankJumpText) flankJumpText.textContent = 'QUAY LẠI VÁN ĐẤU';
-      if (flankDismissBtn) flankDismissBtn.style.display = 'none';
+      if (flankJumpBtn) flankJumpBtn.className = "ziga-sb-flank-jump-btn calm";
+      if (flankJumpText) flankJumpText.textContent = "QUAY LẠI VÁN ĐẤU";
+      if (flankDismissBtn) flankDismissBtn.style.display = "none";
 
       if (boardArea) {
-        boardArea.classList.remove('flank-alert-active');
-        boardArea.classList.add('state-opp-turn');
+        boardArea.classList.remove("flank-alert-active");
+        boardArea.classList.add("state-opp-turn");
       }
     }
   }
@@ -1277,7 +1486,7 @@
 
     const realTurnColor = data.gameLayer.Yc;
     const myColor = data.myColor;
-    const isMyTurnInReal = (realTurnColor === myColor);
+    const isMyTurnInReal = realTurnColor === myColor;
 
     // 1. Detect turn change on real match board
     if (realMatchCurrentTurn !== -1 && realMatchCurrentTurn !== realTurnColor) {
@@ -1290,7 +1499,7 @@
 
       if (isMyTurnInReal) {
         hasAlertedForTurn = true;
-        playSound('alert');
+        playSound("alert");
       } else {
         hasAlertedForTurn = false;
       }
@@ -1304,14 +1513,20 @@
     const greenPct = findGreenProgressTimer(data.gameLayer, realTurnColor);
     if (greenPct !== null && greenPct >= 0 && greenPct <= 100) {
       realMatchLiveProgressPct = greenPct;
-      realMatchLiveSeconds = Math.max(0, Math.round(realMatchTotalDuration * (greenPct / 100)));
+      realMatchLiveSeconds = Math.max(
+        0,
+        Math.round(realMatchTotalDuration * (greenPct / 100)),
+      );
       lastLiveSyncTime = Date.now();
     } else {
       // Fallback: search numeric countdown properties
       const liveSec = getLiveCountdown(data, realTurnColor);
       if (liveSec !== null && liveSec >= 0) {
         realMatchLiveSeconds = liveSec;
-        realMatchLiveProgressPct = Math.max(0, Math.min(100, (liveSec / realMatchTotalDuration) * 100));
+        realMatchLiveProgressPct = Math.max(
+          0,
+          Math.min(100, (liveSec / realMatchTotalDuration) * 100),
+        );
         lastLiveSyncTime = Date.now();
       }
     }
@@ -1335,16 +1550,18 @@
   // Public Open & Close API
   // ==========================================
   function openTacticalSandbox() {
-    console.log('[AN Mod] openTacticalSandbox invoked');
+    console.log("[AN Mod] openTacticalSandbox invoked");
     const data = ZigaMod.getActiveGameData ? ZigaMod.getActiveGameData() : null;
     if (!data || !data.gameLayer || !data.gameLayer.V) {
-      alert('Vui lòng vào một ván cờ trên Ziga (hoặc vào xem ván) để bắt đầu mô phỏng thế cờ!');
+      alert(
+        "Vui lòng vào một ván cờ trên Ziga (hoặc vào xem ván) để bắt đầu mô phỏng thế cờ!",
+      );
       return;
     }
 
     const snapshot = createSnapshot();
     if (!snapshot || !snapshot.pieces || snapshot.pieces.length === 0) {
-      alert('Không thể đọc dữ liệu ván cờ để mô phỏng. Vui lòng thử lại!');
+      alert("Không thể đọc dữ liệu ván cờ để mô phỏng. Vui lòng thử lại!");
       return;
     }
 
@@ -1359,24 +1576,24 @@
 
     const el = ensureSandboxDom();
     if (!el) {
-      console.error('[AN Mod] Cannot create sandbox modal DOM');
+      console.error("[AN Mod] Cannot create sandbox modal DOM");
       return;
     }
 
-    el.classList.remove('hidden');
-    el.style.setProperty('display', 'flex', 'important');
-    el.style.setProperty('z-index', '2147483647', 'important');
-    el.style.setProperty('visibility', 'visible', 'important');
-    el.style.setProperty('opacity', '1', 'important');
-    el.style.setProperty('pointer-events', 'auto', 'important');
+    el.classList.remove("hidden");
+    el.style.setProperty("display", "flex", "important");
+    el.style.setProperty("z-index", "2147483647", "important");
+    el.style.setProperty("visibility", "visible", "important");
+    el.style.setProperty("opacity", "1", "important");
+    el.style.setProperty("pointer-events", "auto", "important");
 
     // Center card
-    const card = document.getElementById('ziga-sb-card');
+    const card = document.getElementById("ziga-sb-card");
     if (card) {
-      card.style.position = '';
-      card.style.left = '';
-      card.style.top = '';
-      card.style.margin = 'auto';
+      card.style.position = "";
+      card.style.left = "";
+      card.style.top = "";
+      card.style.margin = "auto";
     }
 
     updateTurnIndicator();
@@ -1385,7 +1602,11 @@
     // Render current countdown immediately without resetting turnStartTime!
     updateRealMatchTracker();
 
-    console.log('[AN Mod] Tactical Sandbox opened successfully with ' + currentPieces.length + ' pieces.');
+    console.log(
+      "[AN Mod] Tactical Sandbox opened successfully with " +
+        currentPieces.length +
+        " pieces.",
+    );
   }
 
   function closeTacticalSandbox() {
@@ -1393,26 +1614,27 @@
     userDismissedAlertThisTurn = false;
 
     if (modalEl) {
-      modalEl.classList.add('hidden');
-      modalEl.style.setProperty('display', 'none', 'important');
-      modalEl.style.setProperty('visibility', 'hidden', 'important');
-      modalEl.style.setProperty('pointer-events', 'none', 'important');
-      const boardArea = document.getElementById('ziga-sb-board-area');
+      modalEl.classList.add("hidden");
+      modalEl.style.setProperty("display", "none", "important");
+      modalEl.style.setProperty("visibility", "hidden", "important");
+      modalEl.style.setProperty("pointer-events", "none", "important");
+      const boardArea = document.getElementById("ziga-sb-board-area");
       if (boardArea) {
-        boardArea.classList.remove('flank-alert-active');
-        boardArea.classList.remove('state-opp-turn');
+        boardArea.classList.remove("flank-alert-active");
+        boardArea.classList.remove("state-opp-turn");
       }
     }
 
     selectedPiece = null;
     legalDestinations = [];
 
-    console.log('[AN Mod] Tactical Sandbox closed. Returned to live match.');
+    console.log("[AN Mod] Tactical Sandbox closed. Returned to live match.");
   }
 
   // Export to namespace
   ZigaMod.openTacticalSandbox = openTacticalSandbox;
   ZigaMod.closeTacticalSandbox = closeTacticalSandbox;
-  ZigaMod.isSandboxOpen = function () { return isOpen; };
-
-})(window.ZigaMod = window.ZigaMod || {});
+  ZigaMod.isSandboxOpen = function () {
+    return isOpen;
+  };
+})((window.ZigaMod = window.ZigaMod || {}));

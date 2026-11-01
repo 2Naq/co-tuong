@@ -1,13 +1,13 @@
 // src/ui/ui.js - React + Tailwind CSS v4 + shadcn/ui (base-nova) HUD Overlay & Drag/Resize Controller
-import React from 'react';
-import { flushSync } from 'react-dom';
-import { createRoot } from 'react-dom/client';
-import { HudWidget } from '../components/HudWidget/HudWidget';
-import { ErrorBoundary } from '../components/common/ErrorBoundary';
-import { uiStore } from '../lib/ui_store';
+import React from "react";
+import { flushSync } from "react-dom";
+import { createRoot } from "react-dom/client";
+import { HudWidget } from "../components/HudWidget/HudWidget";
+import { ErrorBoundary } from "../components/common/ErrorBoundary";
+import { uiStore } from "../lib/ui_store";
 
 (function (ZigaMod) {
-  'use strict';
+  "use strict";
 
   ZigaMod.widgetEl = null;
   ZigaMod.uiStore = uiStore;
@@ -15,63 +15,66 @@ import { uiStore } from '../lib/ui_store';
 
   function applySettingsVisibility() {
     uiStore.setState((prev) => ({
-      settingsVersion: (prev.settingsVersion || 0) + 1
+      settingsVersion: (prev.settingsVersion || 0) + 1,
     }));
   }
 
   function getSavedThemeMode() {
     try {
-      const saved = localStorage.getItem('ziga_xiangqi_theme_mode');
-      if (saved === 'light' || saved === 'dark') return saved;
+      const saved = localStorage.getItem("ziga_xiangqi_theme_mode");
+      if (saved === "light" || saved === "dark") return saved;
     } catch (e) {}
-    return 'dark';
+    return "dark";
   }
 
   function createOverlay() {
-    if (document.getElementById('ziga-mod-widget')) {
-      ZigaMod.widgetEl = document.getElementById('ziga-mod-widget');
+    if (document.getElementById("ziga-mod-widget")) {
+      ZigaMod.widgetEl = document.getElementById("ziga-mod-widget");
       return ZigaMod.widgetEl;
     }
 
     const initialTheme = getSavedThemeMode();
     uiStore.setState({ themeMode: initialTheme });
-    document.documentElement.classList.toggle('dark', initialTheme === 'dark');
+    document.documentElement.classList.toggle("dark", initialTheme === "dark");
 
-    const widgetEl = document.createElement('div');
-    widgetEl.id = 'ziga-mod-widget';
+    const widgetEl = document.createElement("div");
+    widgetEl.id = "ziga-mod-widget";
     widgetEl.className = `ziga-shadcn-root fixed z-[2147483600] min-w-[270px] max-w-[750px] overflow-hidden rounded-xl border border-border bg-background text-foreground shadow-2xl font-sans select-none [&.minimized]:w-auto [&.minimized]:min-w-0 ${
-      initialTheme === 'dark' ? 'dark' : ''
+      initialTheme === "dark" ? "dark" : ""
     }`;
 
     // Restore saved widget dimensions and position
-    const savedSize = (ZigaMod.loadSavedSize || ZigaMod.loadSavedWidgetSize)
-      ? (ZigaMod.loadSavedSize || ZigaMod.loadSavedWidgetSize)()
-      : null;
+    const savedSize =
+      ZigaMod.loadSavedSize || ZigaMod.loadSavedWidgetSize
+        ? (ZigaMod.loadSavedSize || ZigaMod.loadSavedWidgetSize)()
+        : null;
     const initialWidth =
       savedSize && savedSize.width >= 270 && savedSize.width <= 750
         ? savedSize.width
         : 320;
-    widgetEl.style.width = initialWidth + 'px';
+    widgetEl.style.width = initialWidth + "px";
 
-    const savedPos = ZigaMod.loadSavedPosition ? ZigaMod.loadSavedPosition() : null;
+    const savedPos = ZigaMod.loadSavedPosition
+      ? ZigaMod.loadSavedPosition()
+      : null;
     if (
       savedPos &&
-      typeof savedPos.x === 'number' &&
-      typeof savedPos.y === 'number' &&
+      typeof savedPos.x === "number" &&
+      typeof savedPos.y === "number" &&
       (savedPos.x > 10 || savedPos.y > 10)
     ) {
       const maxLeft = Math.max(0, window.innerWidth - initialWidth - 4);
       const maxTop = Math.max(0, window.innerHeight - 100 - 4);
       const safeLeft = Math.min(maxLeft, Math.max(4, savedPos.x));
       const safeTop = Math.min(maxTop, Math.max(4, savedPos.y));
-      widgetEl.style.left = safeLeft + 'px';
-      widgetEl.style.top = safeTop + 'px';
-      widgetEl.style.right = 'auto';
+      widgetEl.style.left = safeLeft + "px";
+      widgetEl.style.top = safeTop + "px";
+      widgetEl.style.right = "auto";
     } else {
       // Default initial position: Top-Right corner
-      widgetEl.style.top = '16px';
-      widgetEl.style.right = '16px';
-      widgetEl.style.left = 'auto';
+      widgetEl.style.top = "16px";
+      widgetEl.style.right = "16px";
+      widgetEl.style.left = "auto";
     }
 
     if (!document.body) return null;
@@ -83,23 +86,23 @@ import { uiStore } from '../lib/ui_store';
       hudRoot.render(
         <ErrorBoundary>
           <HudWidget />
-        </ErrorBoundary>
+        </ErrorBoundary>,
       );
     });
 
     // Restore body max height if saved
-    const bodyEl = document.getElementById('ziga-mod-body');
+    const bodyEl = document.getElementById("ziga-mod-body");
     if (
       savedSize &&
       savedSize.bodyMaxHeight &&
       bodyEl &&
       savedSize.bodyMaxHeight >= 150
     ) {
-      bodyEl.style.maxHeight = savedSize.bodyMaxHeight + 'px';
+      bodyEl.style.maxHeight = savedSize.bodyMaxHeight + "px";
     }
 
     // Isolate clicks from #gameCanvas WITHOUT blocking mouseup/pointerup from reaching window
-    ['mousedown', 'click', 'dblclick', 'contextmenu'].forEach((evtName) => {
+    ["mousedown", "click", "dblclick", "contextmenu"].forEach((evtName) => {
       widgetEl.addEventListener(evtName, (e) => {
         e.stopPropagation();
       });
@@ -107,13 +110,13 @@ import { uiStore } from '../lib/ui_store';
 
     // Isolate mouse wheel so scrolling inside HUD never scrolls the outer webpage (zigavn.com)
     widgetEl.addEventListener(
-      'wheel',
+      "wheel",
       (e) => {
         e.stopPropagation();
-        const bodyEl = document.getElementById('ziga-mod-body');
+        const bodyEl = document.getElementById("ziga-mod-body");
 
         // If widget is minimized or body not available, prevent default page scroll
-        if (!bodyEl || widgetEl.classList.contains('minimized')) {
+        if (!bodyEl || widgetEl.classList.contains("minimized")) {
           e.preventDefault();
           return;
         }
@@ -136,12 +139,13 @@ import { uiStore } from '../lib/ui_store';
         const delta = e.deltaY;
         const atTop = bodyEl.scrollTop <= 0 && delta < 0;
         const atBottom =
-          bodyEl.scrollTop + bodyEl.clientHeight >= bodyEl.scrollHeight - 1 && delta > 0;
+          bodyEl.scrollTop + bodyEl.clientHeight >= bodyEl.scrollHeight - 1 &&
+          delta > 0;
         if (atTop || atBottom) {
           e.preventDefault();
         }
       },
-      { passive: false }
+      { passive: false },
     );
 
     setupDragAndResize(widgetEl);
@@ -157,7 +161,7 @@ import { uiStore } from '../lib/ui_store';
       initialTop = 0;
 
     let isResizing = false;
-    let resizeMode = '';
+    let resizeMode = "";
     let resizeStartX = 0,
       resizeStartY = 0;
     let startWidth = 320,
@@ -166,15 +170,15 @@ import { uiStore } from '../lib/ui_store';
     function finishDragAndResize() {
       if (!isDragging && !isResizing) return;
 
-      document.body.classList.remove('ziga-is-dragging-or-resizing');
-      document.body.style.userSelect = '';
-      document.body.style.cursor = '';
+      document.body.classList.remove("ziga-is-dragging-or-resizing");
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
 
       if (isResizing) {
         isResizing = false;
-        resizeMode = '';
+        resizeMode = "";
         const finalW = parseInt(widgetEl.style.width, 10) || 320;
-        const bEl = document.getElementById('ziga-mod-body');
+        const bEl = document.getElementById("ziga-mod-body");
         const finalH = bEl ? parseInt(bEl.style.maxHeight, 10) || 560 : 560;
         if (ZigaMod.saveSize) {
           ZigaMod.saveSize(finalW, finalH);
@@ -205,9 +209,9 @@ import { uiStore } from '../lib/ui_store';
     function startWidgetDrag(e) {
       if (e.button !== 0) return;
       if (
-        e.target.closest('button') ||
-        e.target.closest('input') ||
-        e.target.closest('label') ||
+        e.target.closest("button") ||
+        e.target.closest("input") ||
+        e.target.closest("label") ||
         e.target.closest('[data-slot="button"]')
       ) {
         return;
@@ -221,28 +225,28 @@ import { uiStore } from '../lib/ui_store';
       const rect = widgetEl.getBoundingClientRect();
       initialLeft = rect.left;
       initialTop = rect.top;
-      widgetEl.style.right = 'auto';
-      widgetEl.style.left = initialLeft + 'px';
-      widgetEl.style.top = initialTop + 'px';
-      document.body.classList.add('ziga-is-dragging-or-resizing');
-      document.body.style.userSelect = 'none';
-      document.body.style.cursor = 'grabbing';
+      widgetEl.style.right = "auto";
+      widgetEl.style.left = initialLeft + "px";
+      widgetEl.style.top = initialTop + "px";
+      document.body.classList.add("ziga-is-dragging-or-resizing");
+      document.body.style.userSelect = "none";
+      document.body.style.cursor = "grabbing";
     }
 
-    const dragHandle = document.getElementById('ziga-mod-drag-handle');
+    const dragHandle = document.getElementById("ziga-mod-drag-handle");
     if (dragHandle) {
-      dragHandle.addEventListener('mousedown', startWidgetDrag);
+      dragHandle.addEventListener("mousedown", startWidgetDrag);
     }
 
-    widgetEl.addEventListener('mousedown', (e) => {
-      if (widgetEl.classList.contains('minimized')) {
+    widgetEl.addEventListener("mousedown", (e) => {
+      if (widgetEl.classList.contains("minimized")) {
         startWidgetDrag(e);
       }
     });
 
     function initResize(mode, e) {
       if (e.button !== 0) return;
-      if (widgetEl.classList.contains('minimized')) return;
+      if (widgetEl.classList.contains("minimized")) return;
       e.preventDefault();
       e.stopPropagation();
 
@@ -253,32 +257,47 @@ import { uiStore } from '../lib/ui_store';
 
       const rect = widgetEl.getBoundingClientRect();
       startWidth = rect.width;
-      const bEl = document.getElementById('ziga-mod-body');
-      const currentMaxH = bEl ? parseInt(window.getComputedStyle(bEl).maxHeight, 10) : 560;
-      startBodyMaxH = isNaN(currentMaxH) ? bEl?.getBoundingClientRect().height || 560 : currentMaxH;
+      const bEl = document.getElementById("ziga-mod-body");
+      const currentMaxH = bEl
+        ? parseInt(window.getComputedStyle(bEl).maxHeight, 10)
+        : 560;
+      startBodyMaxH = isNaN(currentMaxH)
+        ? bEl?.getBoundingClientRect().height || 560
+        : currentMaxH;
 
-      widgetEl.style.right = 'auto';
-      widgetEl.style.left = rect.left + 'px';
-      widgetEl.style.top = rect.top + 'px';
-      document.body.classList.add('ziga-is-dragging-or-resizing');
-      document.body.style.userSelect = 'none';
+      widgetEl.style.right = "auto";
+      widgetEl.style.left = rect.left + "px";
+      widgetEl.style.top = rect.top + "px";
+      document.body.classList.add("ziga-is-dragging-or-resizing");
+      document.body.style.userSelect = "none";
       document.body.style.cursor =
-        mode === 'right' ? 'ew-resize' : mode === 'bottom' ? 'ns-resize' : 'nwse-resize';
+        mode === "right"
+          ? "ew-resize"
+          : mode === "bottom"
+            ? "ns-resize"
+            : "nwse-resize";
     }
 
-    const cornerResizer = document.getElementById('ziga-resize-corner');
-    const rightResizer = document.getElementById('ziga-resize-edge-r');
-    const bottomResizer = document.getElementById('ziga-resize-edge-b');
+    const cornerResizer = document.getElementById("ziga-resize-corner");
+    const rightResizer = document.getElementById("ziga-resize-edge-r");
+    const bottomResizer = document.getElementById("ziga-resize-edge-b");
 
-    if (cornerResizer) cornerResizer.addEventListener('mousedown', (e) => initResize('corner', e));
-    if (rightResizer) rightResizer.addEventListener('mousedown', (e) => initResize('right', e));
-    if (bottomResizer) bottomResizer.addEventListener('mousedown', (e) => initResize('bottom', e));
+    if (cornerResizer)
+      cornerResizer.addEventListener("mousedown", (e) =>
+        initResize("corner", e),
+      );
+    if (rightResizer)
+      rightResizer.addEventListener("mousedown", (e) => initResize("right", e));
+    if (bottomResizer)
+      bottomResizer.addEventListener("mousedown", (e) =>
+        initResize("bottom", e),
+      );
 
     function handleMove(e) {
       if (!isDragging && !isResizing) return;
 
       // Hardware button state failsafe: if left mouse button is no longer held down, terminate immediately
-      if (typeof e.buttons === 'number' && (e.buttons & 1) === 0) {
+      if (typeof e.buttons === "number" && (e.buttons & 1) === 0) {
         finishDragAndResize();
         return;
       }
@@ -286,18 +305,21 @@ import { uiStore } from '../lib/ui_store';
       if (isResizing) {
         const dx = e.clientX - resizeStartX;
         const dy = e.clientY - resizeStartY;
-        const bEl = document.getElementById('ziga-mod-body');
+        const bEl = document.getElementById("ziga-mod-body");
 
-        if (resizeMode === 'right' || resizeMode === 'corner') {
+        if (resizeMode === "right" || resizeMode === "corner") {
           const newW = Math.max(
             270,
-            Math.min(Math.min(750, window.innerWidth - 20), startWidth + dx)
+            Math.min(Math.min(750, window.innerWidth - 20), startWidth + dx),
           );
-          widgetEl.style.width = Math.round(newW) + 'px';
+          widgetEl.style.width = Math.round(newW) + "px";
         }
-        if ((resizeMode === 'bottom' || resizeMode === 'corner') && bEl) {
-          const newH = Math.max(160, Math.min(window.innerHeight - 100, startBodyMaxH + dy));
-          bEl.style.maxHeight = Math.round(newH) + 'px';
+        if ((resizeMode === "bottom" || resizeMode === "corner") && bEl) {
+          const newH = Math.max(
+            160,
+            Math.min(window.innerHeight - 100, startBodyMaxH + dy),
+          );
+          bEl.style.maxHeight = Math.round(newH) + "px";
         }
         return;
       }
@@ -308,29 +330,35 @@ import { uiStore } from '../lib/ui_store';
         if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
           hasMovedDuringDrag = true;
         }
-        const maxLeft = Math.max(0, window.innerWidth - widgetEl.offsetWidth - 4);
-        const maxTop = Math.max(0, window.innerHeight - widgetEl.offsetHeight - 4);
+        const maxLeft = Math.max(
+          0,
+          window.innerWidth - widgetEl.offsetWidth - 4,
+        );
+        const maxTop = Math.max(
+          0,
+          window.innerHeight - widgetEl.offsetHeight - 4,
+        );
         const newLeft = Math.min(maxLeft, Math.max(4, initialLeft + dx));
         const newTop = Math.min(maxTop, Math.max(4, initialTop + dy));
-        widgetEl.style.left = newLeft + 'px';
-        widgetEl.style.top = newTop + 'px';
+        widgetEl.style.left = newLeft + "px";
+        widgetEl.style.top = newTop + "px";
       }
     }
 
     // Capture phase (true) ensures mousemove/pointermove always fire even over #gameCanvas
-    window.addEventListener('mousemove', handleMove, true);
-    window.addEventListener('pointermove', handleMove, true);
-    window.addEventListener('mouseup', finishDragAndResize, true);
-    window.addEventListener('pointerup', finishDragAndResize, true);
-    window.addEventListener('blur', finishDragAndResize);
-    document.addEventListener('mouseleave', finishDragAndResize);
+    window.addEventListener("mousemove", handleMove, true);
+    window.addEventListener("pointermove", handleMove, true);
+    window.addEventListener("mouseup", finishDragAndResize, true);
+    window.addEventListener("pointerup", finishDragAndResize, true);
+    window.addEventListener("blur", finishDragAndResize);
+    document.addEventListener("mouseleave", finishDragAndResize);
   }
 
   function updateMaterialTooltipLive(mat, myName, oppName) {
     uiStore.setState({
       material: mat || null,
       ...(myName ? { myName } : {}),
-      ...(oppName ? { oppName } : {})
+      ...(oppName ? { oppName } : {}),
     });
   }
 
@@ -339,8 +367,8 @@ import { uiStore } from '../lib/ui_store';
       tactical: {
         piece: piece || null,
         targets: targets || [],
-        defended: defended || []
-      }
+        defended: defended || [],
+      },
     });
   }
 
@@ -349,8 +377,8 @@ import { uiStore } from '../lib/ui_store';
       tactical: {
         piece: null,
         targets: [],
-        defended: []
-      }
+        defended: [],
+      },
     });
   }
 
@@ -360,4 +388,4 @@ import { uiStore } from '../lib/ui_store';
   ZigaMod.updateMaterialTooltipLive = updateMaterialTooltipLive;
   ZigaMod.updateTacticalHud = updateTacticalHud;
   ZigaMod.clearTacticalHud = clearTacticalHud;
-})(window.ZigaMod = window.ZigaMod || {});
+})((window.ZigaMod = window.ZigaMod || {}));

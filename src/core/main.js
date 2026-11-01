@@ -1,10 +1,10 @@
 // src/main.js - Game data extraction, material calculation, ad cleaner, and main update loop
 (function (ZigaMod) {
-  'use strict';
+  "use strict";
 
-  console.log('[AN Mod] Main module initializing...');
+  console.log("[AN Mod] Main module initializing...");
 
-  let lastStateHash = '';
+  let lastStateHash = "";
 
   function getActiveGameLayer() {
     if (!window.BkGlobal || !window.BkGlobal.Yj) return null;
@@ -14,7 +14,12 @@
   function getActiveGameData() {
     if (!window.BkGlobal || !window.BkGlobal.Yj) return null;
     const gameLayer = window.BkGlobal.Yj.ja ? window.BkGlobal.Yj.ja() : null;
-    if (!gameLayer || !gameLayer.V || !Array.isArray(gameLayer.V) || gameLayer.V.length !== 32) {
+    if (
+      !gameLayer ||
+      !gameLayer.V ||
+      !Array.isArray(gameLayer.V) ||
+      gameLayer.V.length !== 32
+    ) {
       return null;
     }
 
@@ -37,8 +42,13 @@
 
     const oppColor = 1 - myColor;
 
-    let myName = myPlayer && myPlayer.getName ? myPlayer.getName() : (myColor === 0 ? 'Bên Đỏ' : 'Bên Đen');
-    let oppName = (oppColor === 0 ? 'Bên Đỏ' : 'Bên Đen');
+    let myName =
+      myPlayer && myPlayer.getName
+        ? myPlayer.getName()
+        : myColor === 0
+          ? "Bên Đỏ"
+          : "Bên Đen";
+    let oppName = oppColor === 0 ? "Bên Đỏ" : "Bên Đen";
 
     if (gameLayer.gc && gameLayer.gc.Z) {
       if (myColor === 0) myName = gameLayer.gc.Z.userName || myName;
@@ -66,7 +76,7 @@
         index: i,
         type: type,
         color: color,
-        isDead: isDead
+        isDead: isDead,
       };
 
       if (color === myColor) {
@@ -88,7 +98,7 @@
       deadMyPieces,
       deadOppPieces,
       aliveMyPieces,
-      aliveOppPieces
+      aliveOppPieces,
     };
   }
 
@@ -98,7 +108,7 @@
     const myCounts = { 3: 0, 4: 0, 5: 0, 1: 0, 2: 0, 6: 0 };
     const oppCounts = { 3: 0, 4: 0, 5: 0, 1: 0, 2: 0, 6: 0 };
 
-    aliveMy.forEach(p => {
+    aliveMy.forEach((p) => {
       const def = ZigaMod.PIECE_DEFS[p.type];
       if (def) {
         myScore += def.value;
@@ -106,7 +116,7 @@
       }
     });
 
-    aliveOpp.forEach(p => {
+    aliveOpp.forEach((p) => {
       const def = ZigaMod.PIECE_DEFS[p.type];
       if (def) {
         oppScore += def.value;
@@ -119,8 +129,10 @@
   }
 
   function countKeyPieces(alivePieces) {
-    let xe = 0, phao = 0, ma = 0;
-    alivePieces.forEach(p => {
+    let xe = 0,
+      phao = 0,
+      ma = 0;
+    alivePieces.forEach((p) => {
       if (p.type === 3) xe++;
       if (p.type === 4) phao++;
       if (p.type === 5) ma++;
@@ -130,30 +142,30 @@
 
   function cleanObstructingAds() {
     const adSelectors = [
-      'ins.adsbygoogle',
-      '.google-auto-placed',
+      "ins.adsbygoogle",
+      ".google-auto-placed",
       'iframe[id^="aswift"]',
       'iframe[name^="aswift"]',
       'div[id^="aswift"]',
       'div[id^="google_ads"]',
       'iframe[id^="google_ads"]',
-      '.ads-frame',
+      ".ads-frame",
       '[id*="banner_left"]',
       '[id*="banner_right"]',
       '[class*="banner-left"]',
-      '[class*="banner-right"]'
+      '[class*="banner-right"]',
     ];
 
     for (let i = 0; i < adSelectors.length; i++) {
       const nodes = document.querySelectorAll(adSelectors[i]);
       for (let j = 0; j < nodes.length; j++) {
         const el = nodes[j];
-        el.style.setProperty('display', 'none', 'important');
-        el.style.setProperty('visibility', 'hidden', 'important');
-        el.style.setProperty('pointer-events', 'none', 'important');
-        el.style.setProperty('z-index', '-9999', 'important');
-        el.style.setProperty('width', '0', 'important');
-        el.style.setProperty('height', '0', 'important');
+        el.style.setProperty("display", "none", "important");
+        el.style.setProperty("visibility", "hidden", "important");
+        el.style.setProperty("pointer-events", "none", "important");
+        el.style.setProperty("z-index", "-9999", "important");
+        el.style.setProperty("width", "0", "important");
+        el.style.setProperty("height", "0", "important");
       }
     }
 
@@ -161,64 +173,80 @@
       const children = document.body.children;
       for (let i = 0; i < children.length; i++) {
         const el = children[i];
-        if (!el || 
-            el.id === 'ziga-mod-widget' || 
-            el.id === 'ziga-sandbox-modal' || 
-            (el.id && el.id.startsWith('ziga-')) ||
-            el.classList.contains('ziga-shadcn-root') ||
-            el.classList.contains('ziga-sandbox-overlay') || 
-            el.classList.contains('ziga-mod-container') ||
-            el.hasAttribute('data-base-ui-portal') ||
-            el.hasAttribute('data-slot') ||
-            el.querySelector('[data-slot]') ||
-            el.id === 'gameCanvas' || 
-            el.id === 'Cocos2dGameContainer' || 
-            el.classList.contains('modal')) {
+        if (
+          !el ||
+          el.id === "ziga-mod-widget" ||
+          el.id === "ziga-sandbox-modal" ||
+          (el.id && el.id.startsWith("ziga-")) ||
+          el.classList.contains("ziga-shadcn-root") ||
+          el.classList.contains("ziga-sandbox-overlay") ||
+          el.classList.contains("ziga-mod-container") ||
+          el.hasAttribute("data-base-ui-portal") ||
+          el.hasAttribute("data-slot") ||
+          el.querySelector("[data-slot]") ||
+          el.id === "gameCanvas" ||
+          el.id === "Cocos2dGameContainer" ||
+          el.classList.contains("modal")
+        ) {
           continue;
         }
         try {
           const comp = window.getComputedStyle(el);
-          if (comp.position === 'fixed') {
-            if (el.querySelector('iframe') || el.querySelector('ins') || el.tagName === 'IFRAME' || el.tagName === 'INS' || (el.className && typeof el.className === 'string' && el.className.includes('google')) || (comp.zIndex && Number(comp.zIndex) > 1000)) {
-              el.style.setProperty('display', 'none', 'important');
-              el.style.setProperty('z-index', '-9999', 'important');
+          if (comp.position === "fixed") {
+            if (
+              el.querySelector("iframe") ||
+              el.querySelector("ins") ||
+              el.tagName === "IFRAME" ||
+              el.tagName === "INS" ||
+              (el.className &&
+                typeof el.className === "string" &&
+                el.className.includes("google")) ||
+              (comp.zIndex && Number(comp.zIndex) > 1000)
+            ) {
+              el.style.setProperty("display", "none", "important");
+              el.style.setProperty("z-index", "-9999", "important");
             }
           }
-        } catch (e) { }
+        } catch (e) {}
       }
     }
 
-    const widgetEl = ZigaMod.widgetEl || document.getElementById('ziga-mod-widget');
-    const sbModal = document.getElementById('ziga-sandbox-modal');
+    const widgetEl =
+      ZigaMod.widgetEl || document.getElementById("ziga-mod-widget");
+    const sbModal = document.getElementById("ziga-sandbox-modal");
     if (widgetEl) {
-      widgetEl.style.setProperty('z-index', '2147483600', 'important');
-      widgetEl.style.setProperty('position', 'fixed', 'important');
+      widgetEl.style.setProperty("z-index", "2147483600", "important");
+      widgetEl.style.setProperty("position", "fixed", "important");
     }
     if (sbModal) {
-      sbModal.style.setProperty('z-index', '2147483647', 'important');
+      sbModal.style.setProperty("z-index", "2147483647", "important");
     }
   }
 
   function updateMod() {
-    if (typeof ZigaMod.createOverlay === 'function') {
+    if (typeof ZigaMod.createOverlay === "function") {
       ZigaMod.createOverlay();
     }
     cleanObstructingAds();
 
-    const widgetEl = ZigaMod.widgetEl || document.getElementById('ziga-mod-widget');
+    const widgetEl =
+      ZigaMod.widgetEl || document.getElementById("ziga-mod-widget");
     if (!widgetEl) return;
 
     const data = getActiveGameData();
 
     if (!data) {
-      if (lastStateHash !== 'waiting') {
-        lastStateHash = 'waiting';
+      if (lastStateHash !== "waiting") {
+        lastStateHash = "waiting";
         if (ZigaMod.uiStore) {
           ZigaMod.uiStore.resetGameState();
         }
-        if (typeof ZigaMod.clearTacticalHud === 'function') ZigaMod.clearTacticalHud();
-        if (typeof ZigaMod.updateThreatUi === 'function') ZigaMod.updateThreatUi([]);
-        if (typeof ZigaMod.updateCoUpUi === 'function') ZigaMod.updateCoUpUi(null);
+        if (typeof ZigaMod.clearTacticalHud === "function")
+          ZigaMod.clearTacticalHud();
+        if (typeof ZigaMod.updateThreatUi === "function")
+          ZigaMod.updateThreatUi([]);
+        if (typeof ZigaMod.updateCoUpUi === "function")
+          ZigaMod.updateCoUpUi(null);
         if (ZigaMod.updateMaterialTooltipLive) {
           ZigaMod.updateMaterialTooltipLive(null);
         }
@@ -238,14 +266,14 @@
           ZigaMod.updateMentorHud(null);
         }
       }
-      if (typeof ZigaMod.applySettingsVisibility === 'function') {
+      if (typeof ZigaMod.applySettingsVisibility === "function") {
         ZigaMod.applySettingsVisibility();
       }
       return;
     }
 
     // Hook game engine for native highlights & row numbers
-    if (typeof ZigaMod.hookGameLayer === 'function') {
+    if (typeof ZigaMod.hookGameLayer === "function") {
       ZigaMod.hookGameLayer(data.gameLayer);
     }
     if (ZigaMod.setupRowNumbers) {
@@ -258,14 +286,20 @@
     }
 
     // Threat Scanner (Under-Attack Alert)
-    const threats = ZigaMod.scanThreats ? ZigaMod.scanThreats(data.gameLayer, data.myColor, data.oppColor) : [];
+    const threats = ZigaMod.scanThreats
+      ? ZigaMod.scanThreats(data.gameLayer, data.myColor, data.oppColor)
+      : [];
     if (ZigaMod.updateThreatUi) {
       ZigaMod.updateThreatUi(threats);
     }
 
     // Co Up Probability Tracker
     if (ZigaMod.isCoUpGame && ZigaMod.isCoUpGame(data.gameLayer)) {
-      const coUpStats = ZigaMod.computeCoUpStats(data.gameLayer, data.myColor, data.oppColor);
+      const coUpStats = ZigaMod.computeCoUpStats(
+        data.gameLayer,
+        data.myColor,
+        data.oppColor,
+      );
       ZigaMod.updateCoUpUi(coUpStats, data.oppName, data.myName);
     } else if (ZigaMod.updateCoUpUi) {
       ZigaMod.updateCoUpUi(null);
@@ -327,7 +361,7 @@
         deadOppPieces: data.deadOppPieces.slice(),
         keyPiecesSelf: countKeyPieces(data.aliveMyPieces),
         keyPiecesOpp: countKeyPieces(data.aliveOppPieces),
-        material: mat
+        material: mat,
       });
     }
   }
@@ -345,10 +379,9 @@
   setInterval(updateMod, 300);
 
   // Initial trigger
-  window.addEventListener('load', () => {
+  window.addEventListener("load", () => {
     setTimeout(updateMod, 1000);
   });
 
-  console.log('[AN Mod] Advanced Xiangqi & Co Up Helper initialized.');
-
-})(window.ZigaMod = window.ZigaMod || {});
+  console.log("[AN Mod] Advanced Xiangqi & Co Up Helper initialized.");
+})((window.ZigaMod = window.ZigaMod || {}));
