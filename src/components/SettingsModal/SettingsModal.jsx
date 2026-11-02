@@ -5,6 +5,7 @@ import {
   Palette,
   Sparkles,
   Sliders,
+  Layers,
   RotateCcw,
   Save,
   Sun,
@@ -28,7 +29,11 @@ import { ThemesTab } from "./ThemesTab";
 import { AuraGalleryTab } from "./AuraGalleryTab";
 import { PRESET_AURAS } from "../../aura/aura_presets";
 import { DEFAULT_HUD_STYLE } from "../../core/constants";
-import { applyHudStyle, saveHudStyleToStorage } from "../../ui/hud_theme";
+import {
+  applyHudStyle,
+  saveHudStyleToStorage,
+  loadSavedHudStyle,
+} from "../../ui/hud_theme";
 import { uiStore, useUiStore } from "../../lib/ui_store";
 
 const AURA_KEYS = [
@@ -57,6 +62,13 @@ export function applyGlobalThemeMode(mode) {
       el.classList.toggle("dark", nextMode === "dark");
     });
   }
+
+  // Re-apply HUD and global theme with the new mode immediately
+  const ZigaMod = typeof window !== "undefined" ? window.ZigaMod : null;
+  const currentHudStyle =
+    (ZigaMod?.userSettings && ZigaMod.userSettings.hudStyle) ||
+    loadSavedHudStyle();
+  applyHudStyle(currentHudStyle, nextMode);
 }
 
 export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
@@ -68,7 +80,9 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
       : PRESET_AURAS;
   const themeMode = useUiStore((s) => s.themeMode) || "dark";
 
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const normalizeTab = (tab) =>
+    tab === "hud-style" ? "ui-theme" : tab || "features";
+  const [activeTab, setActiveTab] = useState(() => normalizeTab(initialTab));
   const [draft, setDraft] = useState(() => ({
     ...defaultSettings,
     ...(ZigaMod.userSettings || {}),
@@ -85,6 +99,9 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
 
   useEffect(() => {
     if (isOpen) {
+      if (typeof window.ZigaMod?.lockOuterScroll === "function") {
+        window.ZigaMod.lockOuterScroll();
+      }
       setDraft({
         ...defaultSettings,
         ...(ZigaMod.userSettings || {}),
@@ -97,7 +114,12 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
           ...((ZigaMod.userSettings && ZigaMod.userSettings.hudStyle) || {}),
         },
       });
-      if (initialTab) setActiveTab(initialTab);
+      if (initialTab) setActiveTab(normalizeTab(initialTab));
+      return () => {
+        if (typeof window.ZigaMod?.unlockOuterScroll === "function") {
+          window.ZigaMod.unlockOuterScroll();
+        }
+      };
     }
   }, [isOpen, initialTab]);
 
@@ -127,14 +149,15 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
       if (typeof mod.applySettingsVisibility === "function") {
         mod.applySettingsVisibility();
       }
-      if (typeof mod.applyHudStyle === "function" && nextDraft.hudStyle) {
-        mod.applyHudStyle(nextDraft.hudStyle, themeMode);
-      }
-      if (
-        typeof mod.saveHudStyleToStorage === "function" &&
-        nextDraft.hudStyle
-      ) {
-        mod.saveHudStyleToStorage(nextDraft.hudStyle);
+      if (nextDraft.hudStyle) {
+        applyHudStyle(nextDraft.hudStyle, themeMode);
+        saveHudStyleToStorage(nextDraft.hudStyle);
+        if (typeof mod.applyHudStyle === "function") {
+          mod.applyHudStyle(nextDraft.hudStyle, themeMode);
+        }
+        if (typeof mod.saveHudStyleToStorage === "function") {
+          mod.saveHudStyleToStorage(nextDraft.hudStyle);
+        }
       }
       if (typeof mod.reloadAuraTextures === "function") {
         mod.reloadAuraTextures();
@@ -216,7 +239,7 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
     showToast("Đã khôi phục mặc định riêng phần Hào Quang (Aura)!");
   };
 
-  // Separate Reset #3: Reset HUD Style Only
+  // Separate Reset #3: Reset UI Theme & Style
   const handleResetHudStyleOnly = () => {
     setDraft((prev) => {
       const next = {
@@ -226,7 +249,7 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
       syncToEngineLive(next);
       return next;
     });
-    showToast("Đã khôi phục mặc định Giao Diện HUD!");
+    showToast("Đã khôi phục mặc định Giao Diện & Màu Sắc toàn dự án!");
   };
 
   const handleSaveAndClose = () => {
@@ -302,7 +325,7 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
           )}
 
           <Tabs
-            value={activeTab}
+            value={activeTab === "hud-style" ? "ui-theme" : activeTab}
             onValueChange={setActiveTab}
             className="w-full"
           >
@@ -311,16 +334,16 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
                 <Settings />
                 <span>Cài Đặt Tính Năng</span>
               </TabsTrigger>
-              <TabsTrigger value="hud-style">
-                <Sliders />
-                <span>Giao Diện HUD</span>
+              <TabsTrigger value="ui-theme">
+                <Palette />
+                <span>Giao Diện & Màu Sắc</span>
               </TabsTrigger>
               <TabsTrigger value="themes">
-                <Palette />
+                <Sparkles />
                 <span>Chủ Đề & Màu Aura</span>
               </TabsTrigger>
               <TabsTrigger value="gallery">
-                <Sparkles />
+                <Layers />
                 <span>Kho {imageCount} Mẫu PNG</span>
               </TabsTrigger>
             </TabsList>
@@ -329,7 +352,7 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
               <FeaturesTab draft={draft} updateDraft={updateDraft} />
             </TabsContent>
 
-            <TabsContent value="hud-style">
+            <TabsContent value="ui-theme">
               <HudStyleTab draft={draft} updateDraft={updateDraft} />
             </TabsContent>
 
@@ -370,10 +393,10 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
               size="sm"
               id="ziga-btn-reset-hud-style"
               onClick={handleResetHudStyleOnly}
-              title="Chỉ đặt lại kiểu dáng & màu sắc của bảng HUD về mặc định"
+              title="Đặt lại toàn bộ kiểu dáng giao diện, kính mờ và màu sắc về mặc định"
             >
-              <Sliders />
-              Reset Style HUD
+              <Palette />
+              Reset Giao Diện & Theme
             </Button>
 
             <Button
@@ -449,6 +472,16 @@ export function ensureSettingsModalMounted() {
       document.documentElement.classList.toggle("dark", savedTheme === "dark");
       modalHost.className = `ziga-shadcn-root fixed inset-0 pointer-events-none z-[2147483647] ${savedTheme === "dark" ? "dark" : ""}`;
       document.body.appendChild(modalHost);
+
+      const ZigaMod = window.ZigaMod || {};
+      const hudStyle =
+        (ZigaMod.userSettings && ZigaMod.userSettings.hudStyle) ||
+        (typeof ZigaMod.loadSavedHudStyle === "function"
+          ? ZigaMod.loadSavedHudStyle()
+          : null);
+      if (hudStyle && typeof ZigaMod.applyHudStyle === "function") {
+        ZigaMod.applyHudStyle(hudStyle, savedTheme);
+      }
     }
     modalRoot = createRoot(modalHost);
     modalRoot.render(<ModalHostWrapper />);
@@ -461,9 +494,10 @@ export function mountSettingsModal() {
 
 export function openReactSettingsModal(tab = "features") {
   ensureSettingsModalMounted();
+  const targetTab = tab === "hud-style" ? "ui-theme" : tab;
   setTimeout(() => {
     if (setModalStateExternal) {
-      setModalStateExternal({ open: true, tab });
+      setModalStateExternal({ open: true, tab: targetTab });
     }
   }, 0);
 }

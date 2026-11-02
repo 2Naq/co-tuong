@@ -63,14 +63,14 @@ export function HudStyleTab({ draft, updateDraft }) {
   };
 
   // Mini preview background styling
-  let previewBg = "rgba(18, 18, 22, 0.88)";
-  let previewBackdrop = "blur(12px)";
+  let previewBg = "rgba(18, 18, 24, 0.75)";
+  let previewBackdrop = "blur(16px)";
   if (hudStyle.bgMode === "solid") {
     previewBg = "#141416";
     previewBackdrop = "none";
   } else if (hudStyle.bgMode === "clear") {
-    previewBg = "rgba(12, 12, 15, 0.65)";
-    previewBackdrop = "blur(6px)";
+    previewBg = "rgba(10, 10, 14, 0.45)";
+    previewBackdrop = "blur(8px)";
   }
 
   const previewShadow = hudStyle.borderGlow
@@ -89,7 +89,9 @@ export function HudStyleTab({ draft, updateDraft }) {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-sm">
               <Sparkles className="text-primary size-4" />
-              <span>Xem Trước HUD Thời Gian Thực (Live Mini Preview)</span>
+              <span>
+                Xem Trước Giao Diện Toàn Dự Án Thời Gian Thực (Live Preview)
+              </span>
             </CardTitle>
             <Badge
               variant="outline"
@@ -105,129 +107,256 @@ export function HudStyleTab({ draft, updateDraft }) {
             </Badge>
           </div>
           <CardDescription>
-            Khung bên dưới mô phỏng trực tiếp diện mạo bảng điều khiển HUD khi
-            áp dụng
+            Mô phỏng trực tiếp diện mạo đồng bộ của Bảng Điều Khiển HUD và Hộp
+            Thoại Cài Đặt / Nút Bấm khi áp dụng
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="flex justify-center p-3">
-          {/* Mockup HUD Container */}
-          <div
-            style={{
-              width: "100%",
-              maxWidth: "380px",
-              backgroundColor: previewBg,
-              backdropFilter: previewBackdrop,
-              WebkitBackdropFilter: previewBackdrop,
-              borderRadius: radiusMap[hudStyle.borderRadius] || "16px",
-              boxShadow: previewShadow,
-              border: `1px solid ${previewBorderColor}`,
-              transition: "all 0.25s ease",
-            }}
-            className="text-foreground flex flex-col overflow-hidden select-none"
-          >
-            {/* Mock Header */}
-            <div className="border-border/40 flex items-center justify-between border-b px-3.5 py-2.5">
-              <div className="flex items-center gap-2">
-                <span
-                  style={{
-                    backgroundColor: activeColor,
-                    color: textColor,
-                  }}
-                  className="flex size-5.5 items-center justify-center rounded text-[11px] font-black"
-                >
-                  AN
-                </span>
-                <span className="text-xs font-bold tracking-tight">
-                  TOOLS SUPPORT
-                </span>
+        <CardContent className="p-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {/* 1. HUD Preview */}
+            <div
+              style={{
+                backgroundColor: previewBg,
+                backdropFilter: previewBackdrop,
+                WebkitBackdropFilter: previewBackdrop,
+                borderRadius: radiusMap[hudStyle.borderRadius] || "16px",
+                boxShadow: previewShadow,
+                border: `1px solid ${previewBorderColor}`,
+                transition: "all 0.25s ease",
+              }}
+              className="text-foreground flex flex-col overflow-hidden select-none"
+            >
+              {/* Header */}
+              <div className="border-border/40 flex items-center justify-between border-b px-3 py-2">
+                <div className="flex items-center gap-2">
+                  <span
+                    style={{
+                      backgroundColor: activeColor,
+                      color: textColor,
+                    }}
+                    className="flex size-5.5 items-center justify-center rounded text-[11px] font-black shadow-xs"
+                  >
+                    AN
+                  </span>
+                  <span className="text-xs font-bold tracking-tight">
+                    BẢNG HUD
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span
+                    style={{
+                      backgroundColor: hexToRgba(activeColor, 0.15),
+                      color: activeColor,
+                    }}
+                    className="border-border/40 flex size-5.5 items-center justify-center rounded border text-[10px]"
+                  >
+                    🌙
+                  </span>
+                  <span
+                    style={{
+                      backgroundColor: hexToRgba(activeColor, 0.15),
+                      color: activeColor,
+                    }}
+                    className="border-border/40 flex size-5.5 items-center justify-center rounded border text-[10px]"
+                  >
+                    ⚙️
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <span
-                  style={{ backgroundColor: hexToRgba(activeColor, 0.15) }}
-                  className="border-border/40 flex size-6 items-center justify-center rounded border text-[10px]"
+
+              {/* Body */}
+              <div className="flex flex-col gap-2 p-2.5 text-xs">
+                {/* Game status */}
+                <div
+                  style={{
+                    backgroundColor:
+                      hudStyle.cardOpacity === "transparent"
+                        ? "rgba(255, 255, 255, 0.04)"
+                        : hudStyle.cardOpacity === "solid"
+                          ? "#1c1c20"
+                          : "rgba(255, 255, 255, 0.07)",
+                    borderRadius: "8px",
+                  }}
+                  className="border-border/30 flex items-center gap-2 border px-2 py-1.5"
                 >
-                  🌙
-                </span>
-                <span
-                  style={{ backgroundColor: hexToRgba(activeColor, 0.15) }}
-                  className="border-border/40 flex size-6 items-center justify-center rounded border text-[10px]"
+                  <span
+                    style={{ backgroundColor: activeColor }}
+                    className="size-2 animate-pulse rounded-full"
+                  />
+                  <span className="text-foreground text-[11px] font-medium">
+                    Đang xem ván (Phuong_HN vs Quang_SG)
+                  </span>
+                </div>
+
+                {/* Score bar */}
+                <div
+                  style={{
+                    backgroundColor:
+                      hudStyle.cardOpacity === "transparent"
+                        ? "rgba(255, 255, 255, 0.04)"
+                        : hudStyle.cardOpacity === "solid"
+                          ? "#1c1c20"
+                          : "rgba(255, 255, 255, 0.07)",
+                    borderRadius: "8px",
+                  }}
+                  className="border-border/30 flex flex-col gap-1.5 border p-2"
                 >
-                  ⚙️
-                </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground text-[11px] font-semibold">
+                      Điểm Lực Lượng
+                    </span>
+                    <span
+                      style={{
+                        backgroundColor: hexToRgba(activeColor, 0.2),
+                        color: activeColor,
+                        border: `1px solid ${hexToRgba(activeColor, 0.4)}`,
+                      }}
+                      className="rounded-full px-1.5 py-0.5 text-[9.5px] font-bold"
+                    >
+                      +1.5 (Ưu)
+                    </span>
+                  </div>
+                  <div className="bg-muted/60 relative h-1.5 w-full overflow-hidden rounded-full">
+                    <div
+                      style={{
+                        width: "60%",
+                        backgroundColor: activeColor,
+                      }}
+                      className="h-full rounded-full transition-all"
+                    />
+                  </div>
+                  <div className="text-muted-foreground flex justify-between text-[10px]">
+                    <span>
+                      Bạn: <strong className="text-foreground">49.0 đ</strong>
+                    </span>
+                    <span>
+                      Đối thủ:{" "}
+                      <strong className="text-foreground">47.5 đ</strong>
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Mock Body */}
-            <div className="flex flex-col gap-2 p-3 text-xs">
-              {/* Game status pill */}
-              <div
-                style={{
-                  backgroundColor:
-                    hudStyle.cardOpacity === "transparent"
-                      ? "rgba(255, 255, 255, 0.04)"
-                      : hudStyle.cardOpacity === "solid"
-                        ? "#1c1c20"
-                        : "rgba(255, 255, 255, 0.07)",
-                  borderRadius: "8px",
-                }}
-                className="border-border/30 flex items-center gap-2 border px-2.5 py-1.5"
-              >
-                <span
-                  style={{ backgroundColor: activeColor }}
-                  className="size-2 animate-pulse rounded-full"
-                />
-                <span className="text-foreground font-medium">
-                  Đang xem ván (Phuong_HN vs Quang_SG)
-                </span>
-              </div>
-
-              {/* Material Bar Card Preview */}
-              <div
-                style={{
-                  backgroundColor:
-                    hudStyle.cardOpacity === "transparent"
-                      ? "rgba(255, 255, 255, 0.04)"
-                      : hudStyle.cardOpacity === "solid"
-                        ? "#1c1c20"
-                        : "rgba(255, 255, 255, 0.07)",
-                  borderRadius: "8px",
-                }}
-                className="border-border/30 flex flex-col gap-1.5 border p-2.5"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-foreground font-semibold">
-                    Điểm Lực Lượng
-                  </span>
+            {/* 2. Global Modal & UI Components Preview */}
+            <div
+              style={{
+                backgroundColor: previewBg,
+                backdropFilter: previewBackdrop,
+                WebkitBackdropFilter: previewBackdrop,
+                borderRadius: radiusMap[hudStyle.borderRadius] || "16px",
+                boxShadow: previewShadow,
+                border: `1px solid ${previewBorderColor}`,
+                transition: "all 0.25s ease",
+              }}
+              className="text-foreground flex flex-col justify-between overflow-hidden p-2.5 text-xs select-none"
+            >
+              <div className="flex flex-col gap-2">
+                {/* Header item */}
+                <div className="border-border/40 flex items-center justify-between border-b pb-2">
+                  <div className="flex items-center gap-1.5 font-bold">
+                    <Sliders
+                      className="size-3.5"
+                      style={{ color: activeColor }}
+                    />
+                    <span className="text-xs">HỘP THOẠI & NÚT BẤM</span>
+                  </div>
                   <span
                     style={{
                       backgroundColor: hexToRgba(activeColor, 0.2),
                       color: activeColor,
-                      border: `1px solid ${hexToRgba(activeColor, 0.4)}`,
+                      borderColor: hexToRgba(activeColor, 0.4),
                     }}
-                    className="rounded-full px-2 py-0.5 text-[10px] font-bold"
+                    className="rounded-full border px-1.5 py-0.5 text-[9.5px] font-bold"
                   >
-                    +1.5 (Bạn ưu)
+                    --primary
                   </span>
                 </div>
-                {/* Progress bar */}
-                <div className="bg-muted/60 relative h-2 w-full overflow-hidden rounded-full">
-                  <div
-                    style={{
-                      width: "60%",
-                      backgroundColor: activeColor,
-                    }}
-                    className="h-full rounded-full transition-all"
-                  />
+
+                {/* Button & UI Showcase */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-muted-foreground text-[10.5px]">
+                      Nút bấm mẫu:
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        style={{
+                          backgroundColor: activeColor,
+                          color: textColor,
+                          borderRadius:
+                            hudStyle.borderRadius === "rounded_sm"
+                              ? "4px"
+                              : "6px",
+                        }}
+                        className="px-2 py-0.5 text-[10.5px] font-semibold shadow-xs"
+                      >
+                        Lưu & Chọn
+                      </button>
+                      <button
+                        type="button"
+                        style={{
+                          borderColor: hexToRgba(activeColor, 0.6),
+                          color: activeColor,
+                          borderRadius:
+                            hudStyle.borderRadius === "rounded_sm"
+                              ? "4px"
+                              : "6px",
+                        }}
+                        className="border bg-transparent px-2 py-0.5 text-[10.5px] font-semibold"
+                      >
+                        Hủy
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="border-border/20 flex items-center justify-between gap-2 border-t pt-1">
+                    <span className="text-muted-foreground text-[10.5px]">
+                      Công tắc bật/tắt (Switch):
+                    </span>
+                    <div
+                      style={{
+                        backgroundColor: activeColor,
+                      }}
+                      className="flex h-3.5 w-7 items-center justify-end rounded-full px-0.5"
+                    >
+                      <div className="size-2.5 rounded-full bg-white shadow-xs" />
+                    </div>
+                  </div>
+
+                  <div className="border-border/20 flex items-center justify-between gap-2 border-t pt-1">
+                    <span className="text-muted-foreground text-[10.5px]">
+                      Thanh trượt (Slider):
+                    </span>
+                    <div className="relative flex h-3 w-24 items-center">
+                      <div className="bg-muted/60 h-1 w-full rounded-full">
+                        <div
+                          style={{ width: "70%", backgroundColor: activeColor }}
+                          className="h-full rounded-full"
+                        />
+                      </div>
+                      <div
+                        style={{ left: "70%", borderColor: activeColor }}
+                        className="bg-background absolute size-2.5 -translate-x-1/2 rounded-full border-2 shadow-xs"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="text-muted-foreground flex justify-between text-[11px]">
-                  <span>
-                    Bạn: <strong className="text-foreground">49.0 đ</strong>
-                  </span>
-                  <span>
-                    Đối thủ: <strong className="text-foreground">47.5 đ</strong>
-                  </span>
-                </div>
+              </div>
+
+              {/* Footer Note */}
+              <div
+                style={{
+                  backgroundColor: hexToRgba(activeColor, 0.1),
+                  borderColor: hexToRgba(activeColor, 0.25),
+                  color: activeColor,
+                }}
+                className="mt-2 rounded border px-2 py-1 text-center text-[10px] font-medium"
+              >
+                ✓ Tự động áp dụng đồng bộ toàn bộ HUD, Modal Cài Đặt, Sa Bàn &
+                Review
               </div>
             </div>
           </div>
@@ -239,10 +368,14 @@ export function HudStyleTab({ draft, updateDraft }) {
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-sm">
             <Palette className="text-primary size-4" />
-            <span>Chủ Đề & Màu Sắc Nổi Bật (Accent Color)</span>
+            <span>
+              Chủ Đề & Màu Sắc Chủ Đạo Toàn Dự Án (Global Accent Color)
+            </span>
           </CardTitle>
           <CardDescription>
-            Chọn một trong 8 phong cách phối màu tinh tế hoặc tự chọn mã màu Hex
+            Chọn phong cách màu sắc nổi bật hoặc tự chọn mã màu Hex. Toàn bộ các
+            nút bấm, viền kích hoạt, badge và thanh tiến trình trong dự án sẽ
+            đồng bộ theo mã màu này.
           </CardDescription>
         </CardHeader>
 
@@ -366,10 +499,13 @@ export function HudStyleTab({ draft, updateDraft }) {
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-sm">
             <Layers className="text-primary size-4" />
-            <span>Chế Độ Nền & Hiệu Ứng Kính Mờ (Glassmorphism)</span>
+            <span>
+              Chế Độ Nền & Hiệu Ứng Kính Mờ (Glassmorphism Toàn Dự Án)
+            </span>
           </CardTitle>
           <CardDescription>
-            Điều chỉnh độ trong suốt và mức độ mờ nhòe hậu cảnh bàn cờ
+            Điều chỉnh độ mờ kính cường lực (frosted glass) và độ trong suốt
+            xuyên thấu cho cả bảng HUD lẫn các Hộp Thoại (Modal)
           </CardDescription>
         </CardHeader>
 
@@ -377,18 +513,18 @@ export function HudStyleTab({ draft, updateDraft }) {
           {[
             {
               id: "glass",
-              title: "Kính Mờ (Glass)",
-              desc: "Nền mờ nhòe sang trọng, xuyên thấu bàn cờ nhẹ nhàng (Khuyên dùng)",
+              title: "Kính Mờ (Frosted Glass)",
+              desc: "Nền mờ kính cường lực 82%, làm nổi bật các thẻ nội dung bên trong, xuyên thấu bàn cờ nhẹ nhàng trên cả HUD lẫn Hộp Thoại (Khuyên dùng)",
             },
             {
               id: "solid",
               title: "Nền Đặc (Solid 100%)",
-              desc: "Nền đen/trắng đặc 100%, rõ ràng sắc nét, triệt tiêu phân tâm",
+              desc: "Nền đen/trắng đặc 100%, rõ ràng sắc nét, độ tương phản cao, triệt tiêu mọi phân tâm bàn cờ hậu cảnh",
             },
             {
               id: "clear",
-              title: "Trong Suốt Cao (Clear)",
-              desc: "Độ trong suốt 65%, quan sát tối đa các nước đi phía sau HUD",
+              title: "Trong Suốt Cao (Clear 60%)",
+              desc: "Độ trong suốt 60%, mờ nhẹ, quan sát tối đa các nước đi phía sau HUD và Hộp Thoại",
             },
           ].map((mode) => {
             const isSelected = hudStyle.bgMode === mode.id;
@@ -411,9 +547,7 @@ export function HudStyleTab({ draft, updateDraft }) {
                     </span>
                     {isSelected && <Check className="text-primary size-3.5" />}
                   </div>
-                  <p className="text-muted-foreground text-[11px]">
-                    {mode.desc}
-                  </p>
+                  <p className="text-foreground/40 text-[11px]">{mode.desc}</p>
                 </CardContent>
               </Card>
             );
@@ -428,11 +562,11 @@ export function HudStyleTab({ draft, updateDraft }) {
           <CardContent className="flex items-center justify-between p-3.5">
             <div className="flex flex-col gap-0.5 pr-2">
               <Label className="text-foreground cursor-pointer text-xs font-semibold">
-                Viền Neon Phát Sáng (Border Glow)
+                Viền Neon Phát Sáng Toàn Dự Án (Border Glow)
               </Label>
               <span className="text-muted-foreground text-[11px]">
                 Tỏa vầng sáng hào quang neon theo màu chủ đạo xung quanh viền
-                HUD
+                HUD và Hộp Thoại Cài Đặt
               </span>
             </div>
             <Switch
@@ -447,7 +581,7 @@ export function HudStyleTab({ draft, updateDraft }) {
           <CardContent className="flex flex-col gap-2 p-3.5">
             <div className="flex items-center justify-between">
               <Label className="text-foreground text-xs font-semibold">
-                Độ Bo Góc Khung HUD
+                Độ Bo Góc Toàn Dự Án (Border Radius Token)
               </Label>
               <span className="text-muted-foreground text-[11px]">
                 {hudStyle.borderRadius === "rounded_xl"
@@ -484,7 +618,7 @@ export function HudStyleTab({ draft, updateDraft }) {
           <CardContent className="flex flex-col gap-2 p-3.5">
             <div className="flex items-center justify-between">
               <Label className="text-foreground text-xs font-semibold">
-                Độ Tương Phản Thẻ Thống Kê
+                Độ Tương Phản Thẻ Nội Dung (Card Surface)
               </Label>
               <span className="text-muted-foreground text-[11px]">
                 {hudStyle.cardOpacity === "transparent"

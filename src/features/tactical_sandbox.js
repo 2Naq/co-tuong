@@ -647,6 +647,24 @@
       }
     });
 
+    // Intercept wheel & touchmove on sandbox overlay to strictly lock outer webpage scroll
+    modalEl.addEventListener(
+      "wheel",
+      (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      },
+      { passive: false },
+    );
+    modalEl.addEventListener(
+      "touchmove",
+      (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      },
+      { passive: false },
+    );
+
     // Make modal draggable by header
     setupModalDrag();
 
@@ -1573,6 +1591,9 @@
     currentTurn = snapshot.currentTurn;
     boardOrientation = snapshot.boardOrientation;
     isOpen = true;
+    if (typeof ZigaMod.lockOuterScroll === "function") {
+      ZigaMod.lockOuterScroll();
+    }
 
     const el = ensureSandboxDom();
     if (!el) {
@@ -1610,6 +1631,9 @@
   }
 
   function closeTacticalSandbox() {
+    if (isOpen && typeof ZigaMod.unlockOuterScroll === "function") {
+      ZigaMod.unlockOuterScroll();
+    }
     isOpen = false;
     userDismissedAlertThisTurn = false;
 

@@ -154,6 +154,19 @@ import { Button } from "@/components/ui/button";
       setReviewStateExternal = setState;
     }, []);
 
+    useEffect(() => {
+      if (state.open) {
+        if (typeof window.ZigaMod?.lockOuterScroll === "function") {
+          window.ZigaMod.lockOuterScroll();
+        }
+        return () => {
+          if (typeof window.ZigaMod?.unlockOuterScroll === "function") {
+            window.ZigaMod.unlockOuterScroll();
+          }
+        };
+      }
+    }, [state.open]);
+
     const { open, analysis, redPlayer, blackPlayer } = state;
     if (!analysis) return null;
 

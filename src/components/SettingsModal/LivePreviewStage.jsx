@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Eye, RotateCcw } from "lucide-react";
+import { Eye, RotateCcw, Zap, Image as ImageIcon } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -31,6 +31,30 @@ const ANIMATION_LABELS = {
   static: "Đứng Yên (Tĩnh)",
 };
 
+const SAMPLE_PIECE_PAIRS = [
+  {
+    myChar: "帥",
+    myColor: "red",
+    oppChar: "將",
+    oppColor: "black",
+    label: "Tướng (帥/將)",
+  },
+  {
+    myChar: "車",
+    myColor: "red",
+    oppChar: "車",
+    oppColor: "black",
+    label: "Xe (車/車)",
+  },
+  {
+    myChar: "炮",
+    myColor: "red",
+    oppChar: "馬",
+    oppColor: "black",
+    label: "Pháo/Mã (炮/馬)",
+  },
+];
+
 export function LivePreviewStage({ draft, updateDraft, auraPresets = [] }) {
   const ZigaMod = window.ZigaMod || {};
   const effectivePresets =
@@ -46,12 +70,12 @@ export function LivePreviewStage({ draft, updateDraft, auraPresets = [] }) {
   const scalePercent = Math.round(scaleVal * 100);
 
   const [selectOpen, setSelectOpen] = useState(false);
+  const [selectedPairIndex, setSelectedPairIndex] = useState(0);
 
   const handleOpenChange = (open) => {
     const scrollY = window.scrollY;
     setSelectOpen(open);
     if (open) {
-      // Prevent browser from scrolling window to bottom on focus
       requestAnimationFrame(() => {
         if (window.scrollY !== scrollY) {
           window.scrollTo(window.scrollX, scrollY);
@@ -113,9 +137,6 @@ export function LivePreviewStage({ draft, updateDraft, auraPresets = [] }) {
 
   const renderPreviewRing = (side, colorHex, imgUrl) => {
     const isImage = isImageMode && !!imgUrl;
-    // Calibrated to 48px piece (size="xl"):
-    // PNG ring: 66px base width gives hollow inner 66 * 0.72 = 47.5px, hugging the 48px piece!
-    // Neon ring: 56px base width hugs the 48px piece with a 4px radiant glow!
     const baseDiameter = isImage ? 66 : 56;
     const baseStyle = {
       "--aura-scale": scaleVal,
@@ -157,34 +178,81 @@ export function LivePreviewStage({ draft, updateDraft, auraPresets = [] }) {
     );
   };
 
+  const currentPair =
+    SAMPLE_PIECE_PAIRS[selectedPairIndex] || SAMPLE_PIECE_PAIRS[0];
+
   return (
     <Card size="sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Eye className="text-primary size-4" />
-          <span>Xem trước hiệu ứng Hào Quang (Live Preview)</span>
-        </CardTitle>
-        <CardAction>
-          <Badge
-            variant="secondary"
-            className="max-w-55 truncate"
-            title={badgeTitle}
-          >
-            {badgeTitle}
-          </Badge>
-        </CardAction>
+      <CardHeader className="pb-2">
+        <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <Eye className="text-primary size-4" />
+            <span>Sân Khấu Xem Trước Hào Quang (Live Preview)</span>
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant="secondary"
+              className="max-w-55 truncate text-[11px]"
+              title={badgeTitle}
+            >
+              {badgeTitle}
+            </Badge>
+
+            {/* Mode switch */}
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={() => {
+                updateDraft({
+                  auraCustom: {
+                    ...custom,
+                    mode: isImageMode ? "neon" : "image",
+                  },
+                });
+              }}
+              className="h-6 gap-1 text-[11px]"
+            >
+              {isImageMode ? (
+                <>
+                  <Zap className="size-3 text-amber-400" />
+                  <span>Chế độ: PNG</span>
+                </>
+              ) : (
+                <>
+                  <Zap className="text-primary size-3" />
+                  <span>Chế độ: Neon</span>
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
       </CardHeader>
 
       <CardContent className="flex flex-col gap-3">
         {/* Dual Chessboard Stage */}
-        <div className="bg-muted/30 grid grid-cols-[1fr_auto_1fr] items-center gap-4 rounded-lg border px-4 py-3.5">
+        <div className="bg-muted/30 border-border/80 relative grid grid-cols-[1fr_auto_1fr] items-center gap-4 rounded-lg border px-4 py-3.5">
+          {/* Sample Piece Switcher Pills */}
+          <div className="absolute top-2 right-2 z-30 flex items-center gap-1">
+            {SAMPLE_PIECE_PAIRS.map((p, idx) => (
+              <Button
+                key={p.label}
+                variant={selectedPairIndex === idx ? "default" : "outline"}
+                size="xs"
+                onClick={() => setSelectedPairIndex(idx)}
+                className="h-5 px-1.5 text-[9px]"
+              >
+                {p.label}
+              </Button>
+            ))}
+          </div>
+
           {/* My Piece */}
           <div className="flex flex-col items-center gap-1.5">
             <div className="relative flex size-20 items-center justify-center">
               {renderPreviewRing("my", myCol, myImg)}
               <PieceToken
-                char="帥"
-                color="red"
+                char={currentPair.myChar}
+                color={currentPair.myColor}
                 size="xl"
                 className="z-10 shadow-lg"
               />
@@ -206,8 +274,8 @@ export function LivePreviewStage({ draft, updateDraft, auraPresets = [] }) {
             <div className="relative flex size-20 items-center justify-center">
               {renderPreviewRing("opp", oppCol, oppImg)}
               <PieceToken
-                char="將"
-                color="black"
+                char={currentPair.oppChar}
+                color={currentPair.oppColor}
                 size="xl"
                 className="z-10 shadow-lg"
               />
@@ -221,24 +289,32 @@ export function LivePreviewStage({ draft, updateDraft, auraPresets = [] }) {
           </div>
         </div>
 
-        {/* Sliders */}
+        {/* Sliders Grid */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="bg-muted/20 flex flex-col gap-2 rounded-lg border p-3">
+          {/* Scale Slider */}
+          <div className="bg-muted/20 border-border/70 flex flex-col gap-2 rounded-lg border p-3">
             <div className="flex items-center justify-between">
-              <Label>Kích thước vòng</Label>
+              <Label className="text-foreground text-xs font-semibold">
+                Kích thước vòng hào quang
+              </Label>
               <div className="flex items-center gap-1.5">
-                <Badge variant="default">{scalePercent}%</Badge>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  onClick={() =>
-                    updateDraft({ auraCustom: { ...custom, scale: 1.0 } })
-                  }
-                  title="Đặt lại về kích thước chuẩn 100%"
-                >
-                  <RotateCcw className="mr-1 size-3" />
-                  100%
-                </Button>
+                <Badge variant="default" className="font-mono text-[11px]">
+                  {scalePercent}%
+                </Badge>
+                {scaleVal !== 1.0 && (
+                  <Button
+                    variant="outline"
+                    size="xs"
+                    onClick={() =>
+                      updateDraft({ auraCustom: { ...custom, scale: 1.0 } })
+                    }
+                    title="Đặt lại về kích thước chuẩn 100%"
+                    className="h-5 px-1.5 text-[10px]"
+                  >
+                    <RotateCcw className="mr-0.5 size-2.5" />
+                    100%
+                  </Button>
+                )}
               </div>
             </div>
             <Slider
@@ -258,10 +334,31 @@ export function LivePreviewStage({ draft, updateDraft, auraPresets = [] }) {
             />
           </div>
 
-          <div className="bg-muted/20 flex flex-col gap-2 rounded-lg border p-3">
+          {/* Spin Speed Slider */}
+          <div className="bg-muted/20 border-border/70 flex flex-col gap-2 rounded-lg border p-3">
             <div className="flex items-center justify-between">
-              <Label>Chu kỳ xoay</Label>
-              <Badge variant="secondary">{speedVal.toFixed(1)}s</Badge>
+              <Label className="text-foreground text-xs font-semibold">
+                Chu kỳ xoay (Tốc độ)
+              </Label>
+              <div className="flex items-center gap-1.5">
+                <Badge variant="secondary" className="font-mono text-[11px]">
+                  {speedVal.toFixed(1)}s
+                </Badge>
+                {speedVal !== 3.5 && (
+                  <Button
+                    variant="outline"
+                    size="xs"
+                    onClick={() =>
+                      updateDraft({ auraCustom: { ...custom, spinSpeed: 3.5 } })
+                    }
+                    title="Đặt lại về tốc độ chuẩn 3.5s"
+                    className="h-5 px-1.5 text-[10px]"
+                  >
+                    <RotateCcw className="mr-0.5 size-2.5" />
+                    3.5s
+                  </Button>
+                )}
+              </div>
             </div>
             <Slider
               min={10}
@@ -282,8 +379,10 @@ export function LivePreviewStage({ draft, updateDraft, auraPresets = [] }) {
         </div>
 
         {/* Animation Mode Select */}
-        <div className="bg-muted/20 flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
-          <Label>Chế độ chuyển động</Label>
+        <div className="bg-muted/20 border-border/70 flex flex-col justify-between gap-2.5 rounded-lg border px-3 py-2.5 sm:flex-row sm:items-center">
+          <Label className="text-foreground text-xs font-semibold">
+            Chế độ chuyển động ma pháp
+          </Label>
           <Select
             modal={false}
             open={selectOpen}
@@ -291,7 +390,7 @@ export function LivePreviewStage({ draft, updateDraft, auraPresets = [] }) {
             value={animType}
             onValueChange={handleSelectAnim}
           >
-            <SelectTrigger className="w-64 cursor-pointer">
+            <SelectTrigger className="w-full cursor-pointer text-xs sm:w-68">
               <SelectValue placeholder="Chọn hiệu ứng chuyển động">
                 {ANIMATION_LABELS[animType] || animType}
               </SelectValue>

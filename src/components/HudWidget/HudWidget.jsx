@@ -189,9 +189,9 @@ export function HudWidget() {
                 id="ziga-mod-btn-palette"
                 onClick={(e) => {
                   e.stopPropagation();
-                  openReactSettingsModal("hud-style");
+                  openReactSettingsModal("ui-theme");
                 }}
-                title="Tùy biến màu sắc & Giao diện HUD (Personalize Widget)"
+                title="Tùy biến giao diện & màu sắc toàn bộ dự án"
               >
                 <Palette />
               </Button>
@@ -222,7 +222,7 @@ export function HudWidget() {
       <div
         id="ziga-mod-body"
         style={{ display: isMinimized ? "none" : "flex" }}
-        className="bg-background text-foreground flex max-h-[560px] flex-col gap-2.5 overflow-x-hidden overflow-y-auto p-3"
+        className="bg-background text-foreground flex max-h-140 flex-col gap-2.5 overflow-x-hidden overflow-y-auto p-3"
       >
         {/* Game Status Pill */}
         <Card size="sm" className="py-2">
