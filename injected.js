@@ -14587,7 +14587,7 @@
       }
       var objectIs = "function" === typeof Object.is ? Object.is : is;
       var useState38 = React177.useState;
-      var useEffect24 = React177.useEffect;
+      var useEffect25 = React177.useEffect;
       var useLayoutEffect3 = React177.useLayoutEffect;
       var useDebugValue2 = React177.useDebugValue;
       function useSyncExternalStore$2(subscribe, getSnapshot) {
@@ -14600,7 +14600,7 @@
           },
           [subscribe, value, getSnapshot]
         );
-        useEffect24(
+        useEffect25(
           function() {
             checkIfSnapshotChanged(inst) && forceUpdate({ inst });
             return subscribe(function() {
@@ -14653,17 +14653,17 @@
       }
       var objectIs = "function" === typeof Object.is ? Object.is : is;
       var useSyncExternalStore5 = shim.useSyncExternalStore;
-      var useRef53 = React177.useRef;
-      var useEffect24 = React177.useEffect;
-      var useMemo35 = React177.useMemo;
+      var useRef54 = React177.useRef;
+      var useEffect25 = React177.useEffect;
+      var useMemo36 = React177.useMemo;
       var useDebugValue2 = React177.useDebugValue;
       exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
-        var instRef = useRef53(null);
+        var instRef = useRef54(null);
         if (null === instRef.current) {
           var inst = { hasValue: false, value: null };
           instRef.current = inst;
         } else inst = instRef.current;
-        instRef = useMemo35(
+        instRef = useMemo36(
           function() {
             function memoizedSelector(nextSnapshot) {
               if (!hasMemo) {
@@ -14698,7 +14698,7 @@
           [getSnapshot, getServerSnapshot, selector, isEqual]
         );
         var value = useSyncExternalStore5(subscribe, instRef[0], instRef[1]);
-        useEffect24(
+        useEffect25(
           function() {
             inst.hasValue = true;
             inst.value = value;
@@ -18205,8 +18205,30 @@
   __iconData2.node;
   var BookOpen = createLucideIcon(__iconData2);
 
-  // node_modules/lucide-react/dist/esm/icons/chart-column.mjs
+  // node_modules/lucide-react/dist/esm/icons/brain-circuit.mjs
   var __iconData3 = {
+    name: "brain-circuit",
+    size: 24,
+    node: [
+      ["path", { d: "M12 13h4", key: "1ku699" }],
+      ["path", { d: "M12 18h6a2 2 0 012 2v1", key: "6s3bw4" }],
+      ["path", { d: "M12 8h8", key: "1lhi5i" }],
+      ["path", { d: "M12 9a4.17 4.17 0 01-3 4", key: "13l7kh" }],
+      ["path", { d: "M16 8V5a2 2 0 012-2", key: "gais5y" }],
+      ["path", { d: "M6 18a4 4 0 01-2-7.465", key: "1y2m15" }],
+      ["path", { d: "M6.004 5.125a4 4 0 00-2.526 5.77", key: "3cw1ss" }],
+      ["path", { d: "M6.294 6.294A3 3 0 1112 5v13a4 4 0 11-7.967-.518", key: "m2z1wm" }],
+      ["circle", { cx: "16", cy: "13", r: "0.5", fill: "currentColor", key: "9zzywh" }],
+      ["circle", { cx: "18", cy: "3", r: "0.5", fill: "currentColor", key: "i2xui6" }],
+      ["circle", { cx: "20", cy: "21", r: "0.5", fill: "currentColor", key: "1dobdp" }],
+      ["circle", { cx: "20", cy: "8", r: "0.5", fill: "currentColor", key: "r9nqlq" }]
+    ]
+  };
+  __iconData3.node;
+  var BrainCircuit = createLucideIcon(__iconData3);
+
+  // node_modules/lucide-react/dist/esm/icons/chart-column.mjs
+  var __iconData4 = {
     name: "chart-column",
     size: 24,
     node: [
@@ -18217,11 +18239,11 @@
     ],
     aliases: ["bar-chart-3"]
   };
-  __iconData3.node;
-  var ChartColumn = createLucideIcon(__iconData3);
+  __iconData4.node;
+  var ChartColumn = createLucideIcon(__iconData4);
 
   // node_modules/lucide-react/dist/esm/icons/chart-no-axes-column.mjs
-  var __iconData4 = {
+  var __iconData5 = {
     name: "chart-no-axes-column",
     size: 24,
     node: [
@@ -18231,38 +18253,38 @@
     ],
     aliases: ["bar-chart-2"]
   };
-  __iconData4.node;
-  var ChartNoAxesColumn = createLucideIcon(__iconData4);
+  __iconData5.node;
+  var ChartNoAxesColumn = createLucideIcon(__iconData5);
 
   // node_modules/lucide-react/dist/esm/icons/check.mjs
-  var __iconData5 = {
+  var __iconData6 = {
     name: "check",
     size: 24,
     node: [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]]
   };
-  __iconData5.node;
-  var Check = createLucideIcon(__iconData5);
+  __iconData6.node;
+  var Check = createLucideIcon(__iconData6);
 
   // node_modules/lucide-react/dist/esm/icons/chevron-down.mjs
-  var __iconData6 = {
+  var __iconData7 = {
     name: "chevron-down",
     size: 24,
     node: [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]]
   };
-  __iconData6.node;
-  var ChevronDown = createLucideIcon(__iconData6);
+  __iconData7.node;
+  var ChevronDown = createLucideIcon(__iconData7);
 
   // node_modules/lucide-react/dist/esm/icons/chevron-up.mjs
-  var __iconData7 = {
+  var __iconData8 = {
     name: "chevron-up",
     size: 24,
     node: [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]]
   };
-  __iconData7.node;
-  var ChevronUp = createLucideIcon(__iconData7);
+  __iconData8.node;
+  var ChevronUp = createLucideIcon(__iconData8);
 
   // node_modules/lucide-react/dist/esm/icons/circle-question-mark.mjs
-  var __iconData8 = {
+  var __iconData9 = {
     name: "circle-question-mark",
     size: 24,
     node: [
@@ -18272,11 +18294,11 @@
     ],
     aliases: ["help-circle", "circle-help"]
   };
-  __iconData8.node;
-  var CircleQuestionMark = createLucideIcon(__iconData8);
+  __iconData9.node;
+  var CircleQuestionMark = createLucideIcon(__iconData9);
 
   // node_modules/lucide-react/dist/esm/icons/compass.mjs
-  var __iconData9 = {
+  var __iconData10 = {
     name: "compass",
     size: 24,
     node: [
@@ -18290,11 +18312,11 @@
       ]
     ]
   };
-  __iconData9.node;
-  var Compass = createLucideIcon(__iconData9);
+  __iconData10.node;
+  var Compass = createLucideIcon(__iconData10);
 
   // node_modules/lucide-react/dist/esm/icons/copy.mjs
-  var __iconData10 = {
+  var __iconData11 = {
     name: "copy",
     size: 24,
     node: [
@@ -18302,11 +18324,11 @@
       ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
     ]
   };
-  __iconData10.node;
-  var Copy = createLucideIcon(__iconData10);
+  __iconData11.node;
+  var Copy = createLucideIcon(__iconData11);
 
   // node_modules/lucide-react/dist/esm/icons/crosshair.mjs
-  var __iconData11 = {
+  var __iconData12 = {
     name: "crosshair",
     size: 24,
     node: [
@@ -18317,11 +18339,11 @@
       ["line", { x1: "12", x2: "12", y1: "22", y2: "18", key: "15g9kq" }]
     ]
   };
-  __iconData11.node;
-  var Crosshair = createLucideIcon(__iconData11);
+  __iconData12.node;
+  var Crosshair = createLucideIcon(__iconData12);
 
   // node_modules/lucide-react/dist/esm/icons/dices.mjs
-  var __iconData12 = {
+  var __iconData13 = {
     name: "dices",
     size: 24,
     node: [
@@ -18339,11 +18361,23 @@
       ["path", { d: "M18 9h.01", key: "2061c0" }]
     ]
   };
-  __iconData12.node;
-  var Dices = createLucideIcon(__iconData12);
+  __iconData13.node;
+  var Dices = createLucideIcon(__iconData13);
+
+  // node_modules/lucide-react/dist/esm/icons/equal.mjs
+  var __iconData14 = {
+    name: "equal",
+    size: 24,
+    node: [
+      ["line", { x1: "5", x2: "19", y1: "9", y2: "9", key: "1nwqeh" }],
+      ["line", { x1: "5", x2: "19", y1: "15", y2: "15", key: "g8yjpy" }]
+    ]
+  };
+  __iconData14.node;
+  var Equal = createLucideIcon(__iconData14);
 
   // node_modules/lucide-react/dist/esm/icons/external-link.mjs
-  var __iconData13 = {
+  var __iconData15 = {
     name: "external-link",
     size: 24,
     node: [
@@ -18352,11 +18386,11 @@
       ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
     ]
   };
-  __iconData13.node;
-  var ExternalLink = createLucideIcon(__iconData13);
+  __iconData15.node;
+  var ExternalLink = createLucideIcon(__iconData15);
 
   // node_modules/lucide-react/dist/esm/icons/eye.mjs
-  var __iconData14 = {
+  var __iconData16 = {
     name: "eye",
     size: 24,
     node: [
@@ -18370,11 +18404,11 @@
       ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
     ]
   };
-  __iconData14.node;
-  var Eye = createLucideIcon(__iconData14);
+  __iconData16.node;
+  var Eye = createLucideIcon(__iconData16);
 
   // node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs
-  var __iconData15 = {
+  var __iconData17 = {
     name: "graduation-cap",
     size: 24,
     node: [
@@ -18389,11 +18423,11 @@
       ["path", { d: "M6 12.5V16a6 3 0 0 0 12 0v-3.5", key: "1r8lef" }]
     ]
   };
-  __iconData15.node;
-  var GraduationCap = createLucideIcon(__iconData15);
+  __iconData17.node;
+  var GraduationCap = createLucideIcon(__iconData17);
 
   // node_modules/lucide-react/dist/esm/icons/image.mjs
-  var __iconData16 = {
+  var __iconData18 = {
     name: "image",
     size: 24,
     node: [
@@ -18402,11 +18436,11 @@
       ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
     ]
   };
-  __iconData16.node;
-  var Image2 = createLucideIcon(__iconData16);
+  __iconData18.node;
+  var Image2 = createLucideIcon(__iconData18);
 
   // node_modules/lucide-react/dist/esm/icons/layers.mjs
-  var __iconData17 = {
+  var __iconData19 = {
     name: "layers",
     size: 24,
     node: [
@@ -18434,20 +18468,81 @@
     ],
     aliases: ["layers-3"]
   };
-  __iconData17.node;
-  var Layers = createLucideIcon(__iconData17);
+  __iconData19.node;
+  var Layers = createLucideIcon(__iconData19);
+
+  // node_modules/lucide-react/dist/esm/icons/layout-grid.mjs
+  var __iconData20 = {
+    name: "layout-grid",
+    size: 24,
+    node: [
+      ["rect", { width: "7", height: "7", x: "3", y: "3", rx: "1", key: "1g98yp" }],
+      ["rect", { width: "7", height: "7", x: "14", y: "3", rx: "1", key: "6d4xhi" }],
+      ["rect", { width: "7", height: "7", x: "14", y: "14", rx: "1", key: "nxv5o0" }],
+      ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
+    ]
+  };
+  __iconData20.node;
+  var LayoutGrid = createLucideIcon(__iconData20);
+
+  // node_modules/lucide-react/dist/esm/icons/lightbulb.mjs
+  var __iconData21 = {
+    name: "lightbulb",
+    size: 24,
+    node: [
+      [
+        "path",
+        {
+          d: "M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5",
+          key: "1gvzjb"
+        }
+      ],
+      ["path", { d: "M9 18h6", key: "x1upvd" }],
+      ["path", { d: "M10 22h4", key: "ceow96" }]
+    ]
+  };
+  __iconData21.node;
+  var Lightbulb = createLucideIcon(__iconData21);
+
+  // node_modules/lucide-react/dist/esm/icons/maximize-2.mjs
+  var __iconData22 = {
+    name: "maximize-2",
+    size: 24,
+    node: [
+      ["path", { d: "M15 3h6v6", key: "1q9fwt" }],
+      ["path", { d: "m21 3-7 7", key: "1l2asr" }],
+      ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
+      ["path", { d: "M9 21H3v-6", key: "wtvkvv" }]
+    ]
+  };
+  __iconData22.node;
+  var Maximize2 = createLucideIcon(__iconData22);
+
+  // node_modules/lucide-react/dist/esm/icons/minimize-2.mjs
+  var __iconData23 = {
+    name: "minimize-2",
+    size: 24,
+    node: [
+      ["path", { d: "m14 10 7-7", key: "oa77jy" }],
+      ["path", { d: "M20 10h-6V4", key: "mjg0md" }],
+      ["path", { d: "m3 21 7-7", key: "tjx5ai" }],
+      ["path", { d: "M4 14h6v6", key: "rmj7iw" }]
+    ]
+  };
+  __iconData23.node;
+  var Minimize2 = createLucideIcon(__iconData23);
 
   // node_modules/lucide-react/dist/esm/icons/minus.mjs
-  var __iconData18 = {
+  var __iconData24 = {
     name: "minus",
     size: 24,
     node: [["path", { d: "M5 12h14", key: "1ays0h" }]]
   };
-  __iconData18.node;
-  var Minus = createLucideIcon(__iconData18);
+  __iconData24.node;
+  var Minus = createLucideIcon(__iconData24);
 
   // node_modules/lucide-react/dist/esm/icons/moon.mjs
-  var __iconData19 = {
+  var __iconData25 = {
     name: "moon",
     size: 24,
     node: [
@@ -18460,11 +18555,11 @@
       ]
     ]
   };
-  __iconData19.node;
-  var Moon = createLucideIcon(__iconData19);
+  __iconData25.node;
+  var Moon = createLucideIcon(__iconData25);
 
   // node_modules/lucide-react/dist/esm/icons/palette.mjs
-  var __iconData20 = {
+  var __iconData26 = {
     name: "palette",
     size: 24,
     node: [
@@ -18481,11 +18576,11 @@
       ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
     ]
   };
-  __iconData20.node;
-  var Palette = createLucideIcon(__iconData20);
+  __iconData26.node;
+  var Palette = createLucideIcon(__iconData26);
 
   // node_modules/lucide-react/dist/esm/icons/pipette.mjs
-  var __iconData21 = {
+  var __iconData27 = {
     name: "pipette",
     size: 24,
     node: [
@@ -18506,11 +18601,28 @@
       ["path", { d: "m2 22 .414-.414", key: "jhxm08" }]
     ]
   };
-  __iconData21.node;
-  var Pipette = createLucideIcon(__iconData21);
+  __iconData27.node;
+  var Pipette = createLucideIcon(__iconData27);
+
+  // node_modules/lucide-react/dist/esm/icons/play.mjs
+  var __iconData28 = {
+    name: "play",
+    size: 24,
+    node: [
+      [
+        "path",
+        {
+          d: "M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z",
+          key: "10ikf1"
+        }
+      ]
+    ]
+  };
+  __iconData28.node;
+  var Play = createLucideIcon(__iconData28);
 
   // node_modules/lucide-react/dist/esm/icons/plus.mjs
-  var __iconData22 = {
+  var __iconData29 = {
     name: "plus",
     size: 24,
     node: [
@@ -18518,11 +18630,11 @@
       ["path", { d: "M12 5v14", key: "s699le" }]
     ]
   };
-  __iconData22.node;
-  var Plus = createLucideIcon(__iconData22);
+  __iconData29.node;
+  var Plus = createLucideIcon(__iconData29);
 
   // node_modules/lucide-react/dist/esm/icons/rotate-ccw.mjs
-  var __iconData23 = {
+  var __iconData30 = {
     name: "rotate-ccw",
     size: 24,
     node: [
@@ -18530,11 +18642,11 @@
       ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
     ]
   };
-  __iconData23.node;
-  var RotateCcw = createLucideIcon(__iconData23);
+  __iconData30.node;
+  var RotateCcw = createLucideIcon(__iconData30);
 
   // node_modules/lucide-react/dist/esm/icons/save.mjs
-  var __iconData24 = {
+  var __iconData31 = {
     name: "save",
     size: 24,
     node: [
@@ -18549,11 +18661,11 @@
       ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
     ]
   };
-  __iconData24.node;
-  var Save = createLucideIcon(__iconData24);
+  __iconData31.node;
+  var Save = createLucideIcon(__iconData31);
 
   // node_modules/lucide-react/dist/esm/icons/scale.mjs
-  var __iconData25 = {
+  var __iconData32 = {
     name: "scale",
     size: 24,
     node: [
@@ -18564,11 +18676,11 @@
       ["path", { d: "M7 21h10", key: "1b0cd5" }]
     ]
   };
-  __iconData25.node;
-  var Scale = createLucideIcon(__iconData25);
+  __iconData32.node;
+  var Scale = createLucideIcon(__iconData32);
 
   // node_modules/lucide-react/dist/esm/icons/scroll-text.mjs
-  var __iconData26 = {
+  var __iconData33 = {
     name: "scroll-text",
     size: 24,
     node: [
@@ -18584,11 +18696,11 @@
       ]
     ]
   };
-  __iconData26.node;
-  var ScrollText = createLucideIcon(__iconData26);
+  __iconData33.node;
+  var ScrollText = createLucideIcon(__iconData33);
 
   // node_modules/lucide-react/dist/esm/icons/search.mjs
-  var __iconData27 = {
+  var __iconData34 = {
     name: "search",
     size: 24,
     node: [
@@ -18596,11 +18708,11 @@
       ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
     ]
   };
-  __iconData27.node;
-  var Search = createLucideIcon(__iconData27);
+  __iconData34.node;
+  var Search = createLucideIcon(__iconData34);
 
   // node_modules/lucide-react/dist/esm/icons/settings.mjs
-  var __iconData28 = {
+  var __iconData35 = {
     name: "settings",
     size: 24,
     node: [
@@ -18614,11 +18726,30 @@
       ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
     ]
   };
-  __iconData28.node;
-  var Settings = createLucideIcon(__iconData28);
+  __iconData35.node;
+  var Settings = createLucideIcon(__iconData35);
+
+  // node_modules/lucide-react/dist/esm/icons/shield-alert.mjs
+  var __iconData36 = {
+    name: "shield-alert",
+    size: 24,
+    node: [
+      [
+        "path",
+        {
+          d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z",
+          key: "oel41y"
+        }
+      ],
+      ["path", { d: "M12 8v4", key: "1got3b" }],
+      ["path", { d: "M12 16h.01", key: "1drbdi" }]
+    ]
+  };
+  __iconData36.node;
+  var ShieldAlert = createLucideIcon(__iconData36);
 
   // node_modules/lucide-react/dist/esm/icons/shield.mjs
-  var __iconData29 = {
+  var __iconData37 = {
     name: "shield",
     size: 24,
     node: [
@@ -18631,11 +18762,11 @@
       ]
     ]
   };
-  __iconData29.node;
-  var Shield = createLucideIcon(__iconData29);
+  __iconData37.node;
+  var Shield = createLucideIcon(__iconData37);
 
   // node_modules/lucide-react/dist/esm/icons/sliders-vertical.mjs
-  var __iconData30 = {
+  var __iconData38 = {
     name: "sliders-vertical",
     size: 24,
     node: [
@@ -18651,11 +18782,11 @@
     ],
     aliases: ["sliders"]
   };
-  __iconData30.node;
-  var SlidersVertical = createLucideIcon(__iconData30);
+  __iconData38.node;
+  var SlidersVertical = createLucideIcon(__iconData38);
 
   // node_modules/lucide-react/dist/esm/icons/sparkles.mjs
-  var __iconData31 = {
+  var __iconData39 = {
     name: "sparkles",
     size: 24,
     node: [
@@ -18672,11 +18803,11 @@
     ],
     aliases: ["stars"]
   };
-  __iconData31.node;
-  var Sparkles = createLucideIcon(__iconData31);
+  __iconData39.node;
+  var Sparkles = createLucideIcon(__iconData39);
 
   // node_modules/lucide-react/dist/esm/icons/sun.mjs
-  var __iconData32 = {
+  var __iconData40 = {
     name: "sun",
     size: 24,
     node: [
@@ -18691,11 +18822,11 @@
       ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }]
     ]
   };
-  __iconData32.node;
-  var Sun = createLucideIcon(__iconData32);
+  __iconData40.node;
+  var Sun = createLucideIcon(__iconData40);
 
   // node_modules/lucide-react/dist/esm/icons/swords.mjs
-  var __iconData33 = {
+  var __iconData41 = {
     name: "swords",
     size: 24,
     node: [
@@ -18721,11 +18852,11 @@
       ["path", { d: "M7.5 16.5 4 20", key: "14nozp" }]
     ]
   };
-  __iconData33.node;
-  var Swords = createLucideIcon(__iconData33);
+  __iconData41.node;
+  var Swords = createLucideIcon(__iconData41);
 
   // node_modules/lucide-react/dist/esm/icons/trash.mjs
-  var __iconData34 = {
+  var __iconData42 = {
     name: "trash",
     size: 24,
     node: [
@@ -18737,11 +18868,35 @@
     ],
     aliases: ["trash-2"]
   };
-  __iconData34.node;
-  var Trash = createLucideIcon(__iconData34);
+  __iconData42.node;
+  var Trash = createLucideIcon(__iconData42);
+
+  // node_modules/lucide-react/dist/esm/icons/trending-down.mjs
+  var __iconData43 = {
+    name: "trending-down",
+    size: 24,
+    node: [
+      ["path", { d: "M16 17h6v-6", key: "t6n2it" }],
+      ["path", { d: "m22 17-8.5-8.5-5 5L2 7", key: "x473p" }]
+    ]
+  };
+  __iconData43.node;
+  var TrendingDown = createLucideIcon(__iconData43);
+
+  // node_modules/lucide-react/dist/esm/icons/trending-up.mjs
+  var __iconData44 = {
+    name: "trending-up",
+    size: 24,
+    node: [
+      ["path", { d: "M16 7h6v6", key: "box55l" }],
+      ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
+    ]
+  };
+  __iconData44.node;
+  var TrendingUp = createLucideIcon(__iconData44);
 
   // node_modules/lucide-react/dist/esm/icons/triangle-alert.mjs
-  var __iconData35 = {
+  var __iconData45 = {
     name: "triangle-alert",
     size: 24,
     node: [
@@ -18757,11 +18912,27 @@
     ],
     aliases: ["alert-triangle"]
   };
-  __iconData35.node;
-  var TriangleAlert = createLucideIcon(__iconData35);
+  __iconData45.node;
+  var TriangleAlert = createLucideIcon(__iconData45);
+
+  // node_modules/lucide-react/dist/esm/icons/trophy.mjs
+  var __iconData46 = {
+    name: "trophy",
+    size: 24,
+    node: [
+      ["path", { d: "M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2", key: "pwuv1l" }],
+      ["path", { d: "M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2", key: "1y54w1" }],
+      ["path", { d: "M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a1 1 0 0 0-1-1h-3", key: "e30mpu" }],
+      ["path", { d: "M4 22h16", key: "57wxv0" }],
+      ["path", { d: "M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z", key: "1mhfuq" }],
+      ["path", { d: "M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3", key: "i0yafy" }]
+    ]
+  };
+  __iconData46.node;
+  var Trophy = createLucideIcon(__iconData46);
 
   // node_modules/lucide-react/dist/esm/icons/upload.mjs
-  var __iconData36 = {
+  var __iconData47 = {
     name: "upload",
     size: 24,
     node: [
@@ -18770,11 +18941,11 @@
       ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }]
     ]
   };
-  __iconData36.node;
-  var Upload = createLucideIcon(__iconData36);
+  __iconData47.node;
+  var Upload = createLucideIcon(__iconData47);
 
   // node_modules/lucide-react/dist/esm/icons/wrench.mjs
-  var __iconData37 = {
+  var __iconData48 = {
     name: "wrench",
     size: 24,
     node: [
@@ -18787,11 +18958,11 @@
       ]
     ]
   };
-  __iconData37.node;
-  var Wrench = createLucideIcon(__iconData37);
+  __iconData48.node;
+  var Wrench = createLucideIcon(__iconData48);
 
   // node_modules/lucide-react/dist/esm/icons/x.mjs
-  var __iconData38 = {
+  var __iconData49 = {
     name: "x",
     size: 24,
     node: [
@@ -18799,11 +18970,11 @@
       ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
     ]
   };
-  __iconData38.node;
-  var X = createLucideIcon(__iconData38);
+  __iconData49.node;
+  var X = createLucideIcon(__iconData49);
 
   // node_modules/lucide-react/dist/esm/icons/zap.mjs
-  var __iconData39 = {
+  var __iconData50 = {
     name: "zap",
     size: 24,
     node: [
@@ -18816,8 +18987,8 @@
       ]
     ]
   };
-  __iconData39.node;
-  var Zap = createLucideIcon(__iconData39);
+  __iconData50.node;
+  var Zap = createLucideIcon(__iconData50);
 
   // src/components/ui/dialog.jsx
   var React50 = __toESM(require_react());
@@ -39262,6 +39433,8 @@
 #ziga-mod-widget,
 #ziga-sandbox-modal,
 #ziga-game-review-modal,
+#ziga-mentor-floating-panel,
+.ziga-mentor-panel-card,
 .ziga-sb-card,
 .ziga-sb-flank,
 [data-slot="dialog-content"],
@@ -39280,6 +39453,8 @@
 }
 
 #ziga-mod-widget,
+#ziga-mentor-floating-panel,
+.ziga-mentor-panel-card,
 [data-slot="dialog-content"],
 .dark [data-slot="dialog-content"] {
   --popover: ${containerBg} !important;
@@ -39383,6 +39558,8 @@ button.bg-primary,
 [data-slot="dialog-content"],
 .ziga-sb-card,
 .ziga-sb-flank,
+#ziga-mentor-floating-panel .ziga-mentor-panel-card,
+.ziga-mentor-panel-card,
 #ziga-game-review-modal .modal-content {
   background-color: ${containerBg} !important;
   background: ${containerBg} !important;
@@ -39411,13 +39588,14 @@ button.bg-primary,
 }
 
 /* 6. Translucent Card & Tab List surfaces inside glass HUD and Modals */
-:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card) [data-slot="card"],
-:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card) [data-slot="card"].bg-card,
-:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card) .bg-card,
-:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card) [data-slot="tabs-list"],
+:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card, #ziga-mentor-floating-panel) [data-slot="card"],
+:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card, #ziga-mentor-floating-panel) [data-slot="card"].bg-card,
+:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card, #ziga-mentor-floating-panel) .bg-card,
+:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card, #ziga-mentor-floating-panel) [data-slot="tabs-list"],
 #ziga-mod-widget [data-slot="card"],
 [data-slot="dialog-content"] [data-slot="card"],
 .ziga-sb-card [data-slot="card"],
+#ziga-mentor-floating-panel [data-slot="card"],
 [data-slot="dialog-content"] [data-slot="tabs-list"] {
   background-color: ${cardBg} !important;
   background: ${cardBg} !important;
@@ -42032,12 +42210,14 @@ button.bg-primary,
       if (!ctx || !canvasEl) return;
       syncCanvasBounds();
       ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-      drawnHighlights.forEach((h) => {
+      const highlights = ZigaMod.drawnHighlights || drawnHighlights;
+      highlights.forEach((h) => {
         const p = boardToCanvasPixel(h.col, h.row);
         const pal = COLOR_PALETTES[h.color] || COLOR_PALETTES.green;
         drawHighlightCircle(ctx, p.x, p.y, pal);
       });
-      drawnArrows.forEach((a) => {
+      const arrows = ZigaMod.drawnArrows || drawnArrows;
+      arrows.forEach((a) => {
         const start = boardToCanvasPixel(a.fromCol, a.fromRow);
         const end = boardToCanvasPixel(a.toCol, a.toRow);
         const pal = COLOR_PALETTES[a.color] || COLOR_PALETTES.green;
@@ -44645,57 +44825,833 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     );
   }
 
+  // src/features/xiangqi_engine.js
+  function createXiangqiEngine() {
+    "use strict";
+    const MATE = 1e4;
+    const INF = 32e3;
+    const MAXPLY = 64;
+    const Z = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    const PST_KING = [
+      Z,
+      Z,
+      Z,
+      Z,
+      Z,
+      Z,
+      Z,
+      [0, 0, 0, 1, 1, 1, 0, 0, 0],
+      [0, 0, 0, 2, 2, 2, 0, 0, 0],
+      [0, 0, 0, 11, 15, 11, 0, 0, 0]
+    ];
+    const PST_ADVISOR = [
+      Z,
+      Z,
+      Z,
+      Z,
+      Z,
+      Z,
+      Z,
+      [0, 0, 0, 20, 0, 20, 0, 0, 0],
+      [0, 0, 0, 0, 23, 0, 0, 0, 0],
+      [0, 0, 0, 20, 0, 20, 0, 0, 0]
+    ];
+    const PST_BISHOP = [
+      Z,
+      Z,
+      Z,
+      Z,
+      Z,
+      [0, 0, 20, 0, 0, 0, 20, 0, 0],
+      Z,
+      [18, 0, 0, 0, 23, 0, 0, 0, 18],
+      Z,
+      [0, 0, 20, 0, 0, 0, 20, 0, 0]
+    ];
+    const PST_ROOK = [
+      [206, 208, 207, 213, 214, 213, 207, 208, 206],
+      [206, 212, 209, 216, 233, 216, 209, 212, 206],
+      [206, 208, 207, 214, 216, 214, 207, 208, 206],
+      [206, 213, 213, 216, 216, 216, 213, 213, 206],
+      [208, 211, 211, 214, 215, 214, 211, 211, 208],
+      [208, 212, 212, 214, 215, 214, 212, 212, 208],
+      [204, 209, 204, 212, 214, 212, 204, 209, 204],
+      [198, 208, 204, 212, 212, 212, 204, 208, 198],
+      [200, 208, 206, 212, 200, 212, 206, 208, 200],
+      [194, 206, 204, 212, 200, 212, 204, 206, 194]
+    ];
+    const PST_CANNON = [
+      [100, 100, 96, 91, 90, 91, 96, 100, 100],
+      [98, 98, 96, 92, 89, 92, 96, 98, 98],
+      [97, 97, 96, 91, 92, 91, 96, 97, 97],
+      [96, 99, 99, 98, 100, 98, 99, 99, 96],
+      [96, 96, 96, 96, 100, 96, 96, 96, 96],
+      [95, 96, 99, 96, 100, 96, 99, 96, 95],
+      [96, 96, 96, 96, 96, 96, 96, 96, 96],
+      [97, 96, 100, 99, 101, 99, 100, 96, 97],
+      [96, 97, 98, 98, 98, 98, 98, 97, 96],
+      [96, 96, 97, 99, 99, 99, 97, 96, 96]
+    ];
+    const PST_KNIGHT = [
+      [90, 90, 90, 96, 90, 96, 90, 90, 90],
+      [90, 96, 103, 97, 94, 97, 103, 96, 90],
+      [92, 98, 99, 103, 99, 103, 99, 98, 92],
+      [93, 108, 100, 107, 100, 107, 100, 108, 93],
+      [90, 100, 99, 103, 104, 103, 99, 100, 90],
+      [90, 98, 101, 102, 103, 102, 101, 98, 90],
+      [92, 94, 98, 95, 98, 95, 98, 94, 92],
+      [93, 92, 94, 95, 92, 95, 94, 92, 93],
+      [85, 90, 92, 93, 78, 93, 92, 90, 85],
+      [88, 85, 90, 88, 90, 88, 90, 85, 88]
+    ];
+    const PST_PAWN = [
+      [9, 9, 9, 11, 13, 11, 9, 9, 9],
+      [19, 24, 34, 42, 44, 42, 34, 24, 19],
+      [19, 24, 32, 37, 37, 37, 32, 24, 19],
+      [19, 23, 27, 29, 30, 29, 27, 23, 19],
+      [14, 18, 20, 27, 29, 27, 20, 18, 14],
+      [7, 0, 13, 0, 16, 0, 13, 0, 7],
+      [7, 0, 7, 0, 15, 0, 7, 0, 7],
+      Z,
+      Z,
+      Z
+    ];
+    const PST = [
+      null,
+      PST_KING,
+      PST_ADVISOR,
+      PST_BISHOP,
+      PST_ROOK,
+      PST_CANNON,
+      PST_KNIGHT,
+      PST_PAWN
+    ];
+    const VAL = [];
+    for (let p = -7; p <= 7; p++) {
+      const arr = new Int16Array(90);
+      if (p !== 0) {
+        const code = p > 0 ? p : -p;
+        for (let sq = 0; sq < 90; sq++) {
+          const c = sq % 9;
+          const r2 = sq / 9 | 0;
+          arr[sq] = p > 0 ? PST[code][9 - r2][c] : PST[code][r2][8 - c];
+        }
+      }
+      VAL.push(arr);
+    }
+    const ORDER_VAL = [0, 100, 2, 2, 9, 5, 4, 1];
+    const board = new Int8Array(90);
+    const kingSq = [-1, -1];
+    let vl = [0, 0];
+    let nodes = 0;
+    let deadline = 0;
+    let stop = false;
+    let canStop = false;
+    const killers = [];
+    for (let i = 0; i < MAXPLY; i++) killers.push([0, 0]);
+    const history = new Int32Array(128 * 90);
+    const pvTable = [];
+    for (let i = 0; i < MAXPLY; i++) pvTable.push(new Int32Array(MAXPLY));
+    const pvLen = new Int32Array(MAXPLY);
+    let prevPV = [];
+    function setup(pieces) {
+      board.fill(0);
+      kingSq[0] = -1;
+      kingSq[1] = -1;
+      vl = [0, 0];
+      for (const pc of pieces) {
+        if (pc.col < 0 || pc.col > 8 || pc.row < 0 || pc.row > 9) continue;
+        const sq = pc.row * 9 + pc.col;
+        const code = (pc.type | 0) + 1;
+        const p = pc.color === 0 ? code : -code;
+        board[sq] = p;
+        if (code === 1) kingSq[pc.color === 0 ? 0 : 1] = sq;
+        vl[pc.color === 0 ? 0 : 1] += VAL[p + 7][sq];
+      }
+    }
+    function evaluate2(side2) {
+      const s = vl[0] - vl[1];
+      return (side2 === 0 ? s : -s) + 3;
+    }
+    function makeMove(m) {
+      const f = m & 127;
+      const t = m >> 7;
+      const p = board[f];
+      const cap = board[t];
+      const side2 = p > 0 ? 0 : 1;
+      vl[side2] += VAL[p + 7][t] - VAL[p + 7][f];
+      if (cap) vl[1 - side2] -= VAL[cap + 7][t];
+      board[t] = p;
+      board[f] = 0;
+      if (p === 1) kingSq[0] = t;
+      else if (p === -1) kingSq[1] = t;
+      return cap;
+    }
+    function unmakeMove(m, cap) {
+      const f = m & 127;
+      const t = m >> 7;
+      const p = board[t];
+      const side2 = p > 0 ? 0 : 1;
+      vl[side2] -= VAL[p + 7][t] - VAL[p + 7][f];
+      if (cap) vl[1 - side2] += VAL[cap + 7][t];
+      board[f] = p;
+      board[t] = cap;
+      if (p === 1) kingSq[0] = f;
+      else if (p === -1) kingSq[1] = f;
+    }
+    const KNIGHT_D = [
+      [1, 2, 0, 1],
+      [-1, 2, 0, 1],
+      [1, -2, 0, -1],
+      [-1, -2, 0, -1],
+      [2, 1, 1, 0],
+      [2, -1, 1, 0],
+      [-2, 1, -1, 0],
+      [-2, -1, -1, 0]
+    ];
+    const ORTHO = [
+      [0, 1],
+      [0, -1],
+      [1, 0],
+      [-1, 0]
+    ];
+    const DIAG = [
+      [1, 1],
+      [1, -1],
+      [-1, 1],
+      [-1, -1]
+    ];
+    function genMoves(side2, capOnly) {
+      const moves = [];
+      const sign = side2 === 0 ? 1 : -1;
+      for (let sq = 0; sq < 90; sq++) {
+        const p = board[sq];
+        if (!p || (p > 0 ? 0 : 1) !== side2) continue;
+        const code = p * sign;
+        const c = sq % 9;
+        const r2 = sq / 9 | 0;
+        const push = (tc, tr) => {
+          const t = tr * 9 + tc;
+          const q = board[t];
+          if (q) {
+            if ((q > 0 ? 0 : 1) === side2) return;
+          } else if (capOnly) return;
+          moves.push(sq | t << 7);
+        };
+        if (code === 1 || code === 2) {
+          const dirs = code === 1 ? ORTHO : DIAG;
+          const rMin = side2 === 0 ? 0 : 7;
+          const rMax = side2 === 0 ? 2 : 9;
+          for (const [dc, dr] of dirs) {
+            const tc = c + dc;
+            const tr = r2 + dr;
+            if (tc >= 3 && tc <= 5 && tr >= rMin && tr <= rMax) push(tc, tr);
+          }
+        } else if (code === 3) {
+          for (const [dc, dr] of DIAG) {
+            const tc = c + 2 * dc;
+            const tr = r2 + 2 * dr;
+            if (tc < 0 || tc > 8 || tr < 0 || tr > 9) continue;
+            if (side2 === 0 ? tr > 4 : tr < 5) continue;
+            if (board[(r2 + dr) * 9 + (c + dc)]) continue;
+            push(tc, tr);
+          }
+        } else if (code === 6) {
+          for (const [dc, dr, lc, lr] of KNIGHT_D) {
+            const tc = c + dc;
+            const tr = r2 + dr;
+            if (tc < 0 || tc > 8 || tr < 0 || tr > 9) continue;
+            if (board[(r2 + lr) * 9 + (c + lc)]) continue;
+            push(tc, tr);
+          }
+        } else if (code === 4 || code === 5) {
+          for (const [dc, dr] of ORTHO) {
+            let tc = c + dc;
+            let tr = r2 + dr;
+            let screen = false;
+            while (tc >= 0 && tc <= 8 && tr >= 0 && tr <= 9) {
+              const q = board[tr * 9 + tc];
+              if (code === 4) {
+                if (!q) {
+                  if (!capOnly) moves.push(sq | tr * 9 + tc << 7);
+                } else {
+                  if ((q > 0 ? 0 : 1) !== side2)
+                    moves.push(sq | tr * 9 + tc << 7);
+                  break;
+                }
+              } else if (!screen) {
+                if (!q) {
+                  if (!capOnly) moves.push(sq | tr * 9 + tc << 7);
+                } else screen = true;
+              } else if (q) {
+                if ((q > 0 ? 0 : 1) !== side2)
+                  moves.push(sq | tr * 9 + tc << 7);
+                break;
+              }
+              tc += dc;
+              tr += dr;
+            }
+          }
+        } else if (code === 7) {
+          const fwd = side2 === 0 ? 1 : -1;
+          const tr = r2 + fwd;
+          if (tr >= 0 && tr <= 9) push(c, tr);
+          const crossed = side2 === 0 ? r2 >= 5 : r2 <= 4;
+          if (crossed) {
+            if (c > 0) push(c - 1, r2);
+            if (c < 8) push(c + 1, r2);
+          }
+        }
+      }
+      return moves;
+    }
+    function inCheck(side2) {
+      const ks = kingSq[side2];
+      if (ks < 0) return true;
+      const kc = ks % 9;
+      const kr = ks / 9 | 0;
+      const e = side2 === 0 ? -1 : 1;
+      for (const [dc, dr] of ORTHO) {
+        let tc = kc + dc;
+        let tr = kr + dr;
+        let found = 0;
+        while (tc >= 0 && tc <= 8 && tr >= 0 && tr <= 9) {
+          const q = board[tr * 9 + tc];
+          if (q) {
+            if (found === 0) {
+              if (q === 4 * e) return true;
+              if (q === 1 * e && dc === 0) return true;
+              found = 1;
+            } else {
+              if (q === 5 * e) return true;
+              break;
+            }
+          }
+          tc += dc;
+          tr += dr;
+        }
+      }
+      for (const [dc, dr] of KNIGHT_D) {
+        const ac = kc - dc;
+        const ar = kr - dr;
+        if (ac < 0 || ac > 8 || ar < 0 || ar > 9) continue;
+        if (board[ar * 9 + ac] !== 6 * e) continue;
+        const lc = Math.abs(dc) === 2 ? ac + dc / 2 : ac;
+        const lr = Math.abs(dc) === 2 ? ar : ar + dr / 2;
+        if (!board[lr * 9 + lc]) return true;
+      }
+      const front = side2 === 0 ? kr + 1 : kr - 1;
+      if (front >= 0 && front <= 9 && board[front * 9 + kc] === 7 * e)
+        return true;
+      if (kc > 0 && board[kr * 9 + kc - 1] === 7 * e) return true;
+      if (kc < 8 && board[kr * 9 + kc + 1] === 7 * e) return true;
+      return false;
+    }
+    function legalMoves(side2) {
+      const out = [];
+      for (const m of genMoves(side2, false)) {
+        const cap = makeMove(m);
+        if (!inCheck(side2)) out.push(m);
+        unmakeMove(m, cap);
+      }
+      return out;
+    }
+    function orderMoves(moves, ply, pvMove) {
+      const scored = new Array(moves.length);
+      const k = killers[ply] || [0, 0];
+      for (let i = 0; i < moves.length; i++) {
+        const m = moves[i];
+        let s;
+        if (m === pvMove) s = 1e7;
+        else {
+          const cap = board[m >> 7];
+          if (cap) {
+            const victim = ORDER_VAL[cap > 0 ? cap : -cap];
+            const att = board[m & 127];
+            s = 1e6 + victim * 100 - ORDER_VAL[att > 0 ? att : -att];
+          } else if (m === k[0]) s = 9e5;
+          else if (m === k[1]) s = 8e5;
+          else s = history[m];
+        }
+        scored[i] = { m, s };
+      }
+      scored.sort((a, b) => b.s - a.s);
+      for (let i = 0; i < moves.length; i++) moves[i] = scored[i].m;
+      return moves;
+    }
+    function timeUp() {
+      if (canStop && (nodes & 1023) === 0 && Date.now() > deadline) stop = true;
+      return stop;
+    }
+    function quiesce(alpha, beta, ply, side2, qd) {
+      nodes++;
+      pvLen[ply] = ply;
+      if (timeUp()) return 0;
+      const chk = inCheck(side2);
+      let best = -INF;
+      if (!chk) {
+        const stand = evaluate2(side2);
+        if (stand >= beta) return stand;
+        if (stand > alpha) alpha = stand;
+        best = stand;
+      }
+      if (qd > 8 || ply >= MAXPLY - 2) return evaluate2(side2);
+      const moves = orderMoves(genMoves(side2, !chk), ply, 0);
+      let legal = 0;
+      for (const m of moves) {
+        const cap = makeMove(m);
+        if (inCheck(side2)) {
+          unmakeMove(m, cap);
+          continue;
+        }
+        legal++;
+        const score = -quiesce(-beta, -alpha, ply + 1, 1 - side2, qd + 1);
+        unmakeMove(m, cap);
+        if (stop) return 0;
+        if (score > best) {
+          best = score;
+          if (score > alpha) {
+            alpha = score;
+            if (score >= beta) return score;
+          }
+        }
+      }
+      if (chk && legal === 0) return -MATE + ply;
+      return best;
+    }
+    function search(depth, alpha, beta, ply, side2, extLeft) {
+      pvLen[ply] = ply;
+      const chk = inCheck(side2);
+      if (chk && extLeft > 0) {
+        depth++;
+        extLeft--;
+      }
+      if (depth <= 0) return quiesce(alpha, beta, ply, side2, 0);
+      nodes++;
+      if (timeUp()) return 0;
+      if (ply >= MAXPLY - 2) return evaluate2(side2);
+      const mateAlpha = -MATE + ply;
+      const mateBeta = MATE - ply - 1;
+      if (alpha < mateAlpha) alpha = mateAlpha;
+      if (beta > mateBeta) beta = mateBeta;
+      if (alpha >= beta) return alpha;
+      const moves = orderMoves(genMoves(side2, false), ply, prevPV[ply] || 0);
+      let legal = 0;
+      let best = -INF;
+      for (const m of moves) {
+        const cap = makeMove(m);
+        if (inCheck(side2)) {
+          unmakeMove(m, cap);
+          continue;
+        }
+        legal++;
+        const score = -search(
+          depth - 1,
+          -beta,
+          -alpha,
+          ply + 1,
+          1 - side2,
+          extLeft
+        );
+        unmakeMove(m, cap);
+        if (stop) return 0;
+        if (score > best) {
+          best = score;
+          if (score > alpha) {
+            alpha = score;
+            const row = pvTable[ply];
+            const next = pvTable[ply + 1];
+            row[ply] = m;
+            for (let i = ply + 1; i < pvLen[ply + 1]; i++) row[i] = next[i];
+            pvLen[ply] = Math.max(pvLen[ply + 1], ply + 1);
+            if (score >= beta) {
+              if (!cap) {
+                const k = killers[ply];
+                if (k[0] !== m) {
+                  k[1] = k[0];
+                  k[0] = m;
+                }
+                history[m] += depth * depth;
+              }
+              return score;
+            }
+          }
+        }
+      }
+      if (legal === 0) return -MATE + ply;
+      return best;
+    }
+    function searchRoot(side2, maxDepth, timeMs, multiPV, minDepth) {
+      const start = Date.now();
+      deadline = start + Math.max(10, timeMs);
+      stop = false;
+      nodes = 0;
+      killers.forEach((k) => {
+        k[0] = 0;
+        k[1] = 0;
+      });
+      history.fill(0);
+      prevPV = [];
+      let rootMoves = orderMoves(legalMoves(side2), 0, 0);
+      if (rootMoves.length === 0) {
+        return {
+          mated: true,
+          depth: 0,
+          nodes: 0,
+          lines: [],
+          inCheck: inCheck(side2)
+        };
+      }
+      let completed = null;
+      let lastScores = /* @__PURE__ */ new Map();
+      for (let d = 1; d <= maxDepth; d++) {
+        canStop = d > (minDepth || 1);
+        const iter = [];
+        for (const m of rootMoves) {
+          let alpha = -INF;
+          if (iter.length >= multiPV) {
+            const sorted = iter.map((x) => x.score).sort((a, b) => b - a);
+            alpha = sorted[multiPV - 1];
+          }
+          prevPV = completed && completed.lines[0] && completed.lines[0].move === m ? [0].concat(completed.lines[0].pv.slice(1)) : [];
+          const cap = makeMove(m);
+          const score = -search(d - 1, -INF, -alpha, 1, 1 - side2, 6);
+          unmakeMove(m, cap);
+          if (stop) break;
+          const exact = score > alpha;
+          const pv = [m];
+          if (exact) for (let i = 1; i < pvLen[1]; i++) pv.push(pvTable[1][i]);
+          iter.push({ move: m, score, pv, exact });
+        }
+        if (stop && completed) break;
+        const merged = iter.slice();
+        if (stop) {
+          for (const m of rootMoves) {
+            if (!merged.some((x) => x.move === m)) {
+              merged.push({
+                move: m,
+                score: lastScores.get(m) ?? -INF,
+                pv: [m],
+                exact: false
+              });
+            }
+          }
+        }
+        merged.sort((a, b) => b.score - a.score);
+        completed = { depth: d, lines: merged };
+        lastScores = new Map(merged.map((x) => [x.move, x.score]));
+        rootMoves = merged.map((x) => x.move);
+        if (stop) break;
+        if (Math.abs(merged[0].score) > MATE - 100) break;
+        if (Date.now() - start > timeMs * 0.55) break;
+      }
+      canStop = false;
+      return {
+        mated: false,
+        depth: completed.depth,
+        nodes,
+        lines: completed.lines.slice(0, multiPV),
+        allCount: rootMoves.length,
+        inCheck: inCheck(side2)
+      };
+    }
+    function decode(m) {
+      const f = m & 127;
+      const t = m >> 7;
+      return {
+        fromCol: f % 9,
+        fromRow: f / 9 | 0,
+        toCol: t % 9,
+        toRow: t / 9 | 0
+      };
+    }
+    function analyze(input) {
+      const started = Date.now();
+      const budget = input.timeMs || 1500;
+      const side2 = input.side === 1 ? 1 : 0;
+      setup(input.pieces || []);
+      if (kingSq[0] < 0 || kingSq[1] < 0) {
+        return { error: "missing-king" };
+      }
+      const staticEval = evaluate2(side2);
+      const main = searchRoot(
+        side2,
+        input.maxDepth || 8,
+        budget * 0.5,
+        input.multiPV || 3,
+        2
+      );
+      if (main.mated) {
+        return {
+          side: side2,
+          mated: true,
+          inCheck: main.inCheck,
+          depth: 0,
+          nodes: 0,
+          lines: [],
+          ms: Date.now() - started
+        };
+      }
+      let totalNodes = main.nodes;
+      const replyDepth = Math.max(2, Math.min(5, main.depth - 1));
+      const answerDepth = Math.max(1, Math.min(4, main.depth - 2));
+      const lines = [];
+      for (const line of main.lines) {
+        const out = {
+          ...decode(line.move),
+          score: line.score,
+          exact: line.exact,
+          pv: line.pv.map(decode),
+          replies: []
+        };
+        const cap1 = makeMove(line.move);
+        const rep = searchRoot(1 - side2, replyDepth, budget * 0.09, 3, 1);
+        totalNodes += rep.nodes;
+        if (!rep.mated) {
+          for (const r2 of rep.lines) {
+            const reply = { ...decode(r2.move), score: -r2.score, answer: null };
+            const cap2 = makeMove(r2.move);
+            const ans = searchRoot(side2, answerDepth, budget * 0.025, 1, 1);
+            totalNodes += ans.nodes;
+            if (ans.mated) reply.answerMated = true;
+            else if (ans.lines[0]) {
+              reply.answer = {
+                ...decode(ans.lines[0].move),
+                score: ans.lines[0].score
+              };
+            }
+            unmakeMove(r2.move, cap2);
+            out.replies.push(reply);
+          }
+        } else {
+          out.delivermate = true;
+        }
+        unmakeMove(line.move, cap1);
+        lines.push(out);
+      }
+      let threat = null;
+      if (!main.inCheck) {
+        const oppStatic = evaluate2(1 - side2);
+        const th = searchRoot(1 - side2, 3, budget * 0.08, 1, 1);
+        totalNodes += th.nodes;
+        if (!th.mated && th.lines[0]) {
+          const gain = th.lines[0].score - oppStatic;
+          threat = {
+            ...decode(th.lines[0].move),
+            gain,
+            score: th.lines[0].score
+          };
+        }
+      }
+      return {
+        side: side2,
+        mated: false,
+        inCheck: main.inCheck,
+        depth: main.depth,
+        nodes: totalNodes,
+        staticEval,
+        score: lines[0] ? lines[0].score : staticEval,
+        lines,
+        threat,
+        legalCount: main.allCount,
+        ms: Date.now() - started
+      };
+    }
+    function quickEvaluate(pieces, side2) {
+      const s = side2 === 1 ? 1 : 0;
+      setup(pieces || []);
+      if (kingSq[0] < 0 || kingSq[1] < 0) {
+        return { error: "missing-king" };
+      }
+      const score = evaluate2(s);
+      return {
+        side: s,
+        score,
+        inCheck: inCheck(s)
+      };
+    }
+    return { analyze, quickEvaluate, setup, evaluate: evaluate2, inCheck, MATE };
+  }
+  function createXiangqiWorker() {
+    let worker = null;
+    let requestId = 0;
+    let activeCallback = null;
+    let isWorkerFailed = false;
+    const localEngine = createXiangqiEngine();
+    try {
+      if (typeof window !== "undefined" && typeof Worker !== "undefined" && typeof Blob !== "undefined" && typeof URL !== "undefined" && typeof URL.createObjectURL === "function") {
+        const workerScript = `
+        "use strict";
+        const createXiangqiEngine = ${createXiangqiEngine.toString()};
+        const engine = createXiangqiEngine();
+
+        self.onmessage = function (e) {
+          const data = e.data || {};
+          if (data.type === "analyze") {
+            try {
+              const res = engine.analyze(data.input);
+              self.postMessage({ id: data.id, ok: true, result: res });
+            } catch (err) {
+              self.postMessage({ id: data.id, ok: false, error: err ? err.message : "Analysis failed" });
+            }
+          }
+        };
+      `;
+        const blob = new Blob([workerScript], { type: "application/javascript" });
+        const blobUrl = URL.createObjectURL(blob);
+        worker = new Worker(blobUrl);
+        worker.onmessage = function(e) {
+          const data = e.data || {};
+          if (data.id === requestId && typeof activeCallback === "function") {
+            const cb = activeCallback;
+            activeCallback = null;
+            if (data.ok) {
+              cb(null, data.result);
+            } else {
+              cb(new Error(data.error || "Worker analysis error"));
+            }
+          }
+        };
+        worker.onerror = function(err) {
+          console.warn("[AN Mod] Xiangqi Web Worker error, falling back:", err);
+          isWorkerFailed = true;
+        };
+      } else {
+        isWorkerFailed = true;
+      }
+    } catch (err) {
+      console.warn("[AN Mod] Web Worker creation failed, using fallback:", err);
+      isWorkerFailed = true;
+    }
+    function analyzeAsync(input, callback) {
+      const currentId = ++requestId;
+      activeCallback = callback;
+      if (!isWorkerFailed && worker) {
+        worker.postMessage({ id: currentId, type: "analyze", input });
+        return function cancel() {
+          if (requestId === currentId) {
+            activeCallback = null;
+          }
+        };
+      }
+      const timer = setTimeout(() => {
+        if (requestId !== currentId) return;
+        try {
+          const reducedInput = {
+            ...input,
+            timeMs: Math.min(input.timeMs || 250, 80),
+            maxDepth: Math.min(input.maxDepth || 4, 4)
+          };
+          const res = localEngine.analyze(reducedInput);
+          if (typeof activeCallback === "function" && requestId === currentId) {
+            const cb = activeCallback;
+            activeCallback = null;
+            cb(null, res);
+          }
+        } catch (err) {
+          if (typeof activeCallback === "function" && requestId === currentId) {
+            const cb = activeCallback;
+            activeCallback = null;
+            cb(err);
+          }
+        }
+      }, 16);
+      return function cancel() {
+        if (requestId === currentId) {
+          clearTimeout(timer);
+          activeCallback = null;
+        }
+      };
+    }
+    function quickEvaluate(pieces, side2) {
+      return localEngine.quickEvaluate(pieces, side2);
+    }
+    return {
+      analyzeAsync,
+      quickEvaluate,
+      engine: localEngine,
+      MATE: localEngine.MATE
+    };
+  }
+
   // src/features/mentor_coach.js
   var import_jsx_runtime56 = __toESM(require_jsx_runtime());
   (function(ZigaMod) {
     "use strict";
-    console.log("[AN Mod] Mentor Coach module initializing...");
+    console.log(
+      "[AN Mod] Master AI Mentor Coach initializing with Background Web Worker Engine..."
+    );
+    const asyncWorker = createXiangqiWorker();
+    const engine = asyncWorker.engine;
     const XIANGQI_MAXIMS = [
       {
         rule: "Khuy\u1EBFt S\u0129 k\u1EF5 Song Xe, khuy\u1EBFt T\u01B0\u1EE3ng s\u1EE3 Ph\xE1o",
-        desc: "M\u1EA5t S\u0129 th\xEC c\xE1nh T\u01B0\u1EDBng b\u1ECB h\u1EDF d\u1EC5 b\u1ECB 2 Xe \u0111\u1ED1i ph\u01B0\u01A1ng th\u1ECDc s\xE2u, m\u1EA5t T\u01B0\u1EE3ng th\xEC Ph\xE1o \u0111\u1ED1i ph\u01B0\u01A1ng d\u1EC5 m\u01B0\u1EE3n ng\xF2i b\u1EAFn ph\xE1 tan t\xE0nh."
+        desc: "M\u1EA5t S\u0129 h\u1EDF s\u01B0\u1EDDn d\u1EC5 b\u1ECB Xe k\u1EB9p c\u1ED5; m\u1EA5t T\u01B0\u1EE3ng t\u1EA1o ng\xF2i cho Ph\xE1o c\xF4ng ph\xE1."
       },
       {
         rule: "Nh\u1EA5t T\u1ED1t nh\u1EADp cung, v\u1EA1n qu\xE2n kinh h\xE3i",
-        desc: "M\u1ED9t con T\u1ED1t qua s\xF4ng l\u1ECDt v\xE0o cung T\u01B0\u1EDBng \u0111\u1ED1i ph\u01B0\u01A1ng uy l\u1EF1c kh\xF4ng k\xE9m m\u1ED9t con Xe, phong t\u1ECFa c\u1EED \u0111\u1ED9ng c\u1EE7a T\u01B0\u1EDBng \u0111\u1ED1i th\u1EE7."
+        desc: "T\u1ED1t l\u1ECDt v\xE0o cung T\u01B0\u1EDBng \u0111\u1ED1i ph\u01B0\u01A1ng uy l\u1EF1c ngang n\u1EEDa con Xe, kh\xF3a ch\u1EB7t ch\xE2n T\u01B0\u1EDBng."
       },
       {
         rule: "Xe m\u01B0\u1EDDi, Ph\xE1o b\u1EA3y, M\xE3 ba",
-        desc: "S\u1EE9c m\u1EA1nh t\u1EA5n c\xF4ng v\xE0 c\u01A1 \u0111\u1ED9ng: Xe m\u1EA1nh nh\u1EA5t, Ph\xE1o uy l\u1EF1c t\u1EA7m xa trong khai trung cu\u1ED9c, M\xE3 uy l\u1EF1c hi\u1EC3m h\xF3c khi c\u1EDD th\xF4ng tho\xE1ng."
+        desc: "Xe c\u01A1 \u0111\u1ED9ng c\xF4ng ph\xE1 m\u1EA1nh nh\u1EA5t; Ph\xE1o b\u1EAFn t\u1EA7m xa; M\xE3 bi\u1EBFn h\xF3a khi c\u1EDD tho\xE1ng."
       },
       {
         rule: "C\u1EDD t\xE0n Ph\xE1o ho\xE0n, M\xE3 nh\u1EA3y xung thi\xEAn",
-        desc: "C\u1EDD t\xE0n \xEDt qu\xE2n th\xEC Ph\xE1o kh\xF3 t\xECm ng\xF2i, M\xE3 l\u1EA1i t\u1EF1 do phi nh\u1EA3y kh\xF4ng lo b\u1ECB c\u1EA3n ch\xE2n, s\u1EE9c s\xE1t th\u01B0\u01A1ng c\u1EF1c l\u1EDBn."
+        desc: "C\u1EDD t\xE0n \xEDt qu\xE2n Ph\xE1o kh\xF3 t\xECm ng\xF2i; M\xE3 th\xF4ng tho\xE1ng t\u1EF1 do tung ho\xE0nh s\xE1t c\u1EE5c."
       },
       {
         rule: "Xu\u1EA5t Xe ch\u1EADm m\u1ED9t n\u01B0\u1EDBc, m\u1EA5t quy\u1EC1n ch\u1EE7 \u0111\u1ED9ng m\u01B0\u1EDDi chi\xEAu",
-        desc: "Xe l\xE0 binh ch\u1EE7ng c\xF4ng ph\xE1 m\u1EA1nh nh\u1EA5t, \u0111\u1EA7u v\xE1n ph\u1EA3i \u01B0u ti\xEAn khai th\xF4ng l\u1ED9 Xe s\u1EDBm (l\u1ED9 2, 4, 6, 8) \u0111\u1EC3 chi\u1EBFm ti\xEAn c\u01A1."
+        desc: "\u0110\u1EA7u v\xE1n c\u1EA7n xu\u1EA5t Xe s\u1EDBm ki\u1EC3m so\xE1t l\u1ED9 th\xF4ng (2, 4, 6, 8) chi\u1EBFm th\u1EBF th\u01B0\u1EE3ng phong."
       },
       {
         rule: "M\xE3 \u0111i\u1EC1n \u1EAFt b\u1EA1i, ch\u1EDB ham \u0103n m\u1ED3i qu\xEAn gi\u1EEF th\xE0nh",
-        desc: "M\xE3 b\u1ECB qu\xE2n m\xECnh ho\u1EB7c qu\xE2n \u0111\u1ECBch c\u1EA3n ch\xE2n th\xEC tr\u1EDF th\xE0nh ph\u1EBF binh, \u0111\u1EEBng v\xEC ham \u0103n T\u1ED1t nh\u1ECF m\xE0 \u0111\u1EC3 \u0111\u1ED1i ph\u01B0\u01A1ng \u0111o\u1EA1t ti\xEAn phong t\u1ECFa."
+        desc: "Tr\xE1nh \u0111\u1EC3 M\xE3 b\u1ECB c\u1EA3n ch\xE2n; kh\xF4ng tham \u0103n qu\xE2n nh\u1ECF \u0111\u1EC3 \u0111\u1ED1i ph\u01B0\u01A1ng \u0111o\u1EA1t ti\xEAn."
       },
       {
         rule: "Ph\xE1o \u0111\u1EA7u uy ch\u1EA5n trung qu\xE2n",
-        desc: "Ph\xE1o chi\u1EBFm trung l\u1ED9 uy hi\u1EBFp tr\u1EF1c ti\u1EBFp v\xE0o T\u01B0\u1EDBng \u0111\u1ED1i th\u1EE7, bu\u1ED9c \u0111\u1ED1i ph\u01B0\u01A1ng ph\u1EA3i ph\xE2n t\xE1n l\u1EF1c l\u01B0\u1EE3ng ch\u1ED1ng \u0111\u1EE1."
-      },
-      {
-        rule: "T\u1EA3 h\u1EEFu t\u01B0\u01A1ng li\xEAn, c\xF4ng th\u1EE7 to\xE0n di\u1EC7n",
-        desc: "Hai c\xE1nh Xe-Ph\xE1o-M\xE3 ph\u1EA3i li\xEAn k\u1EBFt y\u1EC3m tr\u1EE3 nhau, tr\xE1nh \u0111\u1EC3 m\u1ED9t c\xE1nh qu\xE1 m\u1EA1nh c\xF2n m\u1ED9t c\xE1nh b\u1ECB b\u1ECF tr\u1ED1ng."
+        desc: "Ph\xE1o chi\u1EBFm trung l\u1ED9 uy hi\u1EBFp th\u1EB3ng T\u01B0\u1EDBng, kh\u1ED1ng ch\u1EBF ho\xE0n to\xE0n tr\u1EE5c d\u1ECDc \u0111\u1ED1i ph\u01B0\u01A1ng."
       },
       {
         rule: "Song M\xE3 li\xEAn ho\xE0n, v\u1EEFng nh\u01B0 b\xE0n th\u1EA1ch",
-        desc: "Hai M\xE3 b\u1EA3o v\u1EC7 l\u1EABn nhau \u1EDF trung l\u1ED9 t\u1EA1o th\xE0nh th\u1EBF tr\u1EADn ph\xF2ng th\u1EE7 ki\xEAn c\u1ED1, v\u1EEBa gi\u1EEF T\u1ED1t \u0111\u1EA7u v\u1EEBa s\u1EB5n s\xE0ng ph\u1EA3n k\xEDch."
-      },
-      {
-        rule: "Khai cu\u1ED9c tranh ti\xEAn, trung cu\u1ED9c \u0111o\u1EA1t th\u1EBF, t\xE0n cu\u1ED9c tranh s\xE1t",
-        desc: "\u0110\u1EA7u v\xE1n tranh gi\xE0nh t\u1ED1c \u0111\u1ED9 ra qu\xE2n, gi\u1EEFa v\xE1n tranh \u0111o\u1EA1t v\u1ECB tr\xED kh\u1ED1ng ch\u1EBF, cu\u1ED1i v\xE1n t\u1EADp trung \u0111\xF2n ph\u1ED1i h\u1EE3p s\xE1t T\u01B0\u1EDBng."
+        desc: "Hai M\xE3 gi\u1EEF nhau \u1EDF trung l\u1ED9 b\u1EA3o v\u1EC7 T\u1ED1t \u0111\u1EA7u v\xE0 tri\u1EC7t ti\xEAu \u0111\xF2n \u0111\u1ED9t k\xEDch c\u1EE7a \u0111\u1ECBch."
       }
     ];
     let mentorPanelEl = null;
-    let activeTab = "plans";
     let cachedAnalysis = null;
     let lastAnalysisHash = "";
+    let mentorSetter = null;
+    let cancelWorkerSearch = null;
+    let analyzeDebounceTimer = null;
+    let lastKnownGameData = null;
+    function getBoardState(gameLayer) {
+      if (!gameLayer || !gameLayer.V || !Array.isArray(gameLayer.V)) return null;
+      const pieces = [];
+      for (let i = 0; i < 32; i++) {
+        const p = gameLayer.V[i];
+        if (!p || p.pa) continue;
+        const pieceType = p.Ga !== void 0 ? p.Ga : 6;
+        const pieceColor = p.ka !== void 0 ? p.ka : Math.floor(i / 16);
+        const def = PIECE_DEFS[pieceType] || {
+          name: "Qu\xE2n",
+          value: 1,
+          redChar: "\u5175",
+          blackChar: "\u5352",
+          short: "Q"
+        };
+        pieces.push({
+          index: i,
+          col: p.fa,
+          row: p.rowIndex,
+          type: pieceType,
+          color: pieceColor,
+          name: def.name,
+          char: pieceColor === 0 ? def.redChar : def.blackChar,
+          short: def.short
+        });
+      }
+      return pieces;
+    }
     function getBoardStateHash(gameLayer, myColor, oppColor) {
       if (!gameLayer || !gameLayer.V || !Array.isArray(gameLayer.V)) return "";
       const turn = gameLayer.Yc !== void 0 ? gameLayer.Yc : "";
@@ -44707,475 +45663,1468 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       }
       return hash;
     }
-    function getBoardState(gameLayer) {
-      if (!gameLayer || !gameLayer.V || !Array.isArray(gameLayer.V)) return null;
-      const pieces = [];
-      for (let i = 0; i < 32; i++) {
-        const p = gameLayer.V[i];
-        if (!p || p.pa) continue;
-        pieces.push({
-          index: i,
-          col: p.fa,
-          row: p.rowIndex,
-          type: p.Ga !== void 0 ? p.Ga : 6,
-          color: p.ka !== void 0 ? p.ka : Math.floor(i / 16)
-        });
+    function getXiangqiNotation(piece, fromCol, fromRow, toCol, toRow, myColor) {
+      const pCol = myColor === 0 ? 9 - fromCol : fromCol + 1;
+      const tCol = myColor === 0 ? 9 - toCol : toCol + 1;
+      const pChar = piece.short || "Q";
+      if (toCol === fromCol) {
+        const steps = Math.abs(toRow - fromRow);
+        const isAdvancing = myColor === 0 ? toRow > fromRow : toRow < fromRow;
+        const action = isAdvancing ? "." : "/";
+        const actionWord = isAdvancing ? "ti\u1EBFn" : "tho\xE1i";
+        return {
+          short: `${pChar}${pCol}${action}${steps}`,
+          full: `${piece.name} ${pCol} ${actionWord} ${steps}`
+        };
+      } else {
+        if (toRow === fromRow) {
+          return {
+            short: `${pChar}${pCol}-${tCol}`,
+            full: `${piece.name} ${pCol} b\xECnh ${tCol}`
+          };
+        } else {
+          const isAdvancing = myColor === 0 ? toRow > fromRow : toRow < fromRow;
+          const action = isAdvancing ? "." : "/";
+          const actionWord = isAdvancing ? "ti\u1EBFn" : "tho\xE1i";
+          return {
+            short: `${pChar}${pCol}${action}${tCol}`,
+            full: `${piece.name} ${pCol} ${actionWord} ${tCol}`
+          };
+        }
       }
-      return pieces;
     }
-    function analyzeTacticalMindset(gameData) {
-      if (!gameData || !gameData.gameLayer) return null;
-      const gameLayer = gameData.gameLayer;
-      const pieces = getBoardState(gameLayer);
-      if (!pieces || pieces.length === 0) return null;
+    function getTacticalDescription(piece, target, notation, toCol, toRow, myColor, isCheck, isMate) {
+      const tCol = myColor === 0 ? 9 - toCol : toCol + 1;
+      if (isMate) {
+        return {
+          tacticName: "Tuy\u1EC7t K\u1EF9 S\xE1t C\u1EE5c",
+          why: `N\u01B0\u1EDBc c\u1EDD ${notation.short} t\u1EA1o th\u1EBF s\xE1t c\u1EE5c kh\xF4ng th\u1EC3 ch\u1ED1ng \u0111\u1EE1!`,
+          tag: "S\xE1t C\u1EE5c"
+        };
+      }
+      if (isCheck) {
+        return {
+          tacticName: "Chi\u1EBFu T\u01B0\u1EDBng \u0110o\u1EA1t Ti\xEAn",
+          why: `Chi\u1EBFu T\u01B0\u1EDBng \xE9p \u0111\u1ED1i th\u1EE7 co c\u1EE5m, gi\u1EEF quy\u1EC1n ch\u1EE7 \u0111\u1ED9ng ki\u1EC3m so\xE1t.`,
+          tag: "Chi\u1EBFu T\u01B0\u1EDBng"
+        };
+      }
+      if (target) {
+        return {
+          tacticName: `Ch\xE9m ${target.name} L\u1ED9 ${tCol}`,
+          why: `Ch\xE9m ${target.name} \u0111o\u1EA1t l\u1EE3i th\u1EBF v\u1EADt ch\u1EA5t v\xE0 ph\xE1 v\u1EE1 c\u1EA5u tr\xFAc \u0111\u1ECBch.`,
+          tag: "\u0110o\u1EA1t Qu\xE2n"
+        };
+      }
+      if (piece.type === 3) {
+        const riverRank = myColor === 0 ? 4 : 5;
+        const enemyPawnRank = myColor === 0 ? 6 : 3;
+        if (toRow === riverRank) {
+          return {
+            tacticName: "Xe Tu\u1EA7n H\xE0",
+            why: `Xe chi\u1EBFm b\u1EDD s\xF4ng l\u1ED9 ${tCol}, ki\u1EC3m so\xE1t to\xE0n b\u1ED9 tuy\u1EBFn giao th\xF4ng.`,
+            tag: "Tu\u1EA7n H\xE0"
+          };
+        }
+        if (toRow === enemyPawnRank) {
+          return {
+            tacticName: "Xe Qu\xE1 H\xE0 \u0110\xE8 M\xE3",
+            why: `\xC1p s\xE1t h\xE0ng t\u1ED1t \u0111\u1ECBch, \u0111\xE8 \u0111\u1EA7u M\xE3 v\xE0 kh\u1ED1ng ch\u1EBF l\u1ED9 s\u01B0\u1EDDn.`,
+            tag: "Gh\xECm M\xE3"
+          };
+        }
+        return {
+          tacticName: "Xe Chi\u1EBFm L\u1ED9 Th\xF4ng",
+          why: `\u0110i\u1EC1u Xe v\xE0o l\u1ED9 ${tCol} th\xF4ng tho\xE1ng, l\xE0m ch\u1EE7 tr\u1EE5c giao chi\u1EBFn.`,
+          tag: "L\u1ED9 Th\xF4ng"
+        };
+      }
+      if (piece.type === 4) {
+        if (toCol === 4) {
+          return {
+            tacticName: "Ph\xE1o \u0110\u1EA7u Uy Ch\u1EA5n",
+            why: `B\xECnh Ph\xE1o trung l\u1ED9, kh\u1ED1ng ch\u1EBF th\u1EB3ng T\u01B0\u1EDBng v\xE0 c\u1ED9t d\u1ECDc \u0111\u1ED1i ph\u01B0\u01A1ng.`,
+            tag: "Ph\xE1o \u0110\u1EA7u"
+          };
+        }
+        return {
+          tacticName: "Ph\xE1o Kh\u1ED1ng Ch\u1EBF S\u01B0\u1EDDn",
+          why: `\u0110i\u1EC1u Ph\xE1o sang l\u1ED9 ${tCol}, t\u1EA1o th\u1EBF g\u1ECDng k\xECm ph\u1ED1i h\u1EE3p c\xF4ng k\xEDch.`,
+          tag: "Ph\xE1o S\u01B0\u1EDDn"
+        };
+      }
+      if (piece.type === 5) {
+        if (toCol === 2 || toCol === 6) {
+          return {
+            tacticName: "M\xE3 Ng\u1ECDa T\xE0o",
+            why: `Phi M\xE3 ng\u1ECDa t\xE0o, kh\xF3a g\xF3c cung T\u01B0\u1EDBng d\u1ECDa \u0111\xF2n s\xE1t ph\u1EA1t.`,
+            tag: "Ng\u1ECDa T\xE0o"
+          };
+        }
+        if (toCol === 3 || toCol === 5) {
+          return {
+            tacticName: "Song M\xE3 Li\xEAn Ho\xE0n",
+            why: `Li\xEAn k\u1EBFt song M\xE3 \u1EDF trung l\u1ED9, th\u1EBF tr\u1EADn v\u1EEFng nh\u01B0 b\xE0n th\u1EA1ch.`,
+            tag: "Li\xEAn Ho\xE0n"
+          };
+        }
+        return {
+          tacticName: "M\xE3 V\u01B0\u1EE3t S\xF4ng B\xE0n H\xE0",
+          why: `M\xE3 phi qua s\xF4ng \u0111o\u1EA1t \u0111i\u1EC3m t\u1EF1a chi\u1EBFn thu\u1EADt, m\u1EDF r\u1ED9ng t\u1EA7m ki\u1EC3m so\xE1t.`,
+          tag: "B\xE0n H\xE0"
+        };
+      }
+      if (piece.type === 6) {
+        return {
+          tacticName: "Binh Ti\u1EBFn Qua S\xF4ng",
+          why: `Ti\u1EBFn T\u1ED1t sang s\xF4ng m\u1EDF \u0111\u01B0\u1EDDng cho M\xE3, \xE9p s\xE1t tr\u1EADn \u0111\u1ECBa \u0111\u1ED1i th\u1EE7.`,
+          tag: "T\u1ED1t Ti\u1EBFn"
+        };
+      }
+      if (piece.type === 1 || piece.type === 2) {
+        return {
+          tacticName: "C\u1EE7ng C\u1ED1 Cung T\u01B0\u1EDBng",
+          why: `Gia c\u1ED1 cung T\u01B0\u1EDBng, li\xEAn k\u1EBFt S\u0129 T\u01B0\u1EE3ng b\u1ECBt k\xEDn ng\xF2i n\u1ED5 \u0111\u1ED1i ph\u01B0\u01A1ng.`,
+          tag: "Gia C\u1ED1"
+        };
+      }
+      return {
+        tacticName: "\u0110i\u1EC1u \u0110\u1ED9ng Qu\xE2n L\u1EF1c",
+        why: `Di chuy\u1EC3n ${piece.name} \u0111\u1EBFn L\u1ED9 ${tCol} t\u1EA1o li\xEAn k\u1EBFt th\u1EBF tr\u1EADn.`,
+        tag: "\u0110i\u1EC1u Qu\xE2n"
+      };
+    }
+    function buildQuickAnalysis(quickRes, gameData, pieces) {
+      if (!gameData || !pieces || pieces.length === 0) return null;
       const myColor = gameData.myColor;
       const oppColor = gameData.oppColor;
-      const activeColor = gameLayer.Yc !== void 0 ? gameLayer.Yc : myColor;
+      const gameLayer = gameData.gameLayer;
+      const activeColor = gameLayer && gameLayer.Yc !== void 0 ? gameLayer.Yc : myColor;
       const isMyTurn = activeColor === myColor;
       const totalPieces = pieces.length;
       let phase = "Trung Cu\u1ED9c";
       if (totalPieces >= 28) phase = "Khai Cu\u1ED9c";
       else if (totalPieces <= 14) phase = "T\xE0n Cu\u1ED9c";
-      const myKing = pieces.find((p) => p.type === 0 && p.color === myColor);
-      const oppKing = pieces.find((p) => p.type === 0 && p.color === oppColor);
-      const myAdvisors = pieces.filter(
-        (p) => p.type === 1 && p.color === myColor
-      ).length;
-      const myElephants = pieces.filter(
-        (p) => p.type === 2 && p.color === myColor
-      ).length;
-      const oppAdvisors = pieces.filter(
-        (p) => p.type === 1 && p.color === oppColor
-      ).length;
-      const oppElephants = pieces.filter(
-        (p) => p.type === 2 && p.color === oppColor
-      ).length;
-      const myRooks = pieces.filter((p) => p.type === 3 && p.color === myColor);
-      const oppRooks = pieces.filter((p) => p.type === 3 && p.color === oppColor);
-      const myCannons = pieces.filter((p) => p.type === 4 && p.color === myColor);
-      const oppCannons = pieces.filter(
-        (p) => p.type === 4 && p.color === oppColor
-      );
-      const myKnights = pieces.filter((p) => p.type === 5 && p.color === myColor);
-      const oppKnights = pieces.filter(
-        (p) => p.type === 5 && p.color === oppColor
-      );
-      const myPawnsCrossed = pieces.filter(
-        (p) => p.type === 6 && p.color === myColor && (myColor === 0 ? p.row >= 5 : p.row <= 4)
-      );
-      const oppPawnsCrossed = pieces.filter(
-        (p) => p.type === 6 && p.color === oppColor && (oppColor === 0 ? p.row >= 5 : p.row <= 4)
-      );
-      const weaknesses = [];
-      const opportunities = [];
-      if (oppAdvisors < 2) {
-        opportunities.push({
-          title: "\u0110\u1ED1i th\u1EE7 khuy\u1EBFt S\u0129",
-          desc: "Cung T\u01B0\u1EDBng \u0111\u1ED1i ph\u01B0\u01A1ng h\u1EDF s\u01B0\u1EDDn. \u01AFu ti\xEAn \u0111i\u1EC1u Xe v\xE0 Ph\xE1o kho\xE9t s\xE2u v\xE0o g\xF3c thi\u1EBFu S\u0129."
-        });
-      }
-      if (oppElephants < 2) {
-        opportunities.push({
-          title: "\u0110\u1ED1i th\u1EE7 khuy\u1EBFt T\u01B0\u1EE3ng",
-          desc: "H\xE0ng tuy\u1EBFn d\u01B0\u1EDBi c\u1EE7a \u0111\u1ECBch y\u1EBFu, Ph\xE1o c\u1EE7a b\u1EA1n c\xF3 th\u1EC3 d\u1EC5 d\xE0ng m\u01B0\u1EE3n ng\xF2i uy hi\u1EBFp T\u01B0\u1EDBng."
-        });
-      }
-      if (myAdvisors < 2) {
-        weaknesses.push({
-          title: "B\xEAn m\xECnh khuy\u1EBFt S\u0129",
-          desc: "C\u1EA9n tr\u1ECDng \u0111\xF2n Xe \u0111\u1ED1i ph\u01B0\u01A1ng th\u1ECDc s\xE2u k\u1EB9p c\u1ED5 ho\u1EB7c \u0111\xF2n Ph\xE1o gi\xE1c."
-        });
-      }
-      if (myElephants < 2) {
-        weaknesses.push({
-          title: "B\xEAn m\xECnh khuy\u1EBFt T\u01B0\u1EE3ng",
-          desc: "Tr\xE1nh \u0111\u1EC3 Xe \u0111\u1ED1i ph\u01B0\u01A1ng chi\u1EBFm l\u1ED9 th\xF4ng d\xF2m ng\xF3 trung t\xE2m."
-        });
-      }
-      if (oppRooks.length > 0 && oppRooks.some((r2) => r2.col === 0 || r2.col === 8)) {
-        opportunities.push({
-          title: "Xe \u0111\u1ECBch c\xF2n \u1EDF g\xF3c bi\xEAn",
-          desc: "\u0110\u1ED1i th\u1EE7 xu\u1EA5t Xe ch\u1EADm, h\xE3y t\u1EADn d\u1EE5ng quy\u1EC1n ch\u1EE7 \u0111\u1ED9ng ki\u1EC3m so\xE1t s\xF4ng v\xE0 trung l\u1ED9."
-        });
-      }
-      if (myPawnsCrossed.length > 0) {
-        opportunities.push({
-          title: `B\u1EA1n c\xF3 ${myPawnsCrossed.length} T\u1ED1t \u0111\xE3 qua s\xF4ng`,
-          desc: "T\u1ED1t qua s\xF4ng uy l\u1EF1c nh\u01B0 n\u1EEDa con Xe, h\xE3y b\u1EA3o k\xEA T\u1ED1t ti\u1EBFn s\xE2u \xE9p T\u01B0\u1EDBng ho\u1EB7c ch\xE9m T\u01B0\u1EE3ng."
-        });
-      }
-      const plans = [];
-      let attackPlan = null;
-      if (myRooks.length > 0) {
-        const r2 = myRooks[0];
-        const targetCol = oppKing ? oppKing.col : 4;
-        const targetRow = myColor === 0 ? 8 : 1;
-        attackPlan = {
-          name: "Xe Chi\u1EBFn Th\u1ECDc S\xE2u \xC1p S\xE1t Cung T\u01B0\u1EDBng",
-          type: "attack",
-          badge: "\u2694\uFE0F K\u1EBF S\xE1ch T\u1EA5n C\xF4ng",
-          color: "#ef4444",
-          moveNotation: `X${9 - r2.col}.${myColor === 0 ? 8 - r2.row : r2.row - 1}`,
-          fromCol: r2.col,
-          fromRow: r2.row,
-          toCol: targetCol === r2.col ? r2.col > 4 ? r2.col - 2 : r2.col + 2 : targetCol,
-          toRow: targetRow,
-          why: "\u0110\u01B0a Xe ki\u1EC3m so\xE1t h\xE0ng c\u1EEDu ho\u1EB7c h\xE0ng h\xE0 \u0111\u1ED1i ph\u01B0\u01A1ng \u0111\u1EC3 phong t\u1ECFa c\u1EED \u0111\u1ED9ng c\u1EE7a T\u01B0\u1EDBng v\xE0 gh\xECm ch\xE2n song M\xE3.",
-          mentorTip: "Khi Xe \u0111\xE3 \xE1p s\xE1t tuy\u1EBFn \u0111\xE1y, ph\u1ED1i h\u1EE3p Ph\xE1o n\xE1ch ho\u1EB7c M\xE3 ng\u1ECDa t\xE0o s\u1EBD t\u1EA1o th\xE0nh th\u1EBF s\xE1t c\u1EE5c kh\xF4ng th\u1EC3 ch\u1ED1ng \u0111\u1EE1."
+      const score = quickRes && !quickRes.error ? quickRes.score : 0;
+      const inCheck = quickRes && !quickRes.error ? !!quickRes.inCheck : false;
+      const evalPoints = (score / 100).toFixed(1);
+      let evalText = "C\xE2n b\u1EB1ng (0.0)";
+      if (score >= 50) evalText = `+${evalPoints}\u0111 (B\u1EA1n \u01B0u)`;
+      else if (score <= -50) evalText = `${evalPoints}\u0111 (\u0110\u1ECBch \u01B0u)`;
+      let commentary = {
+        type: "turn",
+        title: "L\u01AF\u1EE2T \u0110I C\u1EE6A B\u1EA0N",
+        move: null,
+        shortMove: null,
+        why: "\u0110\u1EBFn l\u01B0\u1EE3t b\u1EA1n \u0111i. H\xE3y m\u1EDF K\u1EF3 \u0110\u1EA1o S\u01B0 \u0111\u1EC3 xem ph\xE2n t\xEDch chuy\xEAn s\xE2u."
+      };
+      if (inCheck) {
+        commentary = {
+          type: "danger",
+          title: "C\u1EA2NH B\xC1O CHI\u1EBEU T\u01AF\u1EDANG",
+          move: null,
+          shortMove: null,
+          why: "T\u01B0\u1EDBng c\u1EE7a b\u1EA1n \u0111ang b\u1ECB chi\u1EBFu! C\u1EA7n \u01B0u ti\xEAn h\xF3a gi\u1EA3i th\u1EBF chi\u1EBFu an to\xE0n."
         };
-      } else if (myCannons.length > 0) {
-        const c = myCannons[0];
-        attackPlan = {
-          name: "Ph\xE1o B\u1EAFn Trung L\u1ED9 Ph\xE1 V\u1EE1 Ph\xF2ng Tuy\u1EBFn",
-          type: "attack",
-          badge: "\u2694\uFE0F K\u1EBF S\xE1ch T\u1EA5n C\xF4ng",
-          color: "#ef4444",
-          fromCol: c.col,
-          fromRow: c.row,
-          toCol: 4,
-          toRow: myColor === 0 ? 5 : 4,
-          why: "T\u1EADp trung h\u1ECFa l\u1EF1c v\xE0o trung t\xE2m, gh\xECm ch\u1EB7t T\u01B0\u1EDBng \u0111\u1ED1i th\u1EE7 trong cung.",
-          mentorTip: "Ph\xE1o \u0111\u1EA7u c\xF3 ng\xF2i n\u1ED5 h\u1ED7 tr\u1EE3 s\u1EBD l\xE0m t\xEA li\u1EC7t to\xE0n b\u1ED9 h\u1EC7 th\u1ED1ng ph\xF2ng th\u1EE7 c\u1EE7a \u0111\u1ED1i ph\u01B0\u01A1ng."
+      } else if (!isMyTurn) {
+        commentary = {
+          type: "waiting",
+          title: "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6",
+          move: null,
+          shortMove: null,
+          why: "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i..."
         };
       }
-      let defensePlan = null;
-      if (myAdvisors < 2 || myElephants < 2) {
-        defensePlan = {
-          name: "Gia C\u1ED1 Cung T\u01B0\u1EDBng & K\u1EBFt N\u1ED1i S\u0129 T\u01B0\u1EE3ng",
-          type: "defense",
-          badge: "\u{1F6E1}\uFE0F K\u1EBF S\xE1ch C\u1EE7ng C\u1ED1",
-          color: "#38bdf8",
-          fromCol: 4,
-          fromRow: myColor === 0 ? 0 : 9,
-          toCol: 4,
-          toRow: myColor === 0 ? 1 : 8,
-          why: "B\u1ECBt k\xEDn c\xE1c l\u1ED9 chi\u1EBFu r\xFAt c\u1EE7a \u0111\u1ED1i ph\u01B0\u01A1ng, t\u1EA1o th\u1EBF che ch\u1EAFn v\u1EEFng ch\xE3i cho T\u01B0\u1EDBng.",
-          mentorTip: "Th\xE0nh tr\xEC v\u1EEFng ch\u1EAFc m\u1EDBi c\xF3 th\u1EC3 y\xEAn t\xE2m ph\xE1t \u0111\u1ED9ng t\u1EA5n c\xF4ng quy m\xF4 l\u1EDBn."
-        };
-      } else {
-        defensePlan = {
-          name: "B\xECnh Phong Song M\xE3 Li\xEAn Ho\xE0n Th\u1EE7",
-          type: "defense",
-          badge: "\u{1F6E1}\uFE0F K\u1EBF S\xE1ch C\u1EE7ng C\u1ED1",
-          color: "#38bdf8",
-          fromCol: myKnights.length > 0 ? myKnights[0].col : 2,
-          fromRow: myKnights.length > 0 ? myKnights[0].row : myColor === 0 ? 0 : 9,
-          toCol: 4,
-          toRow: myColor === 0 ? 2 : 7,
-          why: "Li\xEAn k\u1EBFt song M\xE3 \u1EDF trung l\u1ED9, v\u1EEBa b\u1EA3o v\u1EC7 T\u1ED1t \u0111\u1EA7u v\u1EEBa c\u1EA3n b\u01B0\u1EDBc ti\u1EBFn c\u1EE7a Xe \u0111\u1ED1i th\u1EE7.",
-          mentorTip: "M\xE3 li\xEAn ho\xE0n kh\xF4ng s\u1EE3 Xe ch\xE9m \u0111\u01A1n \u0111\u1ED9c, t\u1EA1o \u0111i\u1EC3m t\u1EF1a \u0111\u1EC3 ph\u1EA3n k\xEDch."
-        };
-      }
-      let positionalPlan = null;
-      if (myKnights.length > 0) {
-        const k = myKnights[0];
-        const targetRow = myColor === 0 ? Math.min(9, k.row + 2) : Math.max(0, k.row - 2);
-        const targetCol = k.col >= 4 ? k.col - 1 : k.col + 1;
-        positionalPlan = {
-          name: "M\xE3 Phi Qua H\xE0 Chi\u1EBFm \u0110i\u1EC3m T\u1EF1a Ng\u1ECDa T\xE0o",
-          type: "maneuver",
-          badge: "\u{1F300} K\u1EBF S\xE1ch Tranh Ti\xEAn",
-          color: "#eab308",
-          fromCol: k.col,
-          fromRow: k.row,
-          toCol: targetCol,
-          toRow: targetRow,
-          why: "Nh\u1EA3y M\xE3 qua s\xF4ng chi\u1EBFm l\u1ED9 hi\u1EC3m, m\u1EDF \u0111\u01B0\u1EDDng cho \u0111\xF2n \u0111\xE1nh M\xE3 Ng\u1ECDa T\xE0o ho\u1EB7c M\xE3 \u0110i\u1EC1n.",
-          mentorTip: "M\xE3 qua s\xF4ng nh\u01B0 r\u1ED3ng g\u1EB7p n\u01B0\u1EDBc, lu\xF4n quan s\xE1t xem ch\xE2n M\xE3 c\xF3 b\u1ECB qu\xE2n \u0111\u1ECBch c\u1EA3n kh\xF4ng tr\u01B0\u1EDBc khi nh\u1EA3y."
-        };
-      } else {
-        positionalPlan = {
-          name: "\u0110\u1EA9y T\u1ED1t Th\xF4ng \u0110\u01B0\u1EDDng Khai M\u1EDF Th\u1EBF Tr\u1EADn",
-          type: "maneuver",
-          badge: "\u{1F300} K\u1EBF S\xE1ch Tranh Ti\xEAn",
-          color: "#eab308",
-          fromCol: 4,
-          fromRow: myColor === 0 ? 3 : 6,
-          toCol: 4,
-          toRow: myColor === 0 ? 4 : 5,
-          why: "\u0110\u1EA9y T\u1ED1t tranh ch\u1EA5p b\u1EDD s\xF4ng, kh\u1ED1ng ch\u1EBF kh\xF4ng gian v\xE0 gi\u1EA3i t\u1ECFa l\u1ED9 ch\u1EA1y cho M\xE3.",
-          mentorTip: "T\u1ED1t th\xF4ng \u0111\u01B0\u1EDDng th\xEC M\xE3 phi nhanh, \u0111\u1ED1i ph\u01B0\u01A1ng s\u1EBD m\u1EA5t quy\u1EC1n ki\u1EC3m so\xE1t trung l\u1ED9."
-        };
-      }
-      if (attackPlan) plans.push(attackPlan);
-      if (defensePlan) plans.push(defensePlan);
-      if (positionalPlan) plans.push(positionalPlan);
-      let coachCommentary = "";
-      if (threatsAlertCount(gameData) > 0) {
-        coachCommentary = "\u26A0\uFE0F K\u1EF3 th\u1EE7 c\u1EA9n th\u1EADn! Qu\xE2n l\u1EF1c \u0111ang b\u1ECB \u0111\u1ED1i ph\u01B0\u01A1ng \u0111e d\u1ECDa. H\xE3y xem x\xE9t ph\u01B0\u01A1ng \xE1n c\u1EE7ng c\u1ED1 ph\xF2ng th\u1EE7 ngay!";
-      } else if (opportunities.length > 0) {
-        coachCommentary = `\u{1F4A1} C\u01A1 h\u1ED9i s\xE1ng gi\xE1: ${opportunities[0].title}. H\xE3y \u0111\u1EA9y nhanh nh\u1ECBp \u0111\u1ED9 t\u1EA5n c\xF4ng \u0111\u1EC3 \u0111o\u1EA1t \u01B0u th\u1EBF!`;
-      } else if (isMyTurn) {
-        coachCommentary = "\u{1F3AF} \u0110\u1EBFn l\u01B0\u1EE3t b\u1EA1n xu\u1EA5t chi\xEAu. H\xE3y ki\xEAn nh\u1EABn quan s\xE1t \u0111i\u1EC3m y\u1EBFu \u0111\u1ED1i th\u1EE7 tr\u01B0\u1EDBc khi h\u1EA1 quy\u1EBFt \u0111\u1ECBnh.";
-      } else {
-        coachCommentary = "\u23F3 \u0110\u1ED1i th\u1EE7 \u0111ang toan t\xEDnh n\u01B0\u1EDBc c\u1EDD. H\xE3y d\u1EF1 \u0111o\xE1n tr\u01B0\u1EDBc h\u01B0\u1EDBng ph\u1EA3n c\xF4ng c\u1EE7a h\u1ECD.";
-      }
-      let maximIdx = 0;
-      if (phase === "Khai Cu\u1ED9c") maximIdx = 4;
-      else if (phase === "T\xE0n Cu\u1ED9c") maximIdx = 3;
-      else {
-        if (oppAdvisors < 2 || oppElephants < 2) maximIdx = 0;
-        else if (myPawnsCrossed.length > 0) maximIdx = 1;
-        else maximIdx = 7;
-      }
-      const currentMaxim = XIANGQI_MAXIMS[maximIdx] || XIANGQI_MAXIMS[0];
+      const coachCommentary = commentary.move ? `Khuy\xEAn d\xF9ng ${commentary.move}! ${commentary.why}` : commentary.why;
+      const currentMaxim = XIANGQI_MAXIMS[phase === "Khai Cu\u1ED9c" ? 4 : 0];
       return {
         phase,
         isMyTurn,
+        myColor,
+        oppColor,
+        pieces,
+        evalScore: score,
+        evalPoints,
+        evalText,
         coachCommentary,
-        plans,
-        weaknesses,
-        opportunities,
-        maxim: currentMaxim
+        commentary,
+        threatInfo: null,
+        plans: [],
+        inCheck,
+        depth: 0,
+        nodes: 0,
+        maxim: currentMaxim,
+        isQuickOnly: true
       };
     }
-    function threatsAlertCount(gameData) {
-      if (!gameData || !gameData.gameLayer || !ZigaMod.scanThreats) return 0;
-      const t = ZigaMod.scanThreats(
-        gameData.gameLayer,
-        gameData.myColor,
-        gameData.oppColor
-      );
-      return t ? t.length : 0;
-    }
-    function ensureMentorHudCard(container) {
-      let card = document.getElementById("ziga-mentor-hud-card");
-      if (!card) {
-        card = document.createElement("div");
-        card.id = "ziga-mentor-hud-card";
-        card.className = "ziga-mentor-hud-card";
-        card.innerHTML = `
-        <div class="ziga-mentor-header" id="ziga-mentor-toggle-btn" title="B\u1EA5m \u0111\u1EC3 m\u1EDF r\u1ED9ng c\u1EEDa s\u1ED5 Gia S\u01B0 C\u1ED1 V\u1EA5n chi ti\u1EBFt">
-          <div class="ziga-mentor-title-wrap">
-            <span class="ziga-mentor-avatar">\u{1F393}</span>
-            <div>
-              <div class="ziga-mentor-title">GIA S\u01AF \u0110\u1ED2NG H\xC0NH</div>
-              <div class="ziga-mentor-phase" id="ziga-mentor-phase-val">Khai Cu\u1ED9c</div>
-            </div>
-          </div>
-          <button class="ziga-mentor-popout-btn" id="ziga-btn-mentor-popout" type="button" title="M\u1EDF b\u1EA3ng c\u1ED1 v\u1EA5n n\u1ED5i c\u1EA1nh b\xE0n c\u1EDD">\u{1F4CC} M\u1EDF B\u1EA3ng C\u1ED1 V\u1EA5n</button>
-        </div>
-        <div class="ziga-mentor-bubble">
-          <p class="ziga-mentor-comment" id="ziga-mentor-comment-val"></p>
-        </div>
-      `;
-        card.addEventListener("click", (e) => {
-          if (e.target.closest("#ziga-btn-mentor-popout")) return;
-          toggleMentorFloatingPanel(true);
+    function buildTacticalAnalysis(searchRes, gameData, pieces) {
+      if (!gameData || !pieces || pieces.length === 0 || !searchRes) return null;
+      const myColor = gameData.myColor;
+      const oppColor = gameData.oppColor;
+      const gameLayer = gameData.gameLayer;
+      const activeColor = gameLayer && gameLayer.Yc !== void 0 ? gameLayer.Yc : myColor;
+      const isMyTurn = activeColor === myColor;
+      const totalPieces = pieces.length;
+      let phase = "Trung Cu\u1ED9c";
+      if (totalPieces >= 28) phase = "Khai Cu\u1ED9c";
+      else if (totalPieces <= 14) phase = "T\xE0n Cu\u1ED9c";
+      const evalPoints = (searchRes.score / 100).toFixed(1);
+      let evalText = "C\xE2n b\u1EB1ng (0.0)";
+      if (searchRes.score >= 50) evalText = `+${evalPoints}\u0111 (B\u1EA1n \u01B0u)`;
+      else if (searchRes.score <= -50) evalText = `${evalPoints}\u0111 (\u0110\u1ECBch \u01B0u)`;
+      const plans = [];
+      (searchRes.lines || []).forEach((line, idx) => {
+        const movingPiece = pieces.find(
+          (p) => p.col === line.fromCol && p.row === line.fromRow && p.color === myColor
+        );
+        if (!movingPiece) return;
+        const targetPiece = pieces.find(
+          (p) => p.col === line.toCol && p.row === line.toRow && p.color === oppColor
+        );
+        const notation = getXiangqiNotation(
+          movingPiece,
+          line.fromCol,
+          line.fromRow,
+          line.toCol,
+          line.toRow,
+          myColor
+        );
+        const isMate = line.delivermate || line.score >= engine.MATE - 100;
+        const isCheck = searchRes.inCheck;
+        const desc = getTacticalDescription(
+          movingPiece,
+          targetPiece,
+          notation,
+          line.toCol,
+          line.toRow,
+          myColor,
+          isCheck,
+          isMate
+        );
+        const variations = (line.replies || []).map((rep, rIdx) => {
+          const oppPiece = pieces.find(
+            (p) => p.col === rep.fromCol && p.row === rep.fromRow && p.color === oppColor
+          );
+          const oppTarget = pieces.find(
+            (p) => p.col === rep.toCol && p.row === rep.toRow && p.color === myColor
+          );
+          const oppNot = oppPiece ? getXiangqiNotation(
+            oppPiece,
+            rep.fromCol,
+            rep.fromRow,
+            rep.toCol,
+            rep.toRow,
+            oppColor
+          ) : { short: "\u0110\u1ECBch \u0111i", full: "\u0110\u1ED1i th\u1EE7 di chuy\u1EC3n" };
+          let oppWhy = oppTarget ? `Ch\xE9m ${oppTarget.name} t\u1EA1i L\u1ED9 ${oppColor === 0 ? 9 - rep.toCol : rep.toCol + 1}.` : `\u0110i\u1EC1u qu\xE2n ph\u1EA3n \u1EE9ng c\u1EE7ng c\u1ED1.`;
+          let ansNot = null;
+          let ansWhy = "";
+          if (rep.answer) {
+            const ansPiece = pieces.find(
+              (p) => p.col === rep.answer.fromCol && p.row === rep.answer.fromRow && p.color === myColor
+            );
+            if (ansPiece) {
+              ansNot = getXiangqiNotation(
+                ansPiece,
+                rep.answer.fromCol,
+                rep.answer.fromRow,
+                rep.answer.toCol,
+                rep.answer.toRow,
+                myColor
+              );
+              ansWhy = `B\u1ED3i th\xEAm \u0111\xF2n ${ansNot.short} gi\u1EEF v\u1EEFng th\u1EBF tr\u1EADn.`;
+            }
+          }
+          const varLabel = rIdx === 0 ? `Bi\u1EBFn 1 (Ph\u1ED5 bi\u1EBFn): ${oppNot.short}` : rIdx === 1 ? `Bi\u1EBFn 2 (Ph\xF2ng th\u1EE7): ${oppNot.short}` : `Bi\u1EBFn 3 (Ph\u1EA3n c\xF4ng): ${oppNot.short}`;
+          return {
+            idx: rIdx,
+            label: varLabel,
+            shortLabel: `Bi\u1EBFn ${rIdx + 1}: ${oppNot.short}`,
+            oppNotation: oppNot,
+            oppWhy,
+            fromCol: rep.fromCol,
+            fromRow: rep.fromRow,
+            toCol: rep.toCol,
+            toRow: rep.toRow,
+            oppPiece,
+            answer: rep.answer ? {
+              fromCol: rep.answer.fromCol,
+              fromRow: rep.answer.fromRow,
+              toCol: rep.answer.toCol,
+              toRow: rep.answer.toRow,
+              notation: ansNot,
+              why: ansWhy
+            } : null
+          };
         });
-        const popout = card.querySelector("#ziga-btn-mentor-popout");
-        if (popout) {
-          popout.addEventListener("click", (e) => {
-            e.stopPropagation();
-            toggleMentorFloatingPanel(true);
+        if (variations.length === 0) {
+          variations.push({
+            idx: 0,
+            label: "Bi\u1EBFn 1: \u0110\u1ECBch ch\u1ED1ng \u0111\u1EE1",
+            shortLabel: "Bi\u1EBFn 1",
+            oppNotation: { short: "\u0110\u1ECBch \u0111i", full: "\u0110\u1ED1i th\u1EE7 di chuy\u1EC3n" },
+            oppWhy: "\u0110\u1ED1i th\u1EE7 bu\u1ED9c ph\u1EA3i ch\u1ED1ng \u0111\u1EE1 n\u01B0\u1EDBc c\u1EDD c\u1EE7a ta.",
+            fromCol: line.toCol,
+            fromRow: line.toRow,
+            answer: null
           });
         }
-        const openingBadge = document.getElementById("ziga-opening-badge");
-        try {
-          if (openingBadge && openingBadge.parentNode === container) {
-            container.insertBefore(card, openingBadge.nextSibling);
-          } else {
-            container.prepend(card);
-          }
-        } catch (e) {
-          container.prepend(card);
+        const planType = idx === 0 ? "attack" : idx === 1 ? "defend" : "maneuver";
+        const planBadge = idx === 0 ? "T\u1ED1i \u01AFu" : idx === 1 ? "Ch\u1EAFc Ch\u1EAFn" : "\u0110\u1ED9t Ph\xE1";
+        plans.push({
+          id: `plan_${idx}`,
+          idx,
+          name: `${notation.short} \xB7 ${desc.tacticName}`,
+          shortNotation: notation.short,
+          fullNotation: notation.full,
+          type: planType,
+          badge: planBadge,
+          tag: desc.tag,
+          why: desc.why,
+          score: line.score,
+          piece: movingPiece,
+          fromCol: line.fromCol,
+          fromRow: line.fromRow,
+          toCol: line.toCol,
+          toRow: line.toRow,
+          variations
+        });
+      });
+      let commentary = {
+        type: "optimal",
+        title: "G\u1EE2I \xDD T\u1ED0I \u01AFU",
+        move: plans[0] ? plans[0].fullNotation : null,
+        shortMove: plans[0] ? plans[0].shortNotation : null,
+        why: plans[0] ? plans[0].why : "H\xE3y tri\u1EC3n khai n\u01B0\u1EDBc c\u1EDD c\u1EA9n tr\u1ECDng."
+      };
+      if (searchRes.inCheck) {
+        commentary = {
+          type: "danger",
+          title: "C\u1EA2NH B\xC1O CHI\u1EBEU T\u01AF\u1EDANG",
+          move: null,
+          shortMove: null,
+          why: "T\u01B0\u1EDBng c\u1EE7a b\u1EA1n \u0111ang b\u1ECB \u0111\u1ED1i ph\u01B0\u01A1ng chi\u1EBFu! C\u1EA7n \u01B0u ti\xEAn h\xF3a gi\u1EA3i th\u1EBF chi\u1EBFu an to\xE0n."
+        };
+      } else if (plans[0]?.tag?.includes("S\xE1t C\u1EE5c")) {
+        commentary = {
+          type: "mate",
+          title: "\u0110\xD2N S\xC1T C\u1EE4C TUY\u1EC6T K\u1EF8",
+          move: plans[0].fullNotation,
+          shortMove: plans[0].shortNotation,
+          why: plans[0].why
+        };
+      } else if (plans[0]) {
+        commentary = {
+          type: "optimal",
+          title: "G\u1EE2I \xDD T\u1ED0I \u01AFU",
+          move: plans[0].fullNotation,
+          shortMove: plans[0].shortNotation,
+          why: plans[0].why
+        };
+      } else if (isMyTurn) {
+        commentary = {
+          type: "turn",
+          title: "L\u01AF\u1EE2T \u0110I C\u1EE6A B\u1EA0N",
+          move: null,
+          shortMove: null,
+          why: "\u0110\u1EBFn l\u01B0\u1EE3t b\u1EA1n \u0111i. H\xE3y tri\u1EC3n khai n\u01B0\u1EDBc c\u1EDD c\u1EA9n tr\u1ECDng."
+        };
+      } else {
+        commentary = {
+          type: "waiting",
+          title: "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6",
+          move: null,
+          shortMove: null,
+          why: "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i..."
+        };
+      }
+      const coachCommentary = commentary.move ? `Khuy\xEAn d\xF9ng ${commentary.move}! ${commentary.why}` : commentary.why;
+      let threatInfo = null;
+      if (searchRes.threat && searchRes.threat.gain >= 150) {
+        const thPiece = pieces.find(
+          (p) => p.col === searchRes.threat.fromCol && p.row === searchRes.threat.fromRow && p.color === oppColor
+        );
+        const thTarget = pieces.find(
+          (p) => p.col === searchRes.threat.toCol && p.row === searchRes.threat.toRow && p.color === myColor
+        );
+        if (thPiece && thTarget) {
+          threatInfo = {
+            desc: `${thPiece.name} \u0111\u1ECBch \u0111ang d\xF2m ng\xF3 ${thTarget.name} c\u1EE7a b\u1EA1n t\u1EA1i L\u1ED9 ${myColor === 0 ? 9 - thTarget.col : thTarget.col + 1}!`
+          };
         }
       }
-      card.style.display = "flex";
-      return card;
+      const currentMaxim = XIANGQI_MAXIMS[phase === "Khai Cu\u1ED9c" ? 4 : 0];
+      return {
+        phase,
+        isMyTurn,
+        myColor,
+        oppColor,
+        pieces,
+        evalScore: searchRes.score,
+        evalPoints,
+        evalText,
+        coachCommentary,
+        commentary,
+        threatInfo,
+        plans,
+        inCheck: searchRes.inCheck,
+        depth: searchRes.depth,
+        nodes: searchRes.nodes,
+        maxim: currentMaxim,
+        allMaxims: XIANGQI_MAXIMS,
+        isQuickOnly: false
+      };
     }
-    function updateMentorHudCardText(analysis) {
-      const phaseEl = document.getElementById("ziga-mentor-phase-val");
-      const commentEl = document.getElementById("ziga-mentor-comment-val");
-      if (phaseEl)
-        phaseEl.textContent = `${analysis.phase} \xB7 ${analysis.isMyTurn ? "L\u01B0\u1EE3t B\u1EA1n \u0110i" : "L\u01B0\u1EE3t \u0110\u1ED1i Th\u1EE7"}`;
-      if (commentEl) commentEl.textContent = analysis.coachCommentary;
-    }
-    function updateMentorHud(gameData) {
-      const userSettings = ZigaMod.userSettings || {};
-      if (userSettings.mentorCoach === false) {
-        const card = document.getElementById("ziga-mentor-hud-card");
-        if (card) card.style.display = "none";
-        if (mentorPanelEl) mentorPanelEl.style.display = "none";
-        return;
+    function triggerDeepAnalysis(gameData, pieces) {
+      if (!gameData || !pieces || pieces.length === 0) return;
+      const myColor = gameData.myColor;
+      const currentHash = lastAnalysisHash;
+      if (cancelWorkerSearch) {
+        cancelWorkerSearch();
+        cancelWorkerSearch = null;
       }
-      if (!gameData || !gameData.gameLayer) {
-        const card = document.getElementById("ziga-mentor-hud-card");
-        if (card) card.style.display = "none";
-        lastAnalysisHash = "";
-        cachedAnalysis = null;
-        return;
+      if (cachedAnalysis && mentorSetter) {
+        mentorSetter({ ...cachedAnalysis, isSearching: true });
       }
-      const container = document.getElementById("ziga-mod-body");
-      if (!container) return;
-      ensureMentorHudCard(container);
-      const stateHash = getBoardStateHash(
-        gameData.gameLayer,
-        gameData.myColor,
-        gameData.oppColor
+      cancelWorkerSearch = asyncWorker.analyzeAsync(
+        {
+          pieces,
+          side: myColor,
+          maxDepth: 5,
+          timeMs: 260,
+          multiPV: 3
+        },
+        (err, searchRes) => {
+          cancelWorkerSearch = null;
+          if (err || !searchRes || searchRes.error) {
+            console.warn("[AN Mod] Background engine search error:", err);
+            return;
+          }
+          if (lastAnalysisHash !== currentHash) return;
+          const deepAnalysis = buildTacticalAnalysis(searchRes, gameData, pieces);
+          if (!deepAnalysis) return;
+          cachedAnalysis = deepAnalysis;
+          updateMentorHudCardText(deepAnalysis);
+          if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
+            renderMentorFloatingContent(deepAnalysis);
+          }
+        }
       );
-      if (stateHash === lastAnalysisHash && cachedAnalysis) {
-        return;
-      }
-      lastAnalysisHash = stateHash;
-      const analysis = analyzeTacticalMindset(gameData);
-      if (!analysis) return;
-      cachedAnalysis = analysis;
-      updateMentorHudCardText(analysis);
-      if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
-        renderMentorFloatingContent(analysis);
-      }
     }
-    let mentorRoot = null;
-    let mentorSetter = null;
+    function analyzeTacticalMindset(gameData) {
+      if (!gameData || !gameData.gameLayer) return null;
+      const pieces = getBoardState(gameData.gameLayer);
+      if (!pieces || pieces.length === 0) return null;
+      const searchRes = engine.analyze({
+        pieces,
+        side: gameData.myColor,
+        maxDepth: 5,
+        timeMs: 260,
+        multiPV: 3
+      });
+      if (!searchRes || searchRes.error) return null;
+      return buildTacticalAnalysis(searchRes, gameData, pieces);
+    }
+    function MentorMiniBoard({
+      pieces,
+      myColor,
+      activePlan,
+      activeVariation,
+      activeStep,
+      setActiveStep
+    }) {
+      const displayPieces = (0, import_react15.useMemo)(() => {
+        if (!pieces) return [];
+        if (!activePlan || activeStep === 0) return pieces;
+        let current = pieces.map((p) => ({ ...p }));
+        if (activeStep >= 1) {
+          current = current.filter(
+            (p) => !(p.col === activePlan.toCol && p.row === activePlan.toRow && p.color !== activePlan.piece?.color)
+          );
+          const moving = current.find(
+            (p) => p.col === activePlan.fromCol && p.row === activePlan.fromRow && p.color === activePlan.piece?.color
+          );
+          if (moving) {
+            moving.col = activePlan.toCol;
+            moving.row = activePlan.toRow;
+            moving.isMyMove = true;
+          }
+        }
+        if (activeStep >= 2 && activeVariation) {
+          const opp = activeVariation;
+          current = current.filter(
+            (p) => !(p.col === opp.toCol && p.row === opp.toRow && p.color === myColor)
+          );
+          const moving = current.find(
+            (p) => p.col === opp.fromCol && p.row === opp.fromRow && p.color === opp.oppPiece?.color
+          );
+          if (moving) {
+            moving.col = opp.toCol;
+            moving.row = opp.toRow;
+            moving.isOppMove = true;
+          }
+        }
+        if (activeStep >= 3 && activeVariation?.answer) {
+          const ans = activeVariation.answer;
+          current = current.filter(
+            (p) => !(p.col === ans.toCol && p.row === ans.toRow && p.color !== myColor)
+          );
+          const moving = current.find(
+            (p) => p.col === ans.fromCol && p.row === ans.fromRow && p.color === myColor
+          );
+          if (moving) {
+            moving.col = ans.toCol;
+            moving.row = ans.toRow;
+            moving.isFollowUpMove = true;
+          }
+        }
+        return current;
+      }, [pieces, activePlan, activeVariation, activeStep, myColor]);
+      const getSquarePos = (col, row) => {
+        let displayCol = col;
+        let displayRow = row;
+        if (myColor === 0) {
+          displayRow = 9 - row;
+        } else {
+          displayRow = row;
+          displayCol = 8 - col;
+        }
+        const x = (25 + displayCol * 43.75) / 400 * 100;
+        const y = (25 + displayRow * 44.44) / 450 * 100;
+        return { x, y };
+      };
+      const activeArrow = (0, import_react15.useMemo)(() => {
+        if (!activePlan) return null;
+        if (activeStep === 0 || activeStep === 1) {
+          const s = getSquarePos(activePlan.fromCol, activePlan.fromRow);
+          const e = getSquarePos(activePlan.toCol, activePlan.toRow);
+          return {
+            x1: s.x,
+            y1: s.y,
+            x2: e.x,
+            y2: e.y,
+            color: "var(--primary, #06b6d4)",
+            marker: "url(#clean-arrow-blue)",
+            dashed: false
+          };
+        }
+        if (activeStep === 2 && activeVariation) {
+          const s = getSquarePos(
+            activeVariation.fromCol,
+            activeVariation.fromRow
+          );
+          const e = getSquarePos(activeVariation.toCol, activeVariation.toRow);
+          return {
+            x1: s.x,
+            y1: s.y,
+            x2: e.x,
+            y2: e.y,
+            color: "#f43f5e",
+            marker: "url(#clean-arrow-red)",
+            dashed: true
+          };
+        }
+        if (activeStep === 3 && activeVariation?.answer) {
+          const ans = activeVariation.answer;
+          const s = getSquarePos(ans.fromCol, ans.fromRow);
+          const e = getSquarePos(ans.toCol, ans.toRow);
+          return {
+            x1: s.x,
+            y1: s.y,
+            x2: e.x,
+            y2: e.y,
+            color: "#f59e0b",
+            marker: "url(#clean-arrow-gold)",
+            dashed: false
+          };
+        }
+        return null;
+      }, [activePlan, activeVariation, activeStep, myColor]);
+      const targetRingPos = (0, import_react15.useMemo)(() => {
+        if (!activePlan) return null;
+        if (activeStep === 0 || activeStep === 1)
+          return getSquarePos(activePlan.toCol, activePlan.toRow);
+        if (activeStep === 2 && activeVariation)
+          return getSquarePos(activeVariation.toCol, activeVariation.toRow);
+        if (activeStep === 3 && activeVariation?.answer)
+          return getSquarePos(
+            activeVariation.answer.toCol,
+            activeVariation.answer.toRow
+          );
+        return null;
+      }, [activePlan, activeVariation, activeStep, myColor]);
+      const originRingPos = (0, import_react15.useMemo)(() => {
+        if (!activePlan) return null;
+        if (activeStep === 0 || activeStep === 1)
+          return getSquarePos(activePlan.fromCol, activePlan.fromRow);
+        if (activeStep === 2 && activeVariation)
+          return getSquarePos(activeVariation.fromCol, activeVariation.fromRow);
+        if (activeStep === 3 && activeVariation?.answer)
+          return getSquarePos(
+            activeVariation.answer.fromCol,
+            activeVariation.answer.fromRow
+          );
+        return null;
+      }, [activePlan, activeVariation, activeStep, myColor]);
+      return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1.5", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+          "div",
+          {
+            className: "relative mx-auto aspect-[400/450] w-full max-w-[250px] overflow-hidden rounded-xl border shadow-md select-none",
+            style: {
+              background: "#1c1814",
+              borderColor: "rgba(100, 75, 45, 0.4)"
+            },
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                "svg",
+                {
+                  viewBox: "0 0 400 450",
+                  className: "pointer-events-none absolute inset-0 size-full",
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("defs", { children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                        "marker",
+                        {
+                          id: "clean-arrow-blue",
+                          viewBox: "0 0 10 10",
+                          refX: "7",
+                          refY: "5",
+                          markerWidth: "5",
+                          markerHeight: "5",
+                          orient: "auto-start-reverse",
+                          children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                            "path",
+                            {
+                              d: "M 0 1.5 L 9 5 L 0 8.5 z",
+                              fill: "var(--primary, #06b6d4)"
+                            }
+                          )
+                        }
+                      ),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                        "marker",
+                        {
+                          id: "clean-arrow-red",
+                          viewBox: "0 0 10 10",
+                          refX: "7",
+                          refY: "5",
+                          markerWidth: "5",
+                          markerHeight: "5",
+                          orient: "auto-start-reverse",
+                          children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("path", { d: "M 0 1.5 L 9 5 L 0 8.5 z", fill: "#f43f5e" })
+                        }
+                      ),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                        "marker",
+                        {
+                          id: "clean-arrow-gold",
+                          viewBox: "0 0 10 10",
+                          refX: "7",
+                          refY: "5",
+                          markerWidth: "5",
+                          markerHeight: "5",
+                          orient: "auto-start-reverse",
+                          children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("path", { d: "M 0 1.5 L 9 5 L 0 8.5 z", fill: "#f59e0b" })
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                      "rect",
+                      {
+                        x: "20",
+                        y: "20",
+                        width: "360",
+                        height: "410",
+                        fill: "none",
+                        stroke: "#4a3622",
+                        strokeWidth: "2"
+                      }
+                    ),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                      "rect",
+                      {
+                        x: "25",
+                        y: "25",
+                        width: "350",
+                        height: "400",
+                        fill: "none",
+                        stroke: "#684f32",
+                        strokeWidth: "1"
+                      }
+                    ),
+                    Array.from({ length: 10 }).map((_, i) => /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                      "line",
+                      {
+                        x1: "25",
+                        y1: 25 + i * 44.44,
+                        x2: "375",
+                        y2: 25 + i * 44.44,
+                        stroke: "#52402e",
+                        strokeWidth: "0.9"
+                      },
+                      `h-${i}`
+                    )),
+                    Array.from({ length: 9 }).map((_, i) => {
+                      const x = 25 + i * 43.75;
+                      if (i === 0 || i === 8) {
+                        return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                          "line",
+                          {
+                            x1: x,
+                            y1: "25",
+                            x2: x,
+                            y2: "425",
+                            stroke: "#52402e",
+                            strokeWidth: "0.9"
+                          },
+                          `v-${i}`
+                        );
+                      }
+                      return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_react15.default.Fragment, { children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                          "line",
+                          {
+                            x1: x,
+                            y1: "25",
+                            x2: x,
+                            y2: 25 + 4 * 44.44,
+                            stroke: "#52402e",
+                            strokeWidth: "0.9"
+                          }
+                        ),
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                          "line",
+                          {
+                            x1: x,
+                            y1: 25 + 5 * 44.44,
+                            x2: x,
+                            y2: "425",
+                            stroke: "#52402e",
+                            strokeWidth: "0.9"
+                          }
+                        )
+                      ] }, `v-${i}`);
+                    }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                      "line",
+                      {
+                        x1: 25 + 3 * 43.75,
+                        y1: "25",
+                        x2: 25 + 5 * 43.75,
+                        y2: 25 + 2 * 44.44,
+                        stroke: "#52402e",
+                        strokeWidth: "0.9"
+                      }
+                    ),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                      "line",
+                      {
+                        x1: 25 + 5 * 43.75,
+                        y1: "25",
+                        x2: 25 + 3 * 43.75,
+                        y2: 25 + 2 * 44.44,
+                        stroke: "#52402e",
+                        strokeWidth: "0.9"
+                      }
+                    ),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                      "line",
+                      {
+                        x1: 25 + 3 * 43.75,
+                        y1: 25 + 7 * 44.44,
+                        x2: 25 + 5 * 43.75,
+                        y2: "425",
+                        stroke: "#52402e",
+                        strokeWidth: "0.9"
+                      }
+                    ),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                      "line",
+                      {
+                        x1: 25 + 5 * 43.75,
+                        y1: 25 + 7 * 44.44,
+                        x2: 25 + 3 * 43.75,
+                        y2: "425",
+                        stroke: "#52402e",
+                        strokeWidth: "0.9"
+                      }
+                    ),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                      "text",
+                      {
+                        x: "100",
+                        y: 25 + 4.7 * 44.44,
+                        fill: "#826644",
+                        fontSize: "12",
+                        fontFamily: "serif",
+                        textAnchor: "middle",
+                        opacity: "0.6",
+                        children: "\u695A \u6CB3"
+                      }
+                    ),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                      "text",
+                      {
+                        x: "300",
+                        y: 25 + 4.7 * 44.44,
+                        fill: "#826644",
+                        fontSize: "12",
+                        fontFamily: "serif",
+                        textAnchor: "middle",
+                        opacity: "0.6",
+                        children: "\u6F22 \u754C"
+                      }
+                    ),
+                    activeArrow && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                      "line",
+                      {
+                        x1: `${activeArrow.x1}%`,
+                        y1: `${activeArrow.y1}%`,
+                        x2: `${activeArrow.x2}%`,
+                        y2: `${activeArrow.y2}%`,
+                        stroke: activeArrow.color,
+                        strokeWidth: "2.8",
+                        strokeDasharray: activeArrow.dashed ? "4 3" : void 0,
+                        strokeLinecap: "round",
+                        markerEnd: activeArrow.marker,
+                        style: { filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.7))" }
+                      }
+                    )
+                  ]
+                }
+              ),
+              originRingPos && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                "div",
+                {
+                  className: "ring-1.5 pointer-events-none absolute size-6 -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full ring-emerald-400/80",
+                  style: {
+                    left: `${originRingPos.x}%`,
+                    top: `${originRingPos.y}%`
+                  }
+                }
+              ),
+              targetRingPos && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                "div",
+                {
+                  className: "pointer-events-none absolute size-6 -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full ring-2 ring-cyan-400/80",
+                  style: {
+                    left: `${targetRingPos.x}%`,
+                    top: `${targetRingPos.y}%`,
+                    backgroundColor: "rgba(6, 182, 212, 0.15)"
+                  }
+                }
+              ),
+              displayPieces.map((p) => {
+                const pos = getSquarePos(p.col, p.row);
+                const isRed = p.color === 0;
+                let borderStyle = isRed ? "border border-red-500/80 bg-stone-100 text-red-600" : "border border-zinc-700 bg-zinc-900 text-zinc-100";
+                if (p.isMyMove) borderStyle += " ring-2 ring-cyan-400 z-20";
+                else if (p.isOppMove) borderStyle += " ring-2 ring-rose-500 z-20";
+                else if (p.isFollowUpMove)
+                  borderStyle += " ring-2 ring-amber-400 z-20";
+                return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  "div",
+                  {
+                    className: `absolute flex size-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-xs font-bold shadow-sm transition-all duration-300 ${borderStyle}`,
+                    style: {
+                      left: `${pos.x}%`,
+                      top: `${pos.y}%`,
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.5)"
+                    },
+                    children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "font-serif text-[11px] leading-none select-none", children: p.char })
+                  },
+                  `${p.index}-${p.col}-${p.row}`
+                );
+              })
+            ]
+          }
+        ),
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "grid grid-cols-4 gap-1 pt-0.5", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+            Button3,
+            {
+              variant: activeStep === 0 ? "secondary" : "ghost",
+              size: "xs",
+              className: "h-5.5 gap-0.5 px-1 text-[9px]",
+              onClick: () => setActiveStep(0),
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(RotateCcw, { className: "size-2.5" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "V\xE1n th\u1EADt" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+            Button3,
+            {
+              variant: activeStep === 1 ? "secondary" : "ghost",
+              size: "xs",
+              className: "h-5.5 gap-0.5 px-1 text-[9px]",
+              onClick: () => setActiveStep(1),
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Play, { className: "size-2.5 text-cyan-400" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "1. Ta \u0111i" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+            Button3,
+            {
+              variant: activeStep === 2 ? "secondary" : "ghost",
+              size: "xs",
+              disabled: !activeVariation,
+              className: "h-5.5 gap-0.5 px-1 text-[9px]",
+              onClick: () => setActiveStep(2),
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Swords, { className: "size-2.5 text-rose-400" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "2. \u0110\u1ECBch" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+            Button3,
+            {
+              variant: activeStep === 3 ? "secondary" : "ghost",
+              size: "xs",
+              disabled: !activeVariation?.answer,
+              className: "h-5.5 gap-0.5 px-1 text-[9px]",
+              onClick: () => setActiveStep(3),
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-2.5 text-amber-400" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "3. Ta b\u1ED3i" })
+              ]
+            }
+          )
+        ] })
+      ] });
+    }
     function MentorFloatingPanel({ initialAnalysis, onClose }) {
       const [analysis, setAnalysis] = (0, import_react15.useState)(initialAnalysis);
       const [tab, setTab] = (0, import_react15.useState)("plans");
+      const [selectedPlanIdx, setSelectedPlanIdx] = (0, import_react15.useState)(0);
+      const [activeVariationIdx, setActiveVariationIdx] = (0, import_react15.useState)(0);
+      const [activeStep, setActiveStep] = (0, import_react15.useState)(1);
+      const [isCompact, setIsCompact] = (0, import_react15.useState)(() => {
+        try {
+          const saved = localStorage.getItem("ziga_mentor_compact");
+          if (saved !== null) return saved === "true";
+        } catch (e) {
+        }
+        return true;
+      });
+      const [showMiniBoardInCompact, setShowMiniBoardInCompact] = (0, import_react15.useState)(false);
       mentorSetter = (nextAnalysis) => {
-        if (nextAnalysis) setAnalysis(nextAnalysis);
+        if (nextAnalysis) {
+          setAnalysis(nextAnalysis);
+          setActiveVariationIdx(0);
+          setActiveStep(1);
+        }
+      };
+      const activePlan = analysis?.plans?.[selectedPlanIdx] || null;
+      const activeVariation = activePlan?.variations?.[activeVariationIdx] || null;
+      const toggleCompactMode = () => {
+        setIsCompact((prev) => {
+          const next = !prev;
+          try {
+            localStorage.setItem("ziga_mentor_compact", String(next));
+          } catch (e) {
+          }
+          return next;
+        });
       };
       if (!analysis) {
-        return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Card, { className: "border-border bg-card text-card-foreground w-[340px] shadow-2xl", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(CardHeader, { className: "border-border cursor-move border-b pb-2", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardTitle, { className: "text-primary text-xs font-bold tracking-wider uppercase", children: "K\u1EF3 \u0110\u1EA1o S\u01B0 (AI Mentor)" }),
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardDescription, { className: "text-[11px]", children: "Gia s\u01B0 \u0111\u1ED3ng h\xE0nh n\xE2ng cao t\u01B0 duy c\u1EDD t\u01B0\u1EDBng" }),
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Button3, { variant: "ghost", size: "icon-xs", onClick: onClose, children: "\u2715" }) })
+        return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Card, { className: "ziga-mentor-panel-card border-border/80 w-[340px] shadow-2xl backdrop-blur-2xl", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/[0.02] px-3.5 py-2.5 select-none", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                "div",
+                {
+                  className: "flex size-7 shrink-0 items-center justify-center rounded-lg border border-white/10",
+                  style: { background: "rgba(255, 255, 255, 0.05)" },
+                  children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(GraduationCap, { className: "size-4 text-cyan-400" })
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-xs font-bold tracking-wider whitespace-nowrap uppercase", children: "K\u1EF3 \u0110\u1EA1o S\u01B0 (AI Mentor)" })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+              Button3,
+              {
+                variant: "ghost",
+                size: "icon-xs",
+                onClick: onClose,
+                className: "text-muted-foreground hover:text-foreground size-7 rounded-lg",
+                children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(X, { className: "size-3.5" })
+              }
+            )
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardContent, { className: "text-muted-foreground p-4 text-xs", children: "Ch\u1EDD v\xE1n c\u1EDD b\u1EAFt \u0111\u1EA7u \u0111\u1EC3 ph\xE2n t\xEDch th\u1EBF tr\u1EADn..." })
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardContent, { className: "text-muted-foreground p-5 text-center text-xs", children: "\u0110ang t\xEDnh to\xE1n n\u01B0\u1EDBc c\u1EDD... Vui l\xF2ng v\xE0o v\xE1n \u0111\u1EA5u \u0111\u1EC3 AI ph\xE2n t\xEDch." })
         ] });
       }
-      return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Card, { className: "border-border bg-card text-card-foreground flex max-h-[82vh] w-[340px] flex-col overflow-hidden shadow-2xl", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(CardHeader, { className: "border-border bg-muted/20 shrink-0 cursor-move border-b pb-2", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardTitle, { className: "text-primary text-xs font-bold tracking-wider uppercase", children: "K\u1EF3 \u0110\u1EA1o S\u01B0 (AI Mentor)" }),
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardDescription, { className: "text-[11px]", children: "Gia s\u01B0 \u0111\u1ED3ng h\xE0nh n\xE2ng cao t\u01B0 duy c\u1EDD t\u01B0\u1EDBng" }),
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-            Button3,
-            {
-              variant: "ghost",
-              size: "icon-xs",
-              onClick: onClose,
-              title: "\u0110\xF3ng b\u1EA3ng c\u1ED1 v\u1EA5n",
-              children: "\u2715"
-            }
-          ) })
-        ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(CardContent, { className: "flex min-h-0 flex-col gap-3 overflow-y-auto p-3", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Alert, { className: "bg-muted/40 px-3 py-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(AlertDescription, { className: "text-foreground text-xs leading-relaxed", children: analysis.coachCommentary }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Tabs, { value: tab, onValueChange: setTab, className: "w-full", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(TabsList3, { className: "grid h-8 w-full grid-cols-3", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TabsTrigger, { value: "plans", className: "text-[11px]", children: "3 K\u1EBF S\xE1ch" }),
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TabsTrigger, { value: "weakness", className: "text-[11px]", children: "\u0110i\u1EC3m Y\u1EBFu" }),
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TabsTrigger, { value: "maxims", className: "text-[11px]", children: "Kh\u1EA9u Quy\u1EBFt" })
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TabsContent, { value: "plans", className: "mt-2.5 flex flex-col gap-2", children: analysis.plans.map((p, idx) => /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Card, { size: "sm", className: "bg-muted/20", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(CardHeader, { className: "pb-1", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between gap-2", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                    Badge,
-                    {
-                      variant: p.type === "attack" ? "default" : p.type === "defend" ? "destructive" : "secondary",
-                      children: p.badge
-                    }
-                  ),
-                  p.moveNotation && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                    Badge,
-                    {
-                      variant: "outline",
-                      className: "font-mono text-[10px]",
-                      children: p.moveNotation
-                    }
-                  )
-                ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardTitle, { className: "mt-1 text-xs font-bold", children: p.name })
-              ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(CardContent, { className: "flex flex-col gap-2", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("p", { className: "text-muted-foreground text-[11px] leading-relaxed", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { className: "text-foreground", children: "\xDD \u0111\u1ED3:" }),
-                  " ",
-                  p.why
-                ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "text-muted-foreground bg-muted/50 border-border/60 rounded-md border p-2 text-[11px]", children: p.mentorTip }),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-1.5 pt-1", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                    Button3,
-                    {
-                      variant: "default",
-                      size: "xs",
-                      className: "flex-1 text-[11px]",
-                      onClick: () => drawPlanArrowOnBoard(p),
-                      children: "Ch\u1EC9 \u0110\u01B0\u1EDDng"
-                    }
-                  ),
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                    Button3,
-                    {
-                      variant: "outline",
-                      size: "xs",
-                      className: "text-[11px]",
-                      onClick: () => {
-                        if (ZigaMod.openTacticalSandbox)
-                          ZigaMod.openTacticalSandbox();
-                      },
-                      children: "\u0110i Th\u1EED"
-                    }
-                  )
+      const panelWidth = isCompact ? 380 : 640;
+      return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+        Card,
+        {
+          className: "ziga-mentor-panel-card border-border/80 relative flex flex-col overflow-hidden rounded-2xl shadow-2xl backdrop-blur-2xl transition-all duration-200",
+          style: {
+            width: `${panelWidth}px`,
+            maxWidth: "96vw",
+            maxHeight: "90vh",
+            background: "var(--popover, rgba(18, 20, 26, 0.92))",
+            borderColor: "rgba(255, 255, 255, 0.12)"
+          },
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/[0.02] px-3.5 py-2.5 select-none", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 items-center gap-2", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  "div",
+                  {
+                    className: "flex size-7 shrink-0 items-center justify-center rounded-lg border border-white/10 shadow-xs",
+                    style: { background: "rgba(255, 255, 255, 0.06)" },
+                    children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(GraduationCap, { className: "size-4 text-cyan-400" })
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-col", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-nowrap items-center gap-1.5", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-xs font-bold tracking-wider whitespace-nowrap uppercase", children: "K\u1EF3 \u0110\u1EA1o S\u01B0" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                      "span",
+                      {
+                        className: `py-0.2 inline-flex items-center gap-0.5 rounded border px-1.5 font-mono text-[9px] font-semibold whitespace-nowrap ${analysis.evalScore >= 50 ? "border-emerald-500/30 text-emerald-400" : analysis.evalScore <= -50 ? "border-rose-500/30 text-rose-400" : "border-white/10 text-slate-300"}`,
+                        style: {
+                          background: analysis.evalScore >= 50 ? "rgba(16, 185, 129, 0.1)" : analysis.evalScore <= -50 ? "rgba(244, 63, 94, 0.1)" : "rgba(255, 255, 255, 0.05)"
+                        },
+                        children: [
+                          analysis.evalScore >= 50 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TrendingUp, { className: "size-2.5" }) : analysis.evalScore <= -50 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TrendingDown, { className: "size-2.5" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Equal, { className: "size-2.5" }),
+                          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: analysis.evalText })
+                        ]
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "text-muted-foreground mt-0.5 flex items-center gap-1 text-[9px] whitespace-nowrap", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                      "span",
+                      {
+                        className: "py-0.2 text-muted-foreground/90 rounded border border-white/[0.08] px-1 font-medium",
+                        style: { background: "rgba(255, 255, 255, 0.04)" },
+                        children: analysis.phase
+                      }
+                    ),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "\u2022" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "inline-flex items-center gap-1 font-medium", children: analysis.isMyTurn ? /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_jsx_runtime56.Fragment, { children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 animate-pulse rounded-full bg-emerald-400" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "font-semibold text-emerald-400", children: "L\u01B0\u1EE3t b\u1EA1n" })
+                    ] }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_jsx_runtime56.Fragment, { children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "bg-muted-foreground/50 size-1.5 rounded-full" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "L\u01B0\u1EE3t \u0111\u1ED1i th\u1EE7" })
+                    ] }) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "\u2022" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "inline-flex items-center gap-1 font-medium", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                        "span",
+                        {
+                          className: `size-2 rounded-full border ${analysis.myColor === 0 ? "border-red-400 bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.5)]" : "border-zinc-500 bg-zinc-800 shadow-[0_0_4px_rgba(0,0,0,0.5)]"}`
+                        }
+                      ),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: analysis.myColor === 0 ? "Phe \u0110\u1ECF" : "Phe \u0110en" })
+                    ] })
+                  ] })
                 ] })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex shrink-0 items-center gap-1", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  Button3,
+                  {
+                    variant: "ghost",
+                    size: "icon-xs",
+                    onClick: toggleCompactMode,
+                    title: isCompact ? "M\u1EDF r\u1ED9ng 2 c\u1ED9t (Studio)" : "Thu g\u1ECDn 1 c\u1ED9t",
+                    className: "text-muted-foreground hover:text-foreground size-7 rounded-lg border border-transparent transition-colors hover:border-white/10 hover:bg-white/[0.06]",
+                    children: isCompact ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Maximize2, { className: "size-3.5" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Minimize2, { className: "size-3.5" })
+                  }
+                ),
+                isCompact && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  Button3,
+                  {
+                    variant: "ghost",
+                    size: "icon-xs",
+                    onClick: () => setShowMiniBoardInCompact((p) => !p),
+                    title: showMiniBoardInCompact ? "\u1EA8n b\xE0n c\u1EDD nh\u1ECF" : "Hi\u1EC7n b\xE0n c\u1EDD nh\u1ECF",
+                    className: `size-7 rounded-lg border transition-colors ${showMiniBoardInCompact ? "border-cyan-400/40 text-cyan-400" : "text-muted-foreground hover:text-foreground border-transparent hover:border-white/10 hover:bg-white/[0.06]"}`,
+                    style: {
+                      background: showMiniBoardInCompact ? "rgba(6, 182, 212, 0.12)" : "transparent"
+                    },
+                    children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(LayoutGrid, { className: "size-3.5" })
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  Button3,
+                  {
+                    variant: "ghost",
+                    size: "icon-xs",
+                    onClick: onClose,
+                    title: "\u0110\xF3ng b\u1EA3ng c\u1ED1 v\u1EA5n",
+                    className: "text-muted-foreground hover:text-foreground size-7 rounded-lg transition-colors hover:bg-rose-500/15 hover:text-rose-400",
+                    children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(X, { className: "size-3.5" })
+                  }
+                )
               ] })
-            ] }, idx)) }),
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "px-3 pt-2", children: (() => {
+              const comm = analysis.commentary || {
+                type: "optimal",
+                title: "G\u1EE2I \xDD T\u1ED0I \u01AFU",
+                move: analysis.plans?.[0]?.fullNotation,
+                why: analysis.coachCommentary
+              };
+              const isMate = comm.type === "mate";
+              const isDanger = comm.type === "danger";
+              return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                "div",
+                {
+                  className: `relative flex items-start gap-2.5 rounded-xl border p-2.5 transition-all ${isMate ? "border-l-[3.5px] border-white/10 border-l-amber-500" : isDanger ? "border-l-[3.5px] border-white/10 border-l-rose-500" : "border-l-[3.5px] border-white/10 border-l-cyan-400"}`,
+                  style: {
+                    background: "rgba(255, 255, 255, 0.03)"
+                  },
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                      "div",
+                      {
+                        className: `flex size-7 shrink-0 items-center justify-center rounded-lg border ${isMate ? "border-amber-500/30 text-amber-400" : isDanger ? "border-rose-500/30 text-rose-400" : "border-cyan-400/30 text-cyan-400"}`,
+                        style: {
+                          background: isMate ? "rgba(245, 158, 11, 0.12)" : isDanger ? "rgba(244, 63, 94, 0.12)" : "rgba(6, 182, 212, 0.12)"
+                        },
+                        children: isMate ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Trophy, { className: "size-4" }) : isDanger ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TriangleAlert, { className: "size-4" }) : comm.type === "turn" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Crosshair, { className: "size-4" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Lightbulb, { className: "size-4" })
+                      }
+                    ),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-1 flex-col gap-0.5", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-wrap items-center gap-1.5", children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                          "span",
+                          {
+                            className: `text-[9.5px] font-bold tracking-wider uppercase ${isMate ? "text-amber-400" : isDanger ? "text-rose-400" : "text-cyan-400"}`,
+                            children: comm.title
+                          }
+                        ),
+                        comm.move && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                          "span",
+                          {
+                            className: "text-foreground py-0.2 rounded border border-white/15 px-1.5 font-mono text-[10.5px] font-bold",
+                            style: { background: "rgba(255, 255, 255, 0.08)" },
+                            children: comm.move
+                          }
+                        )
+                      ] }),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground/90 text-[11px] leading-snug font-medium", children: comm.why }),
+                      analysis.threatInfo && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                        "div",
+                        {
+                          className: "mt-1 flex items-center gap-1.5 rounded-md border border-rose-500/30 px-2 py-1 text-[10px] text-rose-300",
+                          style: { background: "rgba(244, 63, 94, 0.1)" },
+                          children: [
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ShieldAlert, { className: "size-3.5 shrink-0 text-rose-400" }),
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "leading-tight font-medium", children: analysis.threatInfo.desc })
+                          ]
+                        }
+                      )
+                    ] })
+                  ]
+                }
+              );
+            })() }),
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex min-h-0 flex-1 flex-col overflow-hidden p-3 pt-2", children: !isCompact ? (
+              /* Studio Mode (Dual Pane) */
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "grid min-h-0 flex-1 grid-cols-12 gap-3 overflow-hidden", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "col-span-5 flex min-h-0 flex-col gap-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  MentorMiniBoard,
+                  {
+                    pieces: analysis.pieces,
+                    myColor: analysis.myColor,
+                    activePlan,
+                    activeVariation,
+                    activeStep,
+                    setActiveStep
+                  }
+                ) }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "col-span-7 flex min-h-0 flex-col gap-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  PlansTabsSection,
+                  {
+                    tab,
+                    setTab,
+                    analysis,
+                    selectedPlanIdx,
+                    setSelectedPlanIdx,
+                    activeVariationIdx,
+                    setActiveVariationIdx,
+                    setActiveStep,
+                    onDrawPlan: (p, varIdx) => drawPlanArrowOnBoard(p, varIdx)
+                  }
+                ) })
+              ] })
+            ) : (
+              /* Compact Mode (Single Column - Never blocks board!) */
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-h-0 flex-1 flex-col gap-2.5 overflow-hidden", children: [
+                showMiniBoardInCompact && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "border-border/30 rounded-xl border bg-black/30 p-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  MentorMiniBoard,
+                  {
+                    pieces: analysis.pieces,
+                    myColor: analysis.myColor,
+                    activePlan,
+                    activeVariation,
+                    activeStep,
+                    setActiveStep
+                  }
+                ) }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex min-h-0 flex-1 flex-col overflow-hidden", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  PlansTabsSection,
+                  {
+                    tab,
+                    setTab,
+                    analysis,
+                    selectedPlanIdx,
+                    setSelectedPlanIdx,
+                    activeVariationIdx,
+                    setActiveVariationIdx,
+                    setActiveStep,
+                    onDrawPlan: (p, varIdx) => drawPlanArrowOnBoard(p, varIdx)
+                  }
+                ) })
+              ] })
+            ) })
+          ]
+        }
+      );
+    }
+    function PlansTabsSection({
+      tab,
+      setTab,
+      analysis,
+      selectedPlanIdx,
+      setSelectedPlanIdx,
+      activeVariationIdx,
+      setActiveVariationIdx,
+      setActiveStep,
+      onDrawPlan
+    }) {
+      const plans = analysis?.plans || [];
+      return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+        Tabs,
+        {
+          value: tab,
+          onValueChange: setTab,
+          className: "flex min-h-0 flex-1 flex-col",
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(TabsList3, { className: "grid h-6.5 w-full shrink-0 grid-cols-2", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(TabsTrigger, { value: "plans", className: "gap-1 text-[10px]", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Compass, { className: "size-3" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { children: [
+                  "K\u1EBF S\xE1ch Th\u1EF1c Chi\u1EBFn (",
+                  plans.length,
+                  ")"
+                ] })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(TabsTrigger, { value: "theory", className: "gap-1 text-[10px]", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(BrainCircuit, { className: "size-3" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "T\xE2m Ph\xE1p & L\xFD Lu\u1EADn" })
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
               TabsContent,
               {
-                value: "weakness",
-                className: "mt-2.5 flex flex-col gap-2.5",
-                children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1.5", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-primary text-[11px] font-bold tracking-wider uppercase", children: "C\u01A1 H\u1ED9i T\u1EA5n C\xF4ng \u0110\u1ED1i Th\u1EE7" }),
-                    analysis.opportunities.length > 0 ? analysis.opportunities.map((o, idx) => /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Card, { size: "sm", className: "bg-muted/20", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardHeader, { className: "pb-0.5", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardTitle, { className: "text-xs font-semibold", children: o.title }) }),
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardContent, { className: "text-muted-foreground text-[11px]", children: o.desc })
-                    ] }, idx)) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("p", { className: "text-muted-foreground text-xs italic", children: "\u0110\u1ED1i ph\u01B0\u01A1ng \u0111ang gi\u1EEF th\u1EBF tr\u1EADn kh\xE1 k\xEDn k\u1EBD, ch\u01B0a c\xF3 s\u01A1 h\u1EDF l\u1EDBn." })
-                  ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1.5", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-destructive text-[11px] font-bold tracking-wider uppercase", children: "L\u1ED7 H\u1ED5ng Ph\xF2ng Th\u1EE7 C\u1EE7a B\u1EA1n" }),
-                    analysis.weaknesses.length > 0 ? analysis.weaknesses.map((w, idx) => /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Card, { size: "sm", className: "bg-muted/20", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardHeader, { className: "pb-0.5", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardTitle, { className: "text-destructive text-xs font-semibold", children: w.title }) }),
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardContent, { className: "text-muted-foreground text-[11px]", children: w.desc })
-                    ] }, idx)) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("p", { className: "text-muted-foreground text-xs italic", children: "H\u1EC7 th\u1ED1ng ph\xF2ng th\u1EE7 c\u1EE7a b\u1EA1n \u0111ang r\u1EA5t tr\xF2n tr\u1ECBa v\xE0 an to\xE0n." })
+                value: "plans",
+                className: "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1",
+                "data-scrollable": "true",
+                children: plans.length > 0 ? plans.map((p, idx) => {
+                  const isSelected = selectedPlanIdx === idx;
+                  const currentVarIdx = isSelected ? activeVariationIdx : 0;
+                  const currentVar = p.variations?.[currentVarIdx] || p.variations?.[0];
+                  return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                    "div",
+                    {
+                      className: "flex cursor-pointer flex-col gap-2 rounded-xl p-2.5 transition-all",
+                      style: {
+                        background: isSelected ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.02)",
+                        border: isSelected ? "1px solid var(--primary, #06b6d4)" : "1px solid rgba(255, 255, 255, 0.08)",
+                        borderLeft: isSelected ? "3.5px solid var(--primary, #06b6d4)" : "1px solid rgba(255, 255, 255, 0.08)",
+                        boxShadow: isSelected ? "0 4px 14px rgba(0, 0, 0, 0.25)" : "none"
+                      },
+                      onClick: () => {
+                        setSelectedPlanIdx(idx);
+                        setActiveVariationIdx(0);
+                        setActiveStep(1);
+                        onDrawPlan(p, 0);
+                      },
+                      children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between gap-1", children: [
+                          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-1.5", children: [
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                              Badge,
+                              {
+                                variant: "outline",
+                                className: "text-foreground/90 inline-flex items-center gap-1 rounded border border-white/15 px-1.5 py-0 text-[9px] font-semibold",
+                                style: { background: "rgba(255, 255, 255, 0.06)" },
+                                children: [
+                                  p.type === "attack" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-2.5 text-cyan-400" }) : p.type === "defend" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Shield, { className: "size-2.5 text-rose-400" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Zap, { className: "size-2.5 text-amber-400" }),
+                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: p.badge })
+                                ]
+                              }
+                            ),
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-primary font-mono text-[11.5px] font-bold", children: p.shortNotation })
+                          ] }),
+                          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-[11px] font-bold", children: p.name.split("\xB7")[1] || p.name })
+                        ] }),
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-start gap-1.5 text-[10.5px]", children: [
+                          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "shrink-0 font-bold text-cyan-400", children: "1. Ta \u0111i:" }),
+                          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-foreground/90 leading-tight font-medium", children: [
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: p.fullNotation }),
+                            " \u2014 ",
+                            p.why
+                          ] })
+                        ] }),
+                        isSelected && p.variations && p.variations.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1.5 rounded-lg border border-white/[0.06] bg-black/25 p-2 text-[10px]", children: [
+                          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between", children: [
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-muted-foreground text-[9.5px] font-semibold", children: [
+                              "D\u1EF1 \u0111o\xE1n ph\u1EA3n \u1EE9ng c\u1EE7a \u0111\u1ECBch (",
+                              p.variations.length,
+                              " bi\u1EBFn):"
+                            ] }),
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "font-mono text-[9px] text-rose-400", children: "2. \u0110\u1ECBch \u0111\xE1p" })
+                          ] }),
+                          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex flex-wrap gap-1", children: p.variations.map((v, vIdx) => {
+                            const isVarActive = currentVarIdx === vIdx;
+                            return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                              "button",
+                              {
+                                type: "button",
+                                className: `rounded border px-2 py-0.5 text-[9.5px] font-medium transition-colors ${isVarActive ? "border-cyan-400/50 font-bold text-cyan-300 shadow-xs" : "text-muted-foreground border-white/10 hover:bg-white/[0.06]"}`,
+                                style: {
+                                  background: isVarActive ? "rgba(6, 182, 212, 0.15)" : "rgba(255, 255, 255, 0.03)"
+                                },
+                                onClick: (e) => {
+                                  e.stopPropagation();
+                                  setActiveVariationIdx(vIdx);
+                                  setActiveStep(2);
+                                  onDrawPlan(p, vIdx);
+                                },
+                                children: v.shortLabel
+                              },
+                              v.idx
+                            );
+                          }) }),
+                          currentVar && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1 border-t border-white/[0.05] pt-1", children: [
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-start gap-1", children: [
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "shrink-0 font-bold text-rose-400", children: "\u0110\u1ECBch:" }),
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-muted-foreground leading-tight", children: [
+                                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: currentVar.oppNotation?.full || "N\u01B0\u1EDBc \u0111i" }),
+                                " ",
+                                "(",
+                                currentVar.oppWhy,
+                                ")"
+                              ] })
+                            ] }),
+                            currentVar.answer ? /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-start gap-1", children: [
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "shrink-0 font-bold text-amber-400", children: "3. Ta b\u1ED3i:" }),
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-foreground/90 leading-tight font-medium", children: [
+                                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: currentVar.answer.notation?.full || "N\u01B0\u1EDBc c\u1EDD" }),
+                                " ",
+                                "(",
+                                currentVar.answer.why,
+                                ")"
+                              ] })
+                            ] }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-start gap-1 text-emerald-400", children: [
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "shrink-0 font-bold", children: "3. K\u1EBFt c\u1EE5c:" }),
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "leading-tight", children: "\u0110\u1ED1i th\u1EE7 l\xE2m v\xE0o th\u1EBF c\xF9ng l\u1EF1c ki\u1EC7t." })
+                            ] })
+                          ] })
+                        ] }),
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-1.5 pt-0.5", children: [
+                          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                            Button3,
+                            {
+                              variant: "default",
+                              size: "xs",
+                              className: "h-5.5 flex-1 gap-1 text-[9.5px] font-medium",
+                              onClick: (e) => {
+                                e.stopPropagation();
+                                setSelectedPlanIdx(idx);
+                                onDrawPlan(p, currentVarIdx);
+                              },
+                              children: [
+                                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Crosshair, { className: "size-3" }),
+                                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "V\u1EBD L\xEAn B\xE0n Th\u1EADt" })
+                              ]
+                            }
+                          ),
+                          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                            Button3,
+                            {
+                              variant: "outline",
+                              size: "xs",
+                              className: "h-5.5 gap-1 text-[9.5px] font-medium",
+                              onClick: (e) => {
+                                e.stopPropagation();
+                                setSelectedPlanIdx(idx);
+                                setActiveStep(1);
+                              },
+                              children: [
+                                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Play, { className: "size-3" }),
+                                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "Th\u1EED Tr\xEAn B\xE0n Nh\u1ECF" })
+                              ]
+                            }
+                          )
+                        ] })
+                      ]
+                    },
+                    p.id
+                  );
+                }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-1 flex-col items-center justify-center gap-2.5 p-6 text-center text-muted-foreground/80", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                    BrainCircuit,
+                    {
+                      className: `size-6 text-cyan-400 ${analysis?.isSearching ? "animate-pulse" : ""}`
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-xs font-semibold", children: analysis?.isSearching ? "AI \u0111ang t\xEDnh to\xE1n c\xE1c bi\u1EBFn c\u1EDD chuy\xEAn s\xE2u..." : "\u0110ang theo d\xF5i th\u1EBF tr\u1EADn v\xE1n \u0111\u1EA5u..." }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[10px] text-muted-foreground", children: analysis?.isSearching ? "Thu\u1EADt to\xE1n Alpha-Beta ch\u1EA1y ng\u1EA7m qua Web Worker (0% lag b\xE0n c\u1EDD)." : "Th\u1EF1c hi\u1EC7n n\u01B0\u1EDBc c\u1EDD ho\u1EB7c \u0111\u1EE3i \u0111\u1ED1i th\u1EE7 \u0111\u1EC3 c\u1EADp nh\u1EADt k\u1EBF s\xE1ch m\u1EDBi." })
                   ] })
-                ]
+                ] })
               }
             ),
             /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
               TabsContent,
               {
-                value: "maxims",
-                className: "mt-2.5 flex flex-col gap-2.5",
+                value: "theory",
+                className: "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1",
+                "data-scrollable": "true",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Alert, { className: "bg-primary/10 border-primary/30", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(AlertTitle, { className: "text-primary text-xs font-bold", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "border-border/40 rounded-xl border bg-white/[0.02] p-2.5", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-primary block text-[10.5px] font-bold", children: [
                       '"',
                       analysis.maxim.rule,
                       '"'
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(AlertDescription, { className: "text-muted-foreground mt-1 text-[11px]", children: analysis.maxim.desc })
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("p", { className: "text-muted-foreground mt-0.5 text-[10px] leading-snug", children: analysis.maxim.desc })
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground text-[11px] font-bold tracking-wider uppercase", children: "10 \u0110\u1EA1o C\u1EDD T\u01B0\u1EDBng T\xE2m Ph\xE1p" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex max-h-[220px] flex-col gap-1.5 overflow-y-auto pr-1", children: XIANGQI_MAXIMS.map((m, idx) => /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Card, { size: "sm", className: "bg-muted/15", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardHeader, { className: "pb-0.5", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(CardTitle, { className: "text-[11px] font-semibold", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-primary mr-1 font-bold", children: [
-                        idx + 1,
-                        "."
-                      ] }),
-                      m.rule
-                    ] }) }),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardContent, { className: "text-muted-foreground text-[11px] leading-relaxed", children: m.desc })
-                  ] }, idx)) })
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex flex-col gap-1", children: XIANGQI_MAXIMS.slice(0, 5).map((m, idx) => /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                    "div",
+                    {
+                      className: "border-border/30 bg-muted/10 rounded-lg border p-1.5 text-[9.5px] leading-snug",
+                      children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("strong", { className: "text-primary mr-1", children: [
+                          m.rule,
+                          ":"
+                        ] }),
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground", children: m.desc })
+                      ]
+                    },
+                    idx
+                  )) })
                 ]
               }
             )
-          ] })
-        ] })
-      ] });
+          ]
+        }
+      );
     }
     function toggleMentorFloatingPanel(forceOpen) {
       if (!mentorPanelEl) {
@@ -45183,9 +47132,40 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       }
       const isVisible = mentorPanelEl.style.display !== "none";
       const nextState = forceOpen !== void 0 ? !!forceOpen : !isVisible;
-      mentorPanelEl.style.display = nextState ? "flex" : "none";
-      if (nextState && cachedAnalysis) {
-        renderMentorFloatingContent(cachedAnalysis);
+      if (nextState) {
+        mentorPanelEl.style.display = "flex";
+        const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+        if (isDark) mentorPanelEl.classList.add("dark");
+        else mentorPanelEl.classList.remove("dark");
+        if (typeof ZigaMod.lockOuterScroll === "function") {
+          ZigaMod.lockOuterScroll();
+        }
+        if (cachedAnalysis && !cachedAnalysis.isQuickOnly && (cachedAnalysis.plans || []).length > 0) {
+          renderMentorFloatingContent(cachedAnalysis);
+        } else {
+          if (cachedAnalysis) {
+            renderMentorFloatingContent({ ...cachedAnalysis, isSearching: true });
+          }
+          if (lastKnownGameData && lastKnownGameData.gameLayer) {
+            const pieces = getBoardState(lastKnownGameData.gameLayer);
+            if (pieces && pieces.length > 0) {
+              triggerDeepAnalysis(lastKnownGameData, pieces);
+            }
+          }
+        }
+      } else {
+        mentorPanelEl.style.display = "none";
+        if (typeof ZigaMod.unlockOuterScroll === "function") {
+          ZigaMod.unlockOuterScroll();
+        }
+        if (analyzeDebounceTimer) {
+          clearTimeout(analyzeDebounceTimer);
+          analyzeDebounceTimer = null;
+        }
+        if (cancelWorkerSearch) {
+          cancelWorkerSearch();
+          cancelWorkerSearch = null;
+        }
       }
     }
     function createMentorFloatingPanel() {
@@ -45194,25 +47174,75 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       mentorPanelEl.id = "ziga-mentor-floating-panel";
       mentorPanelEl.className = "ziga-shadcn-root fixed z-[2147483646] select-none";
       mentorPanelEl.style.display = "none";
+      const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+      if (isDark) mentorPanelEl.classList.add("dark");
       const canvas = document.getElementById("gameCanvas");
-      if (canvas) {
-        const r2 = canvas.getBoundingClientRect();
-        mentorPanelEl.style.left = `${Math.min(window.innerWidth - 350, Math.max(10, r2.right + 15))}px`;
-        mentorPanelEl.style.top = `${Math.max(20, r2.top)}px`;
-      } else {
-        mentorPanelEl.style.right = "30px";
-        mentorPanelEl.style.top = "120px";
+      let targetLeft = 0;
+      let targetTop = 20;
+      let savedPos = null;
+      try {
+        const p = localStorage.getItem("ziga_mentor_pos");
+        if (p) savedPos = JSON.parse(p);
+      } catch (e) {
       }
+      if (savedPos && typeof savedPos.left === "number" && savedPos.left < window.innerWidth - 100) {
+        targetLeft = savedPos.left;
+        targetTop = savedPos.top;
+      } else if (canvas) {
+        const r2 = canvas.getBoundingClientRect();
+        const availableRight = window.innerWidth - r2.right;
+        if (availableRight >= 390) {
+          targetLeft = r2.right + 12;
+          targetTop = Math.max(15, r2.top);
+        } else {
+          targetLeft = Math.max(10, window.innerWidth - 400);
+          targetTop = 20;
+        }
+      } else {
+        targetLeft = Math.max(10, window.innerWidth - 400);
+        targetTop = 20;
+      }
+      mentorPanelEl.style.left = `${targetLeft}px`;
+      mentorPanelEl.style.top = `${targetTop}px`;
+      mentorPanelEl.addEventListener(
+        "wheel",
+        (e) => {
+          const scrollable = e.target.closest(
+            '.overflow-y-auto, [data-scrollable="true"]'
+          );
+          if (!scrollable) {
+            e.preventDefault();
+            return;
+          }
+          const delta = e.deltaY;
+          const atTop = scrollable.scrollTop <= 0 && delta < 0;
+          const atBottom = scrollable.scrollTop + scrollable.clientHeight >= scrollable.scrollHeight - 1 && delta > 0;
+          if (atTop || atBottom) {
+            e.preventDefault();
+          }
+        },
+        { passive: false }
+      );
+      mentorPanelEl.addEventListener(
+        "touchmove",
+        (e) => {
+          const scrollable = e.target.closest(
+            '.overflow-y-auto, [data-scrollable="true"]'
+          );
+          if (!scrollable) {
+            e.preventDefault();
+          }
+        },
+        { passive: false }
+      );
       document.body.appendChild(mentorPanelEl);
-      mentorRoot = (0, import_client4.createRoot)(mentorPanelEl);
-      mentorRoot.render(
+      const root = (0, import_client4.createRoot)(mentorPanelEl);
+      root.render(
         /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
           MentorFloatingPanel,
           {
             initialAnalysis: cachedAnalysis,
-            onClose: () => {
-              if (mentorPanelEl) mentorPanelEl.style.display = "none";
-            }
+            onClose: () => toggleMentorFloatingPanel(false)
           }
         )
       );
@@ -45223,7 +47253,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       let isDragging = false;
       let startX, startY, initX, initY;
       panel.addEventListener("mousedown", (e) => {
-        if (e.target.closest("button") || e.target.closest("input") || e.target.closest('[role="tab"]'))
+        if (e.target.closest("button") || e.target.closest("input") || e.target.closest('[role="tab"]') || e.target.closest(".overflow-y-auto"))
           return;
         isDragging = true;
         document.body.classList.add("ziga-is-dragging-or-resizing");
@@ -45239,8 +47269,16 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           if (!isDragging) return;
           const dx = e.clientX - startX;
           const dy = e.clientY - startY;
-          panel.style.left = `${Math.max(10, Math.min(window.innerWidth - panel.offsetWidth - 10, initX + dx))}px`;
-          panel.style.top = `${Math.max(10, Math.min(window.innerHeight - panel.offsetHeight - 10, initY + dy))}px`;
+          const newLeft = Math.max(
+            10,
+            Math.min(window.innerWidth - panel.offsetWidth - 10, initX + dx)
+          );
+          const newTop = Math.max(
+            10,
+            Math.min(window.innerHeight - panel.offsetHeight - 10, initY + dy)
+          );
+          panel.style.left = `${newLeft}px`;
+          panel.style.top = `${newTop}px`;
         },
         { capture: true }
       );
@@ -45250,6 +47288,14 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           if (isDragging) {
             isDragging = false;
             document.body.classList.remove("ziga-is-dragging-or-resizing");
+            try {
+              const r2 = panel.getBoundingClientRect();
+              localStorage.setItem(
+                "ziga_mentor_pos",
+                JSON.stringify({ left: r2.left, top: r2.top })
+              );
+            } catch (e) {
+            }
           }
         },
         { capture: true }
@@ -45261,26 +47307,147 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         mentorSetter(analysis);
       }
     }
-    function drawPlanArrowOnBoard(plan) {
+    function drawPlanArrowOnBoard(plan, variationIdx = 0) {
       if (!plan || !ZigaMod.drawnArrows) return;
-      const existingIdx = ZigaMod.drawnArrows.findIndex((a) => a.isMentorPlan);
-      if (existingIdx >= 0) {
-        ZigaMod.drawnArrows.splice(existingIdx, 1);
+      for (let i = ZigaMod.drawnArrows.length - 1; i >= 0; i--) {
+        if (ZigaMod.drawnArrows[i].isMentorPlan) {
+          ZigaMod.drawnArrows.splice(i, 1);
+        }
+      }
+      if (ZigaMod.drawnHighlights) {
+        for (let i = ZigaMod.drawnHighlights.length - 1; i >= 0; i--) {
+          if (ZigaMod.drawnHighlights[i].isMentorPlan) {
+            ZigaMod.drawnHighlights.splice(i, 1);
+          }
+        }
       }
       ZigaMod.drawnArrows.push({
         fromCol: plan.fromCol,
         fromRow: plan.fromRow,
         toCol: plan.toCol,
         toRow: plan.toRow,
-        color: plan.type === "attack" ? "red" : plan.type === "defense" ? "blue" : "gold",
+        color: "green",
         isMentorPlan: true
       });
+      if (ZigaMod.drawnHighlights) {
+        ZigaMod.drawnHighlights.push({
+          col: plan.toCol,
+          row: plan.toRow,
+          color: "green",
+          isMentorPlan: true
+        });
+      }
+      const activeVar = plan.variations?.[variationIdx] || plan.variations?.[0];
+      if (activeVar && activeVar.fromCol !== void 0 && activeVar.toCol !== void 0) {
+        ZigaMod.drawnArrows.push({
+          fromCol: activeVar.fromCol,
+          fromRow: activeVar.fromRow,
+          toCol: activeVar.toCol,
+          toRow: activeVar.toRow,
+          color: "red",
+          isMentorPlan: true
+        });
+        if (activeVar.answer) {
+          ZigaMod.drawnArrows.push({
+            fromCol: activeVar.answer.fromCol,
+            fromRow: activeVar.answer.fromRow,
+            toCol: activeVar.answer.toCol,
+            toRow: activeVar.answer.toRow,
+            color: "gold",
+            isMentorPlan: true
+          });
+        }
+      }
       if (ZigaMod.ensureDrawingCanvas) {
         const c = ZigaMod.ensureDrawingCanvas();
         if (c && ZigaMod.redrawTacticalCanvas) {
           ZigaMod.redrawTacticalCanvas();
         }
       }
+    }
+    function updateMentorHudCardText(analysis) {
+      const phaseEl = document.getElementById("ziga-mentor-phase-val");
+      const commentEl = document.getElementById("ziga-mentor-comment-val");
+      if (phaseEl)
+        phaseEl.textContent = `${analysis.phase} \xB7 ${analysis.isMyTurn ? "L\u01B0\u1EE3t B\u1EA1n \u0110i" : "L\u01B0\u1EE3t \u0110\u1ED1i Th\u1EE7"}`;
+      if (commentEl) commentEl.textContent = analysis.coachCommentary;
+    }
+    function updateMentorHud(gameData) {
+      const userSettings = ZigaMod.userSettings || {};
+      if (userSettings.mentorCoach === false) {
+        const card2 = document.getElementById("ziga-mentor-hud-card");
+        if (card2) card2.style.display = "none";
+        if (mentorPanelEl) mentorPanelEl.style.display = "none";
+        if (analyzeDebounceTimer) {
+          clearTimeout(analyzeDebounceTimer);
+          analyzeDebounceTimer = null;
+        }
+        if (cancelWorkerSearch) {
+          cancelWorkerSearch();
+          cancelWorkerSearch = null;
+        }
+        return;
+      }
+      if (!gameData || !gameData.gameLayer) {
+        const card2 = document.getElementById("ziga-mentor-hud-card");
+        if (card2) card2.style.display = "none";
+        lastAnalysisHash = "";
+        cachedAnalysis = null;
+        lastKnownGameData = null;
+        if (analyzeDebounceTimer) {
+          clearTimeout(analyzeDebounceTimer);
+          analyzeDebounceTimer = null;
+        }
+        if (cancelWorkerSearch) {
+          cancelWorkerSearch();
+          cancelWorkerSearch = null;
+        }
+        return;
+      }
+      lastKnownGameData = gameData;
+      const card = document.getElementById("ziga-mentor-hud-card");
+      if (card) card.style.display = "flex";
+      const stateHash = getBoardStateHash(
+        gameData.gameLayer,
+        gameData.myColor,
+        gameData.oppColor
+      );
+      if (stateHash === lastAnalysisHash && cachedAnalysis) {
+        return;
+      }
+      lastAnalysisHash = stateHash;
+      const pieces = getBoardState(gameData.gameLayer);
+      if (!pieces || pieces.length === 0) return;
+      const quickRes = asyncWorker.quickEvaluate(pieces, gameData.myColor);
+      const quickAnalysis = buildQuickAnalysis(quickRes, gameData, pieces);
+      if (!cachedAnalysis || cachedAnalysis.isQuickOnly) {
+        cachedAnalysis = quickAnalysis;
+      }
+      if (quickAnalysis) {
+        updateMentorHudCardText(quickAnalysis);
+      }
+      const isPanelOpen = mentorPanelEl && mentorPanelEl.style.display !== "none";
+      if (!isPanelOpen) {
+        if (analyzeDebounceTimer) {
+          clearTimeout(analyzeDebounceTimer);
+          analyzeDebounceTimer = null;
+        }
+        if (cancelWorkerSearch) {
+          cancelWorkerSearch();
+          cancelWorkerSearch = null;
+        }
+        return;
+      }
+      if (mentorSetter) {
+        mentorSetter({ ...cachedAnalysis || quickAnalysis, isSearching: true });
+      }
+      if (analyzeDebounceTimer) {
+        clearTimeout(analyzeDebounceTimer);
+      }
+      analyzeDebounceTimer = setTimeout(() => {
+        analyzeDebounceTimer = null;
+        triggerDeepAnalysis(gameData, pieces);
+      }, 140);
     }
     ZigaMod.analyzeTacticalMindset = analyzeTacticalMindset;
     ZigaMod.updateMentorHud = updateMentorHud;
@@ -48562,6 +50729,7 @@ lucide-react/dist/esm/Icon.mjs:
 lucide-react/dist/esm/createLucideIcon.mjs:
 lucide-react/dist/esm/icons/arrow-left-right.mjs:
 lucide-react/dist/esm/icons/book-open.mjs:
+lucide-react/dist/esm/icons/brain-circuit.mjs:
 lucide-react/dist/esm/icons/chart-column.mjs:
 lucide-react/dist/esm/icons/chart-no-axes-column.mjs:
 lucide-react/dist/esm/icons/check.mjs:
@@ -48572,15 +50740,21 @@ lucide-react/dist/esm/icons/compass.mjs:
 lucide-react/dist/esm/icons/copy.mjs:
 lucide-react/dist/esm/icons/crosshair.mjs:
 lucide-react/dist/esm/icons/dices.mjs:
+lucide-react/dist/esm/icons/equal.mjs:
 lucide-react/dist/esm/icons/external-link.mjs:
 lucide-react/dist/esm/icons/eye.mjs:
 lucide-react/dist/esm/icons/graduation-cap.mjs:
 lucide-react/dist/esm/icons/image.mjs:
 lucide-react/dist/esm/icons/layers.mjs:
+lucide-react/dist/esm/icons/layout-grid.mjs:
+lucide-react/dist/esm/icons/lightbulb.mjs:
+lucide-react/dist/esm/icons/maximize-2.mjs:
+lucide-react/dist/esm/icons/minimize-2.mjs:
 lucide-react/dist/esm/icons/minus.mjs:
 lucide-react/dist/esm/icons/moon.mjs:
 lucide-react/dist/esm/icons/palette.mjs:
 lucide-react/dist/esm/icons/pipette.mjs:
+lucide-react/dist/esm/icons/play.mjs:
 lucide-react/dist/esm/icons/plus.mjs:
 lucide-react/dist/esm/icons/rotate-ccw.mjs:
 lucide-react/dist/esm/icons/save.mjs:
@@ -48588,13 +50762,17 @@ lucide-react/dist/esm/icons/scale.mjs:
 lucide-react/dist/esm/icons/scroll-text.mjs:
 lucide-react/dist/esm/icons/search.mjs:
 lucide-react/dist/esm/icons/settings.mjs:
+lucide-react/dist/esm/icons/shield-alert.mjs:
 lucide-react/dist/esm/icons/shield.mjs:
 lucide-react/dist/esm/icons/sliders-vertical.mjs:
 lucide-react/dist/esm/icons/sparkles.mjs:
 lucide-react/dist/esm/icons/sun.mjs:
 lucide-react/dist/esm/icons/swords.mjs:
 lucide-react/dist/esm/icons/trash.mjs:
+lucide-react/dist/esm/icons/trending-down.mjs:
+lucide-react/dist/esm/icons/trending-up.mjs:
 lucide-react/dist/esm/icons/triangle-alert.mjs:
+lucide-react/dist/esm/icons/trophy.mjs:
 lucide-react/dist/esm/icons/upload.mjs:
 lucide-react/dist/esm/icons/wrench.mjs:
 lucide-react/dist/esm/icons/x.mjs:

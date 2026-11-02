@@ -50,4 +50,3 @@ if (typeof window !== "undefined") {
   window.ZigaMod.lockOuterScroll = lockOuterScroll;
   window.ZigaMod.unlockOuterScroll = unlockOuterScroll;
 }
-

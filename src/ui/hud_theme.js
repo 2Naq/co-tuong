@@ -192,6 +192,8 @@ export function applyHudStyle(styleConfig, themeMode = "dark") {
 #ziga-mod-widget,
 #ziga-sandbox-modal,
 #ziga-game-review-modal,
+#ziga-mentor-floating-panel,
+.ziga-mentor-panel-card,
 .ziga-sb-card,
 .ziga-sb-flank,
 [data-slot="dialog-content"],
@@ -210,6 +212,8 @@ export function applyHudStyle(styleConfig, themeMode = "dark") {
 }
 
 #ziga-mod-widget,
+#ziga-mentor-floating-panel,
+.ziga-mentor-panel-card,
 [data-slot="dialog-content"],
 .dark [data-slot="dialog-content"] {
   --popover: ${containerBg} !important;
@@ -313,6 +317,8 @@ button.bg-primary,
 [data-slot="dialog-content"],
 .ziga-sb-card,
 .ziga-sb-flank,
+#ziga-mentor-floating-panel .ziga-mentor-panel-card,
+.ziga-mentor-panel-card,
 #ziga-game-review-modal .modal-content {
   background-color: ${containerBg} !important;
   background: ${containerBg} !important;
@@ -341,13 +347,14 @@ button.bg-primary,
 }
 
 /* 6. Translucent Card & Tab List surfaces inside glass HUD and Modals */
-:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card) [data-slot="card"],
-:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card) [data-slot="card"].bg-card,
-:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card) .bg-card,
-:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card) [data-slot="tabs-list"],
+:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card, #ziga-mentor-floating-panel) [data-slot="card"],
+:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card, #ziga-mentor-floating-panel) [data-slot="card"].bg-card,
+:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card, #ziga-mentor-floating-panel) .bg-card,
+:is(#ziga-mod-widget, [data-slot="dialog-content"], .ziga-sb-card, #ziga-mentor-floating-panel) [data-slot="tabs-list"],
 #ziga-mod-widget [data-slot="card"],
 [data-slot="dialog-content"] [data-slot="card"],
 .ziga-sb-card [data-slot="card"],
+#ziga-mentor-floating-panel [data-slot="card"],
 [data-slot="dialog-content"] [data-slot="tabs-list"] {
   background-color: ${cardBg} !important;
   background: ${cardBg} !important;

@@ -175,19 +175,84 @@ function isolateFromBootstrapPlugin() {
           'transform'
         ]);
         const isMinimizedAutoSize = rawSelector.includes('minimized');
-        rule.each((node) => {
-          if (node.type === 'decl') {
-            if (node.prop.startsWith('--')) return;
-            if (node.prop === 'display' && node.value !== 'none') return;
-            if (NON_IMPORTANT_LAYOUT_PROPS.has(node.prop) && !isMinimizedAutoSize) return;
-            node.important = true;
-          }
+        const hasNestedSupports = rule.some(
+          (node) => node.type === 'atrule' && node.name === 'supports'
+        );
+
+        rule.walkDecls((decl) => {
+          if (decl.prop.startsWith('--')) return;
+          if (decl.prop === 'display' && decl.value !== 'none') return;
+          if (NON_IMPORTANT_LAYOUT_PROPS.has(decl.prop) && !isMinimizedAutoSize) return;
+          // Never make fallbacks in rules with nested @supports !important,
+          // otherwise browsers that struggle with nested @supports will lock to the solid fallback!
+          if (hasNestedSupports && decl.parent === rule) return;
+          decl.important = true;
         });
       });
     }
   };
 }
 isolateFromBootstrapPlugin.postcss = true;
+
+/**
+ * Final pass: Tailwind v4 emits opacity utilities (e.g. `.bg-primary/10`) as
+ *   background-color: var(--primary);               <- fallback
+ *   @supports (color: color-mix(...)) { background-color: color-mix(...); }
+ *
+ * In older Chromium / WebViews, nested `@supports` inside style rules is invalid syntax,
+ * causing the browser to drop the `@supports` and force the solid fallback.
+ *
+ * Fix:
+ * 1. Remove the solid fallback declaration inside the rule.
+ * 2. Unnest / hoist the `@supports` at-rule to the parent level with standard CSS syntax.
+ * 3. Mark the hoisted `color-mix` declarations as !important.
+ */
+function unnestAndFixSupportsPlugin() {
+  return {
+    postcssPlugin: 'unnest-and-fix-supports',
+    OnceExit(root) {
+      root.walkRules((rule) => {
+        const nestedSupports = [];
+        rule.each((node) => {
+          if (node.type === 'atrule' && node.name === 'supports') {
+            nestedSupports.push(node);
+          }
+        });
+
+        if (nestedSupports.length > 0) {
+          // Remove solid fallbacks (e.g. background-color: var(--primary)) inside this rule
+          rule.each((node) => {
+            if (
+              node.type === 'decl' &&
+              (node.prop === 'background-color' ||
+                node.prop === 'color' ||
+                node.prop.startsWith('border'))
+            ) {
+              node.remove();
+            }
+          });
+
+          // Hoist the @supports at-rules to the parent container
+          nestedSupports.forEach((atRule) => {
+            const clonedRule = rule.clone({ nodes: [] });
+            atRule.each((child) => clonedRule.append(child.clone()));
+            atRule.removeAll();
+            atRule.append(clonedRule);
+            rule.parent.insertAfter(rule, atRule);
+          });
+        }
+      });
+
+      root.walkAtRules('supports', (atRule) => {
+        atRule.walkDecls((decl) => {
+          if (decl.prop.startsWith('--')) return;
+          decl.important = true;
+        });
+      });
+    }
+  };
+}
+unnestAndFixSupportsPlugin.postcss = true;
 
 async function buildCss() {
   if (!fs.existsSync(srcStylesDir)) {
@@ -204,7 +269,8 @@ async function buildCss() {
       base: rootDir
     }),
     isolateFromBootstrapPlugin(),
-    autoprefixer
+    autoprefixer,
+    unnestAndFixSupportsPlugin()
   ]).process(twInput, {
     from: tailwindInputPath,
     to: outStylesCss

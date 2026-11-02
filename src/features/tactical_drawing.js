@@ -414,14 +414,16 @@
     ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
     // 1. Draw highlighted squares
-    drawnHighlights.forEach((h) => {
+    const highlights = ZigaMod.drawnHighlights || drawnHighlights;
+    highlights.forEach((h) => {
       const p = boardToCanvasPixel(h.col, h.row);
       const pal = COLOR_PALETTES[h.color] || COLOR_PALETTES.green;
       drawHighlightCircle(ctx, p.x, p.y, pal);
     });
 
     // 2. Draw stored arrows
-    drawnArrows.forEach((a) => {
+    const arrows = ZigaMod.drawnArrows || drawnArrows;
+    arrows.forEach((a) => {
       const start = boardToCanvasPixel(a.fromCol, a.fromRow);
       const end = boardToCanvasPixel(a.toCol, a.toRow);
       const pal = COLOR_PALETTES[a.color] || COLOR_PALETTES.green;

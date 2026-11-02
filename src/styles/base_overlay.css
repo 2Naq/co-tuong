@@ -857,7 +857,9 @@ iframe[id^="google_ads"],
 [data-slot="popover-content"],
 .ziga-sandbox-overlay,
 #ziga-sandbox-modal,
-.ziga-sb-card {
+.ziga-sb-card,
+#ziga-mentor-floating-panel,
+.ziga-mentor-panel-card {
   overscroll-behavior: contain !important;
 }
 
