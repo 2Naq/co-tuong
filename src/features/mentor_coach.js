@@ -40,9 +40,16 @@ import {
   TrendingUp,
   TrendingDown,
   Equal,
+  Cpu,
+  Fish,
 } from "lucide-react";
 import { PIECE_DEFS } from "../core/constants";
 import { createXiangqiWorker } from "./xiangqi_engine";
+import {
+  getEngineProvider,
+  setEngineProvider,
+  listEngineProviders,
+} from "./engine_provider";
 
 (function (ZigaMod) {
   "use strict";
@@ -51,8 +58,10 @@ import { createXiangqiWorker } from "./xiangqi_engine";
     "[AN Mod] Master AI Mentor Coach initializing with Background Web Worker Engine...",
   );
 
-  const asyncWorker = createXiangqiWorker();
-  const engine = asyncWorker.engine;
+  let activeProviderId = "js-engine";
+  let activeProvider = getEngineProvider(activeProviderId);
+  const asyncWorker = activeProvider;
+  const engine = activeProvider.engine || createXiangqiWorker().engine;
 
   // Database of Xiangqi Master Maxims
   const XIANGQI_MAXIMS = [
@@ -369,6 +378,9 @@ import { createXiangqiWorker } from "./xiangqi_engine";
       inCheck,
       depth: 0,
       nodes: 0,
+      evalBreakdown: quickRes && quickRes.evalBreakdown ? quickRes.evalBreakdown : null,
+      openingName: null,
+      engineName: activeProviderId === "pikafish" ? "Pikafish NNUE" : "AN Grandmaster JS",
       maxim: currentMaxim,
       isQuickOnly: true,
     };
@@ -399,19 +411,22 @@ import { createXiangqiWorker } from "./xiangqi_engine";
 
     // Map Engine Lines into Rich Tactical Plans with 2-3 Opponent Variations
     const plans = [];
+    const movingColor =
+      searchRes.side !== undefined ? searchRes.side : isMyTurn ? myColor : oppColor;
+    const targetColor = 1 - movingColor;
 
     (searchRes.lines || []).forEach((line, idx) => {
       const movingPiece = pieces.find(
         (p) =>
           p.col === line.fromCol &&
           p.row === line.fromRow &&
-          p.color === myColor,
+          p.color === movingColor,
       );
       if (!movingPiece) return;
 
       const targetPiece = pieces.find(
         (p) =>
-          p.col === line.toCol && p.row === line.toRow && p.color === oppColor,
+          p.col === line.toCol && p.row === line.toRow && p.color === targetColor,
       );
 
       const notation = getXiangqiNotation(
@@ -420,7 +435,7 @@ import { createXiangqiWorker } from "./xiangqi_engine";
         line.fromRow,
         line.toCol,
         line.toRow,
-        myColor,
+        movingColor,
       );
 
       const isMate = line.delivermate || line.score >= engine.MATE - 100;
@@ -432,7 +447,7 @@ import { createXiangqiWorker } from "./xiangqi_engine";
         notation,
         line.toCol,
         line.toRow,
-        myColor,
+        movingColor,
         isCheck,
         isMate,
       );
@@ -545,6 +560,7 @@ import { createXiangqiWorker } from "./xiangqi_engine";
         type: planType,
         badge: planBadge,
         tag: desc.tag,
+        tags: line.tags && line.tags.length > 0 ? line.tags : (desc.tag ? [desc.tag] : []),
         why: desc.why,
         score: line.score,
         piece: movingPiece,
@@ -651,6 +667,10 @@ import { createXiangqiWorker } from "./xiangqi_engine";
       inCheck: searchRes.inCheck,
       depth: searchRes.depth,
       nodes: searchRes.nodes,
+      openingName: searchRes.openingName || null,
+      evalBreakdown: searchRes.evalBreakdown || null,
+      engineName: searchRes.engineName || (activeProviderId === "pikafish" ? "Pikafish NNUE" : "AN Grandmaster JS"),
+      ttHits: searchRes.ttHits || 0,
       maxim: currentMaxim,
       allMaxims: XIANGQI_MAXIMS,
       isQuickOnly: false,
@@ -661,6 +681,11 @@ import { createXiangqiWorker } from "./xiangqi_engine";
   function triggerDeepAnalysis(gameData, pieces) {
     if (!gameData || !pieces || pieces.length === 0) return;
     const myColor = gameData.myColor;
+    const activeColor =
+      gameData.gameLayer && gameData.gameLayer.Yc !== undefined
+        ? gameData.gameLayer.Yc
+        : myColor;
+    const isMyTurn = activeColor === myColor;
     const currentHash = lastAnalysisHash;
 
     if (cancelWorkerSearch) {
@@ -672,12 +697,13 @@ import { createXiangqiWorker } from "./xiangqi_engine";
       mentorSetter({ ...cachedAnalysis, isSearching: true });
     }
 
-    cancelWorkerSearch = asyncWorker.analyzeAsync(
+    const provider = getEngineProvider(activeProviderId);
+    cancelWorkerSearch = provider.analyzeAsync(
       {
         pieces,
-        side: myColor,
-        maxDepth: 5,
-        timeMs: 260,
+        side: isMyTurn ? myColor : activeColor,
+        maxDepth: activeProviderId === "pikafish" ? 18 : 10,
+        timeMs: activeProviderId === "pikafish" ? 500 : 600,
         multiPV: 3,
       },
       (err, searchRes) => {
@@ -694,6 +720,7 @@ import { createXiangqiWorker } from "./xiangqi_engine";
         if (!deepAnalysis) return;
 
         cachedAnalysis = deepAnalysis;
+        ZigaMod.lastEngineAnalysis = deepAnalysis;
         updateMentorHudCardText(deepAnalysis);
 
         if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
@@ -1206,6 +1233,174 @@ import { createXiangqiWorker } from "./xiangqi_engine";
     );
   }
 
+  // Tactical badge classifier for Grandmaster Engine & Pikafish tags
+  function getTacticalBadgeProps(tag) {
+    switch (tag) {
+      case "hollow-cannon":
+        return {
+          label: "Pháo Trống",
+          color: "border-red-500/40 text-red-400 bg-red-500/15",
+          icon: Sparkles,
+        };
+      case "central-cannon":
+        return {
+          label: "Pháo Đầu",
+          color: "border-amber-500/40 text-amber-300 bg-amber-500/15",
+          icon: Crosshair,
+        };
+      case "sacrifice":
+        return {
+          label: "Phế Quân",
+          color: "border-purple-500/40 text-purple-300 bg-purple-500/15",
+          icon: Zap,
+        };
+      case "open-file-rook":
+        return {
+          label: "Lộ Thông Xe",
+          color: "border-emerald-500/40 text-emerald-300 bg-emerald-500/15",
+          icon: TrendingUp,
+        };
+      case "knight-block":
+        return {
+          label: "Cản Chân Mã",
+          color: "border-yellow-500/40 text-yellow-300 bg-yellow-500/15",
+          icon: ShieldAlert,
+        };
+      case "guard-break":
+        return {
+          label: "Phá Sĩ/Tượng",
+          color: "border-pink-500/40 text-pink-300 bg-pink-500/15",
+          icon: Swords,
+        };
+      case "checks":
+        return {
+          label: "Chiếu Tướng",
+          color: "border-cyan-500/40 text-cyan-300 bg-cyan-500/15",
+          icon: Zap,
+        };
+      case "capture":
+        return {
+          label: "Đoạt Quân",
+          color: "border-blue-500/40 text-blue-300 bg-blue-500/15",
+          icon: Trophy,
+        };
+      default:
+        return {
+          label: tag,
+          color: "border-white/10 text-slate-300 bg-white/5",
+          icon: Sparkles,
+        };
+    }
+  }
+
+  // 5-Pillar Grandmaster Evaluation Breakdown Tab
+  function EvaluationBreakdownTab({ breakdown, score, phase }) {
+    if (!breakdown) {
+      return (
+        <div className="flex flex-col items-center justify-center p-6 text-center text-muted-foreground/80">
+          <BrainCircuit className="size-6 text-cyan-400 mb-2" />
+          <span className="text-xs font-semibold text-foreground">Chưa có dữ liệu 5 Trụ Cột</span>
+          <span className="text-[10px] mt-1 text-muted-foreground">
+            Dữ liệu bóc tách hình thế sẽ tự động hiển thị khi động cơ phân tích xong thế trận.
+          </span>
+        </div>
+      );
+    }
+
+    const pillars = [
+      {
+        key: "material",
+        name: "Lực Lượng (Material)",
+        desc: "Chênh lệch quân lực thực tế giữa hai bên",
+        val: breakdown.material || 0,
+        icon: Trophy,
+        color: "text-blue-400",
+      },
+      {
+        key: "positional",
+        name: "Thế Trận & Điểm Huyệt",
+        desc: "Khống chế các vị trí trọng yếu trên bàn cờ",
+        val: breakdown.positional || 0,
+        icon: Compass,
+        color: "text-indigo-400",
+      },
+      {
+        key: "kingSafety",
+        name: "An Toàn Cung Tướng",
+        desc: "Bộ Sĩ Tượng liên hoàn & phòng thủ cung",
+        val: breakdown.kingSafety || 0,
+        icon: Shield,
+        color: "text-emerald-400",
+      },
+      {
+        key: "mobility",
+        name: "Độ Cơ Động (Xe & Mã)",
+        desc: "Xe chiếm lộ thông & Mã không bị cản chân",
+        val: breakdown.mobility || 0,
+        icon: TrendingUp,
+        color: "text-amber-400",
+      },
+      {
+        key: "cannonTactics",
+        name: "Chiến Thuật Pháo",
+        desc: "Pháo đầu trấn áp & Pháo trống uy hiếp",
+        val: breakdown.cannonTactics || 0,
+        icon: Sparkles,
+        color: "text-red-400",
+      },
+    ];
+
+    return (
+      <div className="flex flex-col gap-2 pt-1">
+        <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] p-2 text-[10px]">
+          <span className="text-muted-foreground font-medium">Tổng điểm thế trận:</span>
+          <span className={`font-mono font-bold ${score >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+            {score > 0 ? `+${score}` : score} điểm ({phase})
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          {pillars.map((pil) => {
+            const Icon = pil.icon;
+            const isAdv = pil.val > 0;
+            const isDis = pil.val < 0;
+            const widthPct = Math.min(100, Math.max(8, Math.abs(pil.val) * 1.5));
+
+            return (
+              <div
+                key={pil.key}
+                className="flex flex-col gap-1 rounded-lg border border-white/[0.06] bg-black/20 p-2 text-[10px]"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Icon className={`size-3.5 ${pil.color}`} />
+                    <span className="font-semibold text-foreground/90">{pil.name}</span>
+                  </div>
+                  <span
+                    className={`font-mono font-bold ${
+                      isAdv ? "text-emerald-400" : isDis ? "text-rose-400" : "text-muted-foreground"
+                    }`}
+                  >
+                    {pil.val > 0 ? `+${pil.val}` : pil.val}
+                  </span>
+                </div>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                  <div
+                    className={`h-full rounded-full transition-all duration-300 ${
+                      isAdv ? "bg-emerald-500" : isDis ? "bg-rose-500" : "bg-white/20"
+                    }`}
+                    style={{ width: `${widthPct}%` }}
+                  />
+                </div>
+                <span className="text-[9px] text-muted-foreground/80 leading-tight">{pil.desc}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
   // =========================================================================
   // Main AI Mentor Floating Panel Component (Compact & Studio Modes)
   // =========================================================================
@@ -1215,6 +1410,18 @@ import { createXiangqiWorker } from "./xiangqi_engine";
     const [selectedPlanIdx, setSelectedPlanIdx] = useState(0);
     const [activeVariationIdx, setActiveVariationIdx] = useState(0);
     const [activeStep, setActiveStep] = useState(1);
+    const [engineId, setEngineId] = useState(activeProviderId);
+
+    const handleToggleEngine = () => {
+      const nextEngine = engineId === "js-engine" ? "pikafish" : "js-engine";
+      activeProviderId = nextEngine;
+      setEngineProvider(nextEngine);
+      setEngineId(nextEngine);
+      if (lastKnownGameData) {
+        const pcs = getBoardState(lastKnownGameData.gameLayer);
+        if (pcs) triggerDeepAnalysis(lastKnownGameData, pcs);
+      }
+    };
 
     // View modes: isCompact (true by default - non-blocking 380px) vs Studio (false - dual pane 640px)
     const [isCompact, setIsCompact] = useState(() => {
@@ -1280,7 +1487,7 @@ import { createXiangqiWorker } from "./xiangqi_engine";
       );
     }
 
-    const panelWidth = isCompact ? 380 : 640;
+    const panelWidth = isCompact ? 390 : 640;
 
     return (
       <Card
@@ -1294,21 +1501,21 @@ import { createXiangqiWorker } from "./xiangqi_engine";
         }}
       >
         {/* TẦNG 1: HEADER (Thanh Tiêu Đề & Nút Điều Khiển Tinh Gọn, Không Tràn Viền) */}
-        <div className="ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/[0.02] px-3.5 py-2.5 select-none">
-          <div className="flex min-w-0 items-center gap-2">
+        <div className="ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/[0.02] px-3 py-2 select-none">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
             <div
               className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-white/10 shadow-xs"
               style={{ background: "rgba(255, 255, 255, 0.06)" }}
             >
               <GraduationCap className="size-4 text-cyan-400" />
             </div>
-            <div className="flex min-w-0 flex-col">
-              <div className="flex flex-nowrap items-center gap-1.5">
-                <span className="text-foreground text-xs font-bold tracking-wider whitespace-nowrap uppercase">
+            <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+              <div className="flex items-center gap-1.5 overflow-hidden">
+                <span className="text-foreground text-xs font-bold tracking-wider uppercase shrink-0">
                   Kỳ Đạo Sư
                 </span>
                 <span
-                  className={`py-0.2 inline-flex items-center gap-0.5 rounded border px-1.5 font-mono text-[9px] font-semibold whitespace-nowrap ${
+                  className={`py-0.2 inline-flex shrink-0 items-center gap-0.5 rounded border px-1.5 font-mono text-[9px] font-semibold whitespace-nowrap ${
                     analysis.evalScore >= 50
                       ? "border-emerald-500/30 text-emerald-400"
                       : analysis.evalScore <= -50
@@ -1334,15 +1541,15 @@ import { createXiangqiWorker } from "./xiangqi_engine";
                   <span>{analysis.evalText}</span>
                 </span>
               </div>
-              <div className="text-muted-foreground mt-0.5 flex items-center gap-1 text-[9px] whitespace-nowrap">
+              <div className="text-muted-foreground mt-0.5 flex items-center gap-1 text-[9px] whitespace-nowrap truncate overflow-hidden">
                 <span
-                  className="py-0.2 text-muted-foreground/90 rounded border border-white/[0.08] px-1 font-medium"
+                  className="py-0.2 text-muted-foreground/90 rounded border border-white/[0.08] px-1 font-medium shrink-0"
                   style={{ background: "rgba(255, 255, 255, 0.04)" }}
                 >
                   {analysis.phase}
                 </span>
                 <span>•</span>
-                <span className="inline-flex items-center gap-1 font-medium">
+                <span className="inline-flex items-center gap-1 font-medium shrink-0">
                   {analysis.isMyTurn ? (
                     <>
                       <span className="size-1.5 animate-pulse rounded-full bg-emerald-400" />
@@ -1358,7 +1565,7 @@ import { createXiangqiWorker } from "./xiangqi_engine";
                   )}
                 </span>
                 <span>•</span>
-                <span className="inline-flex items-center gap-1 font-medium">
+                <span className="inline-flex items-center gap-1 font-medium shrink-0">
                   <span
                     className={`size-2 rounded-full border ${
                       analysis.myColor === 0
@@ -1372,14 +1579,35 @@ import { createXiangqiWorker } from "./xiangqi_engine";
             </div>
           </div>
 
-          {/* Action Buttons: Icon-only so they never collide with the title */}
-          <div className="flex shrink-0 items-center gap-1">
+          {/* Action Buttons: Compact & Cleanly Spaced */}
+          <div className="flex shrink-0 items-center gap-1 pl-1.5">
+            {/* Engine Switcher Toggle Button */}
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={handleToggleEngine}
+              title={`Đang dùng: ${analysis.engineName || "AN Grandmaster JS"}. Bấm để chuyển sang ${
+                engineId === "js-engine" ? "Pikafish NNUE" : "AN Grandmaster JS"
+              }`}
+              className={`size-6.5 rounded-lg border transition-all ${
+                engineId === "pikafish"
+                  ? "border-amber-400/50 text-amber-300 bg-amber-500/15 hover:bg-amber-500/25"
+                  : "border-cyan-400/40 text-cyan-400 bg-cyan-500/15 hover:bg-cyan-500/25"
+              }`}
+            >
+              {engineId === "pikafish" ? (
+                <Fish className="size-3.5" />
+              ) : (
+                <Cpu className="size-3.5" />
+              )}
+            </Button>
+
             <Button
               variant="ghost"
               size="icon-xs"
               onClick={toggleCompactMode}
               title={isCompact ? "Mở rộng 2 cột (Studio)" : "Thu gọn 1 cột"}
-              className="text-muted-foreground hover:text-foreground size-7 rounded-lg border border-transparent transition-colors hover:border-white/10 hover:bg-white/[0.06]"
+              className="text-muted-foreground hover:text-foreground size-6.5 rounded-lg border border-transparent transition-colors hover:border-white/10 hover:bg-white/[0.06]"
             >
               {isCompact ? (
                 <Maximize2 className="size-3.5" />
@@ -1396,7 +1624,7 @@ import { createXiangqiWorker } from "./xiangqi_engine";
                 title={
                   showMiniBoardInCompact ? "Ẩn bàn cờ nhỏ" : "Hiện bàn cờ nhỏ"
                 }
-                className={`size-7 rounded-lg border transition-colors ${
+                className={`size-6.5 rounded-lg border transition-colors ${
                   showMiniBoardInCompact
                     ? "border-cyan-400/40 text-cyan-400"
                     : "text-muted-foreground hover:text-foreground border-transparent hover:border-white/10 hover:bg-white/[0.06]"
@@ -1416,12 +1644,27 @@ import { createXiangqiWorker } from "./xiangqi_engine";
               size="icon-xs"
               onClick={onClose}
               title="Đóng bảng cố vấn"
-              className="text-muted-foreground hover:text-foreground size-7 rounded-lg transition-colors hover:bg-rose-500/15 hover:text-rose-400"
+              className="text-muted-foreground hover:text-foreground size-6.5 rounded-lg transition-colors hover:bg-rose-500/15 hover:text-rose-400"
             >
               <X className="size-3.5" />
             </Button>
           </div>
         </div>
+
+        {/* TẦNG KHAI CUỘC NẾU CÓ */}
+        {analysis.openingName && (
+          <div className="px-3 pt-2">
+            <div className="flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-[10.5px] text-amber-300">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Sparkles className="size-3.5 text-amber-400 shrink-0" />
+                <span className="truncate">Thế Trận: <strong>{analysis.openingName}</strong></span>
+              </div>
+              <Badge variant="outline" className="border-amber-400/40 text-amber-300 bg-amber-500/20 text-[9px] px-1.5 py-0 font-semibold shrink-0">
+                Khai Cuộc Chuẩn
+              </Badge>
+            </div>
+          </div>
+        )}
 
         {/* TẦNG 2: HIGHLIGHT INSIGHT BANNER (LUXURY FROSTED GLASS - KHÔNG LÒE LOẸT) */}
         <div className="px-3 pt-2">
@@ -1610,14 +1853,18 @@ import { createXiangqiWorker } from "./xiangqi_engine";
         onValueChange={setTab}
         className="flex min-h-0 flex-1 flex-col"
       >
-        <TabsList className="grid h-6.5 w-full shrink-0 grid-cols-2">
-          <TabsTrigger value="plans" className="gap-1 text-[10px]">
+        <TabsList className="grid h-6.5 w-full shrink-0 grid-cols-3">
+          <TabsTrigger value="plans" className="gap-1 text-[9.5px]">
             <Compass className="size-3" />
-            <span>Kế Sách Thực Chiến ({plans.length})</span>
+            <span>Kế Sách ({plans.length})</span>
           </TabsTrigger>
-          <TabsTrigger value="theory" className="gap-1 text-[10px]">
+          <TabsTrigger value="breakdown" className="gap-1 text-[9.5px]">
+            <LayoutGrid className="size-3" />
+            <span>5 Trụ Cột</span>
+          </TabsTrigger>
+          <TabsTrigger value="theory" className="gap-1 text-[9.5px]">
             <BrainCircuit className="size-3" />
-            <span>Tâm Pháp & Lý Luận</span>
+            <span>Tâm Pháp</span>
           </TabsTrigger>
         </TabsList>
 
@@ -1660,29 +1907,50 @@ import { createXiangqiWorker } from "./xiangqi_engine";
                 }}
               >
                 {/* Header: Badge, Move Notation & Tactical Purpose */}
-                <div className="flex items-center justify-between gap-1">
-                  <div className="flex items-center gap-1.5">
-                    <Badge
-                      variant="outline"
-                      className="text-foreground/90 inline-flex items-center gap-1 rounded border border-white/15 px-1.5 py-0 text-[9px] font-semibold"
-                      style={{ background: "rgba(255, 255, 255, 0.06)" }}
-                    >
-                      {p.type === "attack" ? (
-                        <Sparkles className="size-2.5 text-cyan-400" />
-                      ) : p.type === "defend" ? (
-                        <Shield className="size-2.5 text-rose-400" />
-                      ) : (
-                        <Zap className="size-2.5 text-amber-400" />
-                      )}
-                      <span>{p.badge}</span>
-                    </Badge>
-                    <span className="text-primary font-mono text-[11.5px] font-bold">
-                      {p.shortNotation}
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <div className="flex items-center gap-1.5">
+                      <Badge
+                        variant="outline"
+                        className="text-foreground/90 inline-flex items-center gap-1 rounded border border-white/15 px-1.5 py-0 text-[9px] font-semibold"
+                        style={{ background: "rgba(255, 255, 255, 0.06)" }}
+                      >
+                        {p.type === "attack" ? (
+                          <Sparkles className="size-2.5 text-cyan-400" />
+                        ) : p.type === "defend" ? (
+                          <Shield className="size-2.5 text-rose-400" />
+                        ) : (
+                          <Zap className="size-2.5 text-amber-400" />
+                        )}
+                        <span>{p.badge}</span>
+                      </Badge>
+                      <span className="text-primary font-mono text-[11.5px] font-bold">
+                        {p.shortNotation}
+                      </span>
+                    </div>
+                    <span className="text-foreground text-[11px] font-bold">
+                      {p.name.split("·")[1] || p.name}
                     </span>
                   </div>
-                  <span className="text-foreground text-[11px] font-bold">
-                    {p.name.split("·")[1] || p.name}
-                  </span>
+
+                  {/* Tactical Tags Badges */}
+                  {p.tags && p.tags.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1">
+                      {p.tags.map((t, tIdx) => {
+                        const badgeProps = getTacticalBadgeProps(t);
+                        const IconComp = badgeProps.icon;
+                        return (
+                          <span
+                            key={tIdx}
+                            className={`inline-flex items-center gap-0.5 rounded border px-1.5 py-0.2 text-[8.5px] font-semibold ${badgeProps.color}`}
+                          >
+                            <IconComp className="size-2" />
+                            <span>{badgeProps.label}</span>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Step 1: Ta Đi */}
@@ -1836,7 +2104,20 @@ import { createXiangqiWorker } from "./xiangqi_engine";
         )}
         </TabsContent>
 
-        {/* TAB 2: TÂM PHÁP & LÝ LUẬN */}
+        {/* TAB 2: HÌNH THẾ 5 TRỤ CỘT (GRANDMASTER EVALUATION) */}
+        <TabsContent
+          value="breakdown"
+          className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1"
+          data-scrollable="true"
+        >
+          <EvaluationBreakdownTab
+            breakdown={analysis.evalBreakdown}
+            score={analysis.evalScore}
+            phase={analysis.phase}
+          />
+        </TabsContent>
+
+        {/* TAB 3: TÂM PHÁP & LÝ LUẬN */}
         <TabsContent
           value="theory"
           className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1"

@@ -95,9 +95,28 @@
     return diffCp / 100;
   }
 
-  // Calculate Best Move using tactical heuristic and piece safety
+  // Calculate Best Move using Grandmaster Engine analysis or fallback heuristic
   function calculateBestMove(gameData) {
     if (!gameData || !gameData.gameLayer || !gameData.gameLayer.V) return null;
+
+    // Ưu tiên cao nhất: Lấy nước đi số 1 từ Grandmaster Engine vừa phân tích
+    if (
+      ZigaMod.lastEngineAnalysis &&
+      Array.isArray(ZigaMod.lastEngineAnalysis.plans) &&
+      ZigaMod.lastEngineAnalysis.plans.length > 0
+    ) {
+      const topPlan = ZigaMod.lastEngineAnalysis.plans[0];
+      if (topPlan.fromCol !== undefined && topPlan.toCol !== undefined) {
+        return {
+          fromCol: topPlan.fromCol,
+          fromRow: topPlan.fromRow,
+          toCol: topPlan.toCol,
+          toRow: topPlan.toRow,
+          score: topPlan.score || 0,
+          capturedType: null,
+        };
+      }
+    }
 
     const gameLayer = gameData.gameLayer;
     const pieces = gameLayer.V;
@@ -152,7 +171,9 @@
               }
             }
 
-            const moveScore = capturedVal + Math.random() * 15; // Slight variance for natural selection
+            const attackerVal = PIECE_BASE_VALUES[p.Ga] || 0;
+            // MVV-LVA: Điểm ăn quân có cân nhắc giá trị quân ăn
+            const moveScore = capturedVal > 0 ? (capturedVal * 10 - attackerVal) : 0;
             candidateMoves.push({
               pieceIndex: attackerIdx,
               fromCol: p.fa,

@@ -18327,8 +18327,32 @@
   __iconData11.node;
   var Copy = createLucideIcon(__iconData11);
 
-  // node_modules/lucide-react/dist/esm/icons/crosshair.mjs
+  // node_modules/lucide-react/dist/esm/icons/cpu.mjs
   var __iconData12 = {
+    name: "cpu",
+    size: 24,
+    node: [
+      ["path", { d: "M12 20v2", key: "1lh1kg" }],
+      ["path", { d: "M12 2v2", key: "tus03m" }],
+      ["path", { d: "M17 20v2", key: "1rnc9c" }],
+      ["path", { d: "M17 2v2", key: "11trls" }],
+      ["path", { d: "M2 12h2", key: "1t8f8n" }],
+      ["path", { d: "M2 17h2", key: "7oei6x" }],
+      ["path", { d: "M2 7h2", key: "asdhe0" }],
+      ["path", { d: "M20 12h2", key: "1q8mjw" }],
+      ["path", { d: "M20 17h2", key: "1fpfkl" }],
+      ["path", { d: "M20 7h2", key: "1o8tra" }],
+      ["path", { d: "M7 20v2", key: "4gnj0m" }],
+      ["path", { d: "M7 2v2", key: "1i4yhu" }],
+      ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "2", key: "1vbyd7" }],
+      ["rect", { x: "8", y: "8", width: "8", height: "8", rx: "1", key: "z9xiuo" }]
+    ]
+  };
+  __iconData12.node;
+  var Cpu = createLucideIcon(__iconData12);
+
+  // node_modules/lucide-react/dist/esm/icons/crosshair.mjs
+  var __iconData13 = {
     name: "crosshair",
     size: 24,
     node: [
@@ -18339,11 +18363,11 @@
       ["line", { x1: "12", x2: "12", y1: "22", y2: "18", key: "15g9kq" }]
     ]
   };
-  __iconData12.node;
-  var Crosshair = createLucideIcon(__iconData12);
+  __iconData13.node;
+  var Crosshair = createLucideIcon(__iconData13);
 
   // node_modules/lucide-react/dist/esm/icons/dices.mjs
-  var __iconData13 = {
+  var __iconData14 = {
     name: "dices",
     size: 24,
     node: [
@@ -18361,11 +18385,11 @@
       ["path", { d: "M18 9h.01", key: "2061c0" }]
     ]
   };
-  __iconData13.node;
-  var Dices = createLucideIcon(__iconData13);
+  __iconData14.node;
+  var Dices = createLucideIcon(__iconData14);
 
   // node_modules/lucide-react/dist/esm/icons/equal.mjs
-  var __iconData14 = {
+  var __iconData15 = {
     name: "equal",
     size: 24,
     node: [
@@ -18373,11 +18397,11 @@
       ["line", { x1: "5", x2: "19", y1: "15", y2: "15", key: "g8yjpy" }]
     ]
   };
-  __iconData14.node;
-  var Equal = createLucideIcon(__iconData14);
+  __iconData15.node;
+  var Equal = createLucideIcon(__iconData15);
 
   // node_modules/lucide-react/dist/esm/icons/external-link.mjs
-  var __iconData15 = {
+  var __iconData16 = {
     name: "external-link",
     size: 24,
     node: [
@@ -18386,11 +18410,11 @@
       ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }]
     ]
   };
-  __iconData15.node;
-  var ExternalLink = createLucideIcon(__iconData15);
+  __iconData16.node;
+  var ExternalLink = createLucideIcon(__iconData16);
 
   // node_modules/lucide-react/dist/esm/icons/eye.mjs
-  var __iconData16 = {
+  var __iconData17 = {
     name: "eye",
     size: 24,
     node: [
@@ -18404,11 +18428,45 @@
       ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
     ]
   };
-  __iconData16.node;
-  var Eye = createLucideIcon(__iconData16);
+  __iconData17.node;
+  var Eye = createLucideIcon(__iconData17);
+
+  // node_modules/lucide-react/dist/esm/icons/fish.mjs
+  var __iconData18 = {
+    name: "fish",
+    size: 24,
+    node: [
+      [
+        "path",
+        {
+          d: "M6.5 12c.94-3.46 4.94-6 8.5-6 3.56 0 6.06 2.54 7 6-.94 3.47-3.44 6-7 6s-7.56-2.53-8.5-6Z",
+          key: "15baut"
+        }
+      ],
+      ["path", { d: "M18 12v.5", key: "18hhni" }],
+      ["path", { d: "M16 17.93a9.77 9.77 0 0 1 0-11.86", key: "16dt7o" }],
+      [
+        "path",
+        {
+          d: "M7 10.67C7 8 5.58 5.97 2.73 5.5c-1 1.5-1 5 .23 6.5-1.24 1.5-1.24 5-.23 6.5C5.58 18.03 7 16 7 13.33",
+          key: "l9di03"
+        }
+      ],
+      [
+        "path",
+        { d: "M10.46 7.26C10.2 5.88 9.17 4.24 8 3h5.8a2 2 0 0 1 1.98 1.67l.23 1.4", key: "1kjonw" }
+      ],
+      [
+        "path",
+        { d: "m16.01 17.93-.23 1.4A2 2 0 0 1 13.8 21H9.5a5.96 5.96 0 0 0 1.49-3.98", key: "1zlm23" }
+      ]
+    ]
+  };
+  __iconData18.node;
+  var Fish = createLucideIcon(__iconData18);
 
   // node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs
-  var __iconData17 = {
+  var __iconData19 = {
     name: "graduation-cap",
     size: 24,
     node: [
@@ -18423,11 +18481,11 @@
       ["path", { d: "M6 12.5V16a6 3 0 0 0 12 0v-3.5", key: "1r8lef" }]
     ]
   };
-  __iconData17.node;
-  var GraduationCap = createLucideIcon(__iconData17);
+  __iconData19.node;
+  var GraduationCap = createLucideIcon(__iconData19);
 
   // node_modules/lucide-react/dist/esm/icons/image.mjs
-  var __iconData18 = {
+  var __iconData20 = {
     name: "image",
     size: 24,
     node: [
@@ -18436,11 +18494,11 @@
       ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
     ]
   };
-  __iconData18.node;
-  var Image2 = createLucideIcon(__iconData18);
+  __iconData20.node;
+  var Image2 = createLucideIcon(__iconData20);
 
   // node_modules/lucide-react/dist/esm/icons/layers.mjs
-  var __iconData19 = {
+  var __iconData21 = {
     name: "layers",
     size: 24,
     node: [
@@ -18468,11 +18526,11 @@
     ],
     aliases: ["layers-3"]
   };
-  __iconData19.node;
-  var Layers = createLucideIcon(__iconData19);
+  __iconData21.node;
+  var Layers = createLucideIcon(__iconData21);
 
   // node_modules/lucide-react/dist/esm/icons/layout-grid.mjs
-  var __iconData20 = {
+  var __iconData22 = {
     name: "layout-grid",
     size: 24,
     node: [
@@ -18482,11 +18540,11 @@
       ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
     ]
   };
-  __iconData20.node;
-  var LayoutGrid = createLucideIcon(__iconData20);
+  __iconData22.node;
+  var LayoutGrid = createLucideIcon(__iconData22);
 
   // node_modules/lucide-react/dist/esm/icons/lightbulb.mjs
-  var __iconData21 = {
+  var __iconData23 = {
     name: "lightbulb",
     size: 24,
     node: [
@@ -18501,11 +18559,11 @@
       ["path", { d: "M10 22h4", key: "ceow96" }]
     ]
   };
-  __iconData21.node;
-  var Lightbulb = createLucideIcon(__iconData21);
+  __iconData23.node;
+  var Lightbulb = createLucideIcon(__iconData23);
 
   // node_modules/lucide-react/dist/esm/icons/maximize-2.mjs
-  var __iconData22 = {
+  var __iconData24 = {
     name: "maximize-2",
     size: 24,
     node: [
@@ -18515,11 +18573,11 @@
       ["path", { d: "M9 21H3v-6", key: "wtvkvv" }]
     ]
   };
-  __iconData22.node;
-  var Maximize2 = createLucideIcon(__iconData22);
+  __iconData24.node;
+  var Maximize2 = createLucideIcon(__iconData24);
 
   // node_modules/lucide-react/dist/esm/icons/minimize-2.mjs
-  var __iconData23 = {
+  var __iconData25 = {
     name: "minimize-2",
     size: 24,
     node: [
@@ -18529,20 +18587,20 @@
       ["path", { d: "M4 14h6v6", key: "rmj7iw" }]
     ]
   };
-  __iconData23.node;
-  var Minimize2 = createLucideIcon(__iconData23);
+  __iconData25.node;
+  var Minimize2 = createLucideIcon(__iconData25);
 
   // node_modules/lucide-react/dist/esm/icons/minus.mjs
-  var __iconData24 = {
+  var __iconData26 = {
     name: "minus",
     size: 24,
     node: [["path", { d: "M5 12h14", key: "1ays0h" }]]
   };
-  __iconData24.node;
-  var Minus = createLucideIcon(__iconData24);
+  __iconData26.node;
+  var Minus = createLucideIcon(__iconData26);
 
   // node_modules/lucide-react/dist/esm/icons/moon.mjs
-  var __iconData25 = {
+  var __iconData27 = {
     name: "moon",
     size: 24,
     node: [
@@ -18555,11 +18613,11 @@
       ]
     ]
   };
-  __iconData25.node;
-  var Moon = createLucideIcon(__iconData25);
+  __iconData27.node;
+  var Moon = createLucideIcon(__iconData27);
 
   // node_modules/lucide-react/dist/esm/icons/palette.mjs
-  var __iconData26 = {
+  var __iconData28 = {
     name: "palette",
     size: 24,
     node: [
@@ -18576,11 +18634,11 @@
       ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
     ]
   };
-  __iconData26.node;
-  var Palette = createLucideIcon(__iconData26);
+  __iconData28.node;
+  var Palette = createLucideIcon(__iconData28);
 
   // node_modules/lucide-react/dist/esm/icons/pipette.mjs
-  var __iconData27 = {
+  var __iconData29 = {
     name: "pipette",
     size: 24,
     node: [
@@ -18601,11 +18659,11 @@
       ["path", { d: "m2 22 .414-.414", key: "jhxm08" }]
     ]
   };
-  __iconData27.node;
-  var Pipette = createLucideIcon(__iconData27);
+  __iconData29.node;
+  var Pipette = createLucideIcon(__iconData29);
 
   // node_modules/lucide-react/dist/esm/icons/play.mjs
-  var __iconData28 = {
+  var __iconData30 = {
     name: "play",
     size: 24,
     node: [
@@ -18618,11 +18676,11 @@
       ]
     ]
   };
-  __iconData28.node;
-  var Play = createLucideIcon(__iconData28);
+  __iconData30.node;
+  var Play = createLucideIcon(__iconData30);
 
   // node_modules/lucide-react/dist/esm/icons/plus.mjs
-  var __iconData29 = {
+  var __iconData31 = {
     name: "plus",
     size: 24,
     node: [
@@ -18630,11 +18688,11 @@
       ["path", { d: "M12 5v14", key: "s699le" }]
     ]
   };
-  __iconData29.node;
-  var Plus = createLucideIcon(__iconData29);
+  __iconData31.node;
+  var Plus = createLucideIcon(__iconData31);
 
   // node_modules/lucide-react/dist/esm/icons/rotate-ccw.mjs
-  var __iconData30 = {
+  var __iconData32 = {
     name: "rotate-ccw",
     size: 24,
     node: [
@@ -18642,11 +18700,11 @@
       ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
     ]
   };
-  __iconData30.node;
-  var RotateCcw = createLucideIcon(__iconData30);
+  __iconData32.node;
+  var RotateCcw = createLucideIcon(__iconData32);
 
   // node_modules/lucide-react/dist/esm/icons/save.mjs
-  var __iconData31 = {
+  var __iconData33 = {
     name: "save",
     size: 24,
     node: [
@@ -18661,11 +18719,11 @@
       ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
     ]
   };
-  __iconData31.node;
-  var Save = createLucideIcon(__iconData31);
+  __iconData33.node;
+  var Save = createLucideIcon(__iconData33);
 
   // node_modules/lucide-react/dist/esm/icons/scale.mjs
-  var __iconData32 = {
+  var __iconData34 = {
     name: "scale",
     size: 24,
     node: [
@@ -18676,11 +18734,11 @@
       ["path", { d: "M7 21h10", key: "1b0cd5" }]
     ]
   };
-  __iconData32.node;
-  var Scale = createLucideIcon(__iconData32);
+  __iconData34.node;
+  var Scale = createLucideIcon(__iconData34);
 
   // node_modules/lucide-react/dist/esm/icons/scroll-text.mjs
-  var __iconData33 = {
+  var __iconData35 = {
     name: "scroll-text",
     size: 24,
     node: [
@@ -18696,11 +18754,11 @@
       ]
     ]
   };
-  __iconData33.node;
-  var ScrollText = createLucideIcon(__iconData33);
+  __iconData35.node;
+  var ScrollText = createLucideIcon(__iconData35);
 
   // node_modules/lucide-react/dist/esm/icons/search.mjs
-  var __iconData34 = {
+  var __iconData36 = {
     name: "search",
     size: 24,
     node: [
@@ -18708,11 +18766,11 @@
       ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
     ]
   };
-  __iconData34.node;
-  var Search = createLucideIcon(__iconData34);
+  __iconData36.node;
+  var Search = createLucideIcon(__iconData36);
 
   // node_modules/lucide-react/dist/esm/icons/settings.mjs
-  var __iconData35 = {
+  var __iconData37 = {
     name: "settings",
     size: 24,
     node: [
@@ -18726,11 +18784,11 @@
       ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
     ]
   };
-  __iconData35.node;
-  var Settings = createLucideIcon(__iconData35);
+  __iconData37.node;
+  var Settings = createLucideIcon(__iconData37);
 
   // node_modules/lucide-react/dist/esm/icons/shield-alert.mjs
-  var __iconData36 = {
+  var __iconData38 = {
     name: "shield-alert",
     size: 24,
     node: [
@@ -18745,11 +18803,11 @@
       ["path", { d: "M12 16h.01", key: "1drbdi" }]
     ]
   };
-  __iconData36.node;
-  var ShieldAlert = createLucideIcon(__iconData36);
+  __iconData38.node;
+  var ShieldAlert = createLucideIcon(__iconData38);
 
   // node_modules/lucide-react/dist/esm/icons/shield.mjs
-  var __iconData37 = {
+  var __iconData39 = {
     name: "shield",
     size: 24,
     node: [
@@ -18762,11 +18820,11 @@
       ]
     ]
   };
-  __iconData37.node;
-  var Shield = createLucideIcon(__iconData37);
+  __iconData39.node;
+  var Shield = createLucideIcon(__iconData39);
 
   // node_modules/lucide-react/dist/esm/icons/sliders-vertical.mjs
-  var __iconData38 = {
+  var __iconData40 = {
     name: "sliders-vertical",
     size: 24,
     node: [
@@ -18782,11 +18840,11 @@
     ],
     aliases: ["sliders"]
   };
-  __iconData38.node;
-  var SlidersVertical = createLucideIcon(__iconData38);
+  __iconData40.node;
+  var SlidersVertical = createLucideIcon(__iconData40);
 
   // node_modules/lucide-react/dist/esm/icons/sparkles.mjs
-  var __iconData39 = {
+  var __iconData41 = {
     name: "sparkles",
     size: 24,
     node: [
@@ -18803,11 +18861,11 @@
     ],
     aliases: ["stars"]
   };
-  __iconData39.node;
-  var Sparkles = createLucideIcon(__iconData39);
+  __iconData41.node;
+  var Sparkles = createLucideIcon(__iconData41);
 
   // node_modules/lucide-react/dist/esm/icons/sun.mjs
-  var __iconData40 = {
+  var __iconData42 = {
     name: "sun",
     size: 24,
     node: [
@@ -18822,11 +18880,11 @@
       ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }]
     ]
   };
-  __iconData40.node;
-  var Sun = createLucideIcon(__iconData40);
+  __iconData42.node;
+  var Sun = createLucideIcon(__iconData42);
 
   // node_modules/lucide-react/dist/esm/icons/swords.mjs
-  var __iconData41 = {
+  var __iconData43 = {
     name: "swords",
     size: 24,
     node: [
@@ -18852,11 +18910,11 @@
       ["path", { d: "M7.5 16.5 4 20", key: "14nozp" }]
     ]
   };
-  __iconData41.node;
-  var Swords = createLucideIcon(__iconData41);
+  __iconData43.node;
+  var Swords = createLucideIcon(__iconData43);
 
   // node_modules/lucide-react/dist/esm/icons/trash.mjs
-  var __iconData42 = {
+  var __iconData44 = {
     name: "trash",
     size: 24,
     node: [
@@ -18868,11 +18926,11 @@
     ],
     aliases: ["trash-2"]
   };
-  __iconData42.node;
-  var Trash = createLucideIcon(__iconData42);
+  __iconData44.node;
+  var Trash = createLucideIcon(__iconData44);
 
   // node_modules/lucide-react/dist/esm/icons/trending-down.mjs
-  var __iconData43 = {
+  var __iconData45 = {
     name: "trending-down",
     size: 24,
     node: [
@@ -18880,11 +18938,11 @@
       ["path", { d: "m22 17-8.5-8.5-5 5L2 7", key: "x473p" }]
     ]
   };
-  __iconData43.node;
-  var TrendingDown = createLucideIcon(__iconData43);
+  __iconData45.node;
+  var TrendingDown = createLucideIcon(__iconData45);
 
   // node_modules/lucide-react/dist/esm/icons/trending-up.mjs
-  var __iconData44 = {
+  var __iconData46 = {
     name: "trending-up",
     size: 24,
     node: [
@@ -18892,11 +18950,11 @@
       ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
     ]
   };
-  __iconData44.node;
-  var TrendingUp = createLucideIcon(__iconData44);
+  __iconData46.node;
+  var TrendingUp = createLucideIcon(__iconData46);
 
   // node_modules/lucide-react/dist/esm/icons/triangle-alert.mjs
-  var __iconData45 = {
+  var __iconData47 = {
     name: "triangle-alert",
     size: 24,
     node: [
@@ -18912,11 +18970,11 @@
     ],
     aliases: ["alert-triangle"]
   };
-  __iconData45.node;
-  var TriangleAlert = createLucideIcon(__iconData45);
+  __iconData47.node;
+  var TriangleAlert = createLucideIcon(__iconData47);
 
   // node_modules/lucide-react/dist/esm/icons/trophy.mjs
-  var __iconData46 = {
+  var __iconData48 = {
     name: "trophy",
     size: 24,
     node: [
@@ -18928,11 +18986,11 @@
       ["path", { d: "M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3", key: "i0yafy" }]
     ]
   };
-  __iconData46.node;
-  var Trophy = createLucideIcon(__iconData46);
+  __iconData48.node;
+  var Trophy = createLucideIcon(__iconData48);
 
   // node_modules/lucide-react/dist/esm/icons/upload.mjs
-  var __iconData47 = {
+  var __iconData49 = {
     name: "upload",
     size: 24,
     node: [
@@ -18941,11 +18999,11 @@
       ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }]
     ]
   };
-  __iconData47.node;
-  var Upload = createLucideIcon(__iconData47);
+  __iconData49.node;
+  var Upload = createLucideIcon(__iconData49);
 
   // node_modules/lucide-react/dist/esm/icons/wrench.mjs
-  var __iconData48 = {
+  var __iconData50 = {
     name: "wrench",
     size: 24,
     node: [
@@ -18958,11 +19016,11 @@
       ]
     ]
   };
-  __iconData48.node;
-  var Wrench = createLucideIcon(__iconData48);
+  __iconData50.node;
+  var Wrench = createLucideIcon(__iconData50);
 
   // node_modules/lucide-react/dist/esm/icons/x.mjs
-  var __iconData49 = {
+  var __iconData51 = {
     name: "x",
     size: 24,
     node: [
@@ -18970,11 +19028,11 @@
       ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
     ]
   };
-  __iconData49.node;
-  var X = createLucideIcon(__iconData49);
+  __iconData51.node;
+  var X = createLucideIcon(__iconData51);
 
   // node_modules/lucide-react/dist/esm/icons/zap.mjs
-  var __iconData50 = {
+  var __iconData52 = {
     name: "zap",
     size: 24,
     node: [
@@ -18987,8 +19045,8 @@
       ]
     ]
   };
-  __iconData50.node;
-  var Zap = createLucideIcon(__iconData50);
+  __iconData52.node;
+  var Zap = createLucideIcon(__iconData52);
 
   // src/components/ui/dialog.jsx
   var React50 = __toESM(require_react());
@@ -44206,6 +44264,19 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     }
     function calculateBestMove(gameData) {
       if (!gameData || !gameData.gameLayer || !gameData.gameLayer.V) return null;
+      if (ZigaMod.lastEngineAnalysis && Array.isArray(ZigaMod.lastEngineAnalysis.plans) && ZigaMod.lastEngineAnalysis.plans.length > 0) {
+        const topPlan = ZigaMod.lastEngineAnalysis.plans[0];
+        if (topPlan.fromCol !== void 0 && topPlan.toCol !== void 0) {
+          return {
+            fromCol: topPlan.fromCol,
+            fromRow: topPlan.fromRow,
+            toCol: topPlan.toCol,
+            toRow: topPlan.toRow,
+            score: topPlan.score || 0,
+            capturedType: null
+          };
+        }
+      }
       const gameLayer = gameData.gameLayer;
       const pieces = gameLayer.V;
       const activeColor = gameLayer.Yc !== void 0 ? gameLayer.Yc : gameData.myColor;
@@ -44235,7 +44306,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                   break;
                 }
               }
-              const moveScore = capturedVal + Math.random() * 15;
+              const attackerVal = PIECE_BASE_VALUES[p.Ga] || 0;
+              const moveScore = capturedVal > 0 ? capturedVal * 10 - attackerVal : 0;
               candidateMoves.push({
                 pieceIndex: attackerIdx,
                 fromCol: p.fa,
@@ -44940,9 +45012,107 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       VAL.push(arr);
     }
     const ORDER_VAL = [0, 100, 2, 2, 9, 5, 4, 1];
+    let rngSeed = 305419896;
+    function rand32() {
+      rngSeed ^= rngSeed << 13;
+      rngSeed ^= rngSeed >>> 17;
+      rngSeed ^= rngSeed << 5;
+      return rngSeed >>> 0;
+    }
+    const ZOBRIST_SIZE = 15 * 90;
+    const zobristLo = new Uint32Array(ZOBRIST_SIZE);
+    const zobristHi = new Uint32Array(ZOBRIST_SIZE);
+    for (let i = 0; i < ZOBRIST_SIZE; i++) {
+      zobristLo[i] = rand32();
+      zobristHi[i] = rand32();
+    }
+    const sideLo = rand32();
+    const sideHi = rand32();
+    let hashLo = 0 >>> 0;
+    let hashHi = 0 >>> 0;
+    const repHistLo = new Uint32Array(512);
+    const repHistHi = new Uint32Array(512);
+    let gamePly = 0;
+    function isRepetition(ply) {
+      if (ply <= 1) return false;
+      for (let i = gamePly - 2; i >= gamePly - ply && i >= 0; i -= 2) {
+        if (repHistLo[i] === hashLo && repHistHi[i] === hashHi) {
+          return true;
+        }
+      }
+      return false;
+    }
+    const TT_SIZE = 1 << 18;
+    const TT_MASK = TT_SIZE - 1;
+    const ttKeyHi = new Uint32Array(TT_SIZE);
+    const ttMove = new Uint16Array(TT_SIZE);
+    const ttScore = new Int16Array(TT_SIZE);
+    const ttDepth = new Int8Array(TT_SIZE);
+    const ttFlag = new Uint8Array(TT_SIZE);
+    const TT_EMPTY = 0;
+    const TT_EXACT = 1;
+    const TT_LOWER = 2;
+    const TT_UPPER = 3;
+    let ttHits = 0;
+    let probeCutoff = false;
+    let probeScore = 0;
+    let probeMove = 0;
+    function ttProbe(ply, alpha, beta, depth) {
+      const idx = hashLo & TT_MASK;
+      const expectedKey = (hashHi ^ hashLo) >>> 0;
+      if (ttKeyHi[idx] !== expectedKey || ttFlag[idx] === TT_EMPTY) {
+        probeCutoff = false;
+        probeScore = 0;
+        probeMove = 0;
+        return false;
+      }
+      ttHits++;
+      probeMove = ttMove[idx];
+      let score = ttScore[idx];
+      if (score > MATE - 200) score -= ply;
+      else if (score < -MATE + 200) score += ply;
+      probeScore = score;
+      if (ttDepth[idx] >= depth) {
+        const flag = ttFlag[idx];
+        if (flag === TT_EXACT) {
+          probeCutoff = true;
+          return true;
+        }
+        if (flag === TT_LOWER && score >= beta) {
+          probeCutoff = true;
+          return true;
+        }
+        if (flag === TT_UPPER && score <= alpha) {
+          probeCutoff = true;
+          return true;
+        }
+      }
+      probeCutoff = false;
+      return true;
+    }
+    function ttStore(ply, depth, score, flag, move) {
+      const idx = hashLo & TT_MASK;
+      const expectedKey = (hashHi ^ hashLo) >>> 0;
+      const keyChanged = ttKeyHi[idx] !== expectedKey;
+      if (ttFlag[idx] === TT_EMPTY || depth >= ttDepth[idx] || keyChanged) {
+        let storedScore = score;
+        if (score > MATE - 200) storedScore = score + ply;
+        else if (score < -MATE + 200) storedScore = score - ply;
+        ttKeyHi[idx] = expectedKey;
+        if (move !== 0) {
+          ttMove[idx] = move;
+        } else if (keyChanged) {
+          ttMove[idx] = 0;
+        }
+        ttScore[idx] = storedScore;
+        ttDepth[idx] = depth;
+        ttFlag[idx] = flag;
+      }
+    }
     const board = new Int8Array(90);
     const kingSq = [-1, -1];
     let vl = [0, 0];
+    const majors = [0, 0];
     let nodes = 0;
     let deadline = 0;
     let stop = false;
@@ -44954,24 +45124,127 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     for (let i = 0; i < MAXPLY; i++) pvTable.push(new Int32Array(MAXPLY));
     const pvLen = new Int32Array(MAXPLY);
     let prevPV = [];
-    function setup(pieces) {
+    const MOVE_BUF_LEN = MAXPLY * 128;
+    const moveBuf = new Uint16Array(MOVE_BUF_LEN);
+    const scoreBuf = new Int32Array(MOVE_BUF_LEN);
+    const moveBase = new Int16Array(MAXPLY + 1);
+    const moveLen = new Int16Array(MAXPLY + 1);
+    for (let p = 0; p <= MAXPLY; p++) {
+      moveBase[p] = p * 128;
+    }
+    let boardFlipped = false;
+    function setup(piecesInput, history2) {
       board.fill(0);
       kingSq[0] = -1;
       kingSq[1] = -1;
       vl = [0, 0];
-      for (const pc of pieces) {
-        if (pc.col < 0 || pc.col > 8 || pc.row < 0 || pc.row > 9) continue;
-        const sq = pc.row * 9 + pc.col;
-        const code = (pc.type | 0) + 1;
-        const p = pc.color === 0 ? code : -code;
-        board[sq] = p;
-        if (code === 1) kingSq[pc.color === 0 ? 0 : 1] = sq;
-        vl[pc.color === 0 ? 0 : 1] += VAL[p + 7][sq];
+      majors[0] = 0;
+      majors[1] = 0;
+      hashLo = 0 >>> 0;
+      hashHi = 0 >>> 0;
+      gamePly = 0;
+      boardFlipped = false;
+      let pieces = piecesInput;
+      if (typeof piecesInput === "string") {
+        pieces = [];
+        const parts = piecesInput.trim().split(/\s+/);
+        const rows = parts[0].split("/");
+        const fenMap = {
+          k: [0, 1],
+          a: [1, 1],
+          b: [2, 1],
+          r: [3, 1],
+          c: [4, 1],
+          n: [5, 1],
+          p: [6, 1],
+          K: [0, 0],
+          A: [1, 0],
+          B: [2, 0],
+          R: [3, 0],
+          C: [4, 0],
+          N: [5, 0],
+          P: [6, 0]
+        };
+        for (let fRow = 0; fRow < rows.length && fRow < 10; fRow++) {
+          const r2 = 9 - fRow;
+          const rowStr = rows[fRow];
+          let c = 0;
+          for (let i = 0; i < rowStr.length && c <= 8; i++) {
+            const ch = rowStr[i];
+            if (ch >= "1" && ch <= "9") {
+              c += ch.charCodeAt(0) - 48;
+            } else if (fenMap[ch]) {
+              const [t, col] = fenMap[ch];
+              pieces.push({ col: c, row: r2, type: t, color: col });
+              c++;
+            }
+          }
+        }
+      }
+      if (Array.isArray(pieces)) {
+        for (const pc of pieces) {
+          if (pc.type === 0 && pc.color === 0 && pc.row >= 7) {
+            boardFlipped = true;
+            break;
+          }
+          if (pc.type === 0 && pc.color === 1 && pc.row <= 2) {
+            boardFlipped = true;
+            break;
+          }
+        }
+        for (const pc of pieces) {
+          if (pc.col < 0 || pc.col > 8 || pc.row < 0 || pc.row > 9) continue;
+          const actualRow = boardFlipped ? 9 - pc.row : pc.row;
+          const actualCol = boardFlipped ? 8 - pc.col : pc.col;
+          const sq = actualRow * 9 + actualCol;
+          const code = (pc.type | 0) + 1;
+          const p = pc.color === 0 ? code : -code;
+          board[sq] = p;
+          if (code === 1) kingSq[pc.color === 0 ? 0 : 1] = sq;
+          vl[pc.color === 0 ? 0 : 1] += VAL[p + 7][sq];
+          if (code >= 4 && code <= 6) majors[pc.color === 0 ? 0 : 1]++;
+          const zIdx = (p + 7) * 90 + sq;
+          hashLo ^= zobristLo[zIdx];
+          hashHi ^= zobristHi[zIdx];
+        }
+      }
+      repHistLo[0] = hashLo;
+      repHistHi[0] = hashHi;
+      if (Array.isArray(history2)) {
+        for (let i = 0; i < history2.length && i < 256; i++) {
+          const h = history2[i];
+          if (typeof h === "object" && h && h.hashLo != null) {
+            repHistLo[i] = h.hashLo >>> 0;
+            repHistHi[i] = h.hashHi >>> 0;
+            gamePly = i + 1;
+          }
+        }
       }
     }
-    function evaluate2(side2) {
-      const s = vl[0] - vl[1];
-      return (side2 === 0 ? s : -s) + 3;
+    function toFen(side2) {
+      const chars = ["", "K", "A", "B", "R", "C", "N", "P"];
+      const rows = [];
+      for (let r2 = 9; r2 >= 0; r2--) {
+        let empty = 0;
+        let s = "";
+        for (let c = 0; c <= 8; c++) {
+          const p = board[r2 * 9 + c];
+          if (!p) {
+            empty++;
+          } else {
+            if (empty > 0) {
+              s += empty;
+              empty = 0;
+            }
+            const code = p > 0 ? p : -p;
+            const ch = chars[code] || "P";
+            s += p > 0 ? ch : ch.toLowerCase();
+          }
+        }
+        if (empty > 0) s += empty;
+        rows.push(s);
+      }
+      return rows.join("/") + (side2 === 1 ? " b - - 0 1" : " w - - 0 1");
     }
     function makeMove(m) {
       const f = m & 127;
@@ -44980,11 +45253,31 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       const cap = board[t];
       const side2 = p > 0 ? 0 : 1;
       vl[side2] += VAL[p + 7][t] - VAL[p + 7][f];
-      if (cap) vl[1 - side2] -= VAL[cap + 7][t];
+      if (cap) {
+        vl[1 - side2] -= VAL[cap + 7][t];
+        const capCode = cap > 0 ? cap : -cap;
+        if (capCode >= 4 && capCode <= 6) majors[1 - side2]--;
+      }
+      const zF = (p + 7) * 90 + f;
+      const zT = (p + 7) * 90 + t;
+      hashLo ^= zobristLo[zF] ^ zobristLo[zT];
+      hashHi ^= zobristHi[zF] ^ zobristHi[zT];
+      if (cap) {
+        const zCap = (cap + 7) * 90 + t;
+        hashLo ^= zobristLo[zCap];
+        hashHi ^= zobristHi[zCap];
+      }
+      hashLo ^= sideLo;
+      hashHi ^= sideHi;
       board[t] = p;
       board[f] = 0;
       if (p === 1) kingSq[0] = t;
       else if (p === -1) kingSq[1] = t;
+      gamePly++;
+      if (gamePly < 512) {
+        repHistLo[gamePly] = hashLo;
+        repHistHi[gamePly] = hashHi;
+      }
       return cap;
     }
     function unmakeMove(m, cap) {
@@ -44993,11 +45286,41 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       const p = board[t];
       const side2 = p > 0 ? 0 : 1;
       vl[side2] -= VAL[p + 7][t] - VAL[p + 7][f];
-      if (cap) vl[1 - side2] += VAL[cap + 7][t];
+      if (cap) {
+        vl[1 - side2] += VAL[cap + 7][t];
+        const capCode = cap > 0 ? cap : -cap;
+        if (capCode >= 4 && capCode <= 6) majors[1 - side2]++;
+      }
+      const zF = (p + 7) * 90 + f;
+      const zT = (p + 7) * 90 + t;
+      hashLo ^= zobristLo[zF] ^ zobristLo[zT];
+      hashHi ^= zobristHi[zF] ^ zobristHi[zT];
+      if (cap) {
+        const zCap = (cap + 7) * 90 + t;
+        hashLo ^= zobristLo[zCap];
+        hashHi ^= zobristHi[zCap];
+      }
+      hashLo ^= sideLo;
+      hashHi ^= sideHi;
       board[f] = p;
       board[t] = cap;
       if (p === 1) kingSq[0] = f;
       else if (p === -1) kingSq[1] = f;
+      if (gamePly > 0) gamePly--;
+    }
+    function makeNullMove() {
+      hashLo ^= sideLo;
+      hashHi ^= sideHi;
+      gamePly++;
+      if (gamePly < 512) {
+        repHistLo[gamePly] = hashLo;
+        repHistHi[gamePly] = hashHi;
+      }
+    }
+    function unmakeNullMove() {
+      hashLo ^= sideLo;
+      hashHi ^= sideHi;
+      if (gamePly > 0) gamePly--;
     }
     const KNIGHT_D = [
       [1, 2, 0, 1],
@@ -45021,90 +45344,6 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       [-1, 1],
       [-1, -1]
     ];
-    function genMoves(side2, capOnly) {
-      const moves = [];
-      const sign = side2 === 0 ? 1 : -1;
-      for (let sq = 0; sq < 90; sq++) {
-        const p = board[sq];
-        if (!p || (p > 0 ? 0 : 1) !== side2) continue;
-        const code = p * sign;
-        const c = sq % 9;
-        const r2 = sq / 9 | 0;
-        const push = (tc, tr) => {
-          const t = tr * 9 + tc;
-          const q = board[t];
-          if (q) {
-            if ((q > 0 ? 0 : 1) === side2) return;
-          } else if (capOnly) return;
-          moves.push(sq | t << 7);
-        };
-        if (code === 1 || code === 2) {
-          const dirs = code === 1 ? ORTHO : DIAG;
-          const rMin = side2 === 0 ? 0 : 7;
-          const rMax = side2 === 0 ? 2 : 9;
-          for (const [dc, dr] of dirs) {
-            const tc = c + dc;
-            const tr = r2 + dr;
-            if (tc >= 3 && tc <= 5 && tr >= rMin && tr <= rMax) push(tc, tr);
-          }
-        } else if (code === 3) {
-          for (const [dc, dr] of DIAG) {
-            const tc = c + 2 * dc;
-            const tr = r2 + 2 * dr;
-            if (tc < 0 || tc > 8 || tr < 0 || tr > 9) continue;
-            if (side2 === 0 ? tr > 4 : tr < 5) continue;
-            if (board[(r2 + dr) * 9 + (c + dc)]) continue;
-            push(tc, tr);
-          }
-        } else if (code === 6) {
-          for (const [dc, dr, lc, lr] of KNIGHT_D) {
-            const tc = c + dc;
-            const tr = r2 + dr;
-            if (tc < 0 || tc > 8 || tr < 0 || tr > 9) continue;
-            if (board[(r2 + lr) * 9 + (c + lc)]) continue;
-            push(tc, tr);
-          }
-        } else if (code === 4 || code === 5) {
-          for (const [dc, dr] of ORTHO) {
-            let tc = c + dc;
-            let tr = r2 + dr;
-            let screen = false;
-            while (tc >= 0 && tc <= 8 && tr >= 0 && tr <= 9) {
-              const q = board[tr * 9 + tc];
-              if (code === 4) {
-                if (!q) {
-                  if (!capOnly) moves.push(sq | tr * 9 + tc << 7);
-                } else {
-                  if ((q > 0 ? 0 : 1) !== side2)
-                    moves.push(sq | tr * 9 + tc << 7);
-                  break;
-                }
-              } else if (!screen) {
-                if (!q) {
-                  if (!capOnly) moves.push(sq | tr * 9 + tc << 7);
-                } else screen = true;
-              } else if (q) {
-                if ((q > 0 ? 0 : 1) !== side2)
-                  moves.push(sq | tr * 9 + tc << 7);
-                break;
-              }
-              tc += dc;
-              tr += dr;
-            }
-          }
-        } else if (code === 7) {
-          const fwd = side2 === 0 ? 1 : -1;
-          const tr = r2 + fwd;
-          if (tr >= 0 && tr <= 9) push(c, tr);
-          const crossed = side2 === 0 ? r2 >= 5 : r2 <= 4;
-          if (crossed) {
-            if (c > 0) push(c - 1, r2);
-            if (c < 8) push(c + 1, r2);
-          }
-        }
-      }
-      return moves;
-    }
     function inCheck(side2) {
       const ks = kingSq[side2];
       if (ks < 0) return true;
@@ -45147,37 +45386,424 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       if (kc < 8 && board[kr * 9 + kc + 1] === 7 * e) return true;
       return false;
     }
+    function generateMoves(side2, capOnly, ply) {
+      const base = moveBase[ply];
+      let count = 0;
+      const sign = side2 === 0 ? 1 : -1;
+      for (let sq = 0; sq < 90; sq++) {
+        const p = board[sq];
+        if (!p || (p > 0 ? 0 : 1) !== side2) continue;
+        const code = p * sign;
+        const c = sq % 9;
+        const r2 = sq / 9 | 0;
+        if (code === 1 || code === 2) {
+          const dirs = code === 1 ? ORTHO : DIAG;
+          const rMin = side2 === 0 ? 0 : 7;
+          const rMax = side2 === 0 ? 2 : 9;
+          for (const [dc, dr] of dirs) {
+            const tc = c + dc;
+            const tr = r2 + dr;
+            if (tc >= 3 && tc <= 5 && tr >= rMin && tr <= rMax) {
+              const t = tr * 9 + tc;
+              const q = board[t];
+              if (q) {
+                if ((q > 0 ? 0 : 1) !== side2)
+                  moveBuf[base + count++] = sq | t << 7;
+              } else if (!capOnly) {
+                moveBuf[base + count++] = sq | t << 7;
+              }
+            }
+          }
+        } else if (code === 3) {
+          for (const [dc, dr] of DIAG) {
+            const tc = c + 2 * dc;
+            const tr = r2 + 2 * dr;
+            if (tc < 0 || tc > 8 || tr < 0 || tr > 9) continue;
+            if (side2 === 0 ? tr > 4 : tr < 5) continue;
+            if (board[(r2 + dr) * 9 + (c + dc)]) continue;
+            const t = tr * 9 + tc;
+            const q = board[t];
+            if (q) {
+              if ((q > 0 ? 0 : 1) !== side2)
+                moveBuf[base + count++] = sq | t << 7;
+            } else if (!capOnly) {
+              moveBuf[base + count++] = sq | t << 7;
+            }
+          }
+        } else if (code === 6) {
+          for (const [dc, dr, lc, lr] of KNIGHT_D) {
+            const tc = c + dc;
+            const tr = r2 + dr;
+            if (tc < 0 || tc > 8 || tr < 0 || tr > 9) continue;
+            if (board[(r2 + lr) * 9 + (c + lc)]) continue;
+            const t = tr * 9 + tc;
+            const q = board[t];
+            if (q) {
+              if ((q > 0 ? 0 : 1) !== side2)
+                moveBuf[base + count++] = sq | t << 7;
+            } else if (!capOnly) {
+              moveBuf[base + count++] = sq | t << 7;
+            }
+          }
+        } else if (code === 4 || code === 5) {
+          for (const [dc, dr] of ORTHO) {
+            let tc = c + dc;
+            let tr = r2 + dr;
+            let screen = false;
+            while (tc >= 0 && tc <= 8 && tr >= 0 && tr <= 9) {
+              const t = tr * 9 + tc;
+              const q = board[t];
+              if (code === 4) {
+                if (!q) {
+                  if (!capOnly) moveBuf[base + count++] = sq | t << 7;
+                } else {
+                  if ((q > 0 ? 0 : 1) !== side2)
+                    moveBuf[base + count++] = sq | t << 7;
+                  break;
+                }
+              } else if (!screen) {
+                if (!q) {
+                  if (!capOnly) moveBuf[base + count++] = sq | t << 7;
+                } else screen = true;
+              } else if (q) {
+                if ((q > 0 ? 0 : 1) !== side2)
+                  moveBuf[base + count++] = sq | t << 7;
+                break;
+              }
+              tc += dc;
+              tr += dr;
+            }
+          }
+        } else if (code === 7) {
+          const fwd = side2 === 0 ? 1 : -1;
+          const tr = r2 + fwd;
+          if (tr >= 0 && tr <= 9) {
+            const t = tr * 9 + c;
+            const q = board[t];
+            if (q) {
+              if ((q > 0 ? 0 : 1) !== side2)
+                moveBuf[base + count++] = sq | t << 7;
+            } else if (!capOnly) {
+              moveBuf[base + count++] = sq | t << 7;
+            }
+          }
+          const crossed = side2 === 0 ? r2 >= 5 : r2 <= 4;
+          if (crossed) {
+            if (c > 0) {
+              const t = r2 * 9 + (c - 1);
+              const q = board[t];
+              if (q) {
+                if ((q > 0 ? 0 : 1) !== side2)
+                  moveBuf[base + count++] = sq | t << 7;
+              } else if (!capOnly) {
+                moveBuf[base + count++] = sq | t << 7;
+              }
+            }
+            if (c < 8) {
+              const t = r2 * 9 + (c + 1);
+              const q = board[t];
+              if (q) {
+                if ((q > 0 ? 0 : 1) !== side2)
+                  moveBuf[base + count++] = sq | t << 7;
+              } else if (!capOnly) {
+                moveBuf[base + count++] = sq | t << 7;
+              }
+            }
+          }
+        }
+      }
+      moveLen[ply] = count;
+      return count;
+    }
+    function scoreAndOrderMoves(ply, ttMoveChosen) {
+      const base = moveBase[ply];
+      const count = moveLen[ply];
+      const k = killers[ply] || [0, 0];
+      for (let i = 0; i < count; i++) {
+        const m = moveBuf[base + i];
+        let s = 0;
+        if (m === ttMoveChosen && ttMoveChosen !== 0) {
+          s = 2e7;
+        } else {
+          const cap = board[m >> 7];
+          if (cap) {
+            const victim = ORDER_VAL[cap > 0 ? cap : -cap];
+            const att = board[m & 127];
+            const attVal = ORDER_VAL[att > 0 ? att : -att];
+            if (victim >= attVal) {
+              s = 1e7 + victim * 100 - attVal;
+            } else {
+              s = 7e6 + victim * 100 - attVal;
+            }
+          } else if (m === k[0]) {
+            s = 9e6;
+          } else if (m === k[1]) {
+            s = 8e6;
+          } else {
+            s = history[m];
+          }
+        }
+        scoreBuf[base + i] = s;
+      }
+    }
+    function pickNextMove(ply, startIndex) {
+      const base = moveBase[ply];
+      const count = moveLen[ply];
+      let bestIdx = startIndex;
+      let bestScore = scoreBuf[base + startIndex];
+      for (let i = startIndex + 1; i < count; i++) {
+        if (scoreBuf[base + i] > bestScore) {
+          bestScore = scoreBuf[base + i];
+          bestIdx = i;
+        }
+      }
+      if (bestIdx !== startIndex) {
+        const tmpM = moveBuf[base + startIndex];
+        moveBuf[base + startIndex] = moveBuf[base + bestIdx];
+        moveBuf[base + bestIdx] = tmpM;
+        const tmpS = scoreBuf[base + startIndex];
+        scoreBuf[base + startIndex] = scoreBuf[base + bestIdx];
+        scoreBuf[base + bestIdx] = tmpS;
+      }
+      return moveBuf[base + startIndex];
+    }
     function legalMoves(side2) {
+      generateMoves(side2, false, 0);
+      const count = moveLen[0];
       const out = [];
-      for (const m of genMoves(side2, false)) {
+      for (let i = 0; i < count; i++) {
+        const m = moveBuf[i];
         const cap = makeMove(m);
         if (!inCheck(side2)) out.push(m);
         unmakeMove(m, cap);
       }
       return out;
     }
-    function orderMoves(moves, ply, pvMove) {
-      const scored = new Array(moves.length);
-      const k = killers[ply] || [0, 0];
-      for (let i = 0; i < moves.length; i++) {
-        const m = moves[i];
-        let s;
-        if (m === pvMove) s = 1e7;
-        else {
-          const cap = board[m >> 7];
-          if (cap) {
-            const victim = ORDER_VAL[cap > 0 ? cap : -cap];
-            const att = board[m & 127];
-            s = 1e6 + victim * 100 - ORDER_VAL[att > 0 ? att : -att];
-          } else if (m === k[0]) s = 9e5;
-          else if (m === k[1]) s = 8e5;
-          else s = history[m];
+    function evaluate2(side2) {
+      let materialDiff = vl[0] - vl[1];
+      let positional = 0;
+      let kingSafety = 0;
+      let mobility = 0;
+      let cannonTactics = 0;
+      let adv0 = 0, adv1 = 0;
+      let bis0 = 0, bis1 = 0;
+      let rook0 = 0, rook1 = 0;
+      let cannon0 = 0, cannon1 = 0;
+      for (let sq = 0; sq < 90; sq++) {
+        const p = board[sq];
+        if (!p) continue;
+        const code = p > 0 ? p : -p;
+        if (p > 0) {
+          if (code === 2) adv0++;
+          else if (code === 3) bis0++;
+          else if (code === 4) rook0++;
+          else if (code === 5) cannon0++;
+        } else {
+          if (code === 2) adv1++;
+          else if (code === 3) bis1++;
+          else if (code === 4) rook1++;
+          else if (code === 5) cannon1++;
         }
-        scored[i] = { m, s };
       }
-      scored.sort((a, b) => b.s - a.s);
-      for (let i = 0; i < moves.length; i++) moves[i] = scored[i].m;
-      return moves;
+      const phase = Math.min(
+        32,
+        (rook0 + rook1) * 4 + (cannon0 + cannon1) * 2 + (majors[0] + majors[1] - rook0 - rook1 - cannon0 - cannon1) * 2
+      );
+      let ks0 = 0;
+      if (adv0 === 2 && bis0 === 2) ks0 += 30;
+      if (adv0 < 2 && rook1 > 0) ks0 -= 70 * (2 - adv0) * rook1;
+      if (bis0 < 2 && cannon1 > 0) ks0 -= 30 * (2 - bis0) * cannon1;
+      let ks1 = 0;
+      if (adv1 === 2 && bis1 === 2) ks1 += 30;
+      if (adv1 < 2 && rook0 > 0) ks1 -= 70 * (2 - adv1) * rook0;
+      if (bis1 < 2 && cannon0 > 0) ks1 -= 30 * (2 - bis1) * cannon0;
+      kingSafety = ks0 - ks1;
+      for (let sq = 0; sq < 90; sq++) {
+        const p = board[sq];
+        if (!p) continue;
+        const s = p > 0 ? 0 : 1;
+        const sign = s === 0 ? 1 : -1;
+        const opp = 1 - s;
+        const code = p > 0 ? p : -p;
+        const c = sq % 9;
+        const r2 = sq / 9 | 0;
+        if (code === 5) {
+          const oppKs = kingSq[opp];
+          if (oppKs >= 0) {
+            const oppKc = oppKs % 9;
+            const oppKr = oppKs / 9 | 0;
+            if (c === 4 && oppKc === 4) cannonTactics += sign * 28;
+            if (c === oppKc && majors[s] >= 2) {
+              const minR = Math.min(r2, oppKr);
+              const maxR = Math.max(r2, oppKr);
+              let screens = 0;
+              for (let rowScan = minR + 1; rowScan < maxR; rowScan++) {
+                if (board[rowScan * 9 + c]) screens++;
+              }
+              if (screens === 0) {
+                cannonTactics += sign * 40;
+              }
+            }
+          }
+        } else if (code === 4) {
+          let friendlyPawn = false;
+          let enemyPawn = false;
+          for (let rowScan = 0; rowScan < 10; rowScan++) {
+            const q = board[rowScan * 9 + c];
+            if (q === (s === 0 ? 7 : -7)) friendlyPawn = true;
+            if (q === (s === 0 ? -7 : 7)) enemyPawn = true;
+          }
+          if (!friendlyPawn) {
+            mobility += sign * 20;
+            if (!enemyPawn) mobility += sign * 10;
+          }
+          if (c >= 3 && c <= 5) positional += sign * 15;
+          if (r2 === 4 || r2 === 5) positional += sign * 16;
+          if (gamePly > 10 && phase < 30) {
+            if (s === 0 && (sq === 0 || sq === 8) || s === 1 && (sq === 81 || sq === 89)) {
+              let freeCount = 0;
+              for (const [dc, dr] of ORTHO) {
+                const nc = c + dc;
+                const nr = r2 + dr;
+                if (nc >= 0 && nc <= 8 && nr >= 0 && nr <= 9) {
+                  const dest = board[nr * 9 + nc];
+                  if (!dest || (dest > 0 ? 0 : 1) !== s) freeCount++;
+                }
+              }
+              if (freeCount <= 1) mobility -= sign * 35;
+            }
+          }
+        } else if (code === 6) {
+          let jumps = 0;
+          for (const [dc, dr, lc, lr] of KNIGHT_D) {
+            const tc = c + dc;
+            const tr = r2 + dr;
+            if (tc < 0 || tc > 8 || tr < 0 || tr > 9) continue;
+            if (board[(r2 + lr) * 9 + (c + lc)]) continue;
+            const target = board[tr * 9 + tc];
+            if (!target || (target > 0 ? 0 : 1) !== s) jumps++;
+          }
+          if (jumps === 0) mobility -= sign * 45;
+          else if (jumps === 1) mobility -= sign * 20;
+          else if (jumps >= 5) mobility += sign * 15;
+          if (s === 0) {
+            if (r2 === 7 && (c === 2 || c === 6 || c === 3 || c === 5))
+              positional += sign * 35;
+          } else {
+            if (r2 === 2 && (c === 2 || c === 6 || c === 3 || c === 5))
+              positional += sign * 35;
+          }
+        } else if (code === 7) {
+          const crossed = s === 0 ? r2 >= 5 : r2 <= 4;
+          if (crossed) {
+            if (c > 0 && board[r2 * 9 + (c - 1)] === (s === 0 ? 7 : -7))
+              positional += sign * 25;
+            if (c < 8 && board[r2 * 9 + (c + 1)] === (s === 0 ? 7 : -7))
+              positional += sign * 25;
+          }
+        }
+        if (code >= 4 && code <= 6) {
+          const pawnFwd = s === 0 ? 1 : -1;
+          const pawnRow = r2 + pawnFwd;
+          const enemyPawn = s === 0 ? -7 : 7;
+          let attackedByPawn = false;
+          if (pawnRow >= 0 && pawnRow <= 9 && board[pawnRow * 9 + c] === enemyPawn) {
+            attackedByPawn = true;
+          } else if (s === 0 && r2 >= 5 || s === 1 && r2 <= 4) {
+            if (c > 0 && board[r2 * 9 + (c - 1)] === enemyPawn) attackedByPawn = true;
+            if (c < 8 && board[r2 * 9 + (c + 1)] === enemyPawn) attackedByPawn = true;
+          }
+          if (attackedByPawn) {
+            if (code === 4) positional -= sign * 140;
+            else positional -= sign * 60;
+          }
+        }
+      }
+      const totalScoreRed = materialDiff + positional + kingSafety + mobility + cannonTactics;
+      return (side2 === 0 ? totalScoreRed : -totalScoreRed) + 3;
+    }
+    function getEvalBreakdown(side2) {
+      let materialDiff = vl[0] - vl[1];
+      let positional = 0;
+      let kingSafety = 0;
+      let mobility = 0;
+      let cannonTactics = 0;
+      let adv0 = 0, adv1 = 0;
+      let bis0 = 0, bis1 = 0;
+      let rook0 = 0, rook1 = 0;
+      let cannon0 = 0, cannon1 = 0;
+      for (let sq = 0; sq < 90; sq++) {
+        const p = board[sq];
+        if (!p) continue;
+        const code = p > 0 ? p : -p;
+        if (p > 0) {
+          if (code === 2) adv0++;
+          else if (code === 3) bis0++;
+          else if (code === 4) rook0++;
+          else if (code === 5) cannon0++;
+        } else {
+          if (code === 2) adv1++;
+          else if (code === 3) bis1++;
+          else if (code === 4) rook1++;
+          else if (code === 5) cannon1++;
+        }
+      }
+      let ks0 = 0;
+      if (adv0 === 2 && bis0 === 2) ks0 += 30;
+      if (adv0 < 2 && rook1 > 0) ks0 -= 70 * (2 - adv0) * rook1;
+      if (bis0 < 2 && cannon1 > 0) ks0 -= 30 * (2 - bis0) * cannon1;
+      let ks1 = 0;
+      if (adv1 === 2 && bis1 === 2) ks1 += 30;
+      if (adv1 < 2 && rook0 > 0) ks1 -= 70 * (2 - adv1) * rook0;
+      if (bis1 < 2 && cannon0 > 0) ks1 -= 30 * (2 - bis1) * cannon0;
+      kingSafety = ks0 - ks1;
+      for (let sq = 0; sq < 90; sq++) {
+        const p = board[sq];
+        if (!p) continue;
+        const s = p > 0 ? 0 : 1;
+        const sign = s === 0 ? 1 : -1;
+        const opp = 1 - s;
+        const code = p > 0 ? p : -p;
+        const c = sq % 9;
+        const r2 = sq / 9 | 0;
+        if (code === 5) {
+          const oppKs = kingSq[opp];
+          if (oppKs >= 0) {
+            const oppKc = oppKs % 9;
+            const oppKr = oppKs / 9 | 0;
+            if (c === 4 && oppKc === 4) cannonTactics += sign * 28;
+            if (c === oppKc && majors[s] >= 2) {
+              const minR = Math.min(r2, oppKr);
+              const maxR = Math.max(r2, oppKr);
+              let screens = 0;
+              for (let rowScan = minR + 1; rowScan < maxR; rowScan++) {
+                if (board[rowScan * 9 + c]) screens++;
+              }
+              if (screens === 0) cannonTactics += sign * 40;
+            }
+          }
+        } else if (code === 4) {
+          let friendlyPawn = false;
+          let enemyPawn = false;
+          for (let rowScan = 0; rowScan < 10; rowScan++) {
+            const q = board[rowScan * 9 + c];
+            if (q === (s === 0 ? 7 : -7)) friendlyPawn = true;
+            if (q === (s === 0 ? -7 : 7)) enemyPawn = true;
+          }
+          if (!friendlyPawn) {
+            mobility += sign * 20;
+            if (!enemyPawn) mobility += sign * 10;
+          }
+          if (c >= 3 && c <= 5) positional += sign * 15;
+        }
+      }
+      return {
+        material: side2 === 0 ? materialDiff : -materialDiff,
+        positional: side2 === 0 ? positional : -positional,
+        kingSafety: side2 === 0 ? kingSafety : -kingSafety,
+        mobility: side2 === 0 ? mobility : -mobility,
+        cannonTactics: side2 === 0 ? cannonTactics : -cannonTactics
+      };
     }
     function timeUp() {
       if (canStop && (nodes & 1023) === 0 && Date.now() > deadline) stop = true;
@@ -45194,11 +45820,15 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         if (stand >= beta) return stand;
         if (stand > alpha) alpha = stand;
         best = stand;
+        if (stand + 230 < alpha) return alpha;
       }
       if (qd > 8 || ply >= MAXPLY - 2) return evaluate2(side2);
-      const moves = orderMoves(genMoves(side2, !chk), ply, 0);
+      generateMoves(side2, !chk, ply);
+      scoreAndOrderMoves(ply, 0);
+      const count = moveLen[ply];
       let legal = 0;
-      for (const m of moves) {
+      for (let i = 0; i < count; i++) {
+        const m = pickNextMove(ply, i);
         const cap = makeMove(m);
         if (inCheck(side2)) {
           unmakeMove(m, cap);
@@ -45219,7 +45849,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       if (chk && legal === 0) return -MATE + ply;
       return best;
     }
-    function search(depth, alpha, beta, ply, side2, extLeft) {
+    function search(depth, alpha, beta, ply, side2, extLeft, allowNull) {
       pvLen[ply] = ply;
       const chk = inCheck(side2);
       if (chk && extLeft > 0) {
@@ -45230,41 +45860,117 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       nodes++;
       if (timeUp()) return 0;
       if (ply >= MAXPLY - 2) return evaluate2(side2);
+      if (ply > 0 && isRepetition(ply)) {
+        return 0;
+      }
       const mateAlpha = -MATE + ply;
       const mateBeta = MATE - ply - 1;
       if (alpha < mateAlpha) alpha = mateAlpha;
       if (beta > mateBeta) beta = mateBeta;
       if (alpha >= beta) return alpha;
-      const moves = orderMoves(genMoves(side2, false), ply, prevPV[ply] || 0);
+      if (ttProbe(ply, alpha, beta, depth) && probeCutoff && ply > 0) {
+        return probeScore;
+      }
+      const ttMoveChosen = probeMove || prevPV[ply] || 0;
+      if (allowNull !== false && !chk && depth >= 3 && ply > 0 && majors[side2] > 0) {
+        const R = depth >= 6 ? 3 : 2;
+        makeNullMove();
+        const nullScore = -search(
+          depth - 1 - R,
+          -beta,
+          -beta + 1,
+          ply + 1,
+          1 - side2,
+          extLeft,
+          false
+        );
+        unmakeNullMove();
+        if (stop) return 0;
+        if (nullScore >= beta) {
+          return beta;
+        }
+      }
+      generateMoves(side2, false, ply);
+      scoreAndOrderMoves(ply, ttMoveChosen);
+      const count = moveLen[ply];
       let legal = 0;
       let best = -INF;
-      for (const m of moves) {
+      let bestMove = 0;
+      let ttFlagToStore = TT_UPPER;
+      for (let i = 0; i < count; i++) {
+        const m = pickNextMove(ply, i);
         const cap = makeMove(m);
         if (inCheck(side2)) {
           unmakeMove(m, cap);
           continue;
         }
         legal++;
-        const score = -search(
-          depth - 1,
-          -beta,
-          -alpha,
-          ply + 1,
-          1 - side2,
-          extLeft
-        );
+        let score;
+        if (legal === 1) {
+          score = -search(
+            depth - 1,
+            -beta,
+            -alpha,
+            ply + 1,
+            1 - side2,
+            extLeft,
+            true
+          );
+        } else {
+          let reduction = 0;
+          const k = killers[ply] || [0, 0];
+          const givesCheck = inCheck(1 - side2);
+          if (depth >= 3 && legal > 3 && !cap && !chk && !givesCheck && m !== k[0] && m !== k[1]) {
+            reduction = 1 + (legal > 8 && depth >= 5 ? 1 : 0);
+          }
+          score = -search(
+            depth - 1 - reduction,
+            -alpha - 1,
+            -alpha,
+            ply + 1,
+            1 - side2,
+            extLeft,
+            true
+          );
+          if (reduction > 0 && score > alpha) {
+            score = -search(
+              depth - 1,
+              -alpha - 1,
+              -alpha,
+              ply + 1,
+              1 - side2,
+              extLeft,
+              true
+            );
+          }
+          if (score > alpha && score < beta) {
+            score = -search(
+              depth - 1,
+              -beta,
+              -alpha,
+              ply + 1,
+              1 - side2,
+              extLeft,
+              true
+            );
+          }
+        }
         unmakeMove(m, cap);
         if (stop) return 0;
         if (score > best) {
           best = score;
+          bestMove = m;
           if (score > alpha) {
             alpha = score;
+            ttFlagToStore = TT_EXACT;
             const row = pvTable[ply];
             const next = pvTable[ply + 1];
             row[ply] = m;
-            for (let i = ply + 1; i < pvLen[ply + 1]; i++) row[i] = next[i];
+            for (let pIdx = ply + 1; pIdx < pvLen[ply + 1]; pIdx++)
+              row[pIdx] = next[pIdx];
             pvLen[ply] = Math.max(pvLen[ply + 1], ply + 1);
             if (score >= beta) {
+              ttStore(ply, depth, score, TT_LOWER, m);
               if (!cap) {
                 const k = killers[ply];
                 if (k[0] !== m) {
@@ -45279,35 +45985,133 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         }
       }
       if (legal === 0) return -MATE + ply;
+      ttStore(ply, depth, best, ttFlagToStore, bestMove);
       return best;
+    }
+    const BOOK_MOVES = {
+      initial: [
+        { move: 19 | 22 << 7, name: "Trung Ph\xE1o (Ph\xE1o 2 b\xECnh 5)", weight: 100 },
+        { move: 25 | 22 << 7, name: "Trung Ph\xE1o (Ph\xE1o 8 b\xECnh 5)", weight: 95 },
+        {
+          move: 33 | 42 << 7,
+          name: "Ti\xEAn Nh\xE2n Ch\u1EC9 L\u1ED9 (Binh 7 t\u1EA5n 1)",
+          weight: 85
+        },
+        {
+          move: 29 | 38 << 7,
+          name: "Ti\xEAn Nh\xE2n Ch\u1EC9 L\u1ED9 (Binh 3 t\u1EA5n 1)",
+          weight: 85
+        },
+        {
+          move: 2 | 22 << 7,
+          name: "Phi T\u01B0\u1EE3ng Cu\u1ED9c (T\u01B0\u1EE3ng 3 t\u1EA5n 5)",
+          weight: 75
+        },
+        {
+          move: 6 | 22 << 7,
+          name: "Phi T\u01B0\u1EE3ng Cu\u1ED9c (T\u01B0\u1EE3ng 7 t\u1EA5n 5)",
+          weight: 75
+        },
+        { move: 7 | 24 << 7, name: "Kh\u1EDFi M\xE3 Cu\u1ED9c (M\xE3 2 t\u1EA5n 3)", weight: 70 },
+        { move: 1 | 20 << 7, name: "Kh\u1EDFi M\xE3 Cu\u1ED9c (M\xE3 8 t\u1EA5n 7)", weight: 70 },
+        {
+          move: 19 | 23 << 7,
+          name: "Qu\xE1 Cung Ph\xE1o (Ph\xE1o 2 b\xECnh 6)",
+          weight: 65
+        },
+        {
+          move: 25 | 21 << 7,
+          name: "Qu\xE1 Cung Ph\xE1o (Ph\xE1o 8 b\xECnh 4)",
+          weight: 65
+        }
+      ],
+      after_P2_5: [
+        { move: 82 | 65 << 7, name: "B\xECnh Phong M\xE3 (M\xE3 8 t\u1EA5n 7)", weight: 100 },
+        { move: 88 | 69 << 7, name: "B\xECnh Phong M\xE3 (M\xE3 2 t\u1EA5n 3)", weight: 90 },
+        { move: 64 | 67 << 7, name: "Thu\u1EADn Ph\xE1o (Ph\xE1o 8 b\xECnh 5)", weight: 85 },
+        { move: 70 | 67 << 7, name: "Ngh\u1ECBch Ph\xE1o (Ph\xE1o 2 b\xECnh 5)", weight: 80 },
+        { move: 88 | 79 << 7, name: "\u0110\u01A1n \u0110\u1EC1 M\xE3 (M\xE3 2 t\u1EA5n 1)", weight: 70 },
+        {
+          move: 70 | 68 << 7,
+          name: "Ph\u1EA3n Cung M\xE3 (Ph\xE1o 2 b\xECnh 4)",
+          weight: 75
+        }
+      ],
+      after_B7_1: [
+        {
+          move: 60 | 51 << 7,
+          name: "\u0110\u1ED1i Binh Cu\u1ED9c (T\u1ED1t 7 t\u1EA5n 1)",
+          weight: 100
+        },
+        { move: 64 | 67 << 7, name: "T\u1ED1t \u0110\u1EC3 Ph\xE1o (Ph\xE1o 8 b\xECnh 5)", weight: 90 },
+        { move: 88 | 69 << 7, name: "B\xECnh Phong M\xE3 (M\xE3 2 t\u1EA5n 3)", weight: 80 }
+      ]
+    };
+    function probeOpeningBook(side2) {
+      if (gamePly > 4) return null;
+      let totalPieces = 0;
+      for (let sq = 0; sq < 90; sq++) if (board[sq]) totalPieces++;
+      if (totalPieces === 32 && side2 === 0) {
+        return {
+          list: BOOK_MOVES["initial"],
+          openingName: "Khai cu\u1ED9c Ti\xEAu Chu\u1EA9n"
+        };
+      }
+      if (totalPieces === 32 && side2 === 1 && board[22] === 5 && (board[19] === 0 || board[25] === 0)) {
+        return {
+          list: BOOK_MOVES["after_P2_5"],
+          openingName: "Trung Ph\xE1o Khai Cu\u1ED9c"
+        };
+      }
+      if (totalPieces === 32 && side2 === 1 && (board[42] === 7 || board[38] === 7)) {
+        return {
+          list: BOOK_MOVES["after_B7_1"],
+          openingName: "Ti\xEAn Nh\xE2n Ch\u1EC9 L\u1ED9"
+        };
+      }
+      return null;
     }
     function searchRoot(side2, maxDepth, timeMs, multiPV, minDepth) {
       const start = Date.now();
       deadline = start + Math.max(10, timeMs);
       stop = false;
       nodes = 0;
+      ttHits = 0;
       killers.forEach((k) => {
         k[0] = 0;
         k[1] = 0;
       });
       history.fill(0);
       prevPV = [];
-      let rootMoves = orderMoves(legalMoves(side2), 0, 0);
+      const bookMatch = probeOpeningBook(side2);
+      let rootMoves = legalMoves(side2);
       if (rootMoves.length === 0) {
         return {
           mated: true,
           depth: 0,
           nodes: 0,
           lines: [],
-          inCheck: inCheck(side2)
+          inCheck: inCheck(side2),
+          openingName: null
         };
+      }
+      if (bookMatch && bookMatch.list) {
+        const bookMoveMap = new Set(bookMatch.list.map((b) => b.move));
+        rootMoves.sort((a, b) => {
+          const aBook = bookMoveMap.has(a);
+          const bBook = bookMoveMap.has(b);
+          if (aBook && !bBook) return -1;
+          if (!aBook && bBook) return 1;
+          return 0;
+        });
       }
       let completed = null;
       let lastScores = /* @__PURE__ */ new Map();
       for (let d = 1; d <= maxDepth; d++) {
         canStop = d > (minDepth || 1);
         const iter = [];
-        for (const m of rootMoves) {
+        for (let mIdx = 0; mIdx < rootMoves.length; mIdx++) {
+          const m = rootMoves[mIdx];
           let alpha = -INF;
           if (iter.length >= multiPV) {
             const sorted = iter.map((x) => x.score).sort((a, b) => b - a);
@@ -45315,12 +46119,22 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           }
           prevPV = completed && completed.lines[0] && completed.lines[0].move === m ? [0].concat(completed.lines[0].pv.slice(1)) : [];
           const cap = makeMove(m);
-          const score = -search(d - 1, -INF, -alpha, 1, 1 - side2, 6);
+          let score;
+          if (mIdx < multiPV) {
+            score = -search(d - 1, -INF, -alpha, 1, 1 - side2, 6, true);
+          } else {
+            score = -search(d - 1, -alpha - 1, -alpha, 1, 1 - side2, 6, true);
+            if (score > alpha) {
+              score = -search(d - 1, -INF, -alpha, 1, 1 - side2, 6, true);
+            }
+          }
           unmakeMove(m, cap);
           if (stop) break;
           const exact = score > alpha;
           const pv = [m];
-          if (exact) for (let i = 1; i < pvLen[1]; i++) pv.push(pvTable[1][i]);
+          if (exact) {
+            for (let i = 1; i < pvLen[1]; i++) pv.push(pvTable[1][i]);
+          }
           iter.push({ move: m, score, pv, exact });
         }
         if (stop && completed) break;
@@ -45343,41 +46157,122 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         rootMoves = merged.map((x) => x.move);
         if (stop) break;
         if (Math.abs(merged[0].score) > MATE - 100) break;
-        if (Date.now() - start > timeMs * 0.55) break;
+        if (Date.now() - start > timeMs * 0.8) break;
       }
       canStop = false;
       return {
         mated: false,
-        depth: completed.depth,
+        depth: completed ? completed.depth : 1,
         nodes,
-        lines: completed.lines.slice(0, multiPV),
+        ttHits,
+        lines: completed ? completed.lines.slice(0, multiPV) : [],
         allCount: rootMoves.length,
-        inCheck: inCheck(side2)
+        inCheck: inCheck(side2),
+        openingName: bookMatch ? bookMatch.openingName : null
       };
     }
     function decode(m) {
       const f = m & 127;
       const t = m >> 7;
+      let fc = f % 9;
+      let fr = f / 9 | 0;
+      let tc = t % 9;
+      let tr = t / 9 | 0;
+      if (boardFlipped) {
+        fc = 8 - fc;
+        fr = 9 - fr;
+        tc = 8 - tc;
+        tr = 9 - tr;
+      }
       return {
-        fromCol: f % 9,
-        fromRow: f / 9 | 0,
-        toCol: t % 9,
-        toRow: t / 9 | 0
+        fromCol: fc,
+        fromRow: fr,
+        toCol: tc,
+        toRow: tr
       };
+    }
+    function classifyTactics(move, lineScore, side2) {
+      const tags = [];
+      const f = move & 127;
+      const t = move >> 7;
+      const p = board[f];
+      const cap = board[t];
+      const code = p > 0 ? p : -p;
+      const capCode = cap ? cap > 0 ? cap : -cap : 0;
+      if (cap) tags.push("capture");
+      if (capCode === 2 || capCode === 3) tags.push("guard-break");
+      const captured = makeMove(move);
+      if (inCheck(1 - side2)) tags.push("checks");
+      if (code === 5) {
+        const tc = t % 9;
+        const tr = t / 9 | 0;
+        if (tc === 4) tags.push("central-cannon");
+        const oppKs = kingSq[1 - side2];
+        if (oppKs >= 0) {
+          const oppKc = oppKs % 9;
+          const oppKr = oppKs / 9 | 0;
+          if (oppKc === tc) {
+            let sCount = 0;
+            const minR = Math.min(tr, oppKr);
+            const maxR = Math.max(tr, oppKr);
+            for (let rScan = minR + 1; rScan < maxR; rScan++) {
+              if (board[rScan * 9 + tc]) sCount++;
+            }
+            if (sCount === 0) tags.push("hollow-cannon");
+          } else if (oppKr === tr) {
+            let sCount = 0;
+            const minC = Math.min(tc, oppKc);
+            const maxC = Math.max(tc, oppKc);
+            for (let cScan = minC + 1; cScan < maxC; cScan++) {
+              if (board[tr * 9 + cScan]) sCount++;
+            }
+            if (sCount === 0) tags.push("hollow-cannon");
+          }
+        }
+      }
+      if (code === 4) {
+        const tc = t % 9;
+        let friendlyPawn = false;
+        for (let r2 = 0; r2 < 10; r2++) {
+          if (board[r2 * 9 + tc] === (side2 === 0 ? 7 : -7)) friendlyPawn = true;
+        }
+        if (!friendlyPawn) tags.push("open-file-rook");
+      }
+      for (let sq = 0; sq < 90; sq++) {
+        const q = board[sq];
+        if (q === (side2 === 0 ? -6 : 6)) {
+          const mc = sq % 9;
+          const mr = sq / 9 | 0;
+          const tc = t % 9;
+          const tr = t / 9 | 0;
+          if (Math.abs(tc - mc) + Math.abs(tr - mr) === 1) {
+            tags.push("knight-block");
+            break;
+          }
+        }
+      }
+      unmakeMove(move, captured);
+      return tags;
     }
     function analyze(input) {
       const started = Date.now();
       const budget = input.timeMs || 1500;
-      const side2 = input.side === 1 ? 1 : 0;
-      setup(input.pieces || []);
+      let side2 = input.side === 1 ? 1 : 0;
+      const pieces = input.fen || input.pieces || [];
+      if (typeof input.fen === "string" && input.side == null) {
+        const parts = input.fen.trim().split(/\s+/);
+        if (parts[1] && parts[1].toLowerCase() === "b") side2 = 1;
+      }
+      setup(pieces, input.history);
       if (kingSq[0] < 0 || kingSq[1] < 0) {
         return { error: "missing-king" };
       }
       const staticEval = evaluate2(side2);
+      const evalBreakdown = getEvalBreakdown(side2);
       const main = searchRoot(
         side2,
-        input.maxDepth || 8,
-        budget * 0.5,
+        input.maxDepth || 12,
+        budget * 0.9,
         input.multiPV || 3,
         2
       );
@@ -45387,44 +46282,75 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           mated: true,
           inCheck: main.inCheck,
           depth: 0,
-          nodes: 0,
+          nodes: main.nodes,
           lines: [],
+          evalBreakdown,
           ms: Date.now() - started
         };
       }
       let totalNodes = main.nodes;
-      const replyDepth = Math.max(2, Math.min(5, main.depth - 1));
-      const answerDepth = Math.max(1, Math.min(4, main.depth - 2));
       const lines = [];
       for (const line of main.lines) {
+        const tags = classifyTactics(line.move, line.score, side2);
         const out = {
           ...decode(line.move),
           score: line.score,
           exact: line.exact,
           pv: line.pv.map(decode),
+          tags,
           replies: []
         };
         const cap1 = makeMove(line.move);
-        const rep = searchRoot(1 - side2, replyDepth, budget * 0.09, 3, 1);
-        totalNodes += rep.nodes;
-        if (!rep.mated) {
-          for (const r2 of rep.lines) {
-            const reply = { ...decode(r2.move), score: -r2.score, answer: null };
-            const cap2 = makeMove(r2.move);
-            const ans = searchRoot(side2, answerDepth, budget * 0.025, 1, 1);
-            totalNodes += ans.nodes;
-            if (ans.mated) reply.answerMated = true;
-            else if (ans.lines[0]) {
-              reply.answer = {
-                ...decode(ans.lines[0].move),
-                score: ans.lines[0].score
-              };
+        let oppReplyMove = 0;
+        let friendlyAnsMove = 0;
+        if (line.pv && line.pv.length >= 2) {
+          oppReplyMove = line.pv[1];
+        }
+        if (line.pv && line.pv.length >= 3) {
+          friendlyAnsMove = line.pv[2];
+        }
+        if (!oppReplyMove) {
+          if (ttProbe(1, -INF, INF, 1) && probeMove) {
+            oppReplyMove = probeMove;
+          }
+        }
+        if (oppReplyMove) {
+          const reply = { ...decode(oppReplyMove), score: -line.score, answer: null };
+          const cap2 = makeMove(oppReplyMove);
+          if (!friendlyAnsMove) {
+            if (ttProbe(2, -INF, INF, 1) && probeMove) {
+              friendlyAnsMove = probeMove;
             }
-            unmakeMove(r2.move, cap2);
-            out.replies.push(reply);
+          }
+          if (friendlyAnsMove) {
+            reply.answer = {
+              ...decode(friendlyAnsMove),
+              score: line.score
+            };
+          }
+          unmakeMove(oppReplyMove, cap2);
+          out.replies.push(reply);
+          const altMoves = legalMoves(1 - side2);
+          for (const alt of altMoves) {
+            if (alt !== oppReplyMove && out.replies.length < 3) {
+              out.replies.push({
+                ...decode(alt),
+                score: -line.score - 35,
+                answer: friendlyAnsMove ? { ...decode(friendlyAnsMove), score: line.score } : null
+              });
+            }
+          }
+          const movedPieceCode = Math.abs(board[line.move & 127]);
+          if (ORDER_VAL[movedPieceCode] >= 4 && out.replies[0]) {
+            const rep0 = out.replies[0];
+            if (rep0.toCol === out.toCol && rep0.toRow === out.toRow) {
+              if (line.score > 50 || out.delivermate) {
+                if (!out.tags.includes("sacrifice")) out.tags.push("sacrifice");
+              }
+            }
           }
         } else {
-          out.delivermate = true;
+          if (inCheck(1 - side2)) out.delivermate = true;
         }
         unmakeMove(line.move, cap1);
         lines.push(out);
@@ -45432,7 +46358,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       let threat = null;
       if (!main.inCheck) {
         const oppStatic = evaluate2(1 - side2);
-        const th = searchRoot(1 - side2, 3, budget * 0.08, 1, 1);
+        const th = searchRoot(1 - side2, 3, budget * 0.05, 1, 1);
         totalNodes += th.nodes;
         if (!th.mated && th.lines[0]) {
           const gain = th.lines[0].score - oppStatic;
@@ -45449,28 +46375,53 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         inCheck: main.inCheck,
         depth: main.depth,
         nodes: totalNodes,
+        ttHits: main.ttHits,
+        openingName: main.openingName,
         staticEval,
         score: lines[0] ? lines[0].score : staticEval,
+        evalBreakdown,
         lines,
         threat,
         legalCount: main.allCount,
         ms: Date.now() - started
       };
     }
-    function quickEvaluate(pieces, side2) {
-      const s = side2 === 1 ? 1 : 0;
-      setup(pieces || []);
+    function quickEvaluate(piecesInput, side2) {
+      let s = side2 === 1 ? 1 : 0;
+      if (typeof piecesInput === "string" && side2 == null) {
+        const parts = piecesInput.trim().split(/\s+/);
+        if (parts[1] && parts[1].toLowerCase() === "b") s = 1;
+      }
+      setup(piecesInput || []);
       if (kingSq[0] < 0 || kingSq[1] < 0) {
         return { error: "missing-king" };
       }
-      const score = evaluate2(s);
       return {
         side: s,
-        score,
-        inCheck: inCheck(s)
+        score: evaluate2(s),
+        inCheck: inCheck(s),
+        evalBreakdown: getEvalBreakdown(s)
       };
     }
-    return { analyze, quickEvaluate, setup, evaluate: evaluate2, inCheck, MATE };
+    function perftRec(depth, side2, ply) {
+      if (depth === 0) return 1;
+      generateMoves(side2, false, ply);
+      const count = moveLen[ply];
+      const base = moveBase[ply];
+      let total = 0;
+      for (let i = 0; i < count; i++) {
+        const m = moveBuf[base + i];
+        const cap = makeMove(m);
+        if (!inCheck(side2)) total += perftRec(depth - 1, 1 - side2, ply + 1);
+        unmakeMove(m, cap);
+      }
+      return total;
+    }
+    function perft(piecesOrFen, side2, depth) {
+      setup(piecesOrFen || []);
+      return perftRec(depth | 0, side2 === 1 ? 1 : 0, 0);
+    }
+    return { analyze, quickEvaluate, setup, evaluate: evaluate2, inCheck, toFen, perft, MATE };
   }
   function createXiangqiWorker() {
     let worker = null;
@@ -45574,6 +46525,385 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     };
   }
 
+  // src/features/xiangqi_fen.js
+  var TYPE_TO_FEN_CHAR = [
+    ["K", "k"],
+    // 0: King
+    ["A", "a"],
+    // 1: Advisor
+    ["B", "b"],
+    // 2: Bishop
+    ["R", "r"],
+    // 3: Rook
+    ["C", "c"],
+    // 4: Cannon
+    ["N", "n"],
+    // 5: Knight
+    ["P", "p"]
+    // 6: Pawn
+  ];
+  function piecesToFen(pieces, side2 = 0, halfmoveClock = 0, fullmoveNumber = 1) {
+    const grid = Array.from({ length: 10 }, () => new Array(9).fill(null));
+    for (const pc of pieces || []) {
+      if (pc.col >= 0 && pc.col <= 8 && pc.row >= 0 && pc.row <= 9) {
+        grid[pc.row][pc.col] = pc;
+      }
+    }
+    const fenRows = [];
+    for (let r2 = 9; r2 >= 0; r2--) {
+      let emptyCount = 0;
+      let rowStr = "";
+      for (let c = 0; c <= 8; c++) {
+        const pc = grid[r2][c];
+        if (!pc) {
+          emptyCount++;
+        } else {
+          if (emptyCount > 0) {
+            rowStr += emptyCount;
+            emptyCount = 0;
+          }
+          const colorIdx = pc.color === 0 ? 0 : 1;
+          const char = TYPE_TO_FEN_CHAR[pc.type]?.[colorIdx] || "P";
+          rowStr += char;
+        }
+      }
+      if (emptyCount > 0) {
+        rowStr += emptyCount;
+      }
+      fenRows.push(rowStr);
+    }
+    const activeColor = side2 === 1 ? "b" : "w";
+    return `${fenRows.join("/")} ${activeColor} - - ${halfmoveClock} ${fullmoveNumber}`;
+  }
+  function uciToMove(uci) {
+    if (!uci || typeof uci !== "string" || uci.length < 4) return null;
+    const fromCol = uci.charCodeAt(0) - 97;
+    const fromRow = parseInt(uci[1], 10);
+    const toCol = uci.charCodeAt(2) - 97;
+    const toRow = parseInt(uci[3], 10);
+    if (fromCol < 0 || fromCol > 8 || fromRow < 0 || fromRow > 9 || toCol < 0 || toCol > 8 || toRow < 0 || toRow > 9) {
+      return null;
+    }
+    return { fromCol, fromRow, toCol, toRow };
+  }
+
+  // src/features/pikafish_provider.js
+  function createPikafishProvider(options = {}) {
+    const {
+      wsUrl = "ws://127.0.0.1:8765",
+      wasmWorkerUrl = null,
+      allowFallback = true
+    } = options;
+    const id = "pikafish";
+    const name = "Pikafish NNUE (Grandmaster Reference Engine)";
+    let fallbackWorker = null;
+    function getFallback() {
+      if (!fallbackWorker) {
+        fallbackWorker = createXiangqiWorker();
+      }
+      return fallbackWorker;
+    }
+    let socket = null;
+    let socketReady = false;
+    let wasmWorker = null;
+    let activeRequestId = 0;
+    let activeCallback = null;
+    function ensureSocket() {
+      if (typeof window === "undefined" || typeof WebSocket === "undefined") return;
+      if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+        return;
+      }
+      try {
+        socket = new WebSocket(wsUrl);
+        socket.onopen = () => {
+          console.log("[Pikafish Provider] Connected to native UCI bridge at", wsUrl);
+          socketReady = true;
+          socket.send("uci\n");
+          socket.send("setoption name MultiPV value 3\n");
+          socket.send("isready\n");
+        };
+        socket.onerror = () => {
+          socketReady = false;
+        };
+        socket.onclose = () => {
+          socketReady = false;
+        };
+      } catch (e) {
+        socketReady = false;
+      }
+    }
+    if (typeof window !== "undefined") {
+      ensureSocket();
+      if (!socketReady && wasmWorkerUrl && typeof Worker !== "undefined") {
+        try {
+          wasmWorker = new Worker(wasmWorkerUrl);
+          wasmWorker.postMessage({ type: "uci" });
+          wasmWorker.postMessage({ type: "setoption", name: "MultiPV", value: 3 });
+          wasmWorker.postMessage({ type: "isready" });
+        } catch (err) {
+          console.warn("[Pikafish Provider] Failed to initialize WASM worker:", err);
+        }
+      }
+    }
+    function quickEvaluate(pieces, side2) {
+      return getFallback().quickEvaluate(pieces, side2);
+    }
+    function analyzeAsync(input, callback) {
+      const currentId = ++activeRequestId;
+      activeCallback = callback;
+      const timeMs = input.timeMs || 1500;
+      const maxDepth = input.maxDepth || 12;
+      const side2 = input.side === 1 ? 1 : 0;
+      let fen = input.fen;
+      if (!fen && input.pieces) {
+        fen = piecesToFen(input.pieces, side2);
+      }
+      if (!fen) {
+        if (typeof callback === "function") {
+          callback(new Error("Pikafish analyze: Missing position (pieces or fen required)"));
+        }
+        return () => {
+        };
+      }
+      ensureSocket();
+      const isPikafishActive = socketReady && socket && socket.readyState === WebSocket.OPEN;
+      if (!isPikafishActive) {
+        if (allowFallback) {
+          const cancelFallback = getFallback().analyzeAsync(input, (err, res) => {
+            if (activeRequestId === currentId && typeof activeCallback === "function") {
+              const cb = activeCallback;
+              activeCallback = null;
+              if (err) {
+                cb(err);
+              } else {
+                const enriched = {
+                  ...res,
+                  engineName: "AN-Xiangqi (Grandmaster JS)",
+                  pikafishStatus: "offline-fallback"
+                };
+                cb(null, enriched);
+              }
+            }
+          });
+          return cancelFallback;
+        } else {
+          if (typeof callback === "function") {
+            callback(new Error("Pikafish native/WASM bridge is offline"));
+          }
+          return () => {
+          };
+        }
+      }
+      let collectedLines = [];
+      let bestMove = null;
+      let uciListener = null;
+      const cleanup = () => {
+        if (socket && uciListener) {
+          socket.removeEventListener("message", uciListener);
+          uciListener = null;
+        }
+      };
+      uciListener = (event) => {
+        if (activeRequestId !== currentId) return;
+        const text = typeof event.data === "string" ? event.data : "";
+        const lines = text.split("\n");
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith("info ") && trimmed.includes("multipv ")) {
+            const parsed = parseUciInfo(trimmed);
+            if (parsed && parsed.multipv > 0) {
+              collectedLines[parsed.multipv - 1] = parsed;
+            }
+          } else if (trimmed.startsWith("bestmove ")) {
+            const parts = trimmed.split(/\s+/);
+            bestMove = parts[1];
+            finalizePikafishResult();
+          }
+        }
+      };
+      socket.addEventListener("message", uciListener);
+      const goCommand = `position fen ${fen}
+go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
+`;
+      socket.send(goCommand);
+      const timer = setTimeout(() => {
+        if (activeRequestId === currentId) {
+          socket.send("stop\n");
+        }
+      }, timeMs + 100);
+      function finalizePikafishResult() {
+        clearTimeout(timer);
+        cleanup();
+        if (activeRequestId !== currentId || typeof activeCallback !== "function") return;
+        const cb = activeCallback;
+        activeCallback = null;
+        const formattedLines = collectedLines.filter(Boolean).map((cl) => {
+          const moveCoord = uciToMove(cl.pv[0]);
+          return {
+            fromCol: moveCoord ? moveCoord.fromCol : 0,
+            fromRow: moveCoord ? moveCoord.fromRow : 0,
+            toCol: moveCoord ? moveCoord.toCol : 0,
+            toRow: moveCoord ? moveCoord.toRow : 0,
+            score: cl.score,
+            exact: true,
+            pv: cl.pv.map(uciToMove).filter(Boolean),
+            tags: detectUciTacticalTags(cl, side2, input.pieces),
+            replies: cl.pv[1] ? [
+              {
+                ...uciToMove(cl.pv[1]),
+                score: -cl.score,
+                answer: cl.pv[2] ? { ...uciToMove(cl.pv[2]), score: cl.score } : null
+              }
+            ] : []
+          };
+        });
+        const topScore = formattedLines[0] ? formattedLines[0].score : 0;
+        const result = {
+          side: side2,
+          mated: Math.abs(topScore) > 9500,
+          inCheck: false,
+          depth: collectedLines[0]?.depth || maxDepth,
+          nodes: collectedLines[0]?.nodes || 0,
+          engineName: "Pikafish NNUE",
+          score: topScore,
+          lines: formattedLines,
+          threat: null,
+          legalCount: formattedLines.length,
+          ms: timeMs
+        };
+        cb(null, result);
+      }
+      return function cancel() {
+        if (activeRequestId === currentId) {
+          clearTimeout(timer);
+          cleanup();
+          if (socketReady && socket) {
+            socket.send("stop\n");
+          }
+          activeCallback = null;
+        }
+      };
+    }
+    function dispose() {
+      if (socket) {
+        try {
+          socket.close();
+        } catch (e) {
+        }
+        socket = null;
+        socketReady = false;
+      }
+      if (wasmWorker) {
+        try {
+          wasmWorker.terminate();
+        } catch (e) {
+        }
+        wasmWorker = null;
+      }
+    }
+    return {
+      id,
+      name,
+      analyzeAsync,
+      quickEvaluate,
+      dispose,
+      isAvailable: () => socketReady
+    };
+  }
+  function parseUciInfo(line) {
+    const parts = line.trim().split(/\s+/);
+    const data = {
+      depth: 0,
+      multipv: 1,
+      score: 0,
+      isMate: false,
+      nodes: 0,
+      nps: 0,
+      pv: []
+    };
+    for (let i = 0; i < parts.length; i++) {
+      const token = parts[i];
+      if (token === "depth") data.depth = parseInt(parts[++i], 10);
+      else if (token === "multipv") data.multipv = parseInt(parts[++i], 10);
+      else if (token === "score") {
+        const type = parts[++i];
+        const val = parseInt(parts[++i], 10);
+        if (type === "cp") {
+          data.score = val;
+        } else if (type === "mate") {
+          data.isMate = true;
+          data.score = val > 0 ? 1e4 - val * 2 : -1e4 - val * 2;
+        }
+      } else if (token === "nodes") data.nodes = parseInt(parts[++i], 10);
+      else if (token === "nps") data.nps = parseInt(parts[++i], 10);
+      else if (token === "pv") {
+        data.pv = parts.slice(i + 1);
+        break;
+      }
+    }
+    return data;
+  }
+  function detectUciTacticalTags(uciData, side2, pieces) {
+    const tags = [];
+    if (uciData.isMate) tags.push("checks");
+    const firstMove = uciData.pv[0];
+    if (!firstMove) return tags;
+    const mv = uciToMove(firstMove);
+    if (!mv || !pieces) return tags;
+    const targetPiece = pieces.find((p) => p.col === mv.toCol && p.row === mv.toRow);
+    if (targetPiece) {
+      tags.push("capture");
+      if (targetPiece.type === 1 || targetPiece.type === 2) {
+        tags.push("guard-break");
+      }
+    }
+    if (mv.toCol === 4) {
+      const movingPiece = pieces.find((p) => p.col === mv.fromCol && p.row === mv.fromRow);
+      if (movingPiece && movingPiece.type === 4) {
+        tags.push("central-cannon");
+      }
+    }
+    return tags;
+  }
+
+  // src/features/engine_provider.js
+  function createJsEngineProvider() {
+    const worker = createXiangqiWorker();
+    return {
+      id: "js-engine",
+      name: "AN Grandmaster Engine (In-Browser Web Worker)",
+      analyzeAsync: worker.analyzeAsync,
+      quickEvaluate: worker.quickEvaluate,
+      dispose: () => {
+      },
+      isAvailable: () => true,
+      engine: worker.engine,
+      MATE: worker.MATE
+    };
+  }
+  var activeProviderId = "js-engine";
+  var jsEngineInstance = null;
+  var pikafishInstance = null;
+  function getEngineProvider(requestedId) {
+    const targetId = requestedId || activeProviderId;
+    if (targetId === "pikafish") {
+      if (!pikafishInstance) {
+        pikafishInstance = createPikafishProvider({ allowFallback: true });
+      }
+      return pikafishInstance;
+    }
+    if (!jsEngineInstance) {
+      jsEngineInstance = createJsEngineProvider();
+    }
+    return jsEngineInstance;
+  }
+  function setEngineProvider(providerId) {
+    if (providerId === "pikafish" || providerId === "js-engine") {
+      activeProviderId = providerId;
+      console.log(`[Engine Provider] Switched active provider to: "${providerId}"`);
+    }
+  }
+
   // src/features/mentor_coach.js
   var import_jsx_runtime56 = __toESM(require_jsx_runtime());
   (function(ZigaMod) {
@@ -45581,8 +46911,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     console.log(
       "[AN Mod] Master AI Mentor Coach initializing with Background Web Worker Engine..."
     );
-    const asyncWorker = createXiangqiWorker();
-    const engine = asyncWorker.engine;
+    let activeProviderId2 = "js-engine";
+    let activeProvider = getEngineProvider(activeProviderId2);
+    const asyncWorker = activeProvider;
+    const engine = activeProvider.engine || createXiangqiWorker().engine;
     const XIANGQI_MAXIMS = [
       {
         rule: "Khuy\u1EBFt S\u0129 k\u1EF5 Song Xe, khuy\u1EBFt T\u01B0\u1EE3ng s\u1EE3 Ph\xE1o",
@@ -45853,6 +47185,9 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         inCheck,
         depth: 0,
         nodes: 0,
+        evalBreakdown: quickRes && quickRes.evalBreakdown ? quickRes.evalBreakdown : null,
+        openingName: null,
+        engineName: activeProviderId2 === "pikafish" ? "Pikafish NNUE" : "AN Grandmaster JS",
         maxim: currentMaxim,
         isQuickOnly: true
       };
@@ -45873,13 +47208,15 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       if (searchRes.score >= 50) evalText = `+${evalPoints}\u0111 (B\u1EA1n \u01B0u)`;
       else if (searchRes.score <= -50) evalText = `${evalPoints}\u0111 (\u0110\u1ECBch \u01B0u)`;
       const plans = [];
+      const movingColor = searchRes.side !== void 0 ? searchRes.side : isMyTurn ? myColor : oppColor;
+      const targetColor = 1 - movingColor;
       (searchRes.lines || []).forEach((line, idx) => {
         const movingPiece = pieces.find(
-          (p) => p.col === line.fromCol && p.row === line.fromRow && p.color === myColor
+          (p) => p.col === line.fromCol && p.row === line.fromRow && p.color === movingColor
         );
         if (!movingPiece) return;
         const targetPiece = pieces.find(
-          (p) => p.col === line.toCol && p.row === line.toRow && p.color === oppColor
+          (p) => p.col === line.toCol && p.row === line.toRow && p.color === targetColor
         );
         const notation = getXiangqiNotation(
           movingPiece,
@@ -45887,7 +47224,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           line.fromRow,
           line.toCol,
           line.toRow,
-          myColor
+          movingColor
         );
         const isMate = line.delivermate || line.score >= engine.MATE - 100;
         const isCheck = searchRes.inCheck;
@@ -45897,7 +47234,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           notation,
           line.toCol,
           line.toRow,
-          myColor,
+          movingColor,
           isCheck,
           isMate
         );
@@ -45980,6 +47317,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           type: planType,
           badge: planBadge,
           tag: desc.tag,
+          tags: line.tags && line.tags.length > 0 ? line.tags : desc.tag ? [desc.tag] : [],
           why: desc.why,
           score: line.score,
           piece: movingPiece,
@@ -46070,6 +47408,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         inCheck: searchRes.inCheck,
         depth: searchRes.depth,
         nodes: searchRes.nodes,
+        openingName: searchRes.openingName || null,
+        evalBreakdown: searchRes.evalBreakdown || null,
+        engineName: searchRes.engineName || (activeProviderId2 === "pikafish" ? "Pikafish NNUE" : "AN Grandmaster JS"),
+        ttHits: searchRes.ttHits || 0,
         maxim: currentMaxim,
         allMaxims: XIANGQI_MAXIMS,
         isQuickOnly: false
@@ -46078,6 +47420,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     function triggerDeepAnalysis(gameData, pieces) {
       if (!gameData || !pieces || pieces.length === 0) return;
       const myColor = gameData.myColor;
+      const activeColor = gameData.gameLayer && gameData.gameLayer.Yc !== void 0 ? gameData.gameLayer.Yc : myColor;
+      const isMyTurn = activeColor === myColor;
       const currentHash = lastAnalysisHash;
       if (cancelWorkerSearch) {
         cancelWorkerSearch();
@@ -46086,12 +47430,13 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       if (cachedAnalysis && mentorSetter) {
         mentorSetter({ ...cachedAnalysis, isSearching: true });
       }
-      cancelWorkerSearch = asyncWorker.analyzeAsync(
+      const provider = getEngineProvider(activeProviderId2);
+      cancelWorkerSearch = provider.analyzeAsync(
         {
           pieces,
-          side: myColor,
-          maxDepth: 5,
-          timeMs: 260,
+          side: isMyTurn ? myColor : activeColor,
+          maxDepth: activeProviderId2 === "pikafish" ? 18 : 10,
+          timeMs: activeProviderId2 === "pikafish" ? 500 : 600,
           multiPV: 3
         },
         (err, searchRes) => {
@@ -46104,6 +47449,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           const deepAnalysis = buildTacticalAnalysis(searchRes, gameData, pieces);
           if (!deepAnalysis) return;
           cachedAnalysis = deepAnalysis;
+          ZigaMod.lastEngineAnalysis = deepAnalysis;
           updateMentorHudCardText(deepAnalysis);
           if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
             renderMentorFloatingContent(deepAnalysis);
@@ -46598,12 +47944,179 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         ] })
       ] });
     }
+    function getTacticalBadgeProps(tag) {
+      switch (tag) {
+        case "hollow-cannon":
+          return {
+            label: "Ph\xE1o Tr\u1ED1ng",
+            color: "border-red-500/40 text-red-400 bg-red-500/15",
+            icon: Sparkles
+          };
+        case "central-cannon":
+          return {
+            label: "Ph\xE1o \u0110\u1EA7u",
+            color: "border-amber-500/40 text-amber-300 bg-amber-500/15",
+            icon: Crosshair
+          };
+        case "sacrifice":
+          return {
+            label: "Ph\u1EBF Qu\xE2n",
+            color: "border-purple-500/40 text-purple-300 bg-purple-500/15",
+            icon: Zap
+          };
+        case "open-file-rook":
+          return {
+            label: "L\u1ED9 Th\xF4ng Xe",
+            color: "border-emerald-500/40 text-emerald-300 bg-emerald-500/15",
+            icon: TrendingUp
+          };
+        case "knight-block":
+          return {
+            label: "C\u1EA3n Ch\xE2n M\xE3",
+            color: "border-yellow-500/40 text-yellow-300 bg-yellow-500/15",
+            icon: ShieldAlert
+          };
+        case "guard-break":
+          return {
+            label: "Ph\xE1 S\u0129/T\u01B0\u1EE3ng",
+            color: "border-pink-500/40 text-pink-300 bg-pink-500/15",
+            icon: Swords
+          };
+        case "checks":
+          return {
+            label: "Chi\u1EBFu T\u01B0\u1EDBng",
+            color: "border-cyan-500/40 text-cyan-300 bg-cyan-500/15",
+            icon: Zap
+          };
+        case "capture":
+          return {
+            label: "\u0110o\u1EA1t Qu\xE2n",
+            color: "border-blue-500/40 text-blue-300 bg-blue-500/15",
+            icon: Trophy
+          };
+        default:
+          return {
+            label: tag,
+            color: "border-white/10 text-slate-300 bg-white/5",
+            icon: Sparkles
+          };
+      }
+    }
+    function EvaluationBreakdownTab({ breakdown, score, phase }) {
+      if (!breakdown) {
+        return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col items-center justify-center p-6 text-center text-muted-foreground/80", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(BrainCircuit, { className: "size-6 text-cyan-400 mb-2" }),
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-xs font-semibold text-foreground", children: "Ch\u01B0a c\xF3 d\u1EEF li\u1EC7u 5 Tr\u1EE5 C\u1ED9t" }),
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[10px] mt-1 text-muted-foreground", children: "D\u1EEF li\u1EC7u b\xF3c t\xE1ch h\xECnh th\u1EBF s\u1EBD t\u1EF1 \u0111\u1ED9ng hi\u1EC3n th\u1ECB khi \u0111\u1ED9ng c\u01A1 ph\xE2n t\xEDch xong th\u1EBF tr\u1EADn." })
+        ] });
+      }
+      const pillars = [
+        {
+          key: "material",
+          name: "L\u1EF1c L\u01B0\u1EE3ng (Material)",
+          desc: "Ch\xEAnh l\u1EC7ch qu\xE2n l\u1EF1c th\u1EF1c t\u1EBF gi\u1EEFa hai b\xEAn",
+          val: breakdown.material || 0,
+          icon: Trophy,
+          color: "text-blue-400"
+        },
+        {
+          key: "positional",
+          name: "Th\u1EBF Tr\u1EADn & \u0110i\u1EC3m Huy\u1EC7t",
+          desc: "Kh\u1ED1ng ch\u1EBF c\xE1c v\u1ECB tr\xED tr\u1ECDng y\u1EBFu tr\xEAn b\xE0n c\u1EDD",
+          val: breakdown.positional || 0,
+          icon: Compass,
+          color: "text-indigo-400"
+        },
+        {
+          key: "kingSafety",
+          name: "An To\xE0n Cung T\u01B0\u1EDBng",
+          desc: "B\u1ED9 S\u0129 T\u01B0\u1EE3ng li\xEAn ho\xE0n & ph\xF2ng th\u1EE7 cung",
+          val: breakdown.kingSafety || 0,
+          icon: Shield,
+          color: "text-emerald-400"
+        },
+        {
+          key: "mobility",
+          name: "\u0110\u1ED9 C\u01A1 \u0110\u1ED9ng (Xe & M\xE3)",
+          desc: "Xe chi\u1EBFm l\u1ED9 th\xF4ng & M\xE3 kh\xF4ng b\u1ECB c\u1EA3n ch\xE2n",
+          val: breakdown.mobility || 0,
+          icon: TrendingUp,
+          color: "text-amber-400"
+        },
+        {
+          key: "cannonTactics",
+          name: "Chi\u1EBFn Thu\u1EADt Ph\xE1o",
+          desc: "Ph\xE1o \u0111\u1EA7u tr\u1EA5n \xE1p & Ph\xE1o tr\u1ED1ng uy hi\u1EBFp",
+          val: breakdown.cannonTactics || 0,
+          icon: Sparkles,
+          color: "text-red-400"
+        }
+      ];
+      return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-2 pt-1", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] p-2 text-[10px]", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground font-medium", children: "T\u1ED5ng \u0111i\u1EC3m th\u1EBF tr\u1EADn:" }),
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: `font-mono font-bold ${score >= 0 ? "text-emerald-400" : "text-rose-400"}`, children: [
+            score > 0 ? `+${score}` : score,
+            " \u0111i\u1EC3m (",
+            phase,
+            ")"
+          ] })
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex flex-col gap-1.5", children: pillars.map((pil) => {
+          const Icon2 = pil.icon;
+          const isAdv = pil.val > 0;
+          const isDis = pil.val < 0;
+          const widthPct = Math.min(100, Math.max(8, Math.abs(pil.val) * 1.5));
+          return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+            "div",
+            {
+              className: "flex flex-col gap-1 rounded-lg border border-white/[0.06] bg-black/20 p-2 text-[10px]",
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-1.5", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Icon2, { className: `size-3.5 ${pil.color}` }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "font-semibold text-foreground/90", children: pil.name })
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                    "span",
+                    {
+                      className: `font-mono font-bold ${isAdv ? "text-emerald-400" : isDis ? "text-rose-400" : "text-muted-foreground"}`,
+                      children: pil.val > 0 ? `+${pil.val}` : pil.val
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  "div",
+                  {
+                    className: `h-full rounded-full transition-all duration-300 ${isAdv ? "bg-emerald-500" : isDis ? "bg-rose-500" : "bg-white/20"}`,
+                    style: { width: `${widthPct}%` }
+                  }
+                ) }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[9px] text-muted-foreground/80 leading-tight", children: pil.desc })
+              ]
+            },
+            pil.key
+          );
+        }) })
+      ] });
+    }
     function MentorFloatingPanel({ initialAnalysis, onClose }) {
       const [analysis, setAnalysis] = (0, import_react15.useState)(initialAnalysis);
       const [tab, setTab] = (0, import_react15.useState)("plans");
       const [selectedPlanIdx, setSelectedPlanIdx] = (0, import_react15.useState)(0);
       const [activeVariationIdx, setActiveVariationIdx] = (0, import_react15.useState)(0);
       const [activeStep, setActiveStep] = (0, import_react15.useState)(1);
+      const [engineId, setEngineId] = (0, import_react15.useState)(activeProviderId2);
+      const handleToggleEngine = () => {
+        const nextEngine = engineId === "js-engine" ? "pikafish" : "js-engine";
+        activeProviderId2 = nextEngine;
+        setEngineProvider(nextEngine);
+        setEngineId(nextEngine);
+        if (lastKnownGameData) {
+          const pcs = getBoardState(lastKnownGameData.gameLayer);
+          if (pcs) triggerDeepAnalysis(lastKnownGameData, pcs);
+        }
+      };
       const [isCompact, setIsCompact] = (0, import_react15.useState)(() => {
         try {
           const saved = localStorage.getItem("ziga_mentor_compact");
@@ -46660,7 +48173,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(CardContent, { className: "text-muted-foreground p-5 text-center text-xs", children: "\u0110ang t\xEDnh to\xE1n n\u01B0\u1EDBc c\u1EDD... Vui l\xF2ng v\xE0o v\xE1n \u0111\u1EA5u \u0111\u1EC3 AI ph\xE2n t\xEDch." })
         ] });
       }
-      const panelWidth = isCompact ? 380 : 640;
+      const panelWidth = isCompact ? 390 : 640;
       return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
         Card,
         {
@@ -46673,8 +48186,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             borderColor: "rgba(255, 255, 255, 0.12)"
           },
           children: [
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/[0.02] px-3.5 py-2.5 select-none", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 items-center gap-2", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/[0.02] px-3 py-2 select-none", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-1 items-center gap-2", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                   "div",
                   {
@@ -46683,13 +48196,13 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(GraduationCap, { className: "size-4 text-cyan-400" })
                   }
                 ),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-col", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-nowrap items-center gap-1.5", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-xs font-bold tracking-wider whitespace-nowrap uppercase", children: "K\u1EF3 \u0110\u1EA1o S\u01B0" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-1 flex-col overflow-hidden", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-1.5 overflow-hidden", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-xs font-bold tracking-wider uppercase shrink-0", children: "K\u1EF3 \u0110\u1EA1o S\u01B0" }),
                     /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
                       "span",
                       {
-                        className: `py-0.2 inline-flex items-center gap-0.5 rounded border px-1.5 font-mono text-[9px] font-semibold whitespace-nowrap ${analysis.evalScore >= 50 ? "border-emerald-500/30 text-emerald-400" : analysis.evalScore <= -50 ? "border-rose-500/30 text-rose-400" : "border-white/10 text-slate-300"}`,
+                        className: `py-0.2 inline-flex shrink-0 items-center gap-0.5 rounded border px-1.5 font-mono text-[9px] font-semibold whitespace-nowrap ${analysis.evalScore >= 50 ? "border-emerald-500/30 text-emerald-400" : analysis.evalScore <= -50 ? "border-rose-500/30 text-rose-400" : "border-white/10 text-slate-300"}`,
                         style: {
                           background: analysis.evalScore >= 50 ? "rgba(16, 185, 129, 0.1)" : analysis.evalScore <= -50 ? "rgba(244, 63, 94, 0.1)" : "rgba(255, 255, 255, 0.05)"
                         },
@@ -46700,17 +48213,17 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                       }
                     )
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "text-muted-foreground mt-0.5 flex items-center gap-1 text-[9px] whitespace-nowrap", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "text-muted-foreground mt-0.5 flex items-center gap-1 text-[9px] whitespace-nowrap truncate overflow-hidden", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                       "span",
                       {
-                        className: "py-0.2 text-muted-foreground/90 rounded border border-white/[0.08] px-1 font-medium",
+                        className: "py-0.2 text-muted-foreground/90 rounded border border-white/[0.08] px-1 font-medium shrink-0",
                         style: { background: "rgba(255, 255, 255, 0.04)" },
                         children: analysis.phase
                       }
                     ),
                     /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "\u2022" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "inline-flex items-center gap-1 font-medium", children: analysis.isMyTurn ? /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_jsx_runtime56.Fragment, { children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "inline-flex items-center gap-1 font-medium shrink-0", children: analysis.isMyTurn ? /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_jsx_runtime56.Fragment, { children: [
                       /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 animate-pulse rounded-full bg-emerald-400" }),
                       /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "font-semibold text-emerald-400", children: "L\u01B0\u1EE3t b\u1EA1n" })
                     ] }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_jsx_runtime56.Fragment, { children: [
@@ -46718,7 +48231,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                       /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "L\u01B0\u1EE3t \u0111\u1ED1i th\u1EE7" })
                     ] }) }),
                     /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "\u2022" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "inline-flex items-center gap-1 font-medium", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "inline-flex items-center gap-1 font-medium shrink-0", children: [
                       /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                         "span",
                         {
@@ -46730,7 +48243,18 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                   ] })
                 ] })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex shrink-0 items-center gap-1", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex shrink-0 items-center gap-1 pl-1.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  Button3,
+                  {
+                    variant: "ghost",
+                    size: "icon-xs",
+                    onClick: handleToggleEngine,
+                    title: `\u0110ang d\xF9ng: ${analysis.engineName || "AN Grandmaster JS"}. B\u1EA5m \u0111\u1EC3 chuy\u1EC3n sang ${engineId === "js-engine" ? "Pikafish NNUE" : "AN Grandmaster JS"}`,
+                    className: `size-6.5 rounded-lg border transition-all ${engineId === "pikafish" ? "border-amber-400/50 text-amber-300 bg-amber-500/15 hover:bg-amber-500/25" : "border-cyan-400/40 text-cyan-400 bg-cyan-500/15 hover:bg-cyan-500/25"}`,
+                    children: engineId === "pikafish" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Fish, { className: "size-3.5" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Cpu, { className: "size-3.5" })
+                  }
+                ),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                   Button3,
                   {
@@ -46738,7 +48262,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     size: "icon-xs",
                     onClick: toggleCompactMode,
                     title: isCompact ? "M\u1EDF r\u1ED9ng 2 c\u1ED9t (Studio)" : "Thu g\u1ECDn 1 c\u1ED9t",
-                    className: "text-muted-foreground hover:text-foreground size-7 rounded-lg border border-transparent transition-colors hover:border-white/10 hover:bg-white/[0.06]",
+                    className: "text-muted-foreground hover:text-foreground size-6.5 rounded-lg border border-transparent transition-colors hover:border-white/10 hover:bg-white/[0.06]",
                     children: isCompact ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Maximize2, { className: "size-3.5" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Minimize2, { className: "size-3.5" })
                   }
                 ),
@@ -46749,7 +48273,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     size: "icon-xs",
                     onClick: () => setShowMiniBoardInCompact((p) => !p),
                     title: showMiniBoardInCompact ? "\u1EA8n b\xE0n c\u1EDD nh\u1ECF" : "Hi\u1EC7n b\xE0n c\u1EDD nh\u1ECF",
-                    className: `size-7 rounded-lg border transition-colors ${showMiniBoardInCompact ? "border-cyan-400/40 text-cyan-400" : "text-muted-foreground hover:text-foreground border-transparent hover:border-white/10 hover:bg-white/[0.06]"}`,
+                    className: `size-6.5 rounded-lg border transition-colors ${showMiniBoardInCompact ? "border-cyan-400/40 text-cyan-400" : "text-muted-foreground hover:text-foreground border-transparent hover:border-white/10 hover:bg-white/[0.06]"}`,
                     style: {
                       background: showMiniBoardInCompact ? "rgba(6, 182, 212, 0.12)" : "transparent"
                     },
@@ -46763,12 +48287,22 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     size: "icon-xs",
                     onClick: onClose,
                     title: "\u0110\xF3ng b\u1EA3ng c\u1ED1 v\u1EA5n",
-                    className: "text-muted-foreground hover:text-foreground size-7 rounded-lg transition-colors hover:bg-rose-500/15 hover:text-rose-400",
+                    className: "text-muted-foreground hover:text-foreground size-6.5 rounded-lg transition-colors hover:bg-rose-500/15 hover:text-rose-400",
                     children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(X, { className: "size-3.5" })
                   }
                 )
               ] })
             ] }),
+            analysis.openingName && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "px-3 pt-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-[10.5px] text-amber-300", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-1.5 min-w-0", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-3.5 text-amber-400 shrink-0" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "truncate", children: [
+                  "Th\u1EBF Tr\u1EADn: ",
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: analysis.openingName })
+                ] })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Badge, { variant: "outline", className: "border-amber-400/40 text-amber-300 bg-amber-500/20 text-[9px] px-1.5 py-0 font-semibold shrink-0", children: "Khai Cu\u1ED9c Chu\u1EA9n" })
+            ] }) }),
             /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "px-3 pt-2", children: (() => {
               const comm = analysis.commentary || {
                 type: "optimal",
@@ -46913,18 +48447,22 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           onValueChange: setTab,
           className: "flex min-h-0 flex-1 flex-col",
           children: [
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(TabsList3, { className: "grid h-6.5 w-full shrink-0 grid-cols-2", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(TabsTrigger, { value: "plans", className: "gap-1 text-[10px]", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(TabsList3, { className: "grid h-6.5 w-full shrink-0 grid-cols-3", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(TabsTrigger, { value: "plans", className: "gap-1 text-[9.5px]", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Compass, { className: "size-3" }),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { children: [
-                  "K\u1EBF S\xE1ch Th\u1EF1c Chi\u1EBFn (",
+                  "K\u1EBF S\xE1ch (",
                   plans.length,
                   ")"
                 ] })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(TabsTrigger, { value: "theory", className: "gap-1 text-[10px]", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(TabsTrigger, { value: "breakdown", className: "gap-1 text-[9.5px]", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(LayoutGrid, { className: "size-3" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "5 Tr\u1EE5 C\u1ED9t" })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(TabsTrigger, { value: "theory", className: "gap-1 text-[9.5px]", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(BrainCircuit, { className: "size-3" }),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "T\xE2m Ph\xE1p & L\xFD Lu\u1EADn" })
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "T\xE2m Ph\xE1p" })
               ] })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
@@ -46954,23 +48492,40 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                         onDrawPlan(p, 0);
                       },
                       children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between gap-1", children: [
-                          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-1.5", children: [
-                            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
-                              Badge,
-                              {
-                                variant: "outline",
-                                className: "text-foreground/90 inline-flex items-center gap-1 rounded border border-white/15 px-1.5 py-0 text-[9px] font-semibold",
-                                style: { background: "rgba(255, 255, 255, 0.06)" },
-                                children: [
-                                  p.type === "attack" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-2.5 text-cyan-400" }) : p.type === "defend" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Shield, { className: "size-2.5 text-rose-400" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Zap, { className: "size-2.5 text-amber-400" }),
-                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: p.badge })
-                                ]
-                              }
-                            ),
-                            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-primary font-mono text-[11.5px] font-bold", children: p.shortNotation })
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1", children: [
+                          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between gap-1", children: [
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-1.5", children: [
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                                Badge,
+                                {
+                                  variant: "outline",
+                                  className: "text-foreground/90 inline-flex items-center gap-1 rounded border border-white/15 px-1.5 py-0 text-[9px] font-semibold",
+                                  style: { background: "rgba(255, 255, 255, 0.06)" },
+                                  children: [
+                                    p.type === "attack" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-2.5 text-cyan-400" }) : p.type === "defend" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Shield, { className: "size-2.5 text-rose-400" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Zap, { className: "size-2.5 text-amber-400" }),
+                                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: p.badge })
+                                  ]
+                                }
+                              ),
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-primary font-mono text-[11.5px] font-bold", children: p.shortNotation })
+                            ] }),
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-[11px] font-bold", children: p.name.split("\xB7")[1] || p.name })
                           ] }),
-                          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-[11px] font-bold", children: p.name.split("\xB7")[1] || p.name })
+                          p.tags && p.tags.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex flex-wrap items-center gap-1", children: p.tags.map((t, tIdx) => {
+                            const badgeProps = getTacticalBadgeProps(t);
+                            const IconComp = badgeProps.icon;
+                            return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                              "span",
+                              {
+                                className: `inline-flex items-center gap-0.5 rounded border px-1.5 py-0.2 text-[8.5px] font-semibold ${badgeProps.color}`,
+                                children: [
+                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(IconComp, { className: "size-2" }),
+                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: badgeProps.label })
+                                ]
+                              },
+                              tIdx
+                            );
+                          }) })
                         ] }),
                         /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-start gap-1.5 text-[10.5px]", children: [
                           /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "shrink-0 font-bold text-cyan-400", children: "1. Ta \u0111i:" }),
@@ -47088,6 +48643,22 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[10px] text-muted-foreground", children: analysis?.isSearching ? "Thu\u1EADt to\xE1n Alpha-Beta ch\u1EA1y ng\u1EA7m qua Web Worker (0% lag b\xE0n c\u1EDD)." : "Th\u1EF1c hi\u1EC7n n\u01B0\u1EDBc c\u1EDD ho\u1EB7c \u0111\u1EE3i \u0111\u1ED1i th\u1EE7 \u0111\u1EC3 c\u1EADp nh\u1EADt k\u1EBF s\xE1ch m\u1EDBi." })
                   ] })
                 ] })
+              }
+            ),
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+              TabsContent,
+              {
+                value: "breakdown",
+                className: "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1",
+                "data-scrollable": "true",
+                children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  EvaluationBreakdownTab,
+                  {
+                    breakdown: analysis.evalBreakdown,
+                    score: analysis.evalScore,
+                    phase: analysis.phase
+                  }
+                )
               }
             ),
             /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
@@ -50738,11 +52309,13 @@ lucide-react/dist/esm/icons/chevron-up.mjs:
 lucide-react/dist/esm/icons/circle-question-mark.mjs:
 lucide-react/dist/esm/icons/compass.mjs:
 lucide-react/dist/esm/icons/copy.mjs:
+lucide-react/dist/esm/icons/cpu.mjs:
 lucide-react/dist/esm/icons/crosshair.mjs:
 lucide-react/dist/esm/icons/dices.mjs:
 lucide-react/dist/esm/icons/equal.mjs:
 lucide-react/dist/esm/icons/external-link.mjs:
 lucide-react/dist/esm/icons/eye.mjs:
+lucide-react/dist/esm/icons/fish.mjs:
 lucide-react/dist/esm/icons/graduation-cap.mjs:
 lucide-react/dist/esm/icons/image.mjs:
 lucide-react/dist/esm/icons/layers.mjs:
