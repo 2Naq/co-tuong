@@ -95,6 +95,8 @@ wss.on("connection", (ws, req) => {
   let engine = null;
   try {
     engine = spawn(exePath, [], { cwd: exeDir });
+    // Pre-configure Pikafish in Hardcore Grandmaster Mode (4 Threads, 64MB Hash, MultiPV 3, Skill 20)
+    engine.stdin.write("uci\nsetoption name Threads value 4\nsetoption name Hash value 64\nsetoption name MultiPV value 3\nsetoption name Skill Level value 20\nisready\n");
   } catch (err) {
     console.error("[Bridge] Failed to spawn Pikafish:", err);
     ws.send(`err Failed to spawn engine: ${err.message}\n`);

@@ -739,10 +739,12 @@ export function createXiangqiEngine() {
           const victim = ORDER_VAL[cap > 0 ? cap : -cap];
           const att = board[m & 127];
           const attVal = ORDER_VAL[att > 0 ? att : -att];
-          if (victim >= attVal) {
-            s = 10000000 + victim * 100 - attVal;
+          if (victim > attVal) {
+            s = 10000000 + victim * 100 - attVal; // Bắt hơn quân (Tốt ăn Xe, Mã ăn Xe)
+          } else if (victim === attVal) {
+            s = 7200000 + victim * 100 - attVal;  // Đổi ngang quân (Xếp sau Killer moves để ưu tiên thế công)
           } else {
-            s = 7000000 + victim * 100 - attVal;
+            s = 3000000 + victim * 100 - attVal;  // Đổi lỗ quân (Chỉ duyệt khi không có nước khác)
           }
         } else if (m === k[0]) {
           s = 9000000;
@@ -953,6 +955,14 @@ export function createXiangqiEngine() {
         }
       }
 
+      // Thưởng quân chủ lực (Xe, Pháo, Mã) qua sông tạo thế công (Trade Reluctance: Giữ quân công, tránh đổi bậy)
+      if (code >= 4 && code <= 6) {
+        const isPastRiver = s === 0 ? r >= 5 : r <= 4;
+        if (isPastRiver) {
+          positional += sign * 25;
+        }
+      }
+
       // An toàn quân chủ lực (Xe, Pháo, Mã) trước Tốt địch
       if (code >= 4 && code <= 6) {
         const pawnFwd = s === 0 ? 1 : -1;
@@ -1061,6 +1071,10 @@ export function createXiangqiEngine() {
           if (!enemyPawn) mobility += sign * 10;
         }
         if (c >= 3 && c <= 5) positional += sign * 15;
+      }
+      if (code >= 4 && code <= 6) {
+        const isPastRiver = s === 0 ? r >= 5 : r <= 4;
+        if (isPastRiver) positional += sign * 25;
       }
     }
 

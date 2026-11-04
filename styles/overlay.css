@@ -1756,6 +1756,9 @@ iframe[id^="google_ads"],
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .min-h-\[1lh\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).min-h-\[1lh\] {
   min-height: 1lh;
 }
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .min-h-\[18px\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).min-h-\[18px\] {
+  min-height: 18px;
+}
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .min-h-dvh, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).min-h-dvh {
   min-height: 100dvh;
 }
@@ -2221,9 +2224,6 @@ iframe[id^="google_ads"],
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .flex-row, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).flex-row {
   flex-direction: row !important;
-}
-:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .flex-nowrap, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).flex-nowrap {
-  flex-wrap: nowrap !important;
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .flex-wrap, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).flex-wrap {
   flex-wrap: wrap !important;

@@ -52,6 +52,19 @@
 
   injectBundle();
 
+  // Relay ChessDB Cloud API queries across Main world and Isolated Content Script (CORS-free via host_permissions)
+  window.addEventListener('message', async (event) => {
+    if (event.source !== window || !event.data || event.data.type !== 'ZIGA_CHESSDB_FETCH') return;
+    const { id, url } = event.data;
+    try {
+      const response = await fetch(url);
+      const text = await response.text();
+      window.postMessage({ type: 'ZIGA_CHESSDB_RESPONSE', id, text, success: true }, '*');
+    } catch (err) {
+      window.postMessage({ type: 'ZIGA_CHESSDB_RESPONSE', id, error: err.message, success: false }, '*');
+    }
+  });
+
   // Active Ad Neutralizer in Content Script
   function cleanObstructingAds() {
     const adSelectors = [

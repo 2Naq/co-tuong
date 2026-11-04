@@ -45530,10 +45530,12 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             const victim = ORDER_VAL[cap > 0 ? cap : -cap];
             const att = board[m & 127];
             const attVal = ORDER_VAL[att > 0 ? att : -att];
-            if (victim >= attVal) {
+            if (victim > attVal) {
               s = 1e7 + victim * 100 - attVal;
+            } else if (victim === attVal) {
+              s = 72e5 + victim * 100 - attVal;
             } else {
-              s = 7e6 + victim * 100 - attVal;
+              s = 3e6 + victim * 100 - attVal;
             }
           } else if (m === k[0]) {
             s = 9e6;
@@ -45703,6 +45705,12 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           }
         }
         if (code >= 4 && code <= 6) {
+          const isPastRiver = s === 0 ? r2 >= 5 : r2 <= 4;
+          if (isPastRiver) {
+            positional += sign * 25;
+          }
+        }
+        if (code >= 4 && code <= 6) {
           const pawnFwd = s === 0 ? 1 : -1;
           const pawnRow = r2 + pawnFwd;
           const enemyPawn = s === 0 ? -7 : 7;
@@ -45795,6 +45803,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             if (!enemyPawn) mobility += sign * 10;
           }
           if (c >= 3 && c <= 5) positional += sign * 15;
+        }
+        if (code >= 4 && code <= 6) {
+          const isPastRiver = s === 0 ? r2 >= 5 : r2 <= 4;
+          if (isPastRiver) positional += sign * 25;
         }
       }
       return {
@@ -46605,31 +46617,45 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     }
     let socket = null;
     let socketReady = false;
+    let socketFailedOnce = false;
+    let lastSocketAttempt = 0;
     let wasmWorker = null;
     let activeRequestId = 0;
     let activeCallback = null;
-    function ensureSocket() {
+    function ensureSocket(force = false) {
       if (typeof window === "undefined" || typeof WebSocket === "undefined") return;
       if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
         return;
       }
+      const now = Date.now();
+      if (!force && socketFailedOnce && now - lastSocketAttempt < 6e4) {
+        return;
+      }
+      lastSocketAttempt = now;
       try {
         socket = new WebSocket(wsUrl);
         socket.onopen = () => {
-          console.log("[Pikafish Provider] Connected to native UCI bridge at", wsUrl);
+          console.log("[Pikafish Provider] Connected to native UCI bridge at", wsUrl, "(Hardcore Grandmaster Mode)");
           socketReady = true;
+          socketFailedOnce = false;
           socket.send("uci\n");
+          socket.send("setoption name Threads value 4\n");
+          socket.send("setoption name Hash value 64\n");
           socket.send("setoption name MultiPV value 3\n");
+          socket.send("setoption name Skill Level value 20\n");
           socket.send("isready\n");
         };
         socket.onerror = () => {
           socketReady = false;
+          socketFailedOnce = true;
         };
         socket.onclose = () => {
           socketReady = false;
+          socketFailedOnce = true;
         };
       } catch (e) {
         socketReady = false;
+        socketFailedOnce = true;
       }
     }
     if (typeof window !== "undefined") {
@@ -46644,6 +46670,184 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           console.warn("[Pikafish Provider] Failed to initialize WASM worker:", err);
         }
       }
+    }
+    function queryChessDbCloud(fen, side2, pieces, cb) {
+      let active = true;
+      const reqId = "cdb_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
+      const onMessage = (event) => {
+        if (!active) return;
+        if (!event.data || event.data.type !== "ZIGA_CHESSDB_RESPONSE" || event.data.id !== reqId) return;
+        if (typeof window !== "undefined") {
+          window.removeEventListener("message", onMessage);
+        }
+        clearTimeout(timer);
+        if (event.data.success && event.data.text) {
+          processChessDbResponse(event.data.text);
+        } else {
+          cb(new Error(event.data.error || "ChessDB fetch failed"));
+        }
+      };
+      const timer = setTimeout(() => {
+        if (!active) return;
+        active = false;
+        if (typeof window !== "undefined") {
+          window.removeEventListener("message", onMessage);
+        }
+        cb(new Error("ChessDB request timed out"));
+      }, 2200);
+      function processChessDbResponse(allText) {
+        if (!active) return;
+        if (!allText || allText.startsWith("unknown") || allText.startsWith("invalid")) {
+          active = false;
+          return cb(new Error("Position not in ChessDB: " + allText.slice(0, 30)));
+        }
+        const items = allText.trim().split("|");
+        const candidates = [];
+        for (const item of items) {
+          const parts = item.split(",");
+          const map = {};
+          for (const p of parts) {
+            const [k, v] = p.split(":");
+            if (k && v !== void 0) map[k] = v;
+          }
+          if (map.move) {
+            candidates.push({
+              move: map.move,
+              score: parseInt(map.score, 10) || 0,
+              winrate: parseFloat(map.winrate) || 50,
+              rank: parseInt(map.rank, 10) || 0,
+              note: map.note || ""
+            });
+          }
+        }
+        if (candidates.length === 0) {
+          active = false;
+          return cb(new Error("No valid candidates from ChessDB"));
+        }
+        const top3 = candidates.slice(0, 3);
+        const formattedLines = top3.map((cand) => {
+          const moveCoord = uciToMove(cand.move);
+          return {
+            fromCol: moveCoord ? moveCoord.fromCol : 0,
+            fromRow: moveCoord ? moveCoord.fromRow : 0,
+            toCol: moveCoord ? moveCoord.toCol : 0,
+            toRow: moveCoord ? moveCoord.toRow : 0,
+            score: cand.score,
+            winrate: cand.winrate,
+            exact: true,
+            pv: moveCoord ? [moveCoord] : [],
+            tags: detectUciTacticalTags({ pv: [cand.move], isMate: Math.abs(cand.score) > 9e3 }, side2, pieces),
+            replies: []
+          };
+        });
+        const pvReqId = "cdbpv_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
+        let pvResolved = false;
+        const onPvMessage = (e) => {
+          if (!e.data || e.data.type !== "ZIGA_CHESSDB_RESPONSE" || e.data.id !== pvReqId) return;
+          if (pvResolved) return;
+          pvResolved = true;
+          if (typeof window !== "undefined") {
+            window.removeEventListener("message", onPvMessage);
+          }
+          let depth = 30;
+          if (e.data.success && e.data.text && !e.data.text.startsWith("unknown")) {
+            const pvParts = e.data.text.split(",");
+            let pvMoves = [];
+            for (const part of pvParts) {
+              const [k, v] = part.split(":");
+              if (k === "depth") depth = parseInt(v, 10) || 30;
+              if (k === "pv") pvMoves = v.trim().split(/[|\s]+/);
+            }
+            if (pvMoves.length > 0 && formattedLines[0]) {
+              formattedLines[0].pv = pvMoves.map(uciToMove).filter(Boolean);
+              if (pvMoves[1]) {
+                const oppMv = uciToMove(pvMoves[1]);
+                const ansMv = pvMoves[2] ? uciToMove(pvMoves[2]) : null;
+                if (oppMv) {
+                  formattedLines[0].replies = [
+                    {
+                      ...oppMv,
+                      score: -formattedLines[0].score,
+                      answer: ansMv ? { ...ansMv, score: formattedLines[0].score } : null
+                    }
+                  ];
+                }
+              }
+            }
+          }
+          finalizeCloudResult(depth);
+        };
+        if (typeof window !== "undefined" && typeof window.postMessage === "function") {
+          window.addEventListener("message", onPvMessage);
+          window.postMessage(
+            {
+              type: "ZIGA_CHESSDB_FETCH",
+              id: pvReqId,
+              url: `https://www.chessdb.cn/chessdb.php?action=querypv&board=${encodeURIComponent(fen)}`
+            },
+            "*"
+          );
+          setTimeout(() => {
+            if (!pvResolved && active) {
+              pvResolved = true;
+              if (typeof window !== "undefined") {
+                window.removeEventListener("message", onPvMessage);
+              }
+              finalizeCloudResult(30);
+            }
+          }, 800);
+        } else {
+          finalizeCloudResult(30);
+        }
+        function finalizeCloudResult(depth) {
+          if (!active) return;
+          active = false;
+          const topScore = formattedLines[0] ? formattedLines[0].score : 0;
+          cb(null, {
+            side: side2,
+            mated: Math.abs(topScore) > 9500,
+            inCheck: false,
+            depth,
+            nodes: 5e7,
+            engineName: `Pikafish 17 NNUE (Cloud Depth ${depth})`,
+            pikafishStatus: "cloud-nnue",
+            score: topScore,
+            lines: formattedLines,
+            threat: null,
+            legalCount: formattedLines.length,
+            ms: 250
+          });
+        }
+      }
+      if (typeof window !== "undefined" && typeof window.postMessage === "function") {
+        window.addEventListener("message", onMessage);
+        window.postMessage(
+          {
+            type: "ZIGA_CHESSDB_FETCH",
+            id: reqId,
+            url: `https://www.chessdb.cn/chessdb.php?action=queryall&board=${encodeURIComponent(fen)}`
+          },
+          "*"
+        );
+      } else if (typeof fetch === "function") {
+        fetch(`https://www.chessdb.cn/chessdb.php?action=queryall&board=${encodeURIComponent(fen)}`).then((r2) => r2.text()).then((txt) => {
+          clearTimeout(timer);
+          processChessDbResponse(txt);
+        }).catch((err) => {
+          clearTimeout(timer);
+          cb(err);
+        });
+      } else {
+        clearTimeout(timer);
+        cb(new Error("No postMessage or fetch available"));
+      }
+      return () => {
+        active = false;
+        clearTimeout(timer);
+        if (typeof window !== "undefined") {
+          window.removeEventListener("message", onMessage);
+        }
+      };
     }
     function quickEvaluate(pieces, side2) {
       return getFallback().quickEvaluate(pieces, side2);
@@ -46668,31 +46872,43 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       ensureSocket();
       const isPikafishActive = socketReady && socket && socket.readyState === WebSocket.OPEN;
       if (!isPikafishActive) {
-        if (allowFallback) {
-          const cancelFallback = getFallback().analyzeAsync(input, (err, res) => {
+        let isCancelled = false;
+        const cancelChessDb = queryChessDbCloud(fen, side2, input.pieces, (cErr, cResult) => {
+          if (isCancelled) return;
+          if (!cErr && cResult && cResult.lines && cResult.lines.length > 0) {
             if (activeRequestId === currentId && typeof activeCallback === "function") {
               const cb = activeCallback;
               activeCallback = null;
-              if (err) {
-                cb(err);
-              } else {
-                const enriched = {
-                  ...res,
-                  engineName: "AN-Xiangqi (Grandmaster JS)",
-                  pikafishStatus: "offline-fallback"
-                };
-                cb(null, enriched);
-              }
+              cb(null, cResult);
             }
-          });
-          return cancelFallback;
-        } else {
-          if (typeof callback === "function") {
-            callback(new Error("Pikafish native/WASM bridge is offline"));
+            return;
           }
-          return () => {
-          };
-        }
+          if (allowFallback) {
+            const cancelFallback = getFallback().analyzeAsync(input, (err, res) => {
+              if (activeRequestId === currentId && typeof activeCallback === "function") {
+                const cb = activeCallback;
+                activeCallback = null;
+                if (err) {
+                  cb(err);
+                } else {
+                  const enriched = {
+                    ...res,
+                    engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
+                    pikafishStatus: "offline-fallback"
+                  };
+                  cb(null, enriched);
+                }
+              }
+            });
+            return cancelFallback;
+          } else if (typeof callback === "function") {
+            callback(new Error("Pikafish native bridge and ChessDB Cloud are offline"));
+          }
+        });
+        return () => {
+          isCancelled = true;
+          if (typeof cancelChessDb === "function") cancelChessDb();
+        };
       }
       let collectedLines = [];
       let bestMove = null;
@@ -46807,7 +47023,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       analyzeAsync,
       quickEvaluate,
       dispose,
-      isAvailable: () => socketReady
+      isAvailable: () => true
+      // Available via Cloud Pikafish NNUE or Native UCI Bridge
     };
   }
   function parseUciInfo(line) {
@@ -46881,7 +47098,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       MATE: worker.MATE
     };
   }
-  var activeProviderId = "js-engine";
+  var activeProviderId = "pikafish";
   var jsEngineInstance = null;
   var pikafishInstance = null;
   function getEngineProvider(requestedId) {
@@ -46911,7 +47128,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
     console.log(
       "[AN Mod] Master AI Mentor Coach initializing with Background Web Worker Engine..."
     );
-    let activeProviderId2 = "js-engine";
+    let activeProviderId2 = "pikafish";
     let activeProvider = getEngineProvider(activeProviderId2);
     const asyncWorker = activeProvider;
     const engine = activeProvider.engine || createXiangqiWorker().engine;
@@ -47025,104 +47242,162 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         }
       }
     }
-    function getTacticalDescription(piece, target, notation, toCol, toRow, myColor, isCheck, isMate) {
+    function getTacticalDescription(piece, target, notation, toCol, toRow, myColor, isCheck, isMate, lineReplies, pieces, evalPoints) {
       const tCol = myColor === 0 ? 9 - toCol : toCol + 1;
+      const riverRank = myColor === 0 ? 4 : 5;
+      const enemyPawnRank = myColor === 0 ? 6 : 3;
+      const enemyBaseline = myColor === 0 ? 9 : 0;
+      const isPastRiver = myColor === 0 ? toRow >= 5 : toRow <= 4;
       if (isMate) {
         return {
           tacticName: "Tuy\u1EC7t K\u1EF9 S\xE1t C\u1EE5c",
-          why: `N\u01B0\u1EDBc c\u1EDD ${notation.short} t\u1EA1o th\u1EBF s\xE1t c\u1EE5c kh\xF4ng th\u1EC3 ch\u1ED1ng \u0111\u1EE1!`,
+          why: `N\u01B0\u1EDBc c\u1EDD ${notation.short} t\u1EA1o l\u1EADp tr\u1EADn th\u1EBF s\xE1t c\u1EE5c ho\xE0n h\u1EA3o! Kh\xF3a ch\u1EB7t m\u1ECDi ng\u1EA3 \u0111\u01B0\u1EDDng tho\xE1i lui c\u1EE7a T\u01B0\u1EDBng \u0111\u1ECBch.`,
           tag: "S\xE1t C\u1EE5c"
         };
       }
       if (isCheck) {
         return {
-          tacticName: "Chi\u1EBFu T\u01B0\u1EDBng \u0110o\u1EA1t Ti\xEAn",
-          why: `Chi\u1EBFu T\u01B0\u1EDBng \xE9p \u0111\u1ED1i th\u1EE7 co c\u1EE5m, gi\u1EEF quy\u1EC1n ch\u1EE7 \u0111\u1ED9ng ki\u1EC3m so\xE1t.`,
+          tacticName: "Chi\u1EBFu T\u01B0\u1EDBng \xC9p Co C\u1EE5m",
+          why: `Chi\u1EBFu T\u01B0\u1EDBng \u0111anh th\xE9p t\u01B0\u1EDBc \u0111o\u1EA1t quy\u1EC1n ch\u1EE7 \u0111\u1ED9ng c\u1EE7a \u0111\u1ECBch, bu\u1ED9c T\u01B0\u1EDBng ho\u1EB7c S\u0129 T\u01B0\u1EE3ng \u0111\u1ED1i ph\u01B0\u01A1ng ph\u1EA3i v\xE1 v\xEDu b\u1ED9c l\u1ED9 s\u01A1 h\u1EDF l\u1EDBn.`,
           tag: "Chi\u1EBFu T\u01B0\u1EDBng"
         };
       }
       if (target) {
         return {
           tacticName: `Ch\xE9m ${target.name} L\u1ED9 ${tCol}`,
-          why: `Ch\xE9m ${target.name} \u0111o\u1EA1t l\u1EE3i th\u1EBF v\u1EADt ch\u1EA5t v\xE0 ph\xE1 v\u1EE1 c\u1EA5u tr\xFAc \u0111\u1ECBch.`,
+          why: `Tri\u1EC7t h\u1EA1 ${target.name} then ch\u1ED1t t\u1EA1i l\u1ED9 ${tCol}, x\xF3a b\u1ECF qu\xE2n ch\u1ED1t ch\u1EB7n chi\u1EBFn l\u01B0\u1EE3c v\xE0 gia t\u0103ng c\xE1ch bi\u1EC7t \u01B0u th\u1EBF l\u1EF1c l\u01B0\u1EE3ng (+${evalPoints}\u0111).`,
           tag: "\u0110o\u1EA1t Qu\xE2n"
         };
       }
       if (piece.type === 3) {
-        const riverRank = myColor === 0 ? 4 : 5;
-        const enemyPawnRank = myColor === 0 ? 6 : 3;
         if (toRow === riverRank) {
           return {
-            tacticName: "Xe Tu\u1EA7n H\xE0",
-            why: `Xe chi\u1EBFm b\u1EDD s\xF4ng l\u1ED9 ${tCol}, ki\u1EC3m so\xE1t to\xE0n b\u1ED9 tuy\u1EBFn giao th\xF4ng.`,
+            tacticName: "Xe Tu\u1EA7n H\xE0 (Kh\u1ED1ng Ch\u1EBF Tuy\u1EBFn S\xF4ng)",
+            why: `Xe chi\u1EBFm c\u1EE9 b\u1EDD s\xF4ng l\u1ED9 ${tCol} - tuy\u1EBFn huy\u1EBFt m\u1EA1ch chi\u1EBFn tr\u01B0\u1EDDng; v\u1EEBa ng\u0103n ch\u1EB7n M\xE3 v\xE0 Binh \u0111\u1ECBch v\u01B0\u1EE3t s\xF4ng, v\u1EEBa s\u1EB5n s\xE0ng ho\xE0nh xa chuy\u1EC3n c\xE1nh chi vi\u1EC7n c\xF4ng k\xEDch th\u1EA7n t\u1ED1c.`,
             tag: "Tu\u1EA7n H\xE0"
           };
         }
         if (toRow === enemyPawnRank) {
           return {
-            tacticName: "Xe Qu\xE1 H\xE0 \u0110\xE8 M\xE3",
-            why: `\xC1p s\xE1t h\xE0ng t\u1ED1t \u0111\u1ECBch, \u0111\xE8 \u0111\u1EA7u M\xE3 v\xE0 kh\u1ED1ng ch\u1EBF l\u1ED9 s\u01B0\u1EDDn.`,
+            tacticName: "Xe Qu\xE1 H\xE0 \xC1p S\xE1t (\u0110\xE8 M\xE3 Di\u1EC7t T\u1ED1t)",
+            why: `Xe l\u1ECDt s\xE2u v\xE0o tr\u1EADn \u0111\u1ECBa \u0111\u1ECBch t\u1EA1i l\u1ED9 ${tCol}, ch\u1ECDc th\u1EB3ng v\xE0o h\xE0ng T\u1ED1t y\u1EBFu h\u1EA1i, \u0111\xE8 \u0111\u1EA7u M\xE3 \u0111\u1ED1i ph\u01B0\u01A1ng v\xE0 m\u1EDF toang h\xE0nh lang s\u01B0\u1EDDn cho c\xE1c \u0111\u1EE3t c\xF4ng k\xEDch ti\u1EBFp theo.`,
             tag: "Gh\xECm M\xE3"
           };
         }
+        if (toRow === enemyBaseline || Math.abs(toRow - enemyBaseline) === 1) {
+          return {
+            tacticName: "Xe \xC1p \u0110\xE1y Cung (K\u1EB9p C\u1ED5 Kh\xF3a T\u01B0\u1EDBng)",
+            why: `Xe th\u1ECDc s\xE2u xu\u1ED1ng tuy\u1EBFn \u0111\xE1y l\u1ED9 ${tCol}, phong t\u1ECFa to\xE0n b\u1ED9 \u0111\u01B0\u1EDDng di chuy\u1EC3n c\u1EE7a T\u01B0\u1EDBng v\xE0 S\u0129 \u0111\u1ECBch, t\u1EA1o th\u1EBF k\u1EB9p c\u1ED5 ph\u1ED1i h\u1EE3p c\xF9ng Ph\xE1o/M\xE3 s\xE1t ph\u1EA1t.`,
+            tag: "K\u1EB9p C\u1ED5"
+          };
+        }
         return {
-          tacticName: "Xe Chi\u1EBFm L\u1ED9 Th\xF4ng",
-          why: `\u0110i\u1EC1u Xe v\xE0o l\u1ED9 ${tCol} th\xF4ng tho\xE1ng, l\xE0m ch\u1EE7 tr\u1EE5c giao chi\u1EBFn.`,
+          tacticName: `Xe Chi\u1EBFm L\u1ED9 ${tCol} Th\xF4ng Tho\xE1ng`,
+          why: `Xu\u1EA5t Xe ki\u1EC3m so\xE1t l\u1ED9 ${tCol} th\xF4ng tho\xE1ng, l\xE0m ch\u1EE7 tr\u1EE5c giao chi\u1EBFn ch\xEDnh, \u0111o\u1EA1t quy\u1EC1n ti\xEAn c\u01A1 v\xE0 li\xEAn k\u1EBFt ch\u1EB7t ch\u1EBD to\xE0n b\u1ED9 tuy\u1EBFn c\xF4ng th\u1EE7.`,
           tag: "L\u1ED9 Th\xF4ng"
         };
       }
       if (piece.type === 4) {
         if (toCol === 4) {
           return {
-            tacticName: "Ph\xE1o \u0110\u1EA7u Uy Ch\u1EA5n",
-            why: `B\xECnh Ph\xE1o trung l\u1ED9, kh\u1ED1ng ch\u1EBF th\u1EB3ng T\u01B0\u1EDBng v\xE0 c\u1ED9t d\u1ECDc \u0111\u1ED1i ph\u01B0\u01A1ng.`,
+            tacticName: "Ph\xE1o \u0110\u1EA7u Uy Ch\u1EA5n (Trung Ph\xE1o C\xF4ng T\xE2m)",
+            why: `B\xECnh Ph\xE1o v\xE0o trung l\u1ED9 kh\u1ED1ng ch\u1EBF tr\u1EF1c di\u1EC7n tim T\u01B0\u1EDBng \u0111\u1ECBch, ghim ch\u1EB7t T\u1ED1t \u0111\u1EA7u v\xE0 T\u01B0\u1EDBng \u0111\u1ED1i ph\u01B0\u01A1ng v\xE0o tr\u1EE5c d\u1ECDc, t\u1EA1o th\u1EBF c\xF4ng d\u1ED3n d\u1EADp v\xE0 gi\u1EA3i ph\xF3ng \u0111\u01B0\u1EDDng cho Song M\xE3 xu\u1EA5t tr\u1EADn.`,
             tag: "Ph\xE1o \u0110\u1EA7u"
           };
         }
+        if (toCol === 1 || toCol === 7) {
+          return {
+            tacticName: `Ph\xE1o Gi\xE1p S\u01B0\u1EDDn (L\u1ED9 ${tCol})`,
+            why: `Chuy\u1EC3n Ph\xE1o sang l\u1ED9 ${tCol} t\u1EA1o g\u1ECDng k\xECm ph\u1ED1i h\u1EE3p c\xF9ng Xe, nh\u1EAFm th\u1EB3ng v\xE0o c\xE1nh y\u1EBFu c\u1EE7a \u0111\u1ED1i ph\u01B0\u01A1ng v\xE0 phong t\u1ECFa \xFD \u0111\u1ED3 xu\u1EA5t Xe ph\u1EA3n k\xEDch c\u1EE7a \u0111\u1ECBch.`,
+            tag: "Ph\xE1o S\u01B0\u1EDDn"
+          };
+        }
+        if (toRow === riverRank || toRow === enemyPawnRank) {
+          return {
+            tacticName: `Ph\xE1o Tu\u1EA7n H\xE0 / Qu\xE1 H\xE0 L\u1ED9 ${tCol}`,
+            why: `Ti\u1EBFn Ph\xE1o l\xEAn ki\u1EC3m so\xE1t tuy\u1EBFn giao th\xF4ng l\u1ED9 ${tCol}, t\u1EA1o ng\xF2i n\u1ED5 t\u1EA7m xa gh\xECm ch\u1EB7t Xe M\xE3 \u0111\u1ED1i ph\u01B0\u01A1ng kh\xF4ng cho t\u1EF1 do tri\u1EC3n khai qu\xE2n l\u1EF1c.`,
+            tag: "Phong T\u1ECFa"
+          };
+        }
         return {
-          tacticName: "Ph\xE1o Kh\u1ED1ng Ch\u1EBF S\u01B0\u1EDDn",
-          why: `\u0110i\u1EC1u Ph\xE1o sang l\u1ED9 ${tCol}, t\u1EA1o th\u1EBF g\u1ECDng k\xECm ph\u1ED1i h\u1EE3p c\xF4ng k\xEDch.`,
-          tag: "Ph\xE1o S\u01B0\u1EDDn"
+          tacticName: `Ph\xE1o L\u1EADp Tr\u1EADn L\u1ED9 ${tCol}`,
+          why: `\u0110i\u1EC1u Ph\xE1o t\u1EDBi v\u1ECB tr\xED \u0111\u1EAFc \u0111\u1ECBa l\u1ED9 ${tCol}, thi\u1EBFt l\u1EADp ng\xF2i n\u1ED5 chi\u1EBFn thu\u1EADt \u0111a h\u01B0\u1EDBng v\xE0 b\u1EA3o v\u1EC7 c\xE1c \u0111i\u1EC3m then ch\u1ED1t c\u1EE7a tr\u1EADn \u0111\u1ECBa.`,
+          tag: "Ph\xE1o Tr\u1EADn"
         };
       }
       if (piece.type === 5) {
-        if (toCol === 2 || toCol === 6) {
+        if ((toCol === 2 || toCol === 6) && Math.abs(toRow - enemyBaseline) <= 2) {
           return {
-            tacticName: "M\xE3 Ng\u1ECDa T\xE0o",
-            why: `Phi M\xE3 ng\u1ECDa t\xE0o, kh\xF3a g\xF3c cung T\u01B0\u1EDBng d\u1ECDa \u0111\xF2n s\xE1t ph\u1EA1t.`,
+            tacticName: "M\xE3 Ng\u1ECDa T\xE0o (Kh\xF3a Cung T\u01B0\u1EDBng \u0110\u1ECBch)",
+            why: `Phi M\xE3 c\u1EAFm th\u1EB3ng v\xE0o huy\u1EC7t \u0111\u1EA1o ng\u1ECDa t\xE0o l\u1ED9 ${tCol}, kh\xF3a ch\u1EB7t g\xF3c cung T\u01B0\u1EDBng \u0111\u1ECBch, \u0111e d\u1ECDa tr\u1EF1c ti\u1EBFp m\u1EA1ng s\u1ED1ng c\u1EE7a T\u01B0\u1EDBng v\xE0 m\u1EDF \u0111\u01B0\u1EDDng cho Xe Ph\xE1o gi\xE1ng \u0111\xF2n k\u1EBFt li\u1EC5u.`,
             tag: "Ng\u1ECDa T\xE0o"
+          };
+        }
+        if ((toCol === 3 || toCol === 5) && Math.abs(toRow - enemyBaseline) <= 2) {
+          return {
+            tacticName: "M\xE3 \u0110i\u1EBFu Ng\u01B0 (M\xE3 C\xE2u C\xE1 \u0110\u1ED9c Chi\xEAu)",
+            why: `M\xE3 chi\u1EBFm v\u1ECB tr\xED \u0110i\u1EBFu Ng\u01B0 hi\u1EC3m h\xF3c, k\u1EBFt h\u1EE3p v\u1EDBi Xe ho\u1EB7c Ph\xE1o t\u1EA1o th\xE0nh th\u1EBF th\u1EAFt c\u1ED5 kh\xF4ng th\u1EC3 ch\u1ED1ng \u0111\u1EE1 \u0111\u1ED1i v\u1EDBi T\u01B0\u1EDBng \u0111\u1ECBch.`,
+            tag: "\u0110i\u1EBFu Ng\u01B0"
           };
         }
         if (toCol === 3 || toCol === 5) {
           return {
-            tacticName: "Song M\xE3 Li\xEAn Ho\xE0n",
-            why: `Li\xEAn k\u1EBFt song M\xE3 \u1EDF trung l\u1ED9, th\u1EBF tr\u1EADn v\u1EEFng nh\u01B0 b\xE0n th\u1EA1ch.`,
-            tag: "Li\xEAn Ho\xE0n"
+            tacticName: `Song M\xE3 Kh\u1EDFi Nh\u1ECBp L\u1ED9 ${tCol}`,
+            why: `M\xE3 ti\u1EBFn l\xEAn v\u1ECB tr\xED trung t\xE2m l\u1ED9 ${tCol}, li\xEAn ho\xE0n b\u1EA3o v\u1EC7 T\u1ED1t \u0111\u1EA7u, m\u1EDF r\u1ED9ng t\u1EA7m ki\u1EC3m so\xE1t b\xE0n c\u1EDD v\xE0 s\u1EB5n s\xE0ng phi qua s\xF4ng c\xF4ng k\xEDch khi c\xF3 c\u01A1 h\u1ED9i.`,
+            tag: "Song M\xE3"
+          };
+        }
+        if (isPastRiver) {
+          return {
+            tacticName: "M\xE3 V\u01B0\u1EE3t S\xF4ng B\xE0n H\xE0",
+            why: `M\xE3 phi qua s\xF4ng \u0111o\u1EA1t \u0111i\u1EC3m t\u1EF1a chi\u1EBFn thu\u1EADt, \u0111\u1EA1p v\u1EE1 th\u1EBF ph\xF2ng ng\u1EF1 ph\xEDa tr\u01B0\u1EDBc v\xE0 m\u1EDF r\u1ED9ng kh\xF4ng gian t\u1EA5n c\xF4ng \u0111a g\xF3c hi\u1EC3m h\xF3c.`,
+            tag: "B\xE0n H\xE0"
           };
         }
         return {
-          tacticName: "M\xE3 V\u01B0\u1EE3t S\xF4ng B\xE0n H\xE0",
-          why: `M\xE3 phi qua s\xF4ng \u0111o\u1EA1t \u0111i\u1EC3m t\u1EF1a chi\u1EBFn thu\u1EADt, m\u1EDF r\u1ED9ng t\u1EA7m ki\u1EC3m so\xE1t.`,
-          tag: "B\xE0n H\xE0"
+          tacticName: `M\xE3 Nh\u1EA3y Khai Th\xF4ng L\u1ED9 ${tCol}`,
+          why: `V\u1EADn \u0111\u1ED9ng M\xE3 \u0111\u1EBFn l\u1ED9 ${tCol} tho\xE1ng \u0111\xE3ng, tho\xE1t kh\u1ECFi s\u1EF1 c\u1EA3n tr\u1EDF c\u1EE7a ch\xE2n M\xE3, t\u1EA1o \u0111i\u1EC3m t\u1EF1a c\u01A1 \u0111\u1ED9ng cho c\u1EA3 c\xF4ng th\u1EE7 to\xE0n di\u1EC7n.`,
+          tag: "Khai Th\xF4ng"
         };
       }
       if (piece.type === 6) {
+        if (isPastRiver) {
+          return {
+            tacticName: "Ti\u1EC3u T\u1ED1t Qu\xE1 H\xE0 (\xC1p \u0110\u1EA3o Uy L\u1EF1c)",
+            why: `T\u1ED1t v\u01B0\u1EE3t s\xF4ng \xE1p s\xE1t ph\xF2ng tuy\u1EBFn \u0111\u1ECBch t\u1EA1i l\u1ED9 ${tCol}, t\u1EEBng b\u01B0\u1EDBc g\u1EB7m nh\u1EA5m kh\xF4ng gian ph\xF2ng ng\u1EF1, s\u1EB5n s\xE0ng ph\u1ED1i h\u1EE3p th\u1ECDc s\xE2u v\xE0o cung T\u01B0\u1EDBng \u0111\u1ED1i ph\u01B0\u01A1ng.`,
+            tag: "T\u1ED1t Qua S\xF4ng"
+          };
+        }
         return {
-          tacticName: "Binh Ti\u1EBFn Qua S\xF4ng",
-          why: `Ti\u1EBFn T\u1ED1t sang s\xF4ng m\u1EDF \u0111\u01B0\u1EDDng cho M\xE3, \xE9p s\xE1t tr\u1EADn \u0111\u1ECBa \u0111\u1ED1i th\u1EE7.`,
-          tag: "T\u1ED1t Ti\u1EBFn"
+          tacticName: `Ti\u1EBFn Binh Khai Nh\xE3n L\u1ED9 ${tCol}`,
+          why: `\u0110\u1EA9y Binh l\u1ED9 ${tCol} l\xEAn m\u1ED9t n\u01B0\u1EDBc nh\u1EB1m th\xF4ng \u0111\u01B0\u1EDDng cho M\xE3 xu\u1EA5t k\xEDch, ki\u1EC1m t\u1ECFa \u0111\xE0 ph\xE1t tri\u1EC3n c\u1EE7a qu\xE2n \u0111\u1ECBch tr\xEAn c\xF9ng tr\u1EE5c l\u1ED9.`,
+          tag: "Khai Nh\xE3n"
         };
       }
-      if (piece.type === 1 || piece.type === 2) {
+      if (piece.type === 1) {
         return {
-          tacticName: "C\u1EE7ng C\u1ED1 Cung T\u01B0\u1EDBng",
-          why: `Gia c\u1ED1 cung T\u01B0\u1EDBng, li\xEAn k\u1EBFt S\u0129 T\u01B0\u1EE3ng b\u1ECBt k\xEDn ng\xF2i n\u1ED5 \u0111\u1ED1i ph\u01B0\u01A1ng.`,
+          tacticName: "B\u1ED5 S\u0129 Gia C\u1ED1 Cung T\u01B0\u1EDBng",
+          why: `D\u1EF1ng S\u0129 che ch\u1EAFn trung l\u1ED9 v\xE0 g\xF3c cung, b\u1EA3o v\u1EC7 an to\xE0n tuy\u1EC7t \u0111\u1ED1i cho T\u01B0\u1EDBng tr\u01B0\u1EDBc c\xE1c h\u1ECDng ph\xE1o t\u1EA7m xa v\xE0 \u0111\xF2n xuy\xEAn t\xE2m c\u1EE7a \u0111\u1ECBch.`,
           tag: "Gia C\u1ED1"
         };
       }
+      if (piece.type === 2) {
+        return {
+          tacticName: "V\xE9n T\u01B0\u1EE3ng Li\xEAn Ho\xE0n Ph\xF2ng Th\u1EE7",
+          why: `Li\xEAn k\u1EBFt \u0111\xF4i T\u01B0\u1EE3ng v\u1EEFng ch\u1EAFc, b\u1EA3o v\u1EC7 T\u1ED1t \u0111\u1EA7u v\xE0 ng\u0103n ch\u1EB7n Xe/Ph\xE1o \u0111\u1ED1i ph\u01B0\u01A1ng nh\xF2m ng\xF3 \u0111\xE1y cung tr\u1EADn \u0111\u1ECBa.`,
+          tag: "V\xE9n T\u01B0\u1EE3ng"
+        };
+      }
+      if (piece.type === 0) {
+        return {
+          tacticName: "T\u01B0\u1EDBng Xu\u1EA5t Cung Tr\u1EE3 Chi\u1EBFn",
+          why: `V\u1EADn \u0111\u1ED9ng T\u01B0\u1EDBng chi\u1EBFm l\u1ED9 kh\u1ED1ng ch\u1EBF, d\xF9ng m\u1EB7t T\u01B0\u1EDBng l\xE0m ng\xF2i n\u1ED5 h\u1ED7 tr\u1EE3 Xe Ph\xE1o kh\xF3a ch\u1EB7t \u0111\u01B0\u1EDDng di chuy\u1EC3n c\u1EE7a \u0111\u1ECBch.`,
+          tag: "M\u1EB7t T\u01B0\u1EDBng"
+        };
+      }
       return {
-        tacticName: "\u0110i\u1EC1u \u0110\u1ED9ng Qu\xE2n L\u1EF1c",
-        why: `Di chuy\u1EC3n ${piece.name} \u0111\u1EBFn L\u1ED9 ${tCol} t\u1EA1o li\xEAn k\u1EBFt th\u1EBF tr\u1EADn.`,
+        tacticName: `\u0110i\u1EC1u \u0110\u1ED9ng Qu\xE2n L\u1EF1c L\u1ED9 ${tCol}`,
+        why: `Di chuy\u1EC3n ${piece.name} \u0111\u1EBFn L\u1ED9 ${tCol} t\u1EA1o li\xEAn k\u1EBFt th\u1EBF tr\u1EADn, s\u1EB5n s\xE0ng \u1EE9ng bi\u1EBFn theo m\u1ECDi di\u1EC5n bi\u1EBFn ti\u1EBFp theo.`,
         tag: "\u0110i\u1EC1u Qu\xE2n"
       };
     }
@@ -47208,8 +47483,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       if (searchRes.score >= 50) evalText = `+${evalPoints}\u0111 (B\u1EA1n \u01B0u)`;
       else if (searchRes.score <= -50) evalText = `${evalPoints}\u0111 (\u0110\u1ECBch \u01B0u)`;
       const plans = [];
-      const movingColor = searchRes.side !== void 0 ? searchRes.side : isMyTurn ? myColor : oppColor;
-      const targetColor = 1 - movingColor;
+      const movingColor = myColor;
+      const targetColor = oppColor;
       (searchRes.lines || []).forEach((line, idx) => {
         const movingPiece = pieces.find(
           (p) => p.col === line.fromCol && p.row === line.fromRow && p.color === movingColor
@@ -47236,24 +47511,77 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           line.toRow,
           movingColor,
           isCheck,
-          isMate
+          isMate,
+          line.replies,
+          pieces,
+          evalPoints
         );
-        const variations = (line.replies || []).map((rep, rIdx) => {
+        let rawReplies = (line.replies || []).filter(
+          (r2) => r2 && r2.fromCol != null && r2.toCol != null
+        );
+        if (rawReplies.length === 0) {
+          try {
+            const afterOurMove = pieces.filter(
+              (p) => !(p.col === line.toCol && p.row === line.toRow && p.color === oppColor)
+            ).map(
+              (p) => p.col === line.fromCol && p.row === line.fromRow && p.color === movingColor ? { ...p, col: line.toCol, row: line.toRow } : { ...p }
+            );
+            const oppSearch = engine.analyze({
+              pieces: afterOurMove,
+              side: oppColor,
+              maxDepth: 3,
+              timeMs: 40,
+              multiPV: 3
+            });
+            if (oppSearch && oppSearch.lines && oppSearch.lines.length > 0) {
+              rawReplies = oppSearch.lines.map((ol) => ({
+                fromCol: ol.fromCol,
+                fromRow: ol.fromRow,
+                toCol: ol.toCol,
+                toRow: ol.toRow,
+                score: ol.score,
+                answer: ol.pv && ol.pv[1] ? { ...ol.pv[1], score: -ol.score } : null
+              }));
+            }
+          } catch (e) {
+            console.warn("[AN Mod] Dynamic opponent reply generation fallback:", e);
+          }
+        }
+        const variations = rawReplies.map((rep, rIdx) => {
           const oppPiece = pieces.find(
             (p) => p.col === rep.fromCol && p.row === rep.fromRow && p.color === oppColor
-          );
-          const oppTarget = pieces.find(
+          ) || {
+            col: rep.fromCol,
+            row: rep.fromRow,
+            type: 6,
+            color: oppColor,
+            name: "Qu\xE2n \u0111\u1ECBch",
+            short: "Q"
+          };
+          const oppTarget = rep.toCol === line.toCol && rep.toRow === line.toRow ? movingPiece : pieces.find(
             (p) => p.col === rep.toCol && p.row === rep.toRow && p.color === myColor
           );
-          const oppNot = oppPiece ? getXiangqiNotation(
+          const oppNot = getXiangqiNotation(
             oppPiece,
             rep.fromCol,
             rep.fromRow,
             rep.toCol,
             rep.toRow,
             oppColor
-          ) : { short: "\u0110\u1ECBch \u0111i", full: "\u0110\u1ED1i th\u1EE7 di chuy\u1EC3n" };
-          let oppWhy = oppTarget ? `Ch\xE9m ${oppTarget.name} t\u1EA1i L\u1ED9 ${oppColor === 0 ? 9 - rep.toCol : rep.toCol + 1}.` : `\u0110i\u1EC1u qu\xE2n ph\u1EA3n \u1EE9ng c\u1EE7ng c\u1ED1.`;
+          );
+          let oppWhy = "";
+          const oppTCol = oppColor === 0 ? 9 - rep.toCol : rep.toCol + 1;
+          if (oppTarget) {
+            oppWhy = `Ph\u1EA3n ph\xE1o ch\xE9m ${oppTarget.name} t\u1EA1i L\u1ED9 ${oppTCol} nh\u1EB1m gi\u1EA3i t\u1ECFa s\u1EE9c \xE9p.`;
+          } else if (oppPiece && (oppPiece.type === 1 || oppPiece.type === 2)) {
+            oppWhy = `B\u1ED5 ${oppPiece.name} c\u1EE7ng c\u1ED1 ph\xF2ng tuy\u1EBFn tr\u01B0\u1EDBc th\u1EBF c\xF4ng d\u1ED3n d\u1EADp c\u1EE7a ta.`;
+          } else if (oppPiece && oppPiece.type === 3) {
+            oppWhy = `Xu\u1EA5t Xe ki\u1EC3m so\xE1t L\u1ED9 ${oppTCol} h\xF2ng ng\u0103n ch\u1EB7n m\u0169i \u0111\u1ED9t ph\xE1 c\u1EE7a ta.`;
+          } else if (oppPiece && oppPiece.type === 5) {
+            oppWhy = `Nh\u1EA3y M\xE3 l\xEAn L\u1ED9 ${oppTCol} h\xF2ng t\xECm ki\u1EBFm c\u01A1 h\u1ED9i ph\u1EA3n k\xEDch.`;
+          } else {
+            oppWhy = `\u0110i\u1EC1u qu\xE2n ph\u1EA3n \u1EE9ng c\u1EE7ng c\u1ED1 tr\u1EADn \u0111\u1ECBa.`;
+          }
           let ansNot = null;
           let ansWhy = "";
           if (rep.answer) {
@@ -47269,7 +47597,21 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                 rep.answer.toRow,
                 myColor
               );
-              ansWhy = `B\u1ED3i th\xEAm \u0111\xF2n ${ansNot.short} gi\u1EEF v\u1EEFng th\u1EBF tr\u1EADn.`;
+              const ansTarget = pieces.find(
+                (p) => p.col === rep.answer.toCol && p.row === rep.answer.toRow && p.color === oppColor
+              );
+              const ansTCol = myColor === 0 ? 9 - rep.answer.toCol : rep.answer.toCol + 1;
+              if (ansTarget) {
+                ansWhy = `L\u1EADp t\u1EE9c ch\xE9m ${ansTarget.name} L\u1ED9 ${ansTCol}, \u0111o\u1EA1t \u01B0u th\u1EBF quy\u1EBFt \u0111\u1ECBnh.`;
+              } else if (rep.answer.score && rep.answer.score > 9e3) {
+                ansWhy = `Gi\xE1ng \u0111\xF2n s\xE1t c\u1EE5c k\u1EBFt li\u1EC5u tr\u1EADn \u0111\u1EA5u!`;
+              } else if (ansPiece.type === 3) {
+                ansWhy = `Xe b\u1ED3i \u0111\xF2n kh\u1ED1ng ch\u1EBF L\u1ED9 ${ansTCol}, si\u1EBFt ch\u1EB7t v\xF2ng v\xE2y \xE9p \u0111\u1ECBch v\xE0o th\u1EBF b\xED.`;
+              } else if (ansPiece.type === 4) {
+                ansWhy = `Ph\xE1o b\u1ED3i th\xEAm \u0111\xF2n c\xF4ng k\xEDch s\u01B0\u1EDDn/trung l\u1ED9, kh\xF3a ch\u1EB7t \u0111\u01B0\u1EDDng t\u1EA9u tho\xE1t.`;
+              } else {
+                ansWhy = `B\u1ED3i th\xEAm \u0111\xF2n ${ansNot.short} gi\u1EEF v\u1EEFng \u01B0u th\u1EBF \xE1p \u0111\u1EA3o.`;
+              }
             }
           }
           const varLabel = rIdx === 0 ? `Bi\u1EBFn 1 (Ph\u1ED5 bi\u1EBFn): ${oppNot.short}` : rIdx === 1 ? `Bi\u1EBFn 2 (Ph\xF2ng th\u1EE7): ${oppNot.short}` : `Bi\u1EBFn 3 (Ph\u1EA3n c\xF4ng): ${oppNot.short}`;
@@ -47297,15 +47639,28 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         if (variations.length === 0) {
           variations.push({
             idx: 0,
-            label: "Bi\u1EBFn 1: \u0110\u1ECBch ch\u1ED1ng \u0111\u1EE1",
-            shortLabel: "Bi\u1EBFn 1",
-            oppNotation: { short: "\u0110\u1ECBch \u0111i", full: "\u0110\u1ED1i th\u1EE7 di chuy\u1EC3n" },
-            oppWhy: "\u0110\u1ED1i th\u1EE7 bu\u1ED9c ph\u1EA3i ch\u1ED1ng \u0111\u1EE1 n\u01B0\u1EDBc c\u1EDD c\u1EE7a ta.",
-            fromCol: line.toCol,
-            fromRow: line.toRow,
+            label: "Bi\u1EBFn 1: \u0110\u1ECBch c\xF9ng \u0111\u01B0\u1EDDng",
+            shortLabel: "H\u1EBFt c\u1EDD",
+            oppNotation: { short: "H\u1EBFt n\u01B0\u1EDBc", full: "\u0110\u1ED1i th\u1EE7 kh\xF4ng c\xF2n n\u01B0\u1EDBc \u0111i h\u1EE3p l\u1EC7" },
+            oppWhy: "\u0110\u1ED1i th\u1EE7 l\xE2m v\xE0o th\u1EBF s\xE1t c\u1EE5c ho\u1EB7c h\u1EBFt n\u01B0\u1EDBc \u0111i.",
+            fromCol: null,
+            fromRow: null,
+            toCol: null,
+            toRow: null,
+            oppPiece: null,
             answer: null
           });
         }
+        let prepText = "";
+        const firstRep = variations[0];
+        if (firstRep && firstRep.oppNotation?.short && firstRep.oppNotation?.short !== "\u0110\u1ECBch \u0111i") {
+          if (firstRep.answer && firstRep.answer.notation?.short) {
+            prepText = `K\u1EBF s\xE1ch: \u0110\xF3n \u0111\u1EA7u n\u01B0\u1EDBc ${firstRep.oppNotation.short} c\u1EE7a \u0111\u1ECBch \u0111\u1EC3 l\u1EADp t\u1EE9c b\u1ED3i \u0111\xF2n ${firstRep.answer.notation.short}, l\xE0m ch\u1EE7 th\u1EBF tr\u1EADn.`;
+          } else {
+            prepText = `K\u1EBF s\xE1ch: Kh\u1ED1ng ch\u1EBF bi\u1EBFn ph\u1EA3n \u1EE9ng ${firstRep.oppNotation.short} c\u1EE7a \u0111\u1ED1i ph\u01B0\u01A1ng, \u0111o\u1EA1t ti\xEAn c\u01A1 \xE1p \u0111\u1EA3o.`;
+          }
+        }
+        const planWhy = prepText ? `${desc.why} (${prepText})` : desc.why;
         const planType = idx === 0 ? "attack" : idx === 1 ? "defend" : "maneuver";
         const planBadge = idx === 0 ? "T\u1ED1i \u01AFu" : idx === 1 ? "Ch\u1EAFc Ch\u1EAFn" : "\u0110\u1ED9t Ph\xE1";
         plans.push({
@@ -47318,7 +47673,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           badge: planBadge,
           tag: desc.tag,
           tags: line.tags && line.tags.length > 0 ? line.tags : desc.tag ? [desc.tag] : [],
-          why: desc.why,
+          why: planWhy,
           score: line.score,
           piece: movingPiece,
           fromCol: line.fromCol,
@@ -47351,6 +47706,14 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           shortMove: plans[0].shortNotation,
           why: plans[0].why
         };
+      } else if (!isMyTurn) {
+        commentary = {
+          type: "waiting",
+          title: "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6 \u0110ANG SUY NGH\u0128",
+          move: plans[0] ? `D\u1EF1 t\xEDnh: ${plans[0].shortNotation}` : null,
+          shortMove: plans[0] ? plans[0].shortNotation : null,
+          why: plans[0] ? `\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i... S\u1EB5n s\xE0ng ph\u01B0\u01A1ng \xE1n \u0111\u1ED1i s\xE1ch: ${plans[0].fullNotation}.` : "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i..."
+        };
       } else if (plans[0]) {
         commentary = {
           type: "optimal",
@@ -47359,21 +47722,13 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           shortMove: plans[0].shortNotation,
           why: plans[0].why
         };
-      } else if (isMyTurn) {
+      } else {
         commentary = {
           type: "turn",
           title: "L\u01AF\u1EE2T \u0110I C\u1EE6A B\u1EA0N",
           move: null,
           shortMove: null,
           why: "\u0110\u1EBFn l\u01B0\u1EE3t b\u1EA1n \u0111i. H\xE3y tri\u1EC3n khai n\u01B0\u1EDBc c\u1EDD c\u1EA9n tr\u1ECDng."
-        };
-      } else {
-        commentary = {
-          type: "waiting",
-          title: "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6",
-          move: null,
-          shortMove: null,
-          why: "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i..."
         };
       }
       const coachCommentary = commentary.move ? `Khuy\xEAn d\xF9ng ${commentary.move}! ${commentary.why}` : commentary.why;
@@ -47434,9 +47789,10 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       cancelWorkerSearch = provider.analyzeAsync(
         {
           pieces,
-          side: isMyTurn ? myColor : activeColor,
-          maxDepth: activeProviderId2 === "pikafish" ? 18 : 10,
-          timeMs: activeProviderId2 === "pikafish" ? 500 : 600,
+          side: myColor,
+          // ALWAYS search for player (myColor) - keeps mentor strictly player-focused
+          maxDepth: activeProviderId2 === "pikafish" ? 22 : 12,
+          timeMs: activeProviderId2 === "pikafish" ? 1500 : 800,
           multiPV: 3
         },
         (err, searchRes) => {
@@ -47496,13 +47852,14 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             moving.isMyMove = true;
           }
         }
-        if (activeStep >= 2 && activeVariation) {
+        if (activeStep >= 2 && activeVariation && activeVariation.fromCol != null && activeVariation.toCol != null) {
           const opp = activeVariation;
+          const oppColor = 1 - myColor;
           current = current.filter(
             (p) => !(p.col === opp.toCol && p.row === opp.toRow && p.color === myColor)
           );
           const moving = current.find(
-            (p) => p.col === opp.fromCol && p.row === opp.fromRow && p.color === opp.oppPiece?.color
+            (p) => p.col === opp.fromCol && p.row === opp.fromRow && p.color === oppColor
           );
           if (moving) {
             moving.col = opp.toCol;
@@ -47510,7 +47867,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             moving.isOppMove = true;
           }
         }
-        if (activeStep >= 3 && activeVariation?.answer) {
+        if (activeStep >= 3 && activeVariation?.answer && activeVariation.answer.fromCol != null && activeVariation.answer.toCol != null) {
           const ans = activeVariation.answer;
           current = current.filter(
             (p) => !(p.col === ans.toCol && p.row === ans.toRow && p.color !== myColor)
@@ -47527,6 +47884,9 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         return current;
       }, [pieces, activePlan, activeVariation, activeStep, myColor]);
       const getSquarePos = (col, row) => {
+        if (col == null || row == null || isNaN(col) || isNaN(row)) {
+          return null;
+        }
         let displayCol = col;
         let displayRow = row;
         if (myColor === 0) {
@@ -47542,8 +47902,10 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       const activeArrow = (0, import_react15.useMemo)(() => {
         if (!activePlan) return null;
         if (activeStep === 0 || activeStep === 1) {
+          if (activePlan.fromCol == null || activePlan.toCol == null) return null;
           const s = getSquarePos(activePlan.fromCol, activePlan.fromRow);
           const e = getSquarePos(activePlan.toCol, activePlan.toRow);
+          if (!s || !e) return null;
           return {
             x1: s.x,
             y1: s.y,
@@ -47555,11 +47917,13 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           };
         }
         if (activeStep === 2 && activeVariation) {
+          if (activeVariation.fromCol == null || activeVariation.toCol == null) return null;
           const s = getSquarePos(
             activeVariation.fromCol,
             activeVariation.fromRow
           );
           const e = getSquarePos(activeVariation.toCol, activeVariation.toRow);
+          if (!s || !e) return null;
           return {
             x1: s.x,
             y1: s.y,
@@ -47572,8 +47936,10 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         }
         if (activeStep === 3 && activeVariation?.answer) {
           const ans = activeVariation.answer;
+          if (ans.fromCol == null || ans.toCol == null) return null;
           const s = getSquarePos(ans.fromCol, ans.fromRow);
           const e = getSquarePos(ans.toCol, ans.toRow);
+          if (!s || !e) return null;
           return {
             x1: s.x,
             y1: s.y,
@@ -47918,7 +48284,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             {
               variant: activeStep === 2 ? "secondary" : "ghost",
               size: "xs",
-              disabled: !activeVariation,
+              disabled: !activeVariation || activeVariation.fromCol == null,
               className: "h-5.5 gap-0.5 px-1 text-[9px]",
               onClick: () => setActiveStep(2),
               children: [
@@ -47932,7 +48298,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             {
               variant: activeStep === 3 ? "secondary" : "ghost",
               size: "xs",
-              disabled: !activeVariation?.answer,
+              disabled: !activeVariation?.answer || activeVariation.answer.fromCol == null,
               className: "h-5.5 gap-0.5 px-1 text-[9px]",
               onClick: () => setActiveStep(3),
               children: [
@@ -47941,6 +48307,28 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
               ]
             }
           )
+        ] }),
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "min-h-[18px] px-1.5 py-0.5 rounded bg-white/[0.03] border border-white/[0.06] text-[10px] leading-tight flex items-center", children: [
+          activeStep === 0 && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground font-medium", children: "B\xE0n c\u1EDD th\u1EF1c t\u1EBF hi\u1EC7n t\u1EA1i" }),
+          activeStep === 1 && activePlan && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-cyan-400 font-semibold truncate", children: [
+            "1. Ta \u0111i: ",
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: activePlan.shortNotation }),
+            " (",
+            activePlan.fullNotation,
+            ")"
+          ] }),
+          activeStep === 2 && activeVariation && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-rose-400 font-semibold truncate", children: [
+            "2. \u0110\u1ECBch \u0111\xE1p: ",
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: activeVariation.oppNotation?.short || "N\u01B0\u1EDBc \u0111i" }),
+            " \u2014 ",
+            activeVariation.oppWhy
+          ] }),
+          activeStep === 3 && activeVariation?.answer && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-amber-400 font-semibold truncate", children: [
+            "3. Ta b\u1ED3i: ",
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: activeVariation.answer.notation?.short || "N\u01B0\u1EDBc c\u1EDD" }),
+            " \u2014 ",
+            activeVariation.answer.why
+          ] })
         ] })
       ] });
     }

@@ -58,7 +58,7 @@ import {
     "[AN Mod] Master AI Mentor Coach initializing with Background Web Worker Engine...",
   );
 
-  let activeProviderId = "js-engine";
+  let activeProviderId = "pikafish";
   let activeProvider = getEngineProvider(activeProviderId);
   const asyncWorker = activeProvider;
   const engine = activeProvider.engine || createXiangqiWorker().engine;
@@ -183,7 +183,7 @@ import {
     }
   }
 
-  // Concise, master-level tactical description generator
+  // Grandmaster tactical description and strategic rationale generator
   function getTacticalDescription(
     piece,
     target,
@@ -193,21 +193,28 @@ import {
     myColor,
     isCheck,
     isMate,
+    lineReplies,
+    pieces,
+    evalPoints,
   ) {
     const tCol = myColor === 0 ? 9 - toCol : toCol + 1;
+    const riverRank = myColor === 0 ? 4 : 5;
+    const enemyPawnRank = myColor === 0 ? 6 : 3;
+    const enemyBaseline = myColor === 0 ? 9 : 0;
+    const isPastRiver = myColor === 0 ? toRow >= 5 : toRow <= 4;
 
     if (isMate) {
       return {
         tacticName: "Tuyệt Kỹ Sát Cục",
-        why: `Nước cờ ${notation.short} tạo thế sát cục không thể chống đỡ!`,
+        why: `Nước cờ ${notation.short} tạo lập trận thế sát cục hoàn hảo! Khóa chặt mọi ngả đường thoái lui của Tướng địch.`,
         tag: "Sát Cục",
       };
     }
 
     if (isCheck) {
       return {
-        tacticName: "Chiếu Tướng Đoạt Tiên",
-        why: `Chiếu Tướng ép đối thủ co cụm, giữ quyền chủ động kiểm soát.`,
+        tacticName: "Chiếu Tướng Ép Co Cụm",
+        why: `Chiếu Tướng đanh thép tước đoạt quyền chủ động của địch, buộc Tướng hoặc Sĩ Tượng đối phương phải vá víu bộc lộ sơ hở lớn.`,
         tag: "Chiếu Tướng",
       };
     }
@@ -215,91 +222,152 @@ import {
     if (target) {
       return {
         tacticName: `Chém ${target.name} Lộ ${tCol}`,
-        why: `Chém ${target.name} đoạt lợi thế vật chất và phá vỡ cấu trúc địch.`,
+        why: `Triệt hạ ${target.name} then chốt tại lộ ${tCol}, xóa bỏ quân chốt chặn chiến lược và gia tăng cách biệt ưu thế lực lượng (+${evalPoints}đ).`,
         tag: "Đoạt Quân",
       };
     }
 
+    // 1. Xe (Rook)
     if (piece.type === 3) {
-      const riverRank = myColor === 0 ? 4 : 5;
-      const enemyPawnRank = myColor === 0 ? 6 : 3;
       if (toRow === riverRank) {
         return {
-          tacticName: "Xe Tuần Hà",
-          why: `Xe chiếm bờ sông lộ ${tCol}, kiểm soát toàn bộ tuyến giao thông.`,
+          tacticName: "Xe Tuần Hà (Khống Chế Tuyến Sông)",
+          why: `Xe chiếm cứ bờ sông lộ ${tCol} - tuyến huyết mạch chiến trường; vừa ngăn chặn Mã và Binh địch vượt sông, vừa sẵn sàng hoành xa chuyển cánh chi viện công kích thần tốc.`,
           tag: "Tuần Hà",
         };
       }
       if (toRow === enemyPawnRank) {
         return {
-          tacticName: "Xe Quá Hà Đè Mã",
-          why: `Áp sát hàng tốt địch, đè đầu Mã và khống chế lộ sườn.`,
+          tacticName: "Xe Quá Hà Áp Sát (Đè Mã Diệt Tốt)",
+          why: `Xe lọt sâu vào trận địa địch tại lộ ${tCol}, chọc thẳng vào hàng Tốt yếu hại, đè đầu Mã đối phương và mở toang hành lang sườn cho các đợt công kích tiếp theo.`,
           tag: "Ghìm Mã",
         };
       }
+      if (toRow === enemyBaseline || Math.abs(toRow - enemyBaseline) === 1) {
+        return {
+          tacticName: "Xe Áp Đáy Cung (Kẹp Cổ Khóa Tướng)",
+          why: `Xe thọc sâu xuống tuyến đáy lộ ${tCol}, phong tỏa toàn bộ đường di chuyển của Tướng và Sĩ địch, tạo thế kẹp cổ phối hợp cùng Pháo/Mã sát phạt.`,
+          tag: "Kẹp Cổ",
+        };
+      }
       return {
-        tacticName: "Xe Chiếm Lộ Thông",
-        why: `Điều Xe vào lộ ${tCol} thông thoáng, làm chủ trục giao chiến.`,
+        tacticName: `Xe Chiếm Lộ ${tCol} Thông Thoáng`,
+        why: `Xuất Xe kiểm soát lộ ${tCol} thông thoáng, làm chủ trục giao chiến chính, đoạt quyền tiên cơ và liên kết chặt chẽ toàn bộ tuyến công thủ.`,
         tag: "Lộ Thông",
       };
     }
 
+    // 2. Pháo (Cannon)
     if (piece.type === 4) {
       if (toCol === 4) {
         return {
-          tacticName: "Pháo Đầu Uy Chấn",
-          why: `Bình Pháo trung lộ, khống chế thẳng Tướng và cột dọc đối phương.`,
+          tacticName: "Pháo Đầu Uy Chấn (Trung Pháo Công Tâm)",
+          why: `Bình Pháo vào trung lộ khống chế trực diện tim Tướng địch, ghim chặt Tốt đầu và Tướng đối phương vào trục dọc, tạo thế công dồn dập và giải phóng đường cho Song Mã xuất trận.`,
           tag: "Pháo Đầu",
         };
       }
+      if (toCol === 1 || toCol === 7) {
+        return {
+          tacticName: `Pháo Giáp Sườn (Lộ ${tCol})`,
+          why: `Chuyển Pháo sang lộ ${tCol} tạo gọng kìm phối hợp cùng Xe, nhắm thẳng vào cánh yếu của đối phương và phong tỏa ý đồ xuất Xe phản kích của địch.`,
+          tag: "Pháo Sườn",
+        };
+      }
+      if (toRow === riverRank || toRow === enemyPawnRank) {
+        return {
+          tacticName: `Pháo Tuần Hà / Quá Hà Lộ ${tCol}`,
+          why: `Tiến Pháo lên kiểm soát tuyến giao thông lộ ${tCol}, tạo ngòi nổ tầm xa ghìm chặt Xe Mã đối phương không cho tự do triển khai quân lực.`,
+          tag: "Phong Tỏa",
+        };
+      }
       return {
-        tacticName: "Pháo Khống Chế Sườn",
-        why: `Điều Pháo sang lộ ${tCol}, tạo thế gọng kìm phối hợp công kích.`,
-        tag: "Pháo Sườn",
+        tacticName: `Pháo Lập Trận Lộ ${tCol}`,
+        why: `Điều Pháo tới vị trí đắc địa lộ ${tCol}, thiết lập ngòi nổ chiến thuật đa hướng và bảo vệ các điểm then chốt của trận địa.`,
+        tag: "Pháo Trận",
       };
     }
 
+    // 3. Mã (Knight)
     if (piece.type === 5) {
-      if (toCol === 2 || toCol === 6) {
+      if ((toCol === 2 || toCol === 6) && Math.abs(toRow - enemyBaseline) <= 2) {
         return {
-          tacticName: "Mã Ngọa Tào",
-          why: `Phi Mã ngọa tào, khóa góc cung Tướng dọa đòn sát phạt.`,
+          tacticName: "Mã Ngọa Tào (Khóa Cung Tướng Địch)",
+          why: `Phi Mã cắm thẳng vào huyệt đạo ngọa tào lộ ${tCol}, khóa chặt góc cung Tướng địch, đe dọa trực tiếp mạng sống của Tướng và mở đường cho Xe Pháo giáng đòn kết liễu.`,
           tag: "Ngọa Tào",
+        };
+      }
+      if ((toCol === 3 || toCol === 5) && Math.abs(toRow - enemyBaseline) <= 2) {
+        return {
+          tacticName: "Mã Điếu Ngư (Mã Câu Cá Độc Chiêu)",
+          why: `Mã chiếm vị trí Điếu Ngư hiểm hóc, kết hợp với Xe hoặc Pháo tạo thành thế thắt cổ không thể chống đỡ đối với Tướng địch.`,
+          tag: "Điếu Ngư",
         };
       }
       if (toCol === 3 || toCol === 5) {
         return {
-          tacticName: "Song Mã Liên Hoàn",
-          why: `Liên kết song Mã ở trung lộ, thế trận vững như bàn thạch.`,
-          tag: "Liên Hoàn",
+          tacticName: `Song Mã Khởi Nhịp Lộ ${tCol}`,
+          why: `Mã tiến lên vị trí trung tâm lộ ${tCol}, liên hoàn bảo vệ Tốt đầu, mở rộng tầm kiểm soát bàn cờ và sẵn sàng phi qua sông công kích khi có cơ hội.`,
+          tag: "Song Mã",
+        };
+      }
+      if (isPastRiver) {
+        return {
+          tacticName: "Mã Vượt Sông Bàn Hà",
+          why: `Mã phi qua sông đoạt điểm tựa chiến thuật, đạp vỡ thế phòng ngự phía trước và mở rộng không gian tấn công đa góc hiểm hóc.`,
+          tag: "Bàn Hà",
         };
       }
       return {
-        tacticName: "Mã Vượt Sông Bàn Hà",
-        why: `Mã phi qua sông đoạt điểm tựa chiến thuật, mở rộng tầm kiểm soát.`,
-        tag: "Bàn Hà",
+        tacticName: `Mã Nhảy Khai Thông Lộ ${tCol}`,
+        why: `Vận động Mã đến lộ ${tCol} thoáng đãng, thoát khỏi sự cản trở của chân Mã, tạo điểm tựa cơ động cho cả công thủ toàn diện.`,
+        tag: "Khai Thông",
       };
     }
 
+    // 4. Binh / Tốt (Pawn)
     if (piece.type === 6) {
+      if (isPastRiver) {
+        return {
+          tacticName: "Tiểu Tốt Quá Hà (Áp Đảo Uy Lực)",
+          why: `Tốt vượt sông áp sát phòng tuyến địch tại lộ ${tCol}, từng bước gặm nhấm không gian phòng ngự, sẵn sàng phối hợp thọc sâu vào cung Tướng đối phương.`,
+          tag: "Tốt Qua Sông",
+        };
+      }
       return {
-        tacticName: "Binh Tiến Qua Sông",
-        why: `Tiến Tốt sang sông mở đường cho Mã, ép sát trận địa đối thủ.`,
-        tag: "Tốt Tiến",
+        tacticName: `Tiến Binh Khai Nhãn Lộ ${tCol}`,
+        why: `Đẩy Binh lộ ${tCol} lên một nước nhằm thông đường cho Mã xuất kích, kiềm tỏa đà phát triển của quân địch trên cùng trục lộ.`,
+        tag: "Khai Nhãn",
       };
     }
 
-    if (piece.type === 1 || piece.type === 2) {
+    // 5. Sĩ / Tượng (Guard / Bishop)
+    if (piece.type === 1) {
       return {
-        tacticName: "Củng Cố Cung Tướng",
-        why: `Gia cố cung Tướng, liên kết Sĩ Tượng bịt kín ngòi nổ đối phương.`,
+        tacticName: "Bổ Sĩ Gia Cố Cung Tướng",
+        why: `Dựng Sĩ che chắn trung lộ và góc cung, bảo vệ an toàn tuyệt đối cho Tướng trước các họng pháo tầm xa và đòn xuyên tâm của địch.`,
         tag: "Gia Cố",
+      };
+    }
+    if (piece.type === 2) {
+      return {
+        tacticName: "Vén Tượng Liên Hoàn Phòng Thủ",
+        why: `Liên kết đôi Tượng vững chắc, bảo vệ Tốt đầu và ngăn chặn Xe/Pháo đối phương nhòm ngó đáy cung trận địa.`,
+        tag: "Vén Tượng",
+      };
+    }
+
+    // 6. Tướng (King)
+    if (piece.type === 0) {
+      return {
+        tacticName: "Tướng Xuất Cung Trợ Chiến",
+        why: `Vận động Tướng chiếm lộ khống chế, dùng mặt Tướng làm ngòi nổ hỗ trợ Xe Pháo khóa chặt đường di chuyển của địch.`,
+        tag: "Mặt Tướng",
       };
     }
 
     return {
-      tacticName: "Điều Động Quân Lực",
-      why: `Di chuyển ${piece.name} đến Lộ ${tCol} tạo liên kết thế trận.`,
+      tacticName: `Điều Động Quân Lực Lộ ${tCol}`,
+      why: `Di chuyển ${piece.name} đến Lộ ${tCol} tạo liên kết thế trận, sẵn sàng ứng biến theo mọi diễn biến tiếp theo.`,
       tag: "Điều Quân",
     };
   }
@@ -409,11 +477,11 @@ import {
     if (searchRes.score >= 50) evalText = `+${evalPoints}đ (Bạn ưu)`;
     else if (searchRes.score <= -50) evalText = `${evalPoints}đ (Địch ưu)`;
 
-    // Map Engine Lines into Rich Tactical Plans with 2-3 Opponent Variations
+    // Plans MUST ALWAYS be generated from the player's perspective (myColor)
+    // The Mentor is strictly the player's Grandmaster Tactical Advisor.
     const plans = [];
-    const movingColor =
-      searchRes.side !== undefined ? searchRes.side : isMyTurn ? myColor : oppColor;
-    const targetColor = 1 - movingColor;
+    const movingColor = myColor;
+    const targetColor = oppColor;
 
     (searchRes.lines || []).forEach((line, idx) => {
       const movingPiece = pieces.find(
@@ -450,34 +518,108 @@ import {
         movingColor,
         isCheck,
         isMate,
+        line.replies,
+        pieces,
+        evalPoints,
       );
 
-      // Process 2-3 Opponent Variations
-      const variations = (line.replies || []).map((rep, rIdx) => {
-        const oppPiece = pieces.find(
-          (p) =>
-            p.col === rep.fromCol &&
-            p.row === rep.fromRow &&
-            p.color === oppColor,
-        );
-        const oppTarget = pieces.find(
-          (p) =>
-            p.col === rep.toCol && p.row === rep.toRow && p.color === myColor,
-        );
-        const oppNot = oppPiece
-          ? getXiangqiNotation(
-              oppPiece,
-              rep.fromCol,
-              rep.fromRow,
-              rep.toCol,
-              rep.toRow,
-              oppColor,
-            )
-          : { short: "Địch đi", full: "Đối thủ di chuyển" };
+      // Process 2-3 Opponent Variations with Deep Tactical Explanations
+      let rawReplies = (line.replies || []).filter(
+        (r) => r && r.fromCol != null && r.toCol != null,
+      );
 
-        let oppWhy = oppTarget
-          ? `Chém ${oppTarget.name} tại Lộ ${oppColor === 0 ? 9 - rep.toCol : rep.toCol + 1}.`
-          : `Điều quân phản ứng củng cố.`;
+      // If no opponent replies provided by engine/cloud, dynamically compute 1-3 REAL legal opponent responses!
+      if (rawReplies.length === 0) {
+        try {
+          const afterOurMove = pieces
+            .filter(
+              (p) =>
+                !(
+                  p.col === line.toCol &&
+                  p.row === line.toRow &&
+                  p.color === oppColor
+                ),
+            )
+            .map((p) =>
+              p.col === line.fromCol &&
+              p.row === line.fromRow &&
+              p.color === movingColor
+                ? { ...p, col: line.toCol, row: line.toRow }
+                : { ...p },
+            );
+
+          const oppSearch = engine.analyze({
+            pieces: afterOurMove,
+            side: oppColor,
+            maxDepth: 3,
+            timeMs: 40,
+            multiPV: 3,
+          });
+
+          if (oppSearch && oppSearch.lines && oppSearch.lines.length > 0) {
+            rawReplies = oppSearch.lines.map((ol) => ({
+              fromCol: ol.fromCol,
+              fromRow: ol.fromRow,
+              toCol: ol.toCol,
+              toRow: ol.toRow,
+              score: ol.score,
+              answer:
+                ol.pv && ol.pv[1] ? { ...ol.pv[1], score: -ol.score } : null,
+            }));
+          }
+        } catch (e) {
+          console.warn("[AN Mod] Dynamic opponent reply generation fallback:", e);
+        }
+      }
+
+      const variations = rawReplies.map((rep, rIdx) => {
+        const oppPiece =
+          pieces.find(
+            (p) =>
+              p.col === rep.fromCol &&
+              p.row === rep.fromRow &&
+              p.color === oppColor,
+          ) || {
+            col: rep.fromCol,
+            row: rep.fromRow,
+            type: 6,
+            color: oppColor,
+            name: "Quân địch",
+            short: "Q",
+          };
+
+        const oppTarget =
+          rep.toCol === line.toCol && rep.toRow === line.toRow
+            ? movingPiece
+            : pieces.find(
+                (p) =>
+                  p.col === rep.toCol &&
+                  p.row === rep.toRow &&
+                  p.color === myColor,
+              );
+
+        const oppNot = getXiangqiNotation(
+          oppPiece,
+          rep.fromCol,
+          rep.fromRow,
+          rep.toCol,
+          rep.toRow,
+          oppColor,
+        );
+
+        let oppWhy = "";
+        const oppTCol = oppColor === 0 ? 9 - rep.toCol : rep.toCol + 1;
+        if (oppTarget) {
+          oppWhy = `Phản pháo chém ${oppTarget.name} tại Lộ ${oppTCol} nhằm giải tỏa sức ép.`;
+        } else if (oppPiece && (oppPiece.type === 1 || oppPiece.type === 2)) {
+          oppWhy = `Bổ ${oppPiece.name} củng cố phòng tuyến trước thế công dồn dập của ta.`;
+        } else if (oppPiece && oppPiece.type === 3) {
+          oppWhy = `Xuất Xe kiểm soát Lộ ${oppTCol} hòng ngăn chặn mũi đột phá của ta.`;
+        } else if (oppPiece && oppPiece.type === 5) {
+          oppWhy = `Nhảy Mã lên Lộ ${oppTCol} hòng tìm kiếm cơ hội phản kích.`;
+        } else {
+          oppWhy = `Điều quân phản ứng củng cố trận địa.`;
+        }
 
         // Follow-up answer from friendly side
         let ansNot = null;
@@ -498,7 +640,24 @@ import {
               rep.answer.toRow,
               myColor,
             );
-            ansWhy = `Bồi thêm đòn ${ansNot.short} giữ vững thế trận.`;
+            const ansTarget = pieces.find(
+              (p) =>
+                p.col === rep.answer.toCol &&
+                p.row === rep.answer.toRow &&
+                p.color === oppColor,
+            );
+            const ansTCol = myColor === 0 ? 9 - rep.answer.toCol : rep.answer.toCol + 1;
+            if (ansTarget) {
+              ansWhy = `Lập tức chém ${ansTarget.name} Lộ ${ansTCol}, đoạt ưu thế quyết định.`;
+            } else if (rep.answer.score && rep.answer.score > 9000) {
+              ansWhy = `Giáng đòn sát cục kết liễu trận đấu!`;
+            } else if (ansPiece.type === 3) {
+              ansWhy = `Xe bồi đòn khống chế Lộ ${ansTCol}, siết chặt vòng vây ép địch vào thế bí.`;
+            } else if (ansPiece.type === 4) {
+              ansWhy = `Pháo bồi thêm đòn công kích sườn/trung lộ, khóa chặt đường tẩu thoát.`;
+            } else {
+              ansWhy = `Bồi thêm đòn ${ansNot.short} giữ vững ưu thế áp đảo.`;
+            }
           }
         }
 
@@ -533,19 +692,35 @@ import {
         };
       });
 
-      // Default to best response if variations empty
+      // Default if completely empty (e.g. checkmate)
       if (variations.length === 0) {
         variations.push({
           idx: 0,
-          label: "Biến 1: Địch chống đỡ",
-          shortLabel: "Biến 1",
-          oppNotation: { short: "Địch đi", full: "Đối thủ di chuyển" },
-          oppWhy: "Đối thủ buộc phải chống đỡ nước cờ của ta.",
-          fromCol: line.toCol,
-          fromRow: line.toRow,
+          label: "Biến 1: Địch cùng đường",
+          shortLabel: "Hết cờ",
+          oppNotation: { short: "Hết nước", full: "Đối thủ không còn nước đi hợp lệ" },
+          oppWhy: "Đối thủ lâm vào thế sát cục hoặc hết nước đi.",
+          fromCol: null,
+          fromRow: null,
+          toCol: null,
+          toRow: null,
+          oppPiece: null,
           answer: null,
         });
       }
+
+      // Dynamic strategic preparation linking Step 1 to Step 2 and Step 3
+      let prepText = "";
+      const firstRep = variations[0];
+      if (firstRep && firstRep.oppNotation?.short && firstRep.oppNotation?.short !== "Địch đi") {
+        if (firstRep.answer && firstRep.answer.notation?.short) {
+          prepText = `Kế sách: Đón đầu nước ${firstRep.oppNotation.short} của địch để lập tức bồi đòn ${firstRep.answer.notation.short}, làm chủ thế trận.`;
+        } else {
+          prepText = `Kế sách: Khống chế biến phản ứng ${firstRep.oppNotation.short} của đối phương, đoạt tiên cơ áp đảo.`;
+        }
+      }
+
+      const planWhy = prepText ? `${desc.why} (${prepText})` : desc.why;
 
       const planType = idx === 0 ? "attack" : idx === 1 ? "defend" : "maneuver";
       const planBadge =
@@ -561,7 +736,7 @@ import {
         badge: planBadge,
         tag: desc.tag,
         tags: line.tags && line.tags.length > 0 ? line.tags : (desc.tag ? [desc.tag] : []),
-        why: desc.why,
+        why: planWhy,
         score: line.score,
         piece: movingPiece,
         fromCol: line.fromCol,
@@ -597,6 +772,16 @@ import {
         shortMove: plans[0].shortNotation,
         why: plans[0].why,
       };
+    } else if (!isMyTurn) {
+      commentary = {
+        type: "waiting",
+        title: "LƯỢT ĐỐI THỦ ĐANG SUY NGHĨ",
+        move: plans[0] ? `Dự tính: ${plans[0].shortNotation}` : null,
+        shortMove: plans[0] ? plans[0].shortNotation : null,
+        why: plans[0]
+          ? `Đối thủ đang suy nghĩ nước đi... Sẵn sàng phương án đối sách: ${plans[0].fullNotation}.`
+          : "Đối thủ đang suy nghĩ nước đi...",
+      };
     } else if (plans[0]) {
       commentary = {
         type: "optimal",
@@ -605,21 +790,13 @@ import {
         shortMove: plans[0].shortNotation,
         why: plans[0].why,
       };
-    } else if (isMyTurn) {
+    } else {
       commentary = {
         type: "turn",
         title: "LƯỢT ĐI CỦA BẠN",
         move: null,
         shortMove: null,
         why: "Đến lượt bạn đi. Hãy triển khai nước cờ cẩn trọng.",
-      };
-    } else {
-      commentary = {
-        type: "waiting",
-        title: "LƯỢT ĐỐI THỦ",
-        move: null,
-        shortMove: null,
-        why: "Đối thủ đang suy nghĩ nước đi...",
       };
     }
 
@@ -701,9 +878,9 @@ import {
     cancelWorkerSearch = provider.analyzeAsync(
       {
         pieces,
-        side: isMyTurn ? myColor : activeColor,
-        maxDepth: activeProviderId === "pikafish" ? 18 : 10,
-        timeMs: activeProviderId === "pikafish" ? 500 : 600,
+        side: myColor, // ALWAYS search for player (myColor) - keeps mentor strictly player-focused
+        maxDepth: activeProviderId === "pikafish" ? 22 : 12,
+        timeMs: activeProviderId === "pikafish" ? 1500 : 800,
         multiPV: 3,
       },
       (err, searchRes) => {
@@ -790,8 +967,14 @@ import {
       }
 
       // Step 2: Selected Opponent Variation Move
-      if (activeStep >= 2 && activeVariation) {
+      if (
+        activeStep >= 2 &&
+        activeVariation &&
+        activeVariation.fromCol != null &&
+        activeVariation.toCol != null
+      ) {
         const opp = activeVariation;
+        const oppColor = 1 - myColor;
         current = current.filter(
           (p) =>
             !(
@@ -804,7 +987,7 @@ import {
           (p) =>
             p.col === opp.fromCol &&
             p.row === opp.fromRow &&
-            p.color === opp.oppPiece?.color,
+            p.color === oppColor,
         );
         if (moving) {
           moving.col = opp.toCol;
@@ -814,7 +997,12 @@ import {
       }
 
       // Step 3: Friendly Follow-Up Move
-      if (activeStep >= 3 && activeVariation?.answer) {
+      if (
+        activeStep >= 3 &&
+        activeVariation?.answer &&
+        activeVariation.answer.fromCol != null &&
+        activeVariation.answer.toCol != null
+      ) {
         const ans = activeVariation.answer;
         current = current.filter(
           (p) =>
@@ -841,6 +1029,9 @@ import {
     }, [pieces, activePlan, activeVariation, activeStep, myColor]);
 
     const getSquarePos = (col, row) => {
+      if (col == null || row == null || isNaN(col) || isNaN(row)) {
+        return null;
+      }
       let displayCol = col;
       let displayRow = row;
 
@@ -861,8 +1052,10 @@ import {
       if (!activePlan) return null;
 
       if (activeStep === 0 || activeStep === 1) {
+        if (activePlan.fromCol == null || activePlan.toCol == null) return null;
         const s = getSquarePos(activePlan.fromCol, activePlan.fromRow);
         const e = getSquarePos(activePlan.toCol, activePlan.toRow);
+        if (!s || !e) return null;
         return {
           x1: s.x,
           y1: s.y,
@@ -875,11 +1068,13 @@ import {
       }
 
       if (activeStep === 2 && activeVariation) {
+        if (activeVariation.fromCol == null || activeVariation.toCol == null) return null;
         const s = getSquarePos(
           activeVariation.fromCol,
           activeVariation.fromRow,
         );
         const e = getSquarePos(activeVariation.toCol, activeVariation.toRow);
+        if (!s || !e) return null;
         return {
           x1: s.x,
           y1: s.y,
@@ -893,8 +1088,10 @@ import {
 
       if (activeStep === 3 && activeVariation?.answer) {
         const ans = activeVariation.answer;
+        if (ans.fromCol == null || ans.toCol == null) return null;
         const s = getSquarePos(ans.fromCol, ans.fromRow);
         const e = getSquarePos(ans.toCol, ans.toRow);
+        if (!s || !e) return null;
         return {
           x1: s.x,
           y1: s.y,
@@ -1211,7 +1408,7 @@ import {
           <Button
             variant={activeStep === 2 ? "secondary" : "ghost"}
             size="xs"
-            disabled={!activeVariation}
+            disabled={!activeVariation || activeVariation.fromCol == null}
             className="h-5.5 gap-0.5 px-1 text-[9px]"
             onClick={() => setActiveStep(2)}
           >
@@ -1221,13 +1418,37 @@ import {
           <Button
             variant={activeStep === 3 ? "secondary" : "ghost"}
             size="xs"
-            disabled={!activeVariation?.answer}
+            disabled={!activeVariation?.answer || activeVariation.answer.fromCol == null}
             className="h-5.5 gap-0.5 px-1 text-[9px]"
             onClick={() => setActiveStep(3)}
           >
             <Sparkles className="size-2.5 text-amber-400" />
             <span>3. Ta bồi</span>
           </Button>
+        </div>
+
+        {/* Step context subtitle below stepper buttons */}
+        <div className="min-h-[18px] px-1.5 py-0.5 rounded bg-white/[0.03] border border-white/[0.06] text-[10px] leading-tight flex items-center">
+          {activeStep === 0 && (
+            <span className="text-muted-foreground font-medium">
+              Bàn cờ thực tế hiện tại
+            </span>
+          )}
+          {activeStep === 1 && activePlan && (
+            <span className="text-cyan-400 font-semibold truncate">
+              1. Ta đi: <strong>{activePlan.shortNotation}</strong> ({activePlan.fullNotation})
+            </span>
+          )}
+          {activeStep === 2 && activeVariation && (
+            <span className="text-rose-400 font-semibold truncate">
+              2. Địch đáp: <strong>{activeVariation.oppNotation?.short || "Nước đi"}</strong> — {activeVariation.oppWhy}
+            </span>
+          )}
+          {activeStep === 3 && activeVariation?.answer && (
+            <span className="text-amber-400 font-semibold truncate">
+              3. Ta bồi: <strong>{activeVariation.answer.notation?.short || "Nước cờ"}</strong> — {activeVariation.answer.why}
+            </span>
+          )}
         </div>
       </div>
     );

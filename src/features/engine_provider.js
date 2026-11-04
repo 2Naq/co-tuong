@@ -22,12 +22,12 @@ export function createJsEngineProvider() {
   };
 }
 
-let activeProviderId = "js-engine";
+let activeProviderId = "pikafish";
 let jsEngineInstance = null;
 let pikafishInstance = null;
 
 /**
- * Gets the current active Engine Provider (defaults to "js-engine").
+ * Gets the current active Engine Provider (defaults to "pikafish").
  * @param {"js-engine" | "pikafish"} [requestedId]
  * @returns {Object} EngineProvider
  */
