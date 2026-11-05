@@ -13,35 +13,43 @@ const PORT = parseInt(
 const HOST = "127.0.0.1";
 
 function resolvePikafishExe() {
-  const dir = path.resolve(__dirname, "../third_party/pikafish");
-  const candidates = [
-    path.join(dir, "Pikafish-Windows-x86-64-universal.exe"),
-    path.join(dir, "pikafish.exe"),
-    path.join(dir, "Pikafish-Linux-x86-64-universal"),
-    path.join(dir, "Pikafish-MacOS-universal"),
-    path.join(dir, "pikafish"),
+  const possibleDirs = [
+    path.resolve(path.dirname(process.execPath), "third_party/pikafish"),
+    path.resolve(process.cwd(), "third_party/pikafish"),
+    path.resolve(__dirname, "../third_party/pikafish"),
+    path.resolve(__dirname, "./third_party/pikafish"),
   ];
 
-  for (const c of candidates) {
-    if (fs.existsSync(c)) {
-      return c;
-    }
-  }
+  for (const dir of possibleDirs) {
+    const candidates = [
+      path.join(dir, "Pikafish-Windows-x86-64-universal.exe"),
+      path.join(dir, "pikafish.exe"),
+      path.join(dir, "Pikafish-Linux-x86-64-universal"),
+      path.join(dir, "Pikafish-MacOS-universal"),
+      path.join(dir, "pikafish"),
+    ];
 
-  // Tự động giải nén Pikafish.7z nếu có sẵn trong thư mục
-  const archivePath = path.join(dir, "Pikafish.7z");
-  if (fs.existsSync(archivePath)) {
-    console.log(
-      "📦 Đang tự động giải nén Pikafish.7z qua lệnh tar hệ thống...",
-    );
-    try {
-      const { execSync } = require("child_process");
-      execSync(`tar -xf "${archivePath}" -C "${dir}"`, { stdio: "inherit" });
-      for (const c of candidates) {
-        if (fs.existsSync(c)) return c;
+    for (const c of candidates) {
+      if (fs.existsSync(c)) {
+        return c;
       }
-    } catch (e) {
-      console.warn("⚠️ Tự động giải nén thất bại:", e.message);
+    }
+
+    // Tự động giải nén Pikafish.7z nếu có sẵn trong thư mục
+    const archivePath = path.join(dir, "Pikafish.7z");
+    if (fs.existsSync(archivePath)) {
+      console.log(
+        "📦 Đang tự động giải nén Pikafish.7z qua lệnh tar hệ thống...",
+      );
+      try {
+        const { execSync } = require("child_process");
+        execSync(`tar -xf "${archivePath}" -C "${dir}"`, { stdio: "inherit" });
+        for (const c of candidates) {
+          if (fs.existsSync(c)) return c;
+        }
+      } catch (e) {
+        console.warn("⚠️ Tự động giải nén thất bại:", e.message);
+      }
     }
   }
 

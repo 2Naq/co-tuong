@@ -11,6 +11,7 @@ pnpm-lock.yaml
 dist/
 build/
 out/
+pikafish_bridge.exe
 
 # Logs & Runtime
 *.log
