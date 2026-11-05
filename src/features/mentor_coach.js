@@ -50,6 +50,7 @@ import {
   setEngineProvider,
   listEngineProviders,
   reconnectPikafish,
+  getEngineTransportStatus,
 } from "./engine_provider";
 
 (function (ZigaMod) {
@@ -499,6 +500,74 @@ import {
     };
   }
 
+  /**
+   * Scans for impending Discovered Checks (Chiếu Rút / Chiếu Mở) against our King.
+   * E.g. Enemy Chariot or Cannon obstructed only by an enemy jumper (Elephant, Knight, Pawn).
+   * When that enemy piece moves, our King is instantly placed in check!
+   */
+  function detectDiscoveredCheckThreat(pieces, myColor, oppColor) {
+    if (!pieces || pieces.length === 0) return null;
+    const myKing = pieces.find((p) => p.type === 0 && p.color === myColor);
+    if (!myKing) return null;
+
+    const DIRS = [
+      [0, 1],
+      [0, -1],
+      [1, 0],
+      [-1, 0],
+    ];
+
+    for (const [dc, dr] of DIRS) {
+      let c = myKing.col + dc;
+      let r = myKing.row + dr;
+      const rayPieces = [];
+
+      while (c >= 0 && c <= 8 && r >= 0 && r <= 9) {
+        const found = pieces.find((p) => p.col === c && p.row === r);
+        if (found) rayPieces.push(found);
+        c += dc;
+        r += dr;
+      }
+
+      if (rayPieces.length >= 2) {
+        const p1 = rayPieces[0];
+        const p2 = rayPieces[1];
+
+        // 1. Chariot Discovered Check (Xe Chiếu Rút):
+        // p1 is an enemy blocker, p2 is an enemy Chariot!
+        if (p1.color === oppColor && p2.color === oppColor && p2.type === 3) {
+          const colName = myColor === 0 ? 9 - p1.col : p1.col + 1;
+          return {
+            type: "discovered_check",
+            attacker: p2,
+            blocker: p1,
+            desc: `CẢNH BÁO CHIẾU RÚT: ${p1.name} địch tại Lộ ${colName} đang cản đường ${p2.name} chiếu Tướng. Khi ${p1.name} nảy đi sẽ giáng đòn chiếu rút cực hiểm!`,
+          };
+        }
+
+        // 2. Cannon Discovered Check (Pháo Chiếu Rút):
+        // A Cannon needs 1 screen. If ray has p1 and p2, and p3 is an enemy Cannon:
+        if (rayPieces.length >= 3) {
+          const p3 = rayPieces[2];
+          if (p3.color === oppColor && p3.type === 4) {
+            const enemyBlocker = p1.color === oppColor ? p1 : (p2.color === oppColor ? p2 : null);
+            if (enemyBlocker) {
+              const colName = myColor === 0 ? 9 - enemyBlocker.col : enemyBlocker.col + 1;
+              return {
+                type: "discovered_check",
+                attacker: p3,
+                blocker: enemyBlocker,
+                desc: `CẢNH BÁO PHÁO RÚT: ${enemyBlocker.name} địch tại Lộ ${colName} đang che ngòi ${p3.name}. Đối thủ nảy ${enemyBlocker.name} sẽ mở hỏa lực Pháo chiếu Tướng lập tức!`,
+              };
+            }
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
   // =========================================================================
   // Master Tactical Engine Integration (Negamax MultiPV + 2-3 Variations)
   // =========================================================================
@@ -525,6 +594,8 @@ import {
     if (score >= 50) evalText = `+${evalPoints}đ (Bạn ưu)`;
     else if (score <= -50) evalText = `${evalPoints}đ (Địch ưu)`;
 
+    const discThreat = detectDiscoveredCheckThreat(pieces, myColor, oppColor);
+
     let commentary = {
       type: "turn",
       title: "LƯỢT ĐI CỦA BẠN",
@@ -540,6 +611,14 @@ import {
         move: null,
         shortMove: null,
         why: "Tướng của bạn đang bị chiếu! Cần ưu tiên hóa giải thế chiếu an toàn.",
+      };
+    } else if (discThreat) {
+      commentary = {
+        type: "danger",
+        title: "CẢNH BÁO CHIẾU RÚT",
+        move: null,
+        shortMove: null,
+        why: discThreat.desc,
       };
     } else if (!isMyTurn) {
       commentary = {
@@ -568,7 +647,7 @@ import {
       evalText,
       coachCommentary,
       commentary,
-      threatInfo: null,
+      threatInfo: discThreat ? { desc: discThreat.desc } : null,
       plans: [],
       inCheck,
       depth: 0,
@@ -577,10 +656,24 @@ import {
         quickRes && quickRes.evalBreakdown ? quickRes.evalBreakdown : null,
       openingName: null,
       engineName:
-        activeProviderId === "pikafish" ? "Pikafish NNUE" : "AN Grandmaster JS",
+        activeProviderId === "pikafish"
+          ? getEngineTransportStatus().type === "native-ws"
+            ? "Pikafish NNUE (Native WS: 8765)"
+            : "Pikafish 17 NNUE (Cloud)"
+          : "AN Grandmaster JS",
       pikafishStatus:
-        activeProviderId === "pikafish" ? "cloud-nnue" : "js-engine",
-      mateThreat: null,
+        activeProviderId === "pikafish"
+          ? getEngineTransportStatus().type
+          : "js-engine",
+      mateThreat: discThreat
+        ? {
+            type: "defense",
+            motif: "Chiếu Rút Nguy Hiểm",
+            steps: 1,
+            title: "🚨 CẢNH BÁO ĐÒN CHIẾU RÚT!",
+            explanation: discThreat.desc,
+          }
+        : null,
       maxim: currentMaxim,
       isQuickOnly: true,
     };
@@ -604,10 +697,11 @@ import {
     else if (totalPieces <= 14) phase = "Tàn Cuộc";
 
     // Numerical Advantage Score (centipawn to points)
-    const evalPoints = (searchRes.score / 100).toFixed(1);
+    const topScore = searchRes.score || 0;
+    const evalPoints = (topScore / 100).toFixed(1);
     let evalText = "Cân bằng (0.0)";
-    if (searchRes.score >= 50) evalText = `+${evalPoints}đ (Bạn ưu)`;
-    else if (searchRes.score <= -50) evalText = `${evalPoints}đ (Địch ưu)`;
+    if (topScore >= 50) evalText = `+${evalPoints}đ (Bạn ưu)`;
+    else if (topScore <= -50) evalText = `${evalPoints}đ (Địch ưu)`;
 
     // Plans MUST ALWAYS be generated from the player's perspective (myColor)
     // The Mentor is strictly the player's Grandmaster Tactical Advisor.
@@ -1054,6 +1148,81 @@ import {
       });
     });
 
+    // Dự phòng an toàn: nếu không có dòng tính toán hoặc bị lọc hết (Kế Sách (0)),
+    // tự động chạy phân tích nhanh từ engine JS nội bộ để người chơi luôn có kế sách tối ưu.
+    if (plans.length === 0) {
+      try {
+        const fallbackRes = engine.analyze({
+          pieces,
+          side: movingColor,
+          maxDepth: 4,
+          timeMs: 120,
+          multiPV: 3,
+        });
+        if (fallbackRes && fallbackRes.lines && fallbackRes.lines.length > 0) {
+          fallbackRes.lines.forEach((line) => {
+            const movingPiece = pieces.find(
+              (p) =>
+                p.col === line.fromCol &&
+                p.row === line.fromRow &&
+                p.color === movingColor,
+            );
+            if (!movingPiece) return;
+            const fullNotation = getXiangqiNotation(
+              movingPiece,
+              line.fromCol,
+              line.fromRow,
+              line.toCol,
+              line.toRow,
+              movingColor,
+            );
+            const shortNotation = formatShortNotation(
+              movingPiece,
+              line.toCol,
+              line.toRow,
+              movingColor,
+            );
+            plans.push({
+              id: `fallback-${line.fromCol}-${line.fromRow}-${line.toCol}-${line.toRow}`,
+              name: `Triển khai ${movingPiece.name}`,
+              badge: "An Toàn",
+              fullNotation,
+              shortNotation,
+              tag: "reposition",
+              tags: ["reposition"],
+              why: `Chủ động điều động ${movingPiece.name} ổn định thế trận, củng cố phòng thủ và đón bắt thời cơ phản công.`,
+              score: line.score || 0,
+              piece: movingPiece,
+              fromCol: line.fromCol,
+              fromRow: line.fromRow,
+              toCol: line.toCol,
+              toRow: line.toRow,
+              variations: [],
+              roadmap: [
+                {
+                  step: 1,
+                  type: "my",
+                  fromCol: line.fromCol,
+                  fromRow: line.fromRow,
+                  toCol: line.toCol,
+                  toRow: line.toRow,
+                  piece: movingPiece,
+                  notation: fullNotation,
+                  shortNotation,
+                  explanation: `Triển khai ${movingPiece.name} kiểm soát vị trí trọng yếu.`,
+                  badge: "Nước Đi Khuyên Dùng",
+                },
+              ],
+            });
+          });
+        }
+      } catch (e) {
+        console.warn("[AN Mod] Fallback plan generation error:", e);
+      }
+    }
+
+    const discThreat = detectDiscoveredCheckThreat(pieces, myColor, oppColor);
+
     // Coach Dynamic Commentary - Structured & Pure Text (No raw emojis)
     let commentary = {
       type: "optimal",
@@ -1071,6 +1240,14 @@ import {
         shortMove: null,
         why: "Tướng của bạn đang bị đối phương chiếu! Cần ưu tiên hóa giải thế chiếu an toàn.",
       };
+    } else if (discThreat) {
+      commentary = {
+        type: "danger",
+        title: "CẢNH BÁO CHIẾU RÚT",
+        move: plans[0] ? plans[0].fullNotation : null,
+        shortMove: plans[0] ? plans[0].shortNotation : null,
+        why: discThreat.desc,
+      };
     } else if (plans[0]?.tag?.includes("Sát Cục")) {
       commentary = {
         type: "mate",
@@ -1080,13 +1257,28 @@ import {
         why: plans[0].why,
       };
     } else if (!isMyTurn) {
+      const isOffenseDominating =
+        topScore >= 350 ||
+        plans[0]?.tags?.some(
+          (t) =>
+            t === "Kẹp Cổ" ||
+            t === "clamp-neck" ||
+            t === "iron-gate" ||
+            t === "resting-horse",
+        ) ||
+        (plans[0]?.name && plans[0].name.includes("Khóa Tướng"));
+
       commentary = {
-        type: "waiting",
-        title: "LƯỢT ĐỐI THỦ ĐANG SUY NGHĨ",
-        move: plans[0] ? `Dự tính: ${plans[0].shortNotation}` : null,
+        type: isOffenseDominating ? "mate" : "waiting",
+        title: isOffenseDominating
+          ? "LƯỢT ĐỐI THỦ (BẠN ĐANG CÔNG SÁT ÁP ĐẢO)"
+          : "LƯỢT ĐỐI THỦ ĐANG SUY NGHĨ",
+        move: plans[0] ? `Ta sẵn sàng: ${plans[0].shortNotation}` : null,
         shortMove: plans[0] ? plans[0].shortNotation : null,
         why: plans[0]
-          ? `Đối thủ đang suy nghĩ nước đi... Sẵn sàng phương án đối sách: ${plans[0].fullNotation}.`
+          ? isOffenseDominating
+            ? `Đối thủ đang lúng túng chống đỡ. Bạn đã sẵn sàng phương án dứt điểm: ${plans[0].fullNotation}!`
+            : `Đối thủ đang suy nghĩ nước đi... Bạn sẵn sàng phương án đối sách: ${plans[0].fullNotation}.`
           : "Đối thủ đang suy nghĩ nước đi...",
       };
     } else if (plans[0]) {
@@ -1112,8 +1304,8 @@ import {
       : commentary.why;
 
     // Threat description if opponent threatens material
-    let threatInfo = null;
-    if (searchRes.threat && searchRes.threat.gain >= 150) {
+    let threatInfo = discThreat ? { desc: discThreat.desc } : null;
+    if (!threatInfo && searchRes.threat && searchRes.threat.gain >= 150) {
       const thPiece = pieces.find(
         (p) =>
           p.col === searchRes.threat.fromCol &&
@@ -1135,7 +1327,6 @@ import {
 
     // Mate & Pre-Mate Threat Analysis (Offensive Climax & Defensive Danger)
     let mateThreat = null;
-    const topScore = searchRes.score || 0;
     if (
       topScore >= 9000 ||
       (plans[0] &&
@@ -1147,21 +1338,26 @@ import {
             t === "face-king" ||
             t === "fishing-horse" ||
             t === "double-rook" ||
-            t === "mate-threat",
-        ))
+            t === "mate-threat" ||
+            t === "Kẹp Cổ" ||
+            t === "clamp-neck",
+        )) ||
+      (plans[0] && plans[0].name && plans[0].name.includes("Khóa Tướng"))
     ) {
       const mateSteps = Math.max(
         1,
-        Math.ceil((10000 - Math.min(topScore, 9999)) / 2),
+        Math.ceil((10000 - Math.min(Math.max(topScore, 9000), 9999)) / 2),
       );
       const motifName =
-        plans[0]?.name.split("·")[1]?.trim() || "Sát Cục Tuyệt Tuyệt";
+        plans[0]?.name.split("·")[1]?.trim() ||
+        plans[0]?.name ||
+        "Sát Cục Tuyệt Kỹ";
       mateThreat = {
         type: "attack",
         motif: motifName,
         steps: mateSteps,
-        title: `🏆 THẾ TRẬN TUYỆT SÁT (SÁT CỤC TRONG ${mateSteps} NƯỚC)`,
-        explanation: `Bạn đang nắm giữ thế sát [${motifName}]! Đi chính xác từng nước theo kế sách để kết liễu trận đấu!`,
+        title: `THẾ TRẬN TUYỆT SÁT [${motifName}]`,
+        explanation: `Bạn đang nắm giữ thế sát [trong ${mateSteps} nước đi]! Tướng của bạn hoàn toàn an toàn, hãy đi chính xác theo gợi ý để kết liễu trận đấu!`,
       };
     } else if (topScore <= -300 || topScore <= -9000) {
       const oppMateSteps =
@@ -1184,6 +1380,20 @@ import {
       };
       if (plans[0]) {
         plans[0].badge = "Cứu Mạng";
+        if (!plans[0].tags.includes("emergency-defend")) {
+          plans[0].tags.unshift("emergency-defend");
+        }
+      }
+    } else if (discThreat) {
+      mateThreat = {
+        type: "defense",
+        motif: "Chiếu Rút Nguy Hiểm",
+        steps: 1,
+        title: "🚨 CẢNH BÁO ĐÒN CHIẾU RÚT!",
+        explanation: discThreat.desc,
+      };
+      if (plans[0]) {
+        plans[0].badge = "Hóa Giải Chiếu Rút";
         if (!plans[0].tags.includes("emergency-defend")) {
           plans[0].tags.unshift("emergency-defend");
         }
@@ -1214,11 +1424,15 @@ import {
       engineName:
         searchRes.engineName ||
         (activeProviderId === "pikafish"
-          ? "Pikafish NNUE"
+          ? getEngineTransportStatus().type === "native-ws"
+            ? "Pikafish NNUE (Native WS: 8765)"
+            : "Pikafish 17 NNUE (Cloud)"
           : "AN Grandmaster JS"),
       pikafishStatus:
         searchRes.pikafishStatus ||
-        (activeProviderId === "pikafish" ? "cloud-nnue" : "js-engine"),
+        (activeProviderId === "pikafish"
+          ? getEngineTransportStatus().type
+          : "js-engine"),
       ttHits: searchRes.ttHits || 0,
       maxim: currentMaxim,
       allMaxims: XIANGQI_MAXIMS,
@@ -1251,22 +1465,60 @@ import {
       {
         pieces,
         side: myColor, // ALWAYS search for player (myColor) - keeps mentor strictly player-focused
-        maxDepth: activeProviderId === "pikafish" ? 22 : 12,
+        maxDepth: activeProviderId === "pikafish" ? 28 : 12,
         timeMs: activeProviderId === "pikafish" ? 1500 : 800,
         multiPV: 3,
       },
       (err, searchRes) => {
         cancelWorkerSearch = null;
         if (err || !searchRes || searchRes.error) {
-          console.warn("[AN Mod] Background engine search error:", err);
+          console.warn("[AN Mod] Background engine search error, retrying with emergency fallback:", err);
+          lastAnalysisHash = "";
+          try {
+            const fbRes = engine.analyze({
+              pieces,
+              side: myColor,
+              maxDepth: 5,
+              timeMs: 250,
+              multiPV: 3,
+            });
+            if (fbRes && !fbRes.error) {
+              const fbDeep = buildTacticalAnalysis(fbRes, gameData, pieces);
+              if (fbDeep) {
+                cachedAnalysis = fbDeep;
+                updateMentorHudCardText(fbDeep);
+                if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
+                  renderMentorFloatingContent(fbDeep);
+                }
+              }
+            }
+          } catch (e) {}
           return;
         }
 
         // Drop stale results if board state changed during search
         if (lastAnalysisHash !== currentHash) return;
 
-        const deepAnalysis = buildTacticalAnalysis(searchRes, gameData, pieces);
-        if (!deepAnalysis) return;
+        let deepAnalysis = buildTacticalAnalysis(searchRes, gameData, pieces);
+        if (!deepAnalysis || !deepAnalysis.plans || deepAnalysis.plans.length === 0) {
+          try {
+            const fbRes = engine.analyze({
+              pieces,
+              side: myColor,
+              maxDepth: 5,
+              timeMs: 250,
+              multiPV: 3,
+            });
+            if (fbRes && !fbRes.error) {
+              deepAnalysis = buildTacticalAnalysis(fbRes, gameData, pieces);
+            }
+          } catch (e) {}
+        }
+
+        if (!deepAnalysis) {
+          lastAnalysisHash = "";
+          return;
+        }
 
         cachedAnalysis = deepAnalysis;
         ZigaMod.lastEngineAnalysis = deepAnalysis;
@@ -1414,15 +1666,11 @@ import {
       if (col == null || row == null || isNaN(col) || isNaN(row)) {
         return null;
       }
-      let displayCol = col;
-      let displayRow = row;
-
-      if (myColor === 0) {
-        displayRow = 9 - row;
-      } else {
-        displayRow = row;
-        displayCol = 8 - col;
-      }
+      // Trên Ziga, người chơi luôn được hiển thị ở nửa dưới bàn cờ (hàng 0 ở đáy, hàng 9 ở đỉnh).
+      // Trong SVG, tọa độ y = 0% là đỉnh, y = 100% là đáy.
+      // Do đó displayRow luôn là (9 - row) và displayCol luôn là col để mini-board khớp 1-1 với bàn cờ thật.
+      const displayRow = 9 - row;
+      const displayCol = col;
 
       const x = ((25 + displayCol * 43.75) / 400) * 100;
       const y = ((25 + displayRow * 44.44) / 450) * 100;
@@ -2235,6 +2483,15 @@ import {
       );
     }
 
+    componentDidUpdate(prevProps) {
+      if (
+        this.state.hasError &&
+        prevProps.initialAnalysis !== this.props.initialAnalysis
+      ) {
+        this.setState({ hasError: false, error: null });
+      }
+    }
+
     render() {
       if (this.state.hasError) {
         return (
@@ -2273,6 +2530,31 @@ import {
     const [activeVariationIdx, setActiveVariationIdx] = useState(0);
     const [activeStep, setActiveStep] = useState(1);
     const [engineId, setEngineId] = useState(activeProviderId);
+    const [liveTransport, setLiveTransport] = useState(() =>
+      getEngineTransportStatus(),
+    );
+
+    useEffect(() => {
+      const handleStatusChange = (e) => {
+        setLiveTransport(e.detail || getEngineTransportStatus());
+      };
+
+      window.addEventListener(
+        "ZIGA_PIKAFISH_STATUS_CHANGE",
+        handleStatusChange,
+      );
+      const pollTimer = setInterval(() => {
+        setLiveTransport(getEngineTransportStatus());
+      }, 1000);
+
+      return () => {
+        window.removeEventListener(
+          "ZIGA_PIKAFISH_STATUS_CHANGE",
+          handleStatusChange,
+        );
+        clearInterval(pollTimer);
+      };
+    }, [engineId]);
 
     const handleToggleEngine = () => {
       const nextEngine = engineId === "js-engine" ? "pikafish" : "js-engine";
@@ -2299,14 +2581,18 @@ import {
     mentorSetter = (nextAnalysis) => {
       if (nextAnalysis) {
         setAnalysis(nextAnalysis);
+        setSelectedPlanIdx(0);
         setActiveVariationIdx(0);
         setActiveStep(1);
       }
     };
 
-    const activePlan = analysis?.plans?.[selectedPlanIdx] || null;
+    const activePlan =
+      analysis?.plans?.[selectedPlanIdx] || analysis?.plans?.[0] || null;
     const activeVariation =
-      activePlan?.variations?.[activeVariationIdx] || null;
+      activePlan?.variations?.[activeVariationIdx] ||
+      activePlan?.variations?.[0] ||
+      null;
 
     const toggleCompactMode = () => {
       setIsCompact((prev) => {
@@ -2444,8 +2730,9 @@ import {
                   {/* Live Engine Status Badge */}
                   {(() => {
                     const status =
-                      analysis.pikafishStatus ||
-                      (engineId === "pikafish" ? "cloud-nnue" : "js-engine");
+                      engineId === "pikafish"
+                        ? liveTransport.type
+                        : "js-engine";
                     if (engineId === "pikafish") {
                       if (status === "native-ws") {
                         return (
@@ -2453,6 +2740,9 @@ import {
                             className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.25)] select-none"
                             onClick={() => {
                               reconnectPikafish();
+                              setTimeout(() => {
+                                setLiveTransport(getEngineTransportStatus());
+                              }, 150);
                             }}
                             title="🟢 WS Native: 8765 đang kết nối trực tiếp (Hardcore Mode). Bấm để ping/kết nối lại."
                           >
@@ -2466,6 +2756,9 @@ import {
                             className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-cyan-500/40 bg-cyan-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-cyan-300 shadow-[0_0_8px_rgba(6,182,212,0.2)] select-none"
                             onClick={() => {
                               reconnectPikafish();
+                              setTimeout(() => {
+                                setLiveTransport(getEngineTransportStatus());
+                              }, 150);
                             }}
                             title="🌐 Pikafish Cloud (Depth 30-62 via ChessDB). Bấm để thử kết nối WS Local 8765."
                           >
@@ -2479,6 +2772,9 @@ import {
                             className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300 select-none"
                             onClick={() => {
                               reconnectPikafish();
+                              setTimeout(() => {
+                                setLiveTransport(getEngineTransportStatus());
+                              }, 150);
                             }}
                             title="⚡ Đang dùng JS Engine dự phòng. Hãy chạy start_pikafish.bat và bấm vào đây để kết nối lại!"
                           >
@@ -3502,7 +3798,15 @@ import {
       gameData.myColor,
       gameData.oppColor,
     );
-    if (stateHash === lastAnalysisHash && cachedAnalysis) {
+    // Chỉ bỏ qua nếu thế trận trùng khớp VÀ đã có kết quả phân tích sâu hoàn chỉnh (không phải quickOnly hoặc rỗng kế sách)
+    if (
+      stateHash === lastAnalysisHash &&
+      cachedAnalysis &&
+      !cachedAnalysis.isQuickOnly &&
+      Array.isArray(cachedAnalysis.plans) &&
+      cachedAnalysis.plans.length > 0 &&
+      !cachedAnalysis.isSearching
+    ) {
       return;
     }
     lastAnalysisHash = stateHash;

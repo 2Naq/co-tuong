@@ -97,68 +97,96 @@ const server = http.createServer((req, res) => {
   res.end();
 });
 
+let sessionCounter = 0;
+
 // Attach WebSocket server
 const wss = new WebSocketServer({ server });
 
 wss.on("connection", (ws, req) => {
+  const sessionId = ++sessionCounter;
+  const sessionTag = `[Session #${sessionId}]`;
   const clientAddr = req.socket.remoteAddress;
-  console.log(`[Bridge] 🟢 Client connected from ${clientAddr}`);
 
-  // Spawn isolated Pikafish instance for this connection
+  // Isolated Pikafish instance manager for this connection
   let engine = null;
-  try {
-    engine = spawn(exePath, [], { cwd: exeDir });
-    // Pre-configure Pikafish in Hardcore Grandmaster Mode (4 Threads, 64MB Hash, MultiPV 3, Skill 20)
-    engine.stdin.write(
-      "uci\nsetoption name Threads value 4\nsetoption name Hash value 64\nsetoption name MultiPV value 3\nsetoption name Skill Level value 20\nisready\n",
-    );
-  } catch (err) {
-    console.error("[Bridge] Failed to spawn Pikafish:", err);
-    ws.send(`err Failed to spawn engine: ${err.message}\n`);
+
+  function spawnEngine() {
+    try {
+      const eng = spawn(exePath, [], { cwd: exeDir });
+      console.log(
+        `${sessionTag} 🟢 Spawned Pikafish (PID: ${eng.pid}) for client ${clientAddr}`,
+      );
+
+      // Pre-configure Pikafish in Hardcore Grandmaster Mode (4 Threads, 128MB Hash, MultiPV 3)
+      eng.stdin.write(
+        "uci\nsetoption name Threads value 4\nsetoption name Hash value 128\nsetoption name MultiPV value 3\nisready\n",
+      );
+
+      eng.stdout.on("data", (data) => {
+        const text = data.toString();
+        if (text.includes("readyok")) {
+          console.log(`${sessionTag} ⚡ Engine ready (readyok received, NNUE active)`);
+        }
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(text);
+        }
+      });
+
+      eng.stderr.on("data", (data) => {
+        console.warn(`${sessionTag} [Pikafish stderr] ${data.toString()}`);
+      });
+
+      eng.on("close", (code) => {
+        console.log(
+          `${sessionTag} 🏁 Engine PID ${eng.pid} closed (code: ${code ?? 0})`,
+        );
+      });
+
+      return eng;
+    } catch (err) {
+      console.error(`${sessionTag} ❌ Failed to spawn Pikafish:`, err);
+      return null;
+    }
+  }
+
+  engine = spawnEngine();
+  if (!engine) {
+    ws.send("err Failed to spawn engine\n");
     ws.close();
     return;
   }
 
-  engine.stdout.on("data", (data) => {
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(data.toString());
-    }
-  });
-
-  engine.stderr.on("data", (data) => {
-    console.warn(`[Pikafish stderr] ${data.toString()}`);
-  });
-
-  engine.on("close", (code) => {
-    console.log(`[Bridge] Pikafish process exited with code ${code}`);
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.close();
-    }
-  });
-
   ws.on("message", (msg) => {
     const str = msg.toString();
+    if (!engine || engine.exitCode !== null || !engine.stdin.writable) {
+      console.log(`${sessionTag} 🔄 Engine process dead, respawning...`);
+      engine = spawnEngine();
+    }
     if (engine && engine.stdin.writable) {
       engine.stdin.write(str.endsWith("\n") ? str : str + "\n");
+    } else if (ws.readyState === WebSocket.OPEN) {
+      ws.send("bestmove (none)\n");
     }
   });
 
   ws.on("close", () => {
-    console.log(`[Bridge] ⛔ Client disconnected (${clientAddr})`);
-    if (engine) {
+    console.log(`${sessionTag} ⛔ Client disconnected, stopping engine PID ${engine.pid}...`);
+    if (engine && engine.exitCode === null) {
       try {
         engine.stdin.write("quit\n");
       } catch (e) {}
       setTimeout(() => {
         try {
-          engine.kill();
+          if (engine.exitCode === null && !engine.killed) {
+            engine.kill();
+          }
         } catch (e) {}
-      }, 500);
+      }, 1000);
     }
   });
 
   ws.on("error", (err) => {
-    console.error(`[Bridge] WebSocket error:`, err);
+    console.error(`${sessionTag} ⚠️ WebSocket error:`, err);
   });
 });
 

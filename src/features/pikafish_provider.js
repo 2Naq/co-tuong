@@ -1,7 +1,32 @@
 // src/features/pikafish_provider.js - Pikafish NNUE UCI Engine Provider
 // Implements Phase 6 of AN Xiangqi AI Agent Specification (09-pikafish.md)
-import { piecesToFen, fenToPieces, uciToMove, moveToUci } from "./xiangqi_fen.js";
+import { piecesToFen, fenToPieces, uciToMove, moveToUci, isBoardFlipped } from "./xiangqi_fen.js";
 import { createXiangqiWorker } from "./xiangqi_engine.js";
+
+/**
+ * Checks if a position is Cờ Úp (has face-down/unopened pieces or non-standard piece quantities).
+ * Standard Pikafish UCI strictly expects standard Xiangqi; Cờ Úp must be handled by the specialized JS Engine.
+ */
+function isCoUpPosition(pieces) {
+  if (!Array.isArray(pieces)) return false;
+  if (pieces.some((p) => p && (p.ac === 0 || p.unopened))) return true;
+  const counts = { 0: {}, 1: {} };
+  for (const p of pieces) {
+    if (!p) continue;
+    const c = p.color === 0 ? 0 : 1;
+    counts[c][p.type] = (counts[c][p.type] || 0) + 1;
+  }
+  for (const c of [0, 1]) {
+    if ((counts[c][0] || 0) > 1) return true; // >1 King
+    if ((counts[c][1] || 0) > 2) return true; // >2 Advisors
+    if ((counts[c][2] || 0) > 2) return true; // >2 Bishops
+    if ((counts[c][3] || 0) > 2) return true; // >2 Rooks
+    if ((counts[c][4] || 0) > 2) return true; // >2 Cannons
+    if ((counts[c][5] || 0) > 2) return true; // >2 Knights (e.g. 3 Red Knights in Cờ Úp)
+    if ((counts[c][6] || 0) > 5) return true; // >5 Pawns
+  }
+  return false;
+}
 
 /**
  * Creates a Pikafish Engine Provider compatible with the unified EngineProvider contract.
@@ -51,37 +76,66 @@ export function createPikafishProvider(options = {}) {
     }
 
     const now = Date.now();
-    // Prevent continuous red connection errors in Console if local bridge is not running (60s cooldown)
-    if (!force && socketFailedOnce && now - lastSocketAttempt < 60000) {
+    // Tự động kết nối lại nhanh (cooldown 4 giây thay vì 60 giây) nếu bridge bị khởi động lại
+    if (!force && socketFailedOnce && now - lastSocketAttempt < 4000) {
       return;
     }
 
     lastSocketAttempt = now;
 
+    function notifyStatusChange() {
+      if (
+        typeof window !== "undefined" &&
+        typeof window.dispatchEvent === "function"
+      ) {
+        window.dispatchEvent(
+          new CustomEvent("ZIGA_PIKAFISH_STATUS_CHANGE", {
+            detail: {
+              type:
+                socketReady && socket && socket.readyState === WebSocket.OPEN
+                  ? "native-ws"
+                  : "cloud-nnue",
+              label:
+                socketReady && socket && socket.readyState === WebSocket.OPEN
+                  ? "WS: 8765"
+                  : "Cloud D30+",
+            },
+          }),
+        );
+      }
+    }
+
     try {
       socket = new WebSocket(wsUrl);
       socket.onopen = () => {
-        console.log("[Pikafish Provider] Connected to native UCI bridge at", wsUrl, "(Hardcore Grandmaster Mode)");
+        console.log(
+          "[Pikafish Provider] Connected to native UCI bridge at",
+          wsUrl,
+          "(Hardcore Grandmaster Mode)",
+        );
         socketReady = true;
         socketFailedOnce = false;
         socket.send("uci\n");
         socket.send("setoption name Threads value 4\n");
-        socket.send("setoption name Hash value 64\n");
+        socket.send("setoption name Hash value 128\n");
         socket.send("setoption name MultiPV value 3\n");
-        socket.send("setoption name Skill Level value 20\n");
         socket.send("isready\n");
+        notifyStatusChange();
       };
       socket.onerror = () => {
         socketReady = false;
         socketFailedOnce = true;
+        notifyStatusChange();
       };
       socket.onclose = () => {
         socketReady = false;
         socketFailedOnce = true;
+        notifyStatusChange();
       };
     } catch (e) {
       socketReady = false;
       socketFailedOnce = true;
+      notifyStatusChange();
     }
   }
 
@@ -169,9 +223,10 @@ export function createPikafishProvider(options = {}) {
       }
 
       // Format top candidate lines
+      const isFlipped = isBoardFlipped(pieces);
       const top3 = candidates.slice(0, 3);
       const formattedLines = top3.map((cand) => {
-        const moveCoord = uciToMove(cand.move);
+        const moveCoord = uciToMove(cand.move, isFlipped);
         return {
           fromCol: moveCoord ? moveCoord.fromCol : 0,
           fromRow: moveCoord ? moveCoord.fromRow : 0,
@@ -208,12 +263,12 @@ export function createPikafishProvider(options = {}) {
             if (k === "pv") pvMoves = v.trim().split(/[|\s]+/);
           }
           if (pvMoves.length > 0 && formattedLines[0]) {
-            formattedLines[0].pv = pvMoves.map(uciToMove).filter(Boolean);
+            formattedLines[0].pv = pvMoves.map((mv) => uciToMove(mv, isFlipped)).filter(Boolean);
             if (pvMoves[1]) {
-              const oppMv = uciToMove(pvMoves[1]);
-              const ansMv = pvMoves[2] ? uciToMove(pvMoves[2]) : null;
-              const step4Mv = pvMoves[3] ? uciToMove(pvMoves[3]) : null;
-              const step5Mv = pvMoves[4] ? uciToMove(pvMoves[4]) : null;
+              const oppMv = uciToMove(pvMoves[1], isFlipped);
+              const ansMv = pvMoves[2] ? uciToMove(pvMoves[2], isFlipped) : null;
+              const step4Mv = pvMoves[3] ? uciToMove(pvMoves[3], isFlipped) : null;
+              const step5Mv = pvMoves[4] ? uciToMove(pvMoves[4], isFlipped) : null;
               if (oppMv) {
                 formattedLines[0].replies = [
                   {
@@ -331,8 +386,32 @@ export function createPikafishProvider(options = {}) {
     activeCallback = callback;
 
     const timeMs = input.timeMs || 1500;
-    const maxDepth = input.maxDepth || 12;
+    const maxDepth = input.maxDepth || 28;
     const side = input.side === 1 ? 1 : 0;
+    const isFlipped = isBoardFlipped(input.pieces);
+
+    // Phát hiện thế cờ Cờ Úp (quân úp hoặc số lượng quân đặc thù như 3 Mã, Tượng qua sông):
+    // Model Pikafish tiêu chuẩn UCI chỉ hỗ trợ Cờ Tướng chuẩn. Khi gặp Cờ Úp, tự động định tuyến
+    // sang Engine JS Grandmaster chuyên dụng để tránh crash hoặc đứng hình tính toán.
+    if (isCoUpPosition(input.pieces)) {
+      if (allowFallback) {
+        return getFallback().analyzeAsync(input, (err, res) => {
+          if (activeRequestId === currentId && typeof activeCallback === "function") {
+            const cb = activeCallback;
+            activeCallback = null;
+            if (err) {
+              cb(err);
+            } else {
+              cb(null, {
+                ...res,
+                engineName: "AN Grandmaster JS (Cờ Úp Chuyên Dụng)",
+                pikafishStatus: "co-up-js",
+              });
+            }
+          }
+        });
+      }
+    }
 
     let fen = input.fen;
     if (!fen && input.pieces) {
@@ -408,6 +487,35 @@ export function createPikafishProvider(options = {}) {
       }
     };
 
+    // Hard fallback timeout: nếu Pikafish không gửi bestmove trong timeMs + 350ms,
+    // tự động chuyển sang JS Engine để không bao giờ để UI bị treo (Kế Sách (0))
+    const hardTimeoutMs = Math.min(timeMs + 350, 2500);
+    let hardTimeout = setTimeout(() => {
+      if (activeRequestId === currentId && typeof activeCallback === "function") {
+        console.warn("[Pikafish Provider] Engine response timed out, switching to JS fallback");
+        cleanup();
+        if (allowFallback) {
+          getFallback().analyzeAsync(input, (err, res) => {
+            if (activeRequestId === currentId && typeof activeCallback === "function") {
+              const cb = activeCallback;
+              activeCallback = null;
+              if (err) cb(err);
+              else {
+                cb(null, {
+                  ...res,
+                  engineName: "AN Grandmaster JS (Engine Dự Phòng)",
+                  pikafishStatus: "offline-fallback",
+                });
+              }
+            }
+          });
+        } else {
+          finalizePikafishResult();
+        }
+      }
+    }, hardTimeoutMs);
+
+    const searchStartTime = Date.now();
     uciListener = (event) => {
       if (activeRequestId !== currentId) return;
       const text = typeof event.data === "string" ? event.data : "";
@@ -422,6 +530,11 @@ export function createPikafishProvider(options = {}) {
             collectedLines[parsed.multipv - 1] = parsed;
           }
         } else if (trimmed.startsWith("bestmove ")) {
+          // Bỏ qua bestmove rác của lệnh search trước vừa bị stop nếu chưa kịp nhận info lines nào trong 150ms đầu
+          if (collectedLines.length === 0 && Date.now() - searchStartTime < 150) {
+            console.log("[Pikafish Provider] Ignored trailing bestmove from previous search");
+            continue;
+          }
           const parts = trimmed.split(/\s+/);
           bestMove = parts[1];
           finalizePikafishResult();
@@ -443,6 +556,10 @@ export function createPikafishProvider(options = {}) {
 
     function finalizePikafishResult() {
       clearTimeout(timer);
+      if (hardTimeout) {
+        clearTimeout(hardTimeout);
+        hardTimeout = null;
+      }
       cleanup();
 
       if (activeRequestId !== currentId || typeof activeCallback !== "function") return;
@@ -451,24 +568,26 @@ export function createPikafishProvider(options = {}) {
 
       // Transform collected UCI lines into mentor analysis shape
       const formattedLines = collectedLines.filter(Boolean).map((cl) => {
-        const moveCoord = uciToMove(cl.pv[0]);
+        const moveCoord = uciToMove(cl.pv[0], isFlipped);
         return {
           fromCol: moveCoord ? moveCoord.fromCol : 0,
           fromRow: moveCoord ? moveCoord.fromRow : 0,
           toCol: moveCoord ? moveCoord.toCol : 0,
           toRow: moveCoord ? moveCoord.toRow : 0,
           score: cl.score,
+          isMate: Boolean(cl.isMate || Math.abs(cl.score) >= 9500),
+          delivermate: Boolean(cl.isMate || Math.abs(cl.score) >= 9500),
           exact: true,
-          pv: cl.pv.map(uciToMove).filter(Boolean),
+          pv: cl.pv.map((mv) => uciToMove(mv, isFlipped)).filter(Boolean),
           tags: detectUciTacticalTags(cl, side, input.pieces),
           replies: cl.pv[1]
             ? [
                 {
-                  ...uciToMove(cl.pv[1]),
+                  ...uciToMove(cl.pv[1], isFlipped),
                   score: -cl.score,
-                  answer: cl.pv[2] ? { ...uciToMove(cl.pv[2]), score: cl.score } : null,
-                  step4: cl.pv[3] ? { ...uciToMove(cl.pv[3]), score: -cl.score } : null,
-                  step5: cl.pv[4] ? { ...uciToMove(cl.pv[4]), score: cl.score } : null,
+                  answer: cl.pv[2] ? { ...uciToMove(cl.pv[2], isFlipped), score: cl.score } : null,
+                  step4: cl.pv[3] ? { ...uciToMove(cl.pv[3], isFlipped), score: -cl.score } : null,
+                  step5: cl.pv[4] ? { ...uciToMove(cl.pv[4], isFlipped), score: cl.score } : null,
                 },
               ]
             : [],
@@ -491,12 +610,36 @@ export function createPikafishProvider(options = {}) {
         ms: timeMs,
       };
 
+      // Bảo vệ tuyệt đối: nếu vì bất kỳ lý do gì không thu được nước đi nào (tránh Kế Sách (0) làm đơ bàn cờ),
+      // tự động chuyển ngay sang JS Grandmaster engine để đảm bảo luôn có kế sách
+      if (formattedLines.length === 0 && allowFallback) {
+        console.warn("[Pikafish Provider] Pikafish returned 0 lines, seamlessly routing to JS Grandmaster engine");
+        getFallback().analyzeAsync(input, (fErr, fRes) => {
+          if (typeof cb === "function") {
+            if (fErr || !fRes) {
+              cb(null, result);
+            } else {
+              cb(null, {
+                ...fRes,
+                engineName: "AN Grandmaster JS (Engine Dự Phòng)",
+                pikafishStatus: "offline-fallback",
+              });
+            }
+          }
+        });
+        return;
+      }
+
       cb(null, result);
     }
 
     return function cancel() {
       if (activeRequestId === currentId) {
         clearTimeout(timer);
+        if (hardTimeout) {
+          clearTimeout(hardTimeout);
+          hardTimeout = null;
+        }
         cleanup();
         if (socketReady && socket) {
           socket.send("stop\n");

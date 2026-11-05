@@ -46566,11 +46566,22 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     ["P", "p"]
     // 6: Pawn
   ];
+  function isBoardFlipped(pieces) {
+    if (!Array.isArray(pieces)) return false;
+    for (const pc of pieces) {
+      if (pc.type === 0 && pc.color === 1 && pc.row <= 2) return true;
+      if (pc.type === 0 && pc.color === 0 && pc.row >= 7) return true;
+    }
+    return false;
+  }
   function piecesToFen(pieces, side2 = 0, halfmoveClock = 0, fullmoveNumber = 1) {
     const grid = Array.from({ length: 10 }, () => new Array(9).fill(null));
+    const flipped = isBoardFlipped(pieces);
     for (const pc of pieces || []) {
       if (pc.col >= 0 && pc.col <= 8 && pc.row >= 0 && pc.row <= 9) {
-        grid[pc.row][pc.col] = pc;
+        const r2 = flipped ? 9 - pc.row : pc.row;
+        const c = flipped ? 8 - pc.col : pc.col;
+        grid[r2][c] = pc;
       }
     }
     const fenRows = [];
@@ -46599,19 +46610,45 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     const activeColor = side2 === 1 ? "b" : "w";
     return `${fenRows.join("/")} ${activeColor} - - ${halfmoveClock} ${fullmoveNumber}`;
   }
-  function uciToMove(uci) {
+  function uciToMove(uci, isFlipped = false) {
     if (!uci || typeof uci !== "string" || uci.length < 4) return null;
-    const fromCol = uci.charCodeAt(0) - 97;
-    const fromRow = parseInt(uci[1], 10);
-    const toCol = uci.charCodeAt(2) - 97;
-    const toRow = parseInt(uci[3], 10);
+    let fromCol = uci.charCodeAt(0) - 97;
+    let fromRow = parseInt(uci[1], 10);
+    let toCol = uci.charCodeAt(2) - 97;
+    let toRow = parseInt(uci[3], 10);
     if (fromCol < 0 || fromCol > 8 || fromRow < 0 || fromRow > 9 || toCol < 0 || toCol > 8 || toRow < 0 || toRow > 9) {
       return null;
+    }
+    if (isFlipped) {
+      fromCol = 8 - fromCol;
+      fromRow = 9 - fromRow;
+      toCol = 8 - toCol;
+      toRow = 9 - toRow;
     }
     return { fromCol, fromRow, toCol, toRow };
   }
 
   // src/features/pikafish_provider.js
+  function isCoUpPosition(pieces) {
+    if (!Array.isArray(pieces)) return false;
+    if (pieces.some((p) => p && (p.ac === 0 || p.unopened))) return true;
+    const counts = { 0: {}, 1: {} };
+    for (const p of pieces) {
+      if (!p) continue;
+      const c = p.color === 0 ? 0 : 1;
+      counts[c][p.type] = (counts[c][p.type] || 0) + 1;
+    }
+    for (const c of [0, 1]) {
+      if ((counts[c][0] || 0) > 1) return true;
+      if ((counts[c][1] || 0) > 2) return true;
+      if ((counts[c][2] || 0) > 2) return true;
+      if ((counts[c][3] || 0) > 2) return true;
+      if ((counts[c][4] || 0) > 2) return true;
+      if ((counts[c][5] || 0) > 2) return true;
+      if ((counts[c][6] || 0) > 5) return true;
+    }
+    return false;
+  }
   function createPikafishProvider(options = {}) {
     const {
       wsUrl = "ws://127.0.0.1:8765",
@@ -46640,34 +46677,53 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         return;
       }
       const now = Date.now();
-      if (!force && socketFailedOnce && now - lastSocketAttempt < 6e4) {
+      if (!force && socketFailedOnce && now - lastSocketAttempt < 4e3) {
         return;
       }
       lastSocketAttempt = now;
+      function notifyStatusChange() {
+        if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
+          window.dispatchEvent(
+            new CustomEvent("ZIGA_PIKAFISH_STATUS_CHANGE", {
+              detail: {
+                type: socketReady && socket && socket.readyState === WebSocket.OPEN ? "native-ws" : "cloud-nnue",
+                label: socketReady && socket && socket.readyState === WebSocket.OPEN ? "WS: 8765" : "Cloud D30+"
+              }
+            })
+          );
+        }
+      }
       try {
         socket = new WebSocket(wsUrl);
         socket.onopen = () => {
-          console.log("[Pikafish Provider] Connected to native UCI bridge at", wsUrl, "(Hardcore Grandmaster Mode)");
+          console.log(
+            "[Pikafish Provider] Connected to native UCI bridge at",
+            wsUrl,
+            "(Hardcore Grandmaster Mode)"
+          );
           socketReady = true;
           socketFailedOnce = false;
           socket.send("uci\n");
           socket.send("setoption name Threads value 4\n");
-          socket.send("setoption name Hash value 64\n");
+          socket.send("setoption name Hash value 128\n");
           socket.send("setoption name MultiPV value 3\n");
-          socket.send("setoption name Skill Level value 20\n");
           socket.send("isready\n");
+          notifyStatusChange();
         };
         socket.onerror = () => {
           socketReady = false;
           socketFailedOnce = true;
+          notifyStatusChange();
         };
         socket.onclose = () => {
           socketReady = false;
           socketFailedOnce = true;
+          notifyStatusChange();
         };
       } catch (e) {
         socketReady = false;
         socketFailedOnce = true;
+        notifyStatusChange();
       }
     }
     if (typeof window !== "undefined") {
@@ -46736,9 +46792,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           active = false;
           return cb(new Error("No valid candidates from ChessDB"));
         }
+        const isFlipped = isBoardFlipped(pieces);
         const top3 = candidates.slice(0, 3);
         const formattedLines = top3.map((cand) => {
-          const moveCoord = uciToMove(cand.move);
+          const moveCoord = uciToMove(cand.move, isFlipped);
           return {
             fromCol: moveCoord ? moveCoord.fromCol : 0,
             fromRow: moveCoord ? moveCoord.fromRow : 0,
@@ -46771,12 +46828,12 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               if (k === "pv") pvMoves = v.trim().split(/[|\s]+/);
             }
             if (pvMoves.length > 0 && formattedLines[0]) {
-              formattedLines[0].pv = pvMoves.map(uciToMove).filter(Boolean);
+              formattedLines[0].pv = pvMoves.map((mv) => uciToMove(mv, isFlipped)).filter(Boolean);
               if (pvMoves[1]) {
-                const oppMv = uciToMove(pvMoves[1]);
-                const ansMv = pvMoves[2] ? uciToMove(pvMoves[2]) : null;
-                const step4Mv = pvMoves[3] ? uciToMove(pvMoves[3]) : null;
-                const step5Mv = pvMoves[4] ? uciToMove(pvMoves[4]) : null;
+                const oppMv = uciToMove(pvMoves[1], isFlipped);
+                const ansMv = pvMoves[2] ? uciToMove(pvMoves[2], isFlipped) : null;
+                const step4Mv = pvMoves[3] ? uciToMove(pvMoves[3], isFlipped) : null;
+                const step5Mv = pvMoves[4] ? uciToMove(pvMoves[4], isFlipped) : null;
                 if (oppMv) {
                   formattedLines[0].replies = [
                     {
@@ -46872,8 +46929,28 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       const currentId = ++activeRequestId;
       activeCallback = callback;
       const timeMs = input.timeMs || 1500;
-      const maxDepth = input.maxDepth || 12;
+      const maxDepth = input.maxDepth || 28;
       const side2 = input.side === 1 ? 1 : 0;
+      const isFlipped = isBoardFlipped(input.pieces);
+      if (isCoUpPosition(input.pieces)) {
+        if (allowFallback) {
+          return getFallback().analyzeAsync(input, (err, res) => {
+            if (activeRequestId === currentId && typeof activeCallback === "function") {
+              const cb = activeCallback;
+              activeCallback = null;
+              if (err) {
+                cb(err);
+              } else {
+                cb(null, {
+                  ...res,
+                  engineName: "AN Grandmaster JS (C\u1EDD \xDAp Chuy\xEAn D\u1EE5ng)",
+                  pikafishStatus: "co-up-js"
+                });
+              }
+            }
+          });
+        }
+      }
       let fen = input.fen;
       if (!fen && input.pieces) {
         fen = piecesToFen(input.pieces, side2);
@@ -46935,6 +47012,32 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           uciListener = null;
         }
       };
+      const hardTimeoutMs = Math.min(timeMs + 350, 2500);
+      let hardTimeout = setTimeout(() => {
+        if (activeRequestId === currentId && typeof activeCallback === "function") {
+          console.warn("[Pikafish Provider] Engine response timed out, switching to JS fallback");
+          cleanup();
+          if (allowFallback) {
+            getFallback().analyzeAsync(input, (err, res) => {
+              if (activeRequestId === currentId && typeof activeCallback === "function") {
+                const cb = activeCallback;
+                activeCallback = null;
+                if (err) cb(err);
+                else {
+                  cb(null, {
+                    ...res,
+                    engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
+                    pikafishStatus: "offline-fallback"
+                  });
+                }
+              }
+            });
+          } else {
+            finalizePikafishResult();
+          }
+        }
+      }, hardTimeoutMs);
+      const searchStartTime = Date.now();
       uciListener = (event) => {
         if (activeRequestId !== currentId) return;
         const text = typeof event.data === "string" ? event.data : "";
@@ -46947,6 +47050,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               collectedLines[parsed.multipv - 1] = parsed;
             }
           } else if (trimmed.startsWith("bestmove ")) {
+            if (collectedLines.length === 0 && Date.now() - searchStartTime < 150) {
+              console.log("[Pikafish Provider] Ignored trailing bestmove from previous search");
+              continue;
+            }
             const parts = trimmed.split(/\s+/);
             bestMove = parts[1];
             finalizePikafishResult();
@@ -46965,28 +47072,34 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       }, timeMs + 100);
       function finalizePikafishResult() {
         clearTimeout(timer);
+        if (hardTimeout) {
+          clearTimeout(hardTimeout);
+          hardTimeout = null;
+        }
         cleanup();
         if (activeRequestId !== currentId || typeof activeCallback !== "function") return;
         const cb = activeCallback;
         activeCallback = null;
         const formattedLines = collectedLines.filter(Boolean).map((cl) => {
-          const moveCoord = uciToMove(cl.pv[0]);
+          const moveCoord = uciToMove(cl.pv[0], isFlipped);
           return {
             fromCol: moveCoord ? moveCoord.fromCol : 0,
             fromRow: moveCoord ? moveCoord.fromRow : 0,
             toCol: moveCoord ? moveCoord.toCol : 0,
             toRow: moveCoord ? moveCoord.toRow : 0,
             score: cl.score,
+            isMate: Boolean(cl.isMate || Math.abs(cl.score) >= 9500),
+            delivermate: Boolean(cl.isMate || Math.abs(cl.score) >= 9500),
             exact: true,
-            pv: cl.pv.map(uciToMove).filter(Boolean),
+            pv: cl.pv.map((mv) => uciToMove(mv, isFlipped)).filter(Boolean),
             tags: detectUciTacticalTags(cl, side2, input.pieces),
             replies: cl.pv[1] ? [
               {
-                ...uciToMove(cl.pv[1]),
+                ...uciToMove(cl.pv[1], isFlipped),
                 score: -cl.score,
-                answer: cl.pv[2] ? { ...uciToMove(cl.pv[2]), score: cl.score } : null,
-                step4: cl.pv[3] ? { ...uciToMove(cl.pv[3]), score: -cl.score } : null,
-                step5: cl.pv[4] ? { ...uciToMove(cl.pv[4]), score: cl.score } : null
+                answer: cl.pv[2] ? { ...uciToMove(cl.pv[2], isFlipped), score: cl.score } : null,
+                step4: cl.pv[3] ? { ...uciToMove(cl.pv[3], isFlipped), score: -cl.score } : null,
+                step5: cl.pv[4] ? { ...uciToMove(cl.pv[4], isFlipped), score: cl.score } : null
               }
             ] : []
           };
@@ -47006,11 +47119,32 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           legalCount: formattedLines.length,
           ms: timeMs
         };
+        if (formattedLines.length === 0 && allowFallback) {
+          console.warn("[Pikafish Provider] Pikafish returned 0 lines, seamlessly routing to JS Grandmaster engine");
+          getFallback().analyzeAsync(input, (fErr, fRes) => {
+            if (typeof cb === "function") {
+              if (fErr || !fRes) {
+                cb(null, result);
+              } else {
+                cb(null, {
+                  ...fRes,
+                  engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
+                  pikafishStatus: "offline-fallback"
+                });
+              }
+            }
+          });
+          return;
+        }
         cb(null, result);
       }
       return function cancel() {
         if (activeRequestId === currentId) {
           clearTimeout(timer);
+          if (hardTimeout) {
+            clearTimeout(hardTimeout);
+            hardTimeout = null;
+          }
           cleanup();
           if (socketReady && socket) {
             socket.send("stop\n");
@@ -47155,7 +47289,28 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
     if (providerId === "pikafish" || providerId === "js-engine") {
       activeProviderId = providerId;
       console.log(`[Engine Provider] Switched active provider to: "${providerId}"`);
+      if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
+        window.dispatchEvent(new CustomEvent("ZIGA_PIKAFISH_STATUS_CHANGE", { detail: getEngineTransportStatus() }));
+      }
     }
+  }
+  function getEngineTransportStatus() {
+    if (activeProviderId === "pikafish") {
+      const pika = getEngineProvider("pikafish");
+      if (pika && typeof pika.getTransportStatus === "function") {
+        return pika.getTransportStatus();
+      }
+      return {
+        type: "cloud-nnue",
+        label: "Cloud D30+",
+        color: "cyan"
+      };
+    }
+    return {
+      type: "js-engine",
+      label: "JS Worker",
+      color: "cyan"
+    };
   }
   function reconnectPikafish() {
     const pika = getEngineProvider("pikafish");
@@ -47530,6 +47685,57 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         desc: "Chu\u1ED7i \u0111\xF2n c\xF4ng s\xE1t d\u1ED3n d\u1EADp, \xE9p \u0111\u1ED1i ph\u01B0\u01A1ng v\xE0o th\u1EBF chi\u1EBFu b\xED kh\xF4ng th\u1EC3 c\u1EE9u v\xE3n!"
       };
     }
+    function detectDiscoveredCheckThreat(pieces, myColor, oppColor) {
+      if (!pieces || pieces.length === 0) return null;
+      const myKing = pieces.find((p) => p.type === 0 && p.color === myColor);
+      if (!myKing) return null;
+      const DIRS = [
+        [0, 1],
+        [0, -1],
+        [1, 0],
+        [-1, 0]
+      ];
+      for (const [dc, dr] of DIRS) {
+        let c = myKing.col + dc;
+        let r2 = myKing.row + dr;
+        const rayPieces = [];
+        while (c >= 0 && c <= 8 && r2 >= 0 && r2 <= 9) {
+          const found = pieces.find((p) => p.col === c && p.row === r2);
+          if (found) rayPieces.push(found);
+          c += dc;
+          r2 += dr;
+        }
+        if (rayPieces.length >= 2) {
+          const p1 = rayPieces[0];
+          const p2 = rayPieces[1];
+          if (p1.color === oppColor && p2.color === oppColor && p2.type === 3) {
+            const colName = myColor === 0 ? 9 - p1.col : p1.col + 1;
+            return {
+              type: "discovered_check",
+              attacker: p2,
+              blocker: p1,
+              desc: `C\u1EA2NH B\xC1O CHI\u1EBEU R\xDAT: ${p1.name} \u0111\u1ECBch t\u1EA1i L\u1ED9 ${colName} \u0111ang c\u1EA3n \u0111\u01B0\u1EDDng ${p2.name} chi\u1EBFu T\u01B0\u1EDBng. Khi ${p1.name} n\u1EA3y \u0111i s\u1EBD gi\xE1ng \u0111\xF2n chi\u1EBFu r\xFAt c\u1EF1c hi\u1EC3m!`
+            };
+          }
+          if (rayPieces.length >= 3) {
+            const p3 = rayPieces[2];
+            if (p3.color === oppColor && p3.type === 4) {
+              const enemyBlocker = p1.color === oppColor ? p1 : p2.color === oppColor ? p2 : null;
+              if (enemyBlocker) {
+                const colName = myColor === 0 ? 9 - enemyBlocker.col : enemyBlocker.col + 1;
+                return {
+                  type: "discovered_check",
+                  attacker: p3,
+                  blocker: enemyBlocker,
+                  desc: `C\u1EA2NH B\xC1O PH\xC1O R\xDAT: ${enemyBlocker.name} \u0111\u1ECBch t\u1EA1i L\u1ED9 ${colName} \u0111ang che ng\xF2i ${p3.name}. \u0110\u1ED1i th\u1EE7 n\u1EA3y ${enemyBlocker.name} s\u1EBD m\u1EDF h\u1ECFa l\u1EF1c Ph\xE1o chi\u1EBFu T\u01B0\u1EDBng l\u1EADp t\u1EE9c!`
+                };
+              }
+            }
+          }
+        }
+      }
+      return null;
+    }
     function buildQuickAnalysis(quickRes, gameData, pieces) {
       if (!gameData || !pieces || pieces.length === 0) return null;
       const myColor = gameData.myColor;
@@ -47547,6 +47753,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       let evalText = "C\xE2n b\u1EB1ng (0.0)";
       if (score >= 50) evalText = `+${evalPoints}\u0111 (B\u1EA1n \u01B0u)`;
       else if (score <= -50) evalText = `${evalPoints}\u0111 (\u0110\u1ECBch \u01B0u)`;
+      const discThreat = detectDiscoveredCheckThreat(pieces, myColor, oppColor);
       let commentary = {
         type: "turn",
         title: "L\u01AF\u1EE2T \u0110I C\u1EE6A B\u1EA0N",
@@ -47561,6 +47768,14 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           move: null,
           shortMove: null,
           why: "T\u01B0\u1EDBng c\u1EE7a b\u1EA1n \u0111ang b\u1ECB chi\u1EBFu! C\u1EA7n \u01B0u ti\xEAn h\xF3a gi\u1EA3i th\u1EBF chi\u1EBFu an to\xE0n."
+        };
+      } else if (discThreat) {
+        commentary = {
+          type: "danger",
+          title: "C\u1EA2NH B\xC1O CHI\u1EBEU R\xDAT",
+          move: null,
+          shortMove: null,
+          why: discThreat.desc
         };
       } else if (!isMyTurn) {
         commentary = {
@@ -47584,16 +47799,22 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         evalText,
         coachCommentary,
         commentary,
-        threatInfo: null,
+        threatInfo: discThreat ? { desc: discThreat.desc } : null,
         plans: [],
         inCheck,
         depth: 0,
         nodes: 0,
         evalBreakdown: quickRes && quickRes.evalBreakdown ? quickRes.evalBreakdown : null,
         openingName: null,
-        engineName: activeProviderId2 === "pikafish" ? "Pikafish NNUE" : "AN Grandmaster JS",
-        pikafishStatus: activeProviderId2 === "pikafish" ? "cloud-nnue" : "js-engine",
-        mateThreat: null,
+        engineName: activeProviderId2 === "pikafish" ? getEngineTransportStatus().type === "native-ws" ? "Pikafish NNUE (Native WS: 8765)" : "Pikafish 17 NNUE (Cloud)" : "AN Grandmaster JS",
+        pikafishStatus: activeProviderId2 === "pikafish" ? getEngineTransportStatus().type : "js-engine",
+        mateThreat: discThreat ? {
+          type: "defense",
+          motif: "Chi\u1EBFu R\xFAt Nguy Hi\u1EC3m",
+          steps: 1,
+          title: "\u{1F6A8} C\u1EA2NH B\xC1O \u0110\xD2N CHI\u1EBEU R\xDAT!",
+          explanation: discThreat.desc
+        } : null,
         maxim: currentMaxim,
         isQuickOnly: true
       };
@@ -47609,10 +47830,11 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       let phase = "Trung Cu\u1ED9c";
       if (totalPieces >= 28) phase = "Khai Cu\u1ED9c";
       else if (totalPieces <= 14) phase = "T\xE0n Cu\u1ED9c";
-      const evalPoints = (searchRes.score / 100).toFixed(1);
+      const topScore = searchRes.score || 0;
+      const evalPoints = (topScore / 100).toFixed(1);
       let evalText = "C\xE2n b\u1EB1ng (0.0)";
-      if (searchRes.score >= 50) evalText = `+${evalPoints}\u0111 (B\u1EA1n \u01B0u)`;
-      else if (searchRes.score <= -50) evalText = `${evalPoints}\u0111 (\u0110\u1ECBch \u01B0u)`;
+      if (topScore >= 50) evalText = `+${evalPoints}\u0111 (B\u1EA1n \u01B0u)`;
+      else if (topScore <= -50) evalText = `${evalPoints}\u0111 (\u0110\u1ECBch \u01B0u)`;
       const plans = [];
       const movingColor = myColor;
       const targetColor = oppColor;
@@ -47936,6 +48158,74 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           roadmap
         });
       });
+      if (plans.length === 0) {
+        try {
+          const fallbackRes = engine.analyze({
+            pieces,
+            side: movingColor,
+            maxDepth: 4,
+            timeMs: 120,
+            multiPV: 3
+          });
+          if (fallbackRes && fallbackRes.lines && fallbackRes.lines.length > 0) {
+            fallbackRes.lines.forEach((line) => {
+              const movingPiece = pieces.find(
+                (p) => p.col === line.fromCol && p.row === line.fromRow && p.color === movingColor
+              );
+              if (!movingPiece) return;
+              const fullNotation = getXiangqiNotation(
+                movingPiece,
+                line.fromCol,
+                line.fromRow,
+                line.toCol,
+                line.toRow,
+                movingColor
+              );
+              const shortNotation = formatShortNotation(
+                movingPiece,
+                line.toCol,
+                line.toRow,
+                movingColor
+              );
+              plans.push({
+                id: `fallback-${line.fromCol}-${line.fromRow}-${line.toCol}-${line.toRow}`,
+                name: `Tri\u1EC3n khai ${movingPiece.name}`,
+                badge: "An To\xE0n",
+                fullNotation,
+                shortNotation,
+                tag: "reposition",
+                tags: ["reposition"],
+                why: `Ch\u1EE7 \u0111\u1ED9ng \u0111i\u1EC1u \u0111\u1ED9ng ${movingPiece.name} \u1ED5n \u0111\u1ECBnh th\u1EBF tr\u1EADn, c\u1EE7ng c\u1ED1 ph\xF2ng th\u1EE7 v\xE0 \u0111\xF3n b\u1EAFt th\u1EDDi c\u01A1 ph\u1EA3n c\xF4ng.`,
+                score: line.score || 0,
+                piece: movingPiece,
+                fromCol: line.fromCol,
+                fromRow: line.fromRow,
+                toCol: line.toCol,
+                toRow: line.toRow,
+                variations: [],
+                roadmap: [
+                  {
+                    step: 1,
+                    type: "my",
+                    fromCol: line.fromCol,
+                    fromRow: line.fromRow,
+                    toCol: line.toCol,
+                    toRow: line.toRow,
+                    piece: movingPiece,
+                    notation: fullNotation,
+                    shortNotation,
+                    explanation: `Tri\u1EC3n khai ${movingPiece.name} ki\u1EC3m so\xE1t v\u1ECB tr\xED tr\u1ECDng y\u1EBFu.`,
+                    badge: "N\u01B0\u1EDBc \u0110i Khuy\xEAn D\xF9ng"
+                  }
+                ]
+              });
+            });
+          }
+        } catch (e) {
+          console.warn("[AN Mod] Fallback plan generation error:", e);
+        }
+      }
+      const discThreat = detectDiscoveredCheckThreat(pieces, myColor, oppColor);
       let commentary = {
         type: "optimal",
         title: "G\u1EE2I \xDD T\u1ED0I \u01AFU",
@@ -47951,6 +48241,14 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           shortMove: null,
           why: "T\u01B0\u1EDBng c\u1EE7a b\u1EA1n \u0111ang b\u1ECB \u0111\u1ED1i ph\u01B0\u01A1ng chi\u1EBFu! C\u1EA7n \u01B0u ti\xEAn h\xF3a gi\u1EA3i th\u1EBF chi\u1EBFu an to\xE0n."
         };
+      } else if (discThreat) {
+        commentary = {
+          type: "danger",
+          title: "C\u1EA2NH B\xC1O CHI\u1EBEU R\xDAT",
+          move: plans[0] ? plans[0].fullNotation : null,
+          shortMove: plans[0] ? plans[0].shortNotation : null,
+          why: discThreat.desc
+        };
       } else if (plans[0]?.tag?.includes("S\xE1t C\u1EE5c")) {
         commentary = {
           type: "mate",
@@ -47960,12 +48258,15 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           why: plans[0].why
         };
       } else if (!isMyTurn) {
+        const isOffenseDominating = topScore >= 350 || plans[0]?.tags?.some(
+          (t) => t === "K\u1EB9p C\u1ED5" || t === "clamp-neck" || t === "iron-gate" || t === "resting-horse"
+        ) || plans[0]?.name && plans[0].name.includes("Kh\xF3a T\u01B0\u1EDBng");
         commentary = {
-          type: "waiting",
-          title: "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6 \u0110ANG SUY NGH\u0128",
-          move: plans[0] ? `D\u1EF1 t\xEDnh: ${plans[0].shortNotation}` : null,
+          type: isOffenseDominating ? "mate" : "waiting",
+          title: isOffenseDominating ? "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6 (B\u1EA0N \u0110ANG C\xD4NG S\xC1T \xC1P \u0110\u1EA2O)" : "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6 \u0110ANG SUY NGH\u0128",
+          move: plans[0] ? `Ta s\u1EB5n s\xE0ng: ${plans[0].shortNotation}` : null,
           shortMove: plans[0] ? plans[0].shortNotation : null,
-          why: plans[0] ? `\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i... S\u1EB5n s\xE0ng ph\u01B0\u01A1ng \xE1n \u0111\u1ED1i s\xE1ch: ${plans[0].fullNotation}.` : "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i..."
+          why: plans[0] ? isOffenseDominating ? `\u0110\u1ED1i th\u1EE7 \u0111ang l\xFAng t\xFAng ch\u1ED1ng \u0111\u1EE1. B\u1EA1n \u0111\xE3 s\u1EB5n s\xE0ng ph\u01B0\u01A1ng \xE1n d\u1EE9t \u0111i\u1EC3m: ${plans[0].fullNotation}!` : `\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i... B\u1EA1n s\u1EB5n s\xE0ng ph\u01B0\u01A1ng \xE1n \u0111\u1ED1i s\xE1ch: ${plans[0].fullNotation}.` : "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i..."
         };
       } else if (plans[0]) {
         commentary = {
@@ -47985,8 +48286,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         };
       }
       const coachCommentary = commentary.move ? `Khuy\xEAn d\xF9ng ${commentary.move}! ${commentary.why}` : commentary.why;
-      let threatInfo = null;
-      if (searchRes.threat && searchRes.threat.gain >= 150) {
+      let threatInfo = discThreat ? { desc: discThreat.desc } : null;
+      if (!threatInfo && searchRes.threat && searchRes.threat.gain >= 150) {
         const thPiece = pieces.find(
           (p) => p.col === searchRes.threat.fromCol && p.row === searchRes.threat.fromRow && p.color === oppColor
         );
@@ -48000,21 +48301,20 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         }
       }
       let mateThreat = null;
-      const topScore = searchRes.score || 0;
       if (topScore >= 9e3 || plans[0] && plans[0].tags.some(
-        (t) => t === "iron-gate" || t === "resting-horse" || t === "horse-cannon-mate" || t === "face-king" || t === "fishing-horse" || t === "double-rook" || t === "mate-threat"
-      )) {
+        (t) => t === "iron-gate" || t === "resting-horse" || t === "horse-cannon-mate" || t === "face-king" || t === "fishing-horse" || t === "double-rook" || t === "mate-threat" || t === "K\u1EB9p C\u1ED5" || t === "clamp-neck"
+      ) || plans[0] && plans[0].name && plans[0].name.includes("Kh\xF3a T\u01B0\u1EDBng")) {
         const mateSteps = Math.max(
           1,
-          Math.ceil((1e4 - Math.min(topScore, 9999)) / 2)
+          Math.ceil((1e4 - Math.min(Math.max(topScore, 9e3), 9999)) / 2)
         );
-        const motifName = plans[0]?.name.split("\xB7")[1]?.trim() || "S\xE1t C\u1EE5c Tuy\u1EC7t Tuy\u1EC7t";
+        const motifName = plans[0]?.name.split("\xB7")[1]?.trim() || plans[0]?.name || "S\xE1t C\u1EE5c Tuy\u1EC7t K\u1EF9";
         mateThreat = {
           type: "attack",
           motif: motifName,
           steps: mateSteps,
-          title: `\u{1F3C6} TH\u1EBE TR\u1EACN TUY\u1EC6T S\xC1T (S\xC1T C\u1EE4C TRONG ${mateSteps} N\u01AF\u1EDAC)`,
-          explanation: `B\u1EA1n \u0111ang n\u1EAFm gi\u1EEF th\u1EBF s\xE1t [${motifName}]! \u0110i ch\xEDnh x\xE1c t\u1EEBng n\u01B0\u1EDBc theo k\u1EBF s\xE1ch \u0111\u1EC3 k\u1EBFt li\u1EC5u tr\u1EADn \u0111\u1EA5u!`
+          title: `TH\u1EBE TR\u1EACN TUY\u1EC6T S\xC1T [${motifName}]`,
+          explanation: `B\u1EA1n \u0111ang n\u1EAFm gi\u1EEF th\u1EBF s\xE1t [trong ${mateSteps} n\u01B0\u1EDBc \u0111i]! T\u01B0\u1EDBng c\u1EE7a b\u1EA1n ho\xE0n to\xE0n an to\xE0n, h\xE3y \u0111i ch\xEDnh x\xE1c theo g\u1EE3i \xFD \u0111\u1EC3 k\u1EBFt li\u1EC5u tr\u1EADn \u0111\u1EA5u!`
         };
       } else if (topScore <= -300 || topScore <= -9e3) {
         const oppMateSteps = topScore <= -9e3 ? Math.max(
@@ -48030,6 +48330,20 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         };
         if (plans[0]) {
           plans[0].badge = "C\u1EE9u M\u1EA1ng";
+          if (!plans[0].tags.includes("emergency-defend")) {
+            plans[0].tags.unshift("emergency-defend");
+          }
+        }
+      } else if (discThreat) {
+        mateThreat = {
+          type: "defense",
+          motif: "Chi\u1EBFu R\xFAt Nguy Hi\u1EC3m",
+          steps: 1,
+          title: "\u{1F6A8} C\u1EA2NH B\xC1O \u0110\xD2N CHI\u1EBEU R\xDAT!",
+          explanation: discThreat.desc
+        };
+        if (plans[0]) {
+          plans[0].badge = "H\xF3a Gi\u1EA3i Chi\u1EBFu R\xFAt";
           if (!plans[0].tags.includes("emergency-defend")) {
             plans[0].tags.unshift("emergency-defend");
           }
@@ -48055,8 +48369,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         nodes: searchRes.nodes,
         openingName: searchRes.openingName || null,
         evalBreakdown: searchRes.evalBreakdown || null,
-        engineName: searchRes.engineName || (activeProviderId2 === "pikafish" ? "Pikafish NNUE" : "AN Grandmaster JS"),
-        pikafishStatus: searchRes.pikafishStatus || (activeProviderId2 === "pikafish" ? "cloud-nnue" : "js-engine"),
+        engineName: searchRes.engineName || (activeProviderId2 === "pikafish" ? getEngineTransportStatus().type === "native-ws" ? "Pikafish NNUE (Native WS: 8765)" : "Pikafish 17 NNUE (Cloud)" : "AN Grandmaster JS"),
+        pikafishStatus: searchRes.pikafishStatus || (activeProviderId2 === "pikafish" ? getEngineTransportStatus().type : "js-engine"),
         ttHits: searchRes.ttHits || 0,
         maxim: currentMaxim,
         allMaxims: XIANGQI_MAXIMS,
@@ -48082,19 +48396,58 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           pieces,
           side: myColor,
           // ALWAYS search for player (myColor) - keeps mentor strictly player-focused
-          maxDepth: activeProviderId2 === "pikafish" ? 22 : 12,
+          maxDepth: activeProviderId2 === "pikafish" ? 28 : 12,
           timeMs: activeProviderId2 === "pikafish" ? 1500 : 800,
           multiPV: 3
         },
         (err, searchRes) => {
           cancelWorkerSearch = null;
           if (err || !searchRes || searchRes.error) {
-            console.warn("[AN Mod] Background engine search error:", err);
+            console.warn("[AN Mod] Background engine search error, retrying with emergency fallback:", err);
+            lastAnalysisHash = "";
+            try {
+              const fbRes = engine.analyze({
+                pieces,
+                side: myColor,
+                maxDepth: 5,
+                timeMs: 250,
+                multiPV: 3
+              });
+              if (fbRes && !fbRes.error) {
+                const fbDeep = buildTacticalAnalysis(fbRes, gameData, pieces);
+                if (fbDeep) {
+                  cachedAnalysis = fbDeep;
+                  updateMentorHudCardText(fbDeep);
+                  if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
+                    renderMentorFloatingContent(fbDeep);
+                  }
+                }
+              }
+            } catch (e) {
+            }
             return;
           }
           if (lastAnalysisHash !== currentHash) return;
-          const deepAnalysis = buildTacticalAnalysis(searchRes, gameData, pieces);
-          if (!deepAnalysis) return;
+          let deepAnalysis = buildTacticalAnalysis(searchRes, gameData, pieces);
+          if (!deepAnalysis || !deepAnalysis.plans || deepAnalysis.plans.length === 0) {
+            try {
+              const fbRes = engine.analyze({
+                pieces,
+                side: myColor,
+                maxDepth: 5,
+                timeMs: 250,
+                multiPV: 3
+              });
+              if (fbRes && !fbRes.error) {
+                deepAnalysis = buildTacticalAnalysis(fbRes, gameData, pieces);
+              }
+            } catch (e) {
+            }
+          }
+          if (!deepAnalysis) {
+            lastAnalysisHash = "";
+            return;
+          }
           cachedAnalysis = deepAnalysis;
           ZigaMod.lastEngineAnalysis = deepAnalysis;
           updateMentorHudCardText(deepAnalysis);
@@ -48204,14 +48557,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         if (col == null || row == null || isNaN(col) || isNaN(row)) {
           return null;
         }
-        let displayCol = col;
-        let displayRow = row;
-        if (myColor === 0) {
-          displayRow = 9 - row;
-        } else {
-          displayRow = row;
-          displayCol = 8 - col;
-        }
+        const displayRow = 9 - row;
+        const displayCol = col;
         const x = (25 + displayCol * 43.75) / 400 * 100;
         const y = (25 + displayRow * 44.44) / 450 * 100;
         return { x, y };
@@ -49005,6 +49352,11 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           errorInfo
         );
       }
+      componentDidUpdate(prevProps) {
+        if (this.state.hasError && prevProps.initialAnalysis !== this.props.initialAnalysis) {
+          this.setState({ hasError: false, error: null });
+        }
+      }
       render() {
         if (this.state.hasError) {
           return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col items-center justify-center gap-2.5 rounded-2xl border border-rose-500/40 bg-zinc-950/95 p-4 text-center text-rose-300 shadow-2xl backdrop-blur-md", children: [
@@ -49035,6 +49387,28 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       const [activeVariationIdx, setActiveVariationIdx] = (0, import_react15.useState)(0);
       const [activeStep, setActiveStep] = (0, import_react15.useState)(1);
       const [engineId, setEngineId] = (0, import_react15.useState)(activeProviderId2);
+      const [liveTransport, setLiveTransport] = (0, import_react15.useState)(
+        () => getEngineTransportStatus()
+      );
+      (0, import_react15.useEffect)(() => {
+        const handleStatusChange = (e) => {
+          setLiveTransport(e.detail || getEngineTransportStatus());
+        };
+        window.addEventListener(
+          "ZIGA_PIKAFISH_STATUS_CHANGE",
+          handleStatusChange
+        );
+        const pollTimer = setInterval(() => {
+          setLiveTransport(getEngineTransportStatus());
+        }, 1e3);
+        return () => {
+          window.removeEventListener(
+            "ZIGA_PIKAFISH_STATUS_CHANGE",
+            handleStatusChange
+          );
+          clearInterval(pollTimer);
+        };
+      }, [engineId]);
       const handleToggleEngine = () => {
         const nextEngine = engineId === "js-engine" ? "pikafish" : "js-engine";
         activeProviderId2 = nextEngine;
@@ -49057,12 +49431,13 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       mentorSetter = (nextAnalysis) => {
         if (nextAnalysis) {
           setAnalysis(nextAnalysis);
+          setSelectedPlanIdx(0);
           setActiveVariationIdx(0);
           setActiveStep(1);
         }
       };
-      const activePlan = analysis?.plans?.[selectedPlanIdx] || null;
-      const activeVariation = activePlan?.variations?.[activeVariationIdx] || null;
+      const activePlan = analysis?.plans?.[selectedPlanIdx] || analysis?.plans?.[0] || null;
+      const activeVariation = activePlan?.variations?.[activeVariationIdx] || activePlan?.variations?.[0] || null;
       const toggleCompactMode = () => {
         setIsCompact((prev) => {
           const next = !prev;
@@ -49170,7 +49545,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                         }
                       ),
                       (() => {
-                        const status = analysis.pikafishStatus || (engineId === "pikafish" ? "cloud-nnue" : "js-engine");
+                        const status = engineId === "pikafish" ? liveTransport.type : "js-engine";
                         if (engineId === "pikafish") {
                           if (status === "native-ws") {
                             return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
@@ -49179,6 +49554,9 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                                 className: "inline-flex cursor-pointer items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.25)] select-none",
                                 onClick: () => {
                                   reconnectPikafish();
+                                  setTimeout(() => {
+                                    setLiveTransport(getEngineTransportStatus());
+                                  }, 150);
                                 },
                                 title: "\u{1F7E2} WS Native: 8765 \u0111ang k\u1EBFt n\u1ED1i tr\u1EF1c ti\u1EBFp (Hardcore Mode). B\u1EA5m \u0111\u1EC3 ping/k\u1EBFt n\u1ED1i l\u1EA1i.",
                                 children: [
@@ -49194,6 +49572,9 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                                 className: "inline-flex cursor-pointer items-center gap-1 rounded-md border border-cyan-500/40 bg-cyan-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-cyan-300 shadow-[0_0_8px_rgba(6,182,212,0.2)] select-none",
                                 onClick: () => {
                                   reconnectPikafish();
+                                  setTimeout(() => {
+                                    setLiveTransport(getEngineTransportStatus());
+                                  }, 150);
                                 },
                                 title: "\u{1F310} Pikafish Cloud (Depth 30-62 via ChessDB). B\u1EA5m \u0111\u1EC3 th\u1EED k\u1EBFt n\u1ED1i WS Local 8765.",
                                 children: [
@@ -49209,6 +49590,9 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                                 className: "inline-flex cursor-pointer items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300 select-none",
                                 onClick: () => {
                                   reconnectPikafish();
+                                  setTimeout(() => {
+                                    setLiveTransport(getEngineTransportStatus());
+                                  }, 150);
                                 },
                                 title: "\u26A1 \u0110ang d\xF9ng JS Engine d\u1EF1 ph\xF2ng. H\xE3y ch\u1EA1y start_pikafish.bat v\xE0 b\u1EA5m v\xE0o \u0111\xE2y \u0111\u1EC3 k\u1EBFt n\u1ED1i l\u1EA1i!",
                                 children: [
@@ -50028,7 +50412,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         gameData.myColor,
         gameData.oppColor
       );
-      if (stateHash === lastAnalysisHash && cachedAnalysis) {
+      if (stateHash === lastAnalysisHash && cachedAnalysis && !cachedAnalysis.isQuickOnly && Array.isArray(cachedAnalysis.plans) && cachedAnalysis.plans.length > 0 && !cachedAnalysis.isSearching) {
         return;
       }
       lastAnalysisHash = stateHash;
@@ -52993,6 +53377,28 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         }
       } else if (gameLayer.Nj !== void 0 && gameLayer.Nj >= 0) {
         myColor = gameLayer.Nj;
+      }
+      if (!isSpectator && gameLayer.V && Array.isArray(gameLayer.V)) {
+        let redKingRow = -1;
+        let blackKingRow = -1;
+        for (let i = 0; i < gameLayer.V.length; i++) {
+          const p = gameLayer.V[i];
+          if (!p || p.pa) continue;
+          const pType = p.Ga !== void 0 ? p.Ga : 6;
+          const pColor = p.ka !== void 0 ? p.ka : Math.floor(i / 16);
+          const pRow = p.rowIndex !== void 0 ? p.rowIndex : p.row !== void 0 ? p.row : -1;
+          if (pType === 0) {
+            if (pColor === 0) redKingRow = pRow;
+            if (pColor === 1) blackKingRow = pRow;
+          }
+        }
+        if (redKingRow >= 0 && blackKingRow >= 0) {
+          if (blackKingRow <= 2 && redKingRow >= 7) {
+            myColor = 1;
+          } else if (redKingRow <= 2 && blackKingRow >= 7) {
+            myColor = 0;
+          }
+        }
       }
       const oppColor = 1 - myColor;
       let myName = myPlayer && myPlayer.getName ? myPlayer.getName() : myColor === 0 ? "B\xEAn \u0110\u1ECF" : "B\xEAn \u0110en";

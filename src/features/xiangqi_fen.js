@@ -32,7 +32,24 @@ export const START_FEN =
   "rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1";
 
 /**
+ * Checks whether the board perspective is flipped (e.g. playing Black at the bottom).
+ * In standard Xiangqi: Red King is at row 0..2, Black King is at row 7..9.
+ * When playing Black on Ziga: Black King is at row 0..2, Red King is at row 7..9.
+ * @param {Array<{row: number, type: number, color: number}>} pieces
+ * @returns {boolean}
+ */
+export function isBoardFlipped(pieces) {
+  if (!Array.isArray(pieces)) return false;
+  for (const pc of pieces) {
+    if (pc.type === 0 && pc.color === 1 && pc.row <= 2) return true;
+    if (pc.type === 0 && pc.color === 0 && pc.row >= 7) return true;
+  }
+  return false;
+}
+
+/**
  * Converts internal pieces array + side to Xiangqi standard FEN string.
+ * Automatically normalizes flipped board perspective so Pikafish/ChessDB always receive standard FEN.
  * @param {Array<{col: number, row: number, type: number, color: number}>} pieces
  * @param {number} side 0 for Red, 1 for Black
  * @param {number} halfmoveClock
@@ -41,10 +58,13 @@ export const START_FEN =
  */
 export function piecesToFen(pieces, side = 0, halfmoveClock = 0, fullmoveNumber = 1) {
   const grid = Array.from({ length: 10 }, () => new Array(9).fill(null));
+  const flipped = isBoardFlipped(pieces);
 
   for (const pc of pieces || []) {
     if (pc.col >= 0 && pc.col <= 8 && pc.row >= 0 && pc.row <= 9) {
-      grid[pc.row][pc.col] = pc;
+      const r = flipped ? 9 - pc.row : pc.row;
+      const c = flipped ? 8 - pc.col : pc.col;
+      grid[r][c] = pc;
     }
   }
 
@@ -119,14 +139,15 @@ export function fenToPieces(fen) {
 /**
  * Converts UCI move string (e.g. "b2e2", "h2e2", "b0c2") to coordinate object.
  * @param {string} uci
+ * @param {boolean} [isFlipped=false] If true, inverts coordinates back to flipped board view
  * @returns {{ fromCol: number, fromRow: number, toCol: number, toRow: number } | null}
  */
-export function uciToMove(uci) {
+export function uciToMove(uci, isFlipped = false) {
   if (!uci || typeof uci !== "string" || uci.length < 4) return null;
-  const fromCol = uci.charCodeAt(0) - 97; // 'a' -> 0, 'b' -> 1
-  const fromRow = parseInt(uci[1], 10);
-  const toCol = uci.charCodeAt(2) - 97;
-  const toRow = parseInt(uci[3], 10);
+  let fromCol = uci.charCodeAt(0) - 97; // 'a' -> 0, 'b' -> 1
+  let fromRow = parseInt(uci[1], 10);
+  let toCol = uci.charCodeAt(2) - 97;
+  let toRow = parseInt(uci[3], 10);
 
   if (
     fromCol < 0 ||
@@ -139,6 +160,13 @@ export function uciToMove(uci) {
     toRow > 9
   ) {
     return null;
+  }
+
+  if (isFlipped) {
+    fromCol = 8 - fromCol;
+    fromRow = 9 - fromRow;
+    toCol = 8 - toCol;
+    toRow = 9 - toRow;
   }
 
   return { fromCol, fromRow, toCol, toRow };

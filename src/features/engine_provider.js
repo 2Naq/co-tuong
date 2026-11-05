@@ -55,6 +55,9 @@ export function setEngineProvider(providerId) {
   if (providerId === "pikafish" || providerId === "js-engine") {
     activeProviderId = providerId;
     console.log(`[Engine Provider] Switched active provider to: "${providerId}"`);
+    if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
+      window.dispatchEvent(new CustomEvent("ZIGA_PIKAFISH_STATUS_CHANGE", { detail: getEngineTransportStatus() }));
+    }
   }
 }
 
@@ -62,9 +65,16 @@ export function setEngineProvider(providerId) {
  * Gets transport status of current engine provider.
  */
 export function getEngineTransportStatus() {
-  const pika = getEngineProvider("pikafish");
-  if (pika && typeof pika.getTransportStatus === "function") {
-    return pika.getTransportStatus();
+  if (activeProviderId === "pikafish") {
+    const pika = getEngineProvider("pikafish");
+    if (pika && typeof pika.getTransportStatus === "function") {
+      return pika.getTransportStatus();
+    }
+    return {
+      type: "cloud-nnue",
+      label: "Cloud D30+",
+      color: "cyan",
+    };
   }
   return {
     type: "js-engine",

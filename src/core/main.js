@@ -40,6 +40,32 @@
       myColor = gameLayer.Nj;
     }
 
+    // Xác thực góc nhìn qua vị trí thực tế của Tướng trên bàn cờ:
+    // Trên nền tảng Ziga, người chơi trực tiếp LUÔN được xếp ở nửa dưới bàn cờ (hàng 0..2).
+    if (!isSpectator && gameLayer.V && Array.isArray(gameLayer.V)) {
+      let redKingRow = -1;
+      let blackKingRow = -1;
+      for (let i = 0; i < gameLayer.V.length; i++) {
+        const p = gameLayer.V[i];
+        if (!p || p.pa) continue;
+        const pType = p.Ga !== undefined ? p.Ga : 6;
+        const pColor = p.ka !== undefined ? p.ka : Math.floor(i / 16);
+        const pRow = p.rowIndex !== undefined ? p.rowIndex : (p.row !== undefined ? p.row : -1);
+        if (pType === 0) {
+          if (pColor === 0) redKingRow = pRow;
+          if (pColor === 1) blackKingRow = pRow;
+        }
+      }
+      if (redKingRow >= 0 && blackKingRow >= 0) {
+        // Tướng nào nằm ở hàng 0..2 (đáy màn hình) chính là phe của bạn
+        if (blackKingRow <= 2 && redKingRow >= 7) {
+          myColor = 1; // Phe Đen
+        } else if (redKingRow <= 2 && blackKingRow >= 7) {
+          myColor = 0; // Phe Đỏ
+        }
+      }
+    }
+
     const oppColor = 1 - myColor;
 
     let myName =
