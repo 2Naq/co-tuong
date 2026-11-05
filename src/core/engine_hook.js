@@ -1,6 +1,6 @@
 // src/engine_hook.js - Cocos2d in-engine hooks for piece sprite enhancement and click handling
 (function (ZigaMod) {
-  'use strict';
+  "use strict";
 
   function enhancePieceSprite(piece) {
     if (!piece || piece.__zigaEnhancedKj) return;
@@ -51,7 +51,7 @@
     if (!gameLayer || gameLayer.__zigaInEngineHooked) return;
     gameLayer.__zigaInEngineHooked = true;
 
-    console.log('[AN Mod] In-engine hooks active (nT, pA, fU).');
+    console.log("[AN Mod] In-engine hooks active (nT, pA, fU).");
 
     if (gameLayer.V && Array.isArray(gameLayer.V)) {
       for (let i = 0; i < gameLayer.V.length; i++) {
@@ -78,9 +78,13 @@
 
       for (var d = 0, e = 0; 90 > e; e++) {
         if (this.IM(pieceHelper, pieceIndex, e, b)) {
-          var f = e % 9, g = Math.floor(e / 9);
+          var f = e % 9,
+            g = Math.floor(e / 9);
 
-          if (this.BM(pieceHelper, pieceIndex, f, g, b) || this.DM(0, pieceHelper, pieceIndex, f, g, b)) {
+          if (
+            this.BM(pieceHelper, pieceIndex, f, g, b) ||
+            this.DM(0, pieceHelper, pieceIndex, f, g, b)
+          ) {
             if (this.tc[d]) {
               this.tc[d].setPosition(this.Pb(f), this.Qb(g));
               this.tc[d].Ir = g;
@@ -92,7 +96,13 @@
 
             for (var k = 0; k < 32; k++) {
               var targetPiece = this.V[k];
-              if (targetPiece && !targetPiece.pa && targetPiece.ka !== attackerColor && targetPiece.fa === f && targetPiece.rowIndex === g) {
+              if (
+                targetPiece &&
+                !targetPiece.pa &&
+                targetPiece.ka !== attackerColor &&
+                targetPiece.fa === f &&
+                targetPiece.rowIndex === g
+              ) {
                 isEnemyCapture = true;
                 if (ZigaMod.userSettings.highlightTactics) {
                   targetPiece.kj(true);
@@ -105,9 +115,13 @@
                   color: targetPiece.ka,
                   col: f,
                   row: g,
-                  name: ZigaMod.PIECE_DEFS[targetPiece.Ga] ? ZigaMod.PIECE_DEFS[targetPiece.Ga].name : 'Quân',
+                  name: ZigaMod.PIECE_DEFS[targetPiece.Ga]
+                    ? ZigaMod.PIECE_DEFS[targetPiece.Ga].name
+                    : "Quân",
                   char: ZigaMod.getPieceChar(targetPiece.Ga, targetPiece.ka),
-                  value: ZigaMod.PIECE_DEFS[targetPiece.Ga] ? ZigaMod.PIECE_DEFS[targetPiece.Ga].value : 0
+                  value: ZigaMod.PIECE_DEFS[targetPiece.Ga]
+                    ? ZigaMod.PIECE_DEFS[targetPiece.Ga].value
+                    : 0,
                 });
                 break;
               }
@@ -141,7 +155,7 @@
       }
 
       for (var a = 0; a < 32; a++) {
-        if (this.V[a] && typeof this.V[a].kj === 'function') {
+        if (this.V[a] && typeof this.V[a].kj === "function") {
           this.V[a].kj(false);
         }
       }
@@ -159,8 +173,8 @@
 
       if (clickedIdx >= 0) {
         const clickedPiece = this.V[clickedIdx];
-        const myColor = (this.Nj !== undefined && this.Nj >= 0) ? this.Nj : 0;
-        const isMyTurn = (this.T && this.T().Fb === 2 && this.Yc === this.Nj);
+        const myColor = this.Nj !== undefined && this.Nj >= 0 ? this.Nj : 0;
+        const isMyTurn = this.T && this.T().Fb === 2 && this.Yc === this.Nj;
 
         if (this.le >= 0 && isMyTurn && this.HM && this.HM(col, row)) {
           origFU.call(this, touchX, touchY);
@@ -174,7 +188,10 @@
             this.pA();
             this.le = clickedIdx;
 
-            this.ij.setPosition(this.Pb(clickedPiece.fa), this.Qb(clickedPiece.rowIndex) + 1);
+            this.ij.setPosition(
+              this.Pb(clickedPiece.fa),
+              this.Qb(clickedPiece.rowIndex) + 1,
+            );
             if (!this.Fr) {
               this.Fr = cc.rotateBy(2, 360).repeatForever();
             }
@@ -197,12 +214,21 @@
   // ==========================================
 
   function setupRowNumbers(gameLayer) {
-    if (!gameLayer || typeof gameLayer.Pb !== 'function' || typeof gameLayer.Qb !== 'function') return;
+    if (
+      !gameLayer ||
+      typeof gameLayer.Pb !== "function" ||
+      typeof gameLayer.Qb !== "function"
+    )
+      return;
 
     const ROW_FONT_SIZE = 16;
 
     // Nếu đã tạo nhãn với đúng cỡ chữ này thì chỉ cập nhật ẩn/hiện
-    if (gameLayer.__zigaRowLabels && gameLayer.__zigaRowLabels.length > 0 && gameLayer.__zigaRowLabelsFontSize === ROW_FONT_SIZE) {
+    if (
+      gameLayer.__zigaRowLabels &&
+      gameLayer.__zigaRowLabels.length > 0 &&
+      gameLayer.__zigaRowLabelsFontSize === ROW_FONT_SIZE
+    ) {
       updateRowLabelsVisibility(gameLayer);
       return;
     }
@@ -211,7 +237,7 @@
     if (gameLayer.__zigaRowLabels && Array.isArray(gameLayer.__zigaRowLabels)) {
       for (let i = 0; i < gameLayer.__zigaRowLabels.length; i++) {
         const lbl = gameLayer.__zigaRowLabels[i];
-        if (lbl && typeof lbl.removeFromParent === 'function') {
+        if (lbl && typeof lbl.removeFromParent === "function") {
           lbl.removeFromParent(true);
         }
       }
@@ -242,7 +268,7 @@
           let lblL = null;
           let lblR = null;
 
-          if (typeof cc.LabelTTF === 'function') {
+          if (typeof cc.LabelTTF === "function") {
             try {
               lblL = new cc.LabelTTF(numText, "Arial", ROW_FONT_SIZE);
               lblR = new cc.LabelTTF(numTextRight, "Arial", ROW_FONT_SIZE);
@@ -284,7 +310,7 @@
           }
         }
       } catch (err) {
-        console.warn('[AN Mod] Cocos2d LabelTTF init failed:', err);
+        console.warn("[AN Mod] Cocos2d LabelTTF init failed:", err);
       }
     }
 
@@ -299,19 +325,19 @@
   }
 
   function setupDomRowNumbers(gameLayer) {
-    let overlay = document.getElementById('ziga-dom-row-numbers');
-    const canvas = document.getElementById('gameCanvas');
+    let overlay = document.getElementById("ziga-dom-row-numbers");
+    const canvas = document.getElementById("gameCanvas");
     if (!canvas) return;
 
     if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = 'ziga-dom-row-numbers';
-      overlay.style.position = 'absolute';
-      overlay.style.pointerEvents = 'none';
-      overlay.style.zIndex = '50';
+      overlay = document.createElement("div");
+      overlay.id = "ziga-dom-row-numbers";
+      overlay.style.position = "absolute";
+      overlay.style.pointerEvents = "none";
+      overlay.style.zIndex = "50";
       const parent = canvas.parentElement || document.body;
-      if (window.getComputedStyle(parent).position === 'static') {
-        parent.style.position = 'relative';
+      if (window.getComputedStyle(parent).position === "static") {
+        parent.style.position = "relative";
       }
       parent.appendChild(overlay);
     }
@@ -325,30 +351,31 @@
     const leftX = gameLayer.Pb(0) - dx * 0.44;
     const rightX = gameLayer.Pb(8) + dx * 0.44;
 
-    overlay.innerHTML = '';
+    overlay.innerHTML = "";
     for (let r = 0; r < 10; r++) {
       const cocosY = gameLayer.Qb(r);
-      const domY = (canvas.height - cocosY) * scaleY + (rect.top - parentRect.top);
+      const domY =
+        (canvas.height - cocosY) * scaleY + (rect.top - parentRect.top);
       const domLeftX = leftX * scaleX + (rect.left - parentRect.left);
       const domRightX = rightX * scaleX + (rect.left - parentRect.left);
       const numText = (r + 1).toString();
 
-      const spanL = document.createElement('span');
-      spanL.className = 'ziga-board-row-num';
+      const spanL = document.createElement("span");
+      spanL.className = "ziga-board-row-num";
       spanL.textContent = numText;
-      spanL.style.position = 'absolute';
-      spanL.style.left = domLeftX + 'px';
-      spanL.style.top = domY + 'px';
-      spanL.style.transform = 'translate(-50%, -50%)';
+      spanL.style.position = "absolute";
+      spanL.style.left = domLeftX + "px";
+      spanL.style.top = domY + "px";
+      spanL.style.transform = "translate(-50%, -50%)";
       overlay.appendChild(spanL);
 
-      const spanR = document.createElement('span');
-      spanR.className = 'ziga-board-row-num';
+      const spanR = document.createElement("span");
+      spanR.className = "ziga-board-row-num";
       spanR.textContent = numText;
-      spanR.style.position = 'absolute';
-      spanR.style.left = domRightX + 'px';
-      spanR.style.top = domY + 'px';
-      spanR.style.transform = 'translate(-50%, -50%)';
+      spanR.style.position = "absolute";
+      spanR.style.left = domRightX + "px";
+      spanR.style.top = domY + "px";
+      spanR.style.transform = "translate(-50%, -50%)";
       overlay.appendChild(spanR);
     }
   }
@@ -358,14 +385,14 @@
     if (gameLayer && gameLayer.__zigaRowLabels) {
       for (let i = 0; i < gameLayer.__zigaRowLabels.length; i++) {
         const lbl = gameLayer.__zigaRowLabels[i];
-        if (lbl && typeof lbl.setVisible === 'function') {
+        if (lbl && typeof lbl.setVisible === "function") {
           lbl.setVisible(show);
         }
       }
     }
-    const domOverlay = document.getElementById('ziga-dom-row-numbers');
+    const domOverlay = document.getElementById("ziga-dom-row-numbers");
     if (domOverlay) {
-      domOverlay.style.display = show ? 'block' : 'none';
+      domOverlay.style.display = show ? "block" : "none";
     }
   }
 
@@ -374,5 +401,4 @@
   ZigaMod.hookGameLayer = hookGameLayer;
   ZigaMod.setupRowNumbers = setupRowNumbers;
   ZigaMod.updateRowLabelsVisibility = updateRowLabelsVisibility;
-
-})(window.ZigaMod = window.ZigaMod || {});
+})((window.ZigaMod = window.ZigaMod || {}));

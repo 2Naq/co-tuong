@@ -1,8 +1,8 @@
 // src/features/tactical_drawing.js - Right-click tactical arrow & square highlight drawing canvas
 (function (ZigaMod) {
-  'use strict';
+  "use strict";
 
-  console.log('[AN Mod] Tactical Drawing module initializing...');
+  console.log("[AN Mod] Tactical Drawing module initializing...");
 
   let canvasEl = null;
   let ctx = null;
@@ -20,42 +20,42 @@
   let drawnHighlights = [];
 
   const COLOR_PALETTES = {
-    green:  { main: '#22c55e', shadow: 'rgba(34, 197, 94, 0.65)' }, // Default: Attack path / Plan
-    red:    { main: '#ef4444', shadow: 'rgba(239, 68, 68, 0.7)' },  // Shift: Threat
-    gold:   { main: '#eab308', shadow: 'rgba(234, 179, 8, 0.7)' },   // Alt: Coordination / Key square
-    blue:   { main: '#38bdf8', shadow: 'rgba(56, 189, 248, 0.7)' }   // Ctrl: Defense
+    green: { main: "#22c55e", shadow: "rgba(34, 197, 94, 0.65)" }, // Default: Attack path / Plan
+    red: { main: "#ef4444", shadow: "rgba(239, 68, 68, 0.7)" }, // Shift: Threat
+    gold: { main: "#eab308", shadow: "rgba(234, 179, 8, 0.7)" }, // Alt: Coordination / Key square
+    blue: { main: "#38bdf8", shadow: "rgba(56, 189, 248, 0.7)" }, // Ctrl: Defense
   };
 
   function getDrawingColor(modifiers) {
-    if (modifiers.shift) return 'red';
-    if (modifiers.alt) return 'gold';
-    if (modifiers.ctrl) return 'blue';
-    return 'green';
+    if (modifiers.shift) return "red";
+    if (modifiers.alt) return "gold";
+    if (modifiers.ctrl) return "blue";
+    return "green";
   }
 
   // Ensure drawing canvas overlay is attached to Cocos2dGameContainer or body
   function ensureDrawingCanvas() {
     if (canvasEl && canvasEl.parentElement) return canvasEl;
 
-    const gameCanvas = document.getElementById('gameCanvas');
+    const gameCanvas = document.getElementById("gameCanvas");
     if (!gameCanvas) return null;
 
     const parent = gameCanvas.parentElement || document.body;
 
-    canvasEl = document.getElementById('ziga-tactical-drawing-canvas');
+    canvasEl = document.getElementById("ziga-tactical-drawing-canvas");
     if (!canvasEl) {
-      canvasEl = document.createElement('canvas');
-      canvasEl.id = 'ziga-tactical-drawing-canvas';
-      canvasEl.className = 'ziga-tactical-drawing-canvas';
-      canvasEl.style.position = 'absolute';
-      canvasEl.style.top = '0';
-      canvasEl.style.left = '0';
-      canvasEl.style.pointerEvents = 'none';
-      canvasEl.style.zIndex = '15'; // Above game canvas, below mod UI
+      canvasEl = document.createElement("canvas");
+      canvasEl.id = "ziga-tactical-drawing-canvas";
+      canvasEl.className = "ziga-tactical-drawing-canvas";
+      canvasEl.style.position = "absolute";
+      canvasEl.style.top = "0";
+      canvasEl.style.left = "0";
+      canvasEl.style.pointerEvents = "none";
+      canvasEl.style.zIndex = "15"; // Above game canvas, below mod UI
       parent.appendChild(canvasEl);
     }
 
-    ctx = canvasEl.getContext('2d');
+    ctx = canvasEl.getContext("2d");
     syncCanvasBounds();
     bindMouseEvents(gameCanvas);
 
@@ -64,18 +64,22 @@
 
   // Sync size and position with gameCanvas
   function syncCanvasBounds() {
-    const gameCanvas = document.getElementById('gameCanvas');
+    const gameCanvas = document.getElementById("gameCanvas");
     if (!gameCanvas || !canvasEl) return;
 
     const rect = gameCanvas.getBoundingClientRect();
-    const parentRect = (canvasEl.parentElement && canvasEl.parentElement.getBoundingClientRect)
-      ? canvasEl.parentElement.getBoundingClientRect()
-      : { left: 0, top: 0 };
+    const parentRect =
+      canvasEl.parentElement && canvasEl.parentElement.getBoundingClientRect
+        ? canvasEl.parentElement.getBoundingClientRect()
+        : { left: 0, top: 0 };
 
     const left = rect.left - parentRect.left;
     const top = rect.top - parentRect.top;
 
-    if (canvasEl.width !== gameCanvas.width || canvasEl.height !== gameCanvas.height) {
+    if (
+      canvasEl.width !== gameCanvas.width ||
+      canvasEl.height !== gameCanvas.height
+    ) {
       canvasEl.width = gameCanvas.width;
       canvasEl.height = gameCanvas.height;
     }
@@ -88,14 +92,20 @@
 
   // Convert board (col, row) to pixel center in HTML5 canvas coordinates (top-left origin)
   function boardToCanvasPixel(col, row) {
-    const gameLayer = ZigaMod.getActiveGameLayer ? ZigaMod.getActiveGameLayer() : null;
-    const gameCanvas = document.getElementById('gameCanvas');
+    const gameLayer = ZigaMod.getActiveGameLayer
+      ? ZigaMod.getActiveGameLayer()
+      : null;
+    const gameCanvas = document.getElementById("gameCanvas");
     if (!gameCanvas) return { x: 0, y: 0 };
 
-    if (gameLayer && typeof gameLayer.Pb === 'function' && typeof gameLayer.Qb === 'function') {
+    if (
+      gameLayer &&
+      typeof gameLayer.Pb === "function" &&
+      typeof gameLayer.Qb === "function"
+    ) {
       return {
         x: gameLayer.Pb(col),
-        y: gameCanvas.height - gameLayer.Qb(row)
+        y: gameCanvas.height - gameLayer.Qb(row),
       };
     }
 
@@ -103,14 +113,16 @@
     const dy = gameCanvas.height / 10;
     return {
       x: col * dx + dx / 2,
-      y: gameCanvas.height - (row * dy + dy / 2)
+      y: gameCanvas.height - (row * dy + dy / 2),
     };
   }
 
   // Convert mouse client coordinates to board (col, row) with high precision snap
   function clientToBoardCoord(clientX, clientY) {
-    const gameLayer = ZigaMod.getActiveGameLayer ? ZigaMod.getActiveGameLayer() : null;
-    const gameCanvas = document.getElementById('gameCanvas');
+    const gameLayer = ZigaMod.getActiveGameLayer
+      ? ZigaMod.getActiveGameLayer()
+      : null;
+    const gameCanvas = document.getElementById("gameCanvas");
     if (!gameCanvas) return null;
 
     const rect = gameCanvas.getBoundingClientRect();
@@ -125,7 +137,11 @@
     const cocosX = canvasX;
     const cocosY = gameCanvas.height - canvasY;
 
-    if (gameLayer && typeof gameLayer.Pb === 'function' && typeof gameLayer.Qb === 'function') {
+    if (
+      gameLayer &&
+      typeof gameLayer.Pb === "function" &&
+      typeof gameLayer.Qb === "function"
+    ) {
       const p0 = gameLayer.Pb(0);
       const p1 = gameLayer.Pb(1);
       const q0 = gameLayer.Qb(0);
@@ -178,12 +194,14 @@
   function isClickOnModUI(e) {
     if (!e || !e.target) return false;
     return !!(
-      e.target.closest('#ziga-mod-widget') ||
-      e.target.closest('#ziga-mentor-floating-panel') ||
-      e.target.closest('.ziga-settings-modal') ||
-      e.target.closest('.ziga-tactical-sandbox-modal') ||
-      e.target.closest('.ziga-op-modal') ||
-      e.target.closest('.ziga-review-modal')
+      e.target.closest("#ziga-mod-widget") ||
+      e.target.closest("#ziga-mentor-floating-panel") ||
+      e.target.closest("#ziga-react-settings-host") ||
+      e.target.closest("[data-base-ui-portal]") ||
+      e.target.closest(".ziga-settings-modal") ||
+      e.target.closest(".ziga-tactical-sandbox-modal") ||
+      e.target.closest(".ziga-op-modal") ||
+      e.target.closest(".ziga-review-modal")
     );
   }
 
@@ -194,127 +212,161 @@
     mouseListenersBound = true;
 
     // 1. Prevent default right-click context menu when on or near game canvas
-    window.addEventListener('contextmenu', (e) => {
-      if (isClickOnModUI(e)) return;
-      const gameCanvas = document.getElementById('gameCanvas');
-      if (gameCanvas) {
-        const rect = gameCanvas.getBoundingClientRect();
-        if (e.clientX >= rect.left && e.clientX <= rect.right &&
-            e.clientY >= rect.top && e.clientY <= rect.bottom) {
+    window.addEventListener(
+      "contextmenu",
+      (e) => {
+        if (isClickOnModUI(e)) return;
+        const gameCanvas = document.getElementById("gameCanvas");
+        if (gameCanvas) {
+          const rect = gameCanvas.getBoundingClientRect();
+          if (
+            e.clientX >= rect.left &&
+            e.clientX <= rect.right &&
+            e.clientY >= rect.top &&
+            e.clientY <= rect.bottom
+          ) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
+        }
+        if (isRightDragging) {
           e.preventDefault();
           e.stopPropagation();
           return false;
         }
-      }
-      if (isRightDragging) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-    }, { capture: true });
+      },
+      { capture: true },
+    );
 
     // 2. Mouse Down (Capture Phase): Intercept right-clicks directly on game canvas
-    window.addEventListener('mousedown', (e) => {
-      if (isClickOnModUI(e)) return;
-      const userSettings = ZigaMod.userSettings;
-      if (userSettings && userSettings.tacticalDrawing === false) return;
+    window.addEventListener(
+      "mousedown",
+      (e) => {
+        if (isClickOnModUI(e)) return;
+        const userSettings = ZigaMod.userSettings;
+        if (userSettings && userSettings.tacticalDrawing === false) return;
 
-      const gameCanvas = document.getElementById('gameCanvas');
-      if (!gameCanvas) return;
+        const gameCanvas = document.getElementById("gameCanvas");
+        if (!gameCanvas) return;
 
-      const rect = gameCanvas.getBoundingClientRect();
-      const isInside = (e.clientX >= rect.left && e.clientX <= rect.right &&
-                        e.clientY >= rect.top && e.clientY <= rect.bottom);
+        const rect = gameCanvas.getBoundingClientRect();
+        const isInside =
+          e.clientX >= rect.left &&
+          e.clientX <= rect.right &&
+          e.clientY >= rect.top &&
+          e.clientY <= rect.bottom;
 
-      // Left click on board: Clear drawings if any are present
-      if (e.button === 0 && isInside) {
-        if (drawnArrows.length > 0 || drawnHighlights.length > 0) {
-          clearDrawings();
+        // Left click on board: Clear drawings if any are present
+        if (e.button === 0 && isInside) {
+          if (drawnArrows.length > 0 || drawnHighlights.length > 0) {
+            clearDrawings();
+          }
+          return;
         }
-        return;
-      }
 
-      // Right click on board: Start drawing tactical arrow or highlight
-      if (e.button === 2 && isInside) {
-        const boardPos = clientToBoardCoord(e.clientX, e.clientY);
-        if (!boardPos) return;
+        // Right click on board: Start drawing tactical arrow or highlight
+        if (e.button === 2 && isInside) {
+          const boardPos = clientToBoardCoord(e.clientX, e.clientY);
+          if (!boardPos) return;
 
-        isRightDragging = true;
-        dragStartCol = boardPos.col;
-        dragStartRow = boardPos.row;
-        dragStartPos = boardToCanvasPixel(boardPos.col, boardPos.row);
-        dragCurrentPos = { x: boardPos.canvasX, y: boardPos.canvasY };
+          isRightDragging = true;
+          dragStartCol = boardPos.col;
+          dragStartRow = boardPos.row;
+          dragStartPos = boardToCanvasPixel(boardPos.col, boardPos.row);
+          dragCurrentPos = { x: boardPos.canvasX, y: boardPos.canvasY };
+
+          currentKeyModifiers = {
+            shift: !!e.shiftKey,
+            alt: !!e.altKey,
+            ctrl: !!e.ctrlKey,
+          };
+
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      },
+      { capture: true },
+    );
+
+    // 3. Mouse Move (Capture Phase): Seamless tracking inside and outside board
+    window.addEventListener(
+      "mousemove",
+      (e) => {
+        if (!isRightDragging) return;
+
+        const gameCanvas = document.getElementById("gameCanvas");
+        if (!gameCanvas) return;
+
+        const rect = gameCanvas.getBoundingClientRect();
+        const scaleX = gameCanvas.width / rect.width;
+        const scaleY = gameCanvas.height / rect.height;
+
+        dragCurrentPos = {
+          x: (e.clientX - rect.left) * scaleX,
+          y: (e.clientY - rect.top) * scaleY,
+        };
 
         currentKeyModifiers = {
           shift: !!e.shiftKey,
           alt: !!e.altKey,
-          ctrl: !!e.ctrlKey
+          ctrl: !!e.ctrlKey,
         };
 
+        redrawCanvas();
         e.preventDefault();
         e.stopPropagation();
-      }
-    }, { capture: true });
-
-    // 3. Mouse Move (Capture Phase): Seamless tracking inside and outside board
-    window.addEventListener('mousemove', (e) => {
-      if (!isRightDragging) return;
-
-      const gameCanvas = document.getElementById('gameCanvas');
-      if (!gameCanvas) return;
-
-      const rect = gameCanvas.getBoundingClientRect();
-      const scaleX = gameCanvas.width / rect.width;
-      const scaleY = gameCanvas.height / rect.height;
-
-      dragCurrentPos = {
-        x: (e.clientX - rect.left) * scaleX,
-        y: (e.clientY - rect.top) * scaleY
-      };
-
-      currentKeyModifiers = {
-        shift: !!e.shiftKey,
-        alt: !!e.altKey,
-        ctrl: !!e.ctrlKey
-      };
-
-      redrawCanvas();
-      e.preventDefault();
-      e.stopPropagation();
-    }, { capture: true });
+      },
+      { capture: true },
+    );
 
     // 4. Mouse Up (Capture Phase): Complete arrow or square highlight
-    window.addEventListener('mouseup', (e) => {
-      if (e.button === 2 && isRightDragging) {
-        e.preventDefault();
-        e.stopPropagation();
-        isRightDragging = false;
+    window.addEventListener(
+      "mouseup",
+      (e) => {
+        if (e.button === 2 && isRightDragging) {
+          e.preventDefault();
+          e.stopPropagation();
+          isRightDragging = false;
 
-        const endBoard = clientToBoardCoord(e.clientX, e.clientY);
-        const colorKey = getDrawingColor(currentKeyModifiers);
+          const endBoard = clientToBoardCoord(e.clientX, e.clientY);
+          const colorKey = getDrawingColor(currentKeyModifiers);
 
-        if (endBoard) {
-          if (endBoard.col === dragStartCol && endBoard.row === dragStartRow) {
-            // Clicked single square: toggle highlight circle
-            toggleSquareHighlight(endBoard.col, endBoard.row, colorKey);
-          } else {
-            // Dragged to another square: toggle arrow
-            toggleArrow(dragStartCol, dragStartRow, endBoard.col, endBoard.row, colorKey);
+          if (endBoard) {
+            if (
+              endBoard.col === dragStartCol &&
+              endBoard.row === dragStartRow
+            ) {
+              // Clicked single square: toggle highlight circle
+              toggleSquareHighlight(endBoard.col, endBoard.row, colorKey);
+            } else {
+              // Dragged to another square: toggle arrow
+              toggleArrow(
+                dragStartCol,
+                dragStartRow,
+                endBoard.col,
+                endBoard.row,
+                colorKey,
+              );
+            }
           }
+
+          dragStartCol = -1;
+          dragStartRow = -1;
+          dragStartPos = null;
+          dragCurrentPos = null;
+
+          redrawCanvas();
         }
-
-        dragStartCol = -1;
-        dragStartRow = -1;
-        dragStartPos = null;
-        dragCurrentPos = null;
-
-        redrawCanvas();
-      }
-    }, { capture: true });
+      },
+      { capture: true },
+    );
   }
 
   function toggleSquareHighlight(col, row, color) {
-    const existingIdx = drawnHighlights.findIndex(h => h.col === col && h.row === row);
+    const existingIdx = drawnHighlights.findIndex(
+      (h) => h.col === col && h.row === row,
+    );
     if (existingIdx >= 0) {
       if (drawnHighlights[existingIdx].color === color) {
         drawnHighlights.splice(existingIdx, 1);
@@ -327,9 +379,12 @@
   }
 
   function toggleArrow(fromCol, fromRow, toCol, toRow, color) {
-    const existingIdx = drawnArrows.findIndex(a =>
-      a.fromCol === fromCol && a.fromRow === fromRow &&
-      a.toCol === toCol && a.toRow === toRow
+    const existingIdx = drawnArrows.findIndex(
+      (a) =>
+        a.fromCol === fromCol &&
+        a.fromRow === fromRow &&
+        a.toCol === toCol &&
+        a.toRow === toRow,
     );
 
     if (existingIdx >= 0) {
@@ -359,14 +414,16 @@
     ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
     // 1. Draw highlighted squares
-    drawnHighlights.forEach(h => {
+    const highlights = ZigaMod.drawnHighlights || drawnHighlights;
+    highlights.forEach((h) => {
       const p = boardToCanvasPixel(h.col, h.row);
       const pal = COLOR_PALETTES[h.color] || COLOR_PALETTES.green;
       drawHighlightCircle(ctx, p.x, p.y, pal);
     });
 
     // 2. Draw stored arrows
-    drawnArrows.forEach(a => {
+    const arrows = ZigaMod.drawnArrows || drawnArrows;
+    arrows.forEach((a) => {
       const start = boardToCanvasPixel(a.fromCol, a.fromRow);
       const end = boardToCanvasPixel(a.toCol, a.toRow);
       const pal = COLOR_PALETTES[a.color] || COLOR_PALETTES.green;
@@ -377,7 +434,16 @@
     if (isRightDragging && dragStartPos && dragCurrentPos) {
       const colorKey = getDrawingColor(currentKeyModifiers);
       const pal = COLOR_PALETTES[colorKey] || COLOR_PALETTES.green;
-      drawNeonArrow(ctx, dragStartPos.x, dragStartPos.y, dragCurrentPos.x, dragCurrentPos.y, pal.main, pal.shadow, true);
+      drawNeonArrow(
+        ctx,
+        dragStartPos.x,
+        dragStartPos.y,
+        dragCurrentPos.x,
+        dragCurrentPos.y,
+        pal.main,
+        pal.shadow,
+        true,
+      );
     }
   }
 
@@ -386,7 +452,7 @@
     c.save();
     c.beginPath();
     c.arc(x, y, 26, 0, Math.PI * 2);
-    c.fillStyle = palette.shadow.replace('0.7', '0.25').replace('0.65', '0.25');
+    c.fillStyle = palette.shadow.replace("0.7", "0.25").replace("0.65", "0.25");
     c.fill();
 
     c.lineWidth = 3;
@@ -428,7 +494,7 @@
     c.lineTo(baseEndX, baseEndY);
     c.strokeStyle = color;
     c.lineWidth = shaftWidth;
-    c.lineCap = 'round';
+    c.lineCap = "round";
     c.stroke();
 
     // Draw Arrow Head Triangle
@@ -436,11 +502,11 @@
     c.moveTo(adjustedEndX, adjustedEndY);
     c.lineTo(
       baseEndX + Math.cos(angle + Math.PI / 2) * (headWidth / 2),
-      baseEndY + Math.sin(angle + Math.PI / 2) * (headWidth / 2)
+      baseEndY + Math.sin(angle + Math.PI / 2) * (headWidth / 2),
     );
     c.lineTo(
       baseEndX + Math.cos(angle - Math.PI / 2) * (headWidth / 2),
-      baseEndY + Math.sin(angle - Math.PI / 2) * (headWidth / 2)
+      baseEndY + Math.sin(angle - Math.PI / 2) * (headWidth / 2),
     );
     c.closePath();
     c.fillStyle = color;
@@ -453,13 +519,13 @@
   function updateTacticalDrawing() {
     const userSettings = ZigaMod.userSettings;
     if (userSettings && userSettings.tacticalDrawing === false) {
-      if (canvasEl) canvasEl.style.display = 'none';
+      if (canvasEl) canvasEl.style.display = "none";
       return;
     }
 
     const c = ensureDrawingCanvas();
     if (c) {
-      c.style.display = 'block';
+      c.style.display = "block";
       syncCanvasBounds();
     }
   }
@@ -471,5 +537,4 @@
   ZigaMod.redrawTacticalCanvas = redrawCanvas;
   ZigaMod.drawnArrows = drawnArrows;
   ZigaMod.drawnHighlights = drawnHighlights;
-
-})(window.ZigaMod = window.ZigaMod || {});
+})((window.ZigaMod = window.ZigaMod || {}));

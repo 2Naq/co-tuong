@@ -1,8 +1,8 @@
 // src/features/eval_bar.js - Real-time AI Evaluation Bar & Best Move Suggester
 (function (ZigaMod) {
-  'use strict';
+  "use strict";
 
-  console.log('[AN Mod] Eval Bar & AI Engine module initializing...');
+  console.log("[AN Mod] Eval Bar & AI Engine module initializing...");
 
   let evalBarContainer = null;
   let evalBarFill = null;
@@ -13,40 +13,40 @@
   // Xiangqi Piece Square Tables (PST) - Positional bonuses for evaluation
   // 10 rows x 9 cols (row 0: Red bottom, row 9: Black top)
   const PAWN_PST_RED = [
-    [0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [0,  0,  0,  0,  0,  0,  0,  0,  0],
-    [0,  0,  5,  0, 10,  0,  5,  0,  0], // River approach
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 5, 0, 10, 0, 5, 0, 0], // River approach
     [10, 15, 20, 25, 30, 25, 20, 15, 10], // River cross
     [20, 25, 30, 35, 40, 35, 30, 25, 20],
     [30, 35, 40, 45, 50, 45, 40, 35, 30],
     [40, 45, 50, 55, 60, 55, 50, 45, 40], // Deep palace attack
     [50, 55, 60, 65, 70, 65, 60, 55, 50],
-    [0,  0,  0,  0,  0,  0,  0,  0,  0]
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
   ];
 
   const KNIGHT_PST_RED = [
-    [0, -5,  0,  0,  0,  0,  0, -5,  0],
-    [0,  5, 10, 10,  5, 10, 10,  5,  0],
-    [5, 10, 15, 20, 15, 20, 15, 10,  5],
-    [5, 15, 20, 25, 20, 25, 20, 15,  5],
+    [0, -5, 0, 0, 0, 0, 0, -5, 0],
+    [0, 5, 10, 10, 5, 10, 10, 5, 0],
+    [5, 10, 15, 20, 15, 20, 15, 10, 5],
+    [5, 15, 20, 25, 20, 25, 20, 15, 5],
     [10, 20, 25, 30, 25, 30, 25, 20, 10],
     [15, 25, 30, 35, 30, 35, 30, 25, 15],
     [20, 30, 35, 40, 35, 40, 35, 30, 20],
     [15, 25, 30, 35, 30, 35, 30, 25, 15],
-    [5,  15, 20, 25, 20, 25, 20, 15,  5],
-    [0,  0,  5,  5,  0,  5,  5,  0,  0]
+    [5, 15, 20, 25, 20, 25, 20, 15, 5],
+    [0, 0, 5, 5, 0, 5, 5, 0, 0],
   ];
 
   // Base piece values in centipawns (100 cp = 1 pawn)
   const PIECE_BASE_VALUES = {
     0: 10000, // Tướng (King)
-    3: 900,   // Xe (Rook)
-    4: 450,   // Pháo (Cannon)
-    5: 400,   // Mã (Knight)
-    1: 200,   // Sĩ (Advisor)
-    2: 200,   // Tượng (Bishop)
-    6: 150    // Tốt (Pawn)
+    3: 900, // Xe (Rook)
+    4: 450, // Pháo (Cannon)
+    5: 400, // Mã (Knight)
+    1: 200, // Sĩ (Advisor)
+    2: 200, // Tượng (Bishop)
+    6: 150, // Tốt (Pawn)
   };
 
   // Evaluate Xiangqi position from piece array
@@ -56,7 +56,8 @@
 
     for (let i = 0; i < pieces.length; i++) {
       const p = pieces[i];
-      if (!p || p.dead || p.col < 0 || p.col > 8 || p.row < 0 || p.row > 9) continue;
+      if (!p || p.dead || p.col < 0 || p.col > 8 || p.row < 0 || p.row > 9)
+        continue;
 
       const baseVal = PIECE_BASE_VALUES[p.type] || 0;
       let posBonus = 0;
@@ -72,7 +73,7 @@
           posBonus = 25;
           if (p.row >= 5) posBonus += 20; // River cross
         }
-        redScore += (baseVal + posBonus);
+        redScore += baseVal + posBonus;
       } else {
         // Black (mirrored rows: row 9 is Black base, row 0 is enemy)
         const mirroredRow = 9 - p.row;
@@ -84,7 +85,7 @@
           posBonus = 25;
           if (p.row <= 4) posBonus += 20;
         }
-        blackScore += (baseVal + posBonus);
+        blackScore += baseVal + posBonus;
       }
     }
 
@@ -94,13 +95,33 @@
     return diffCp / 100;
   }
 
-  // Calculate Best Move using tactical heuristic and piece safety
+  // Calculate Best Move using Grandmaster Engine analysis or fallback heuristic
   function calculateBestMove(gameData) {
     if (!gameData || !gameData.gameLayer || !gameData.gameLayer.V) return null;
 
+    // Ưu tiên cao nhất: Lấy nước đi số 1 từ Grandmaster Engine vừa phân tích
+    if (
+      ZigaMod.lastEngineAnalysis &&
+      Array.isArray(ZigaMod.lastEngineAnalysis.plans) &&
+      ZigaMod.lastEngineAnalysis.plans.length > 0
+    ) {
+      const topPlan = ZigaMod.lastEngineAnalysis.plans[0];
+      if (topPlan.fromCol !== undefined && topPlan.toCol !== undefined) {
+        return {
+          fromCol: topPlan.fromCol,
+          fromRow: topPlan.fromRow,
+          toCol: topPlan.toCol,
+          toRow: topPlan.toRow,
+          score: topPlan.score || 0,
+          capturedType: null,
+        };
+      }
+    }
+
     const gameLayer = gameData.gameLayer;
     const pieces = gameLayer.V;
-    const activeColor = (gameLayer.Yc !== undefined) ? gameLayer.Yc : gameData.myColor;
+    const activeColor =
+      gameLayer.Yc !== undefined ? gameLayer.Yc : gameData.myColor;
 
     // Scan all legal moves for active player and pick highest evaluated move
     const candidateMoves = [];
@@ -118,27 +139,41 @@
       if (gameLayer.ZC) gameLayer.ZC(boardGrid);
 
       for (let e = 0; 90 > e; e++) {
-        if (gameLayer.IM && gameLayer.IM(pieceHelper, attackerIdx, e, boardGrid)) {
+        if (
+          gameLayer.IM &&
+          gameLayer.IM(pieceHelper, attackerIdx, e, boardGrid)
+        ) {
           const tc = e % 9;
           const tr = Math.floor(e / 9);
 
           // Check if valid destination
-          const isBlocked = (gameLayer.BM && gameLayer.BM(pieceHelper, attackerIdx, tc, tr, boardGrid)) ||
-                            (gameLayer.DM && gameLayer.DM(0, pieceHelper, attackerIdx, tc, tr, boardGrid));
+          const isBlocked =
+            (gameLayer.BM &&
+              gameLayer.BM(pieceHelper, attackerIdx, tc, tr, boardGrid)) ||
+            (gameLayer.DM &&
+              gameLayer.DM(0, pieceHelper, attackerIdx, tc, tr, boardGrid));
           if (!isBlocked) {
             // Find target piece if any
             let capturedVal = 0;
             let capturedType = null;
             for (let k = 0; k < 32; k++) {
               const tp = pieces[k];
-              if (tp && !tp.pa && tp.ka !== activeColor && tp.fa === tc && tp.rowIndex === tr) {
+              if (
+                tp &&
+                !tp.pa &&
+                tp.ka !== activeColor &&
+                tp.fa === tc &&
+                tp.rowIndex === tr
+              ) {
                 capturedVal = PIECE_BASE_VALUES[tp.Ga] || 0;
                 capturedType = tp.Ga;
                 break;
               }
             }
 
-            const moveScore = capturedVal + (Math.random() * 15); // Slight variance for natural selection
+            const attackerVal = PIECE_BASE_VALUES[p.Ga] || 0;
+            // MVV-LVA: Điểm ăn quân có cân nhắc giá trị quân ăn
+            const moveScore = capturedVal > 0 ? (capturedVal * 10 - attackerVal) : 0;
             candidateMoves.push({
               pieceIndex: attackerIdx,
               fromCol: p.fa,
@@ -146,7 +181,7 @@
               toCol: tc,
               toRow: tr,
               score: moveScore,
-              capturedType: capturedType
+              capturedType: capturedType,
             });
           }
         }
@@ -162,61 +197,77 @@
 
   // Ensure DOM container for vertical Eval Bar
   function ensureEvalBar() {
-    if (evalBarContainer && evalBarContainer.parentElement) return evalBarContainer;
+    if (evalBarContainer && evalBarContainer.parentElement)
+      return evalBarContainer;
 
-    const gameCanvas = document.getElementById('gameCanvas');
+    const gameCanvas = document.getElementById("gameCanvas");
     if (!gameCanvas) return null;
 
     const parent = gameCanvas.parentElement || document.body;
 
-    evalBarContainer = document.getElementById('ziga-eval-bar-wrapper');
+    evalBarContainer = document.getElementById("ziga-eval-bar-wrapper");
     if (!evalBarContainer) {
-      evalBarContainer = document.createElement('div');
-      evalBarContainer.id = 'ziga-eval-bar-wrapper';
-      evalBarContainer.className = 'ziga-eval-bar-wrapper';
-      evalBarContainer.title = 'Thanh đánh giá thế trận thời gian thực (Eval Bar)\nĐỏ dẫn dương (+), Đen dẫn âm (-)';
+      evalBarContainer = document.createElement("div");
+      evalBarContainer.id = "ziga-eval-bar-wrapper";
+      evalBarContainer.className =
+        "ziga-shadcn-root absolute z-[2147483640] flex flex-row items-center pointer-events-auto select-none";
+      evalBarContainer.title =
+        "Thanh đánh giá thế trận thời gian thực (Eval Bar)\nĐỏ dẫn dương (+), Đen dẫn âm (-)";
 
       evalBarContainer.innerHTML = `
-        <div class="ziga-eval-bar-track">
-          <div class="ziga-eval-bar-black"></div>
-          <div class="ziga-eval-bar-fill" id="ziga-eval-bar-fill"></div>
-          <div class="ziga-eval-score-badge" id="ziga-eval-score-badge">0.0</div>
+        <div class="relative w-full h-full rounded-full overflow-hidden border border-border/80 bg-neutral-900/95 shadow-md flex items-center justify-start backdrop-blur-sm">
+          <!-- Vạch màu fill % theo chiều ngang -->
+          <div class="h-full bg-gradient-to-r from-red-600 via-orange-500 to-amber-400 transition-all duration-300 ease-out" id="ziga-eval-bar-fill" style="width: 50%"></div>
+          
+          <!-- Vạch mốc cân bằng 50% ở chính giữa -->
+          <div class="absolute left-1/2 top-0 bottom-0 w-[1.5px] bg-white/40 -translate-x-1/2 pointer-events-none"></div>
+
+          <!-- Điểm số thế trận hiển thị ngang ở trung tâm -->
+          <div class="absolute inset-0 flex items-center justify-center pointer-events-none text-[10px] font-mono font-black text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]" id="ziga-eval-score-badge">0.0</div>
         </div>
       `;
 
       parent.appendChild(evalBarContainer);
     }
 
-    evalBarFill = document.getElementById('ziga-eval-bar-fill');
-    evalScoreBadge = document.getElementById('ziga-eval-score-badge');
+    evalBarFill = document.getElementById("ziga-eval-bar-fill");
+    evalScoreBadge = document.getElementById("ziga-eval-score-badge");
     syncEvalBarPosition();
 
     return evalBarContainer;
   }
 
-  // Sync Eval Bar position next to gameCanvas left edge
+  // Sync Eval Bar position: horizontal & centered above gameCanvas
   function syncEvalBarPosition() {
-    const gameCanvas = document.getElementById('gameCanvas');
+    const gameCanvas = document.getElementById("gameCanvas");
     if (!gameCanvas || !evalBarContainer) return;
 
     const rect = gameCanvas.getBoundingClientRect();
-    const parentRect = (evalBarContainer.parentElement && evalBarContainer.parentElement.getBoundingClientRect)
-      ? evalBarContainer.parentElement.getBoundingClientRect()
-      : { left: 0, top: 0 };
+    const parentRect =
+      evalBarContainer.parentElement &&
+      evalBarContainer.parentElement.getBoundingClientRect
+        ? evalBarContainer.parentElement.getBoundingClientRect()
+        : { left: 0, top: 0 };
 
-    const left = rect.left - parentRect.left - 24; // 24px to the left of board
-    const top = rect.top - parentRect.top + 10;
-    const height = rect.height - 20;
+    const barWidth = Math.min(260, Math.max(180, rect.width * 0.5)); // Độ dài thanh ngắn gọn ~220-260px
+    const barHeight = 16; // Độ dày thanh 16px
+
+    // Căn giữa theo chiều ngang bàn cờ
+    const left = rect.left - parentRect.left + (rect.width - barWidth) / 2;
+    // Nằm phía trên mép bàn cờ (hoặc mép trong nếu không đủ chỗ)
+    const rawTop = rect.top - parentRect.top - 22;
+    const top = rawTop < 4 ? rect.top - parentRect.top + 6 : rawTop;
 
     evalBarContainer.style.left = `${Math.max(4, left)}px`;
     evalBarContainer.style.top = `${top}px`;
-    evalBarContainer.style.height = `${height}px`;
+    evalBarContainer.style.width = `${barWidth}px`;
+    evalBarContainer.style.height = `${barHeight}px`;
   }
 
-  let lastEvalHash = '';
+  let lastEvalHash = "";
 
   function getEvalBoardHash(gameLayer, myColor) {
-    if (!gameLayer || !gameLayer.V) return '';
+    if (!gameLayer || !gameLayer.V) return "";
     let hash = `${gameLayer.Yc}_${myColor}_`;
     for (let i = 0; i < 32; i++) {
       const p = gameLayer.V[i];
@@ -230,18 +281,18 @@
   function updateEvalBar(gameData) {
     const userSettings = ZigaMod.userSettings || {};
     if (userSettings.evalBar === false) {
-      if (evalBarContainer) evalBarContainer.style.display = 'none';
+      if (evalBarContainer) evalBarContainer.style.display = "none";
       return;
     }
 
     if (!gameData || !gameData.gameLayer || !gameData.gameLayer.V) {
-      if (evalBarContainer) evalBarContainer.style.display = 'none';
+      if (evalBarContainer) evalBarContainer.style.display = "none";
       return;
     }
 
     const container = ensureEvalBar();
     if (!container) return;
-    container.style.display = 'flex';
+    container.style.display = "flex";
     syncEvalBarPosition();
 
     const currentHash = getEvalBoardHash(gameData.gameLayer, gameData.myColor);
@@ -251,12 +302,12 @@
     lastEvalHash = currentHash;
 
     // Calculate score
-    const pieces = gameData.gameLayer.V.map(p => ({
+    const pieces = gameData.gameLayer.V.map((p) => ({
       col: p.fa,
       row: p.rowIndex,
       type: p.Ga,
       color: p.ka,
-      dead: !!p.pa
+      dead: !!p.pa,
     }));
 
     const score = evaluatePosition(pieces);
@@ -267,13 +318,12 @@
     const fillPercent = ((clampedScore + 10) / 20) * 100;
 
     if (evalBarFill) {
-      evalBarFill.style.height = `${fillPercent}%`;
+      evalBarFill.style.width = `${fillPercent}%`;
     }
 
     if (evalScoreBadge) {
-      const sign = score > 0 ? '+' : '';
+      const sign = score > 0 ? "+" : "";
       evalScoreBadge.textContent = `${sign}${score.toFixed(1)}`;
-      evalScoreBadge.className = `ziga-eval-score-badge ${score > 0 ? 'red-advantage' : score < 0 ? 'black-advantage' : ''}`;
     }
 
     // Calculate best move recommendation
@@ -288,11 +338,13 @@
     if (!currentBestMove) return;
 
     // Use ZigaMod tactical drawing canvas if available
-    const canvas = ZigaMod.ensureDrawingCanvas ? ZigaMod.ensureDrawingCanvas() : null;
+    const canvas = ZigaMod.ensureDrawingCanvas
+      ? ZigaMod.ensureDrawingCanvas()
+      : null;
     if (!canvas) return;
 
     // Ensure best move arrow is visible if enabled
-    const existingIdx = ZigaMod.drawnArrows.findIndex(a => a.isBestMove);
+    const existingIdx = ZigaMod.drawnArrows.findIndex((a) => a.isBestMove);
     if (existingIdx >= 0) {
       ZigaMod.drawnArrows.splice(existingIdx, 1);
     }
@@ -302,8 +354,8 @@
       fromRow: currentBestMove.fromRow,
       toCol: currentBestMove.toCol,
       toRow: currentBestMove.toRow,
-      color: 'gold',
-      isBestMove: true
+      color: "gold",
+      isBestMove: true,
     });
   }
 
@@ -312,5 +364,4 @@
   ZigaMod.calculateBestMove = calculateBestMove;
   ZigaMod.updateEvalBar = updateEvalBar;
   ZigaMod.ensureEvalBar = ensureEvalBar;
-
-})(window.ZigaMod = window.ZigaMod || {});
+})((window.ZigaMod = window.ZigaMod || {}));

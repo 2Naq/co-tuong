@@ -1,0 +1,907 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+/* Completely hide all floating AdSense side rails, anchor banners, and obstructing ads */
+ins.adsbygoogle,
+.google-auto-placed,
+iframe[id^="aswift"],
+iframe[name^="aswift"],
+div[id^="aswift"],
+div[id^="google_ads"],
+iframe[id^="google_ads"],
+.ads-frame,
+[id*="banner_left"],
+[id*="banner_right"],
+[class*="banner-left"],
+[class*="banner-right"] {
+  display: none !important;
+  visibility: hidden !important;
+  z-index: -9999 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+}
+
+/* Board Row Numbers (Fallback DOM on #gameCanvas) */
+.ziga-board-row-num {
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: rgb(114, 51, 20);
+  opacity: 0.85;
+  user-select: none;
+  pointer-events: none;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+
+/* Toast Notification */
+.ziga-recorder-toast {
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--card, #18181b);
+  border: 1px solid var(--border, #27272a);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  color: var(--foreground, #fafafa);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 9px 18px;
+  border-radius: 9999px;
+  z-index: 2147483647;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.ziga-recorder-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* =================================================== */
+/* LIVE IN-BOARD GLOWING AURA RINGS (VIỀN XANH / ĐỎ)   */
+/* =================================================== */
+
+.ziga-board-aura-layer {
+  display: none !important;
+}
+
+.ziga-aura-ring {
+  position: absolute;
+  border-radius: 50%;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+  pointer-events: none !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform, box-shadow, opacity;
+  transition: opacity 0.25s ease-out;
+}
+
+.ziga-aura-ring.ziga-aura-green {
+  border: 2.5px solid #39ff14;
+  background: radial-gradient(circle, rgba(57, 255, 20, 0.04) 0%, rgba(57, 255, 20, 0.14) 70%, rgba(57, 255, 20, 0.3) 100%);
+  box-shadow:
+    0 0 8px #39ff14,
+    0 0 18px rgba(57, 255, 20, 0.75),
+    inset 0 0 8px rgba(57, 255, 20, 0.45);
+  animation: zigaAuraPulseGreen 1.8s ease-in-out infinite;
+}
+
+.ziga-aura-ring.ziga-aura-green.ziga-aura-role-target {
+  border-width: 3px;
+  border-color: #00ff66;
+  box-shadow:
+    0 0 12px #00ff66,
+    0 0 24px rgba(0, 255, 102, 0.85),
+    0 0 36px rgba(57, 255, 20, 0.4),
+    inset 0 0 10px rgba(0, 255, 102, 0.5);
+}
+
+.ziga-aura-ring.ziga-aura-green.ziga-aura-role-attacker {
+  border-width: 2px;
+  border-color: #4ade80;
+  box-shadow:
+    0 0 8px #4ade80,
+    0 0 16px rgba(74, 222, 128, 0.65),
+    inset 0 0 6px rgba(74, 222, 128, 0.35);
+}
+
+.ziga-aura-ring.ziga-aura-red {
+  border: 2.5px solid #ff1744;
+  background: radial-gradient(circle, rgba(255, 23, 68, 0.05) 0%, rgba(255, 23, 68, 0.16) 70%, rgba(255, 23, 68, 0.35) 100%);
+  box-shadow:
+    0 0 8px #ff1744,
+    0 0 18px rgba(255, 23, 68, 0.75),
+    inset 0 0 8px rgba(255, 23, 68, 0.45);
+  animation: zigaAuraPulseRed 1.6s ease-in-out infinite;
+}
+
+.ziga-aura-ring.ziga-aura-red.ziga-aura-role-target {
+  border-width: 3px;
+  border-color: #ff1744;
+  box-shadow:
+    0 0 14px #ff1744,
+    0 0 28px rgba(255, 23, 68, 0.9),
+    0 0 40px rgba(239, 68, 68, 0.45),
+    inset 0 0 12px rgba(255, 23, 68, 0.55);
+}
+
+.ziga-aura-ring.ziga-aura-red.ziga-aura-role-attacker {
+  border-width: 2px;
+  border-color: #f87171;
+  box-shadow:
+    0 0 8px #f87171,
+    0 0 16px rgba(248, 113, 113, 0.65),
+    inset 0 0 6px rgba(248, 113, 113, 0.35);
+}
+
+.ziga-aura-inner-wave {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-sizing: border-box;
+  pointer-events: none !important;
+}
+
+.ziga-aura-green .ziga-aura-inner-wave {
+  border: 1px dashed rgba(57, 255, 20, 0.55);
+  animation: zigaAuraSpin 8s linear infinite;
+}
+
+.ziga-aura-red .ziga-aura-inner-wave {
+  border: 1px dashed rgba(255, 23, 68, 0.6);
+  animation: zigaAuraSpin 8s linear infinite reverse;
+}
+
+.ziga-aura-glow-core {
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  pointer-events: none !important;
+}
+
+.ziga-aura-green .ziga-aura-glow-core {
+  background: radial-gradient(circle, rgba(57, 255, 20, 0.15) 0%, transparent 75%);
+}
+
+.ziga-aura-red .ziga-aura-glow-core {
+  background: radial-gradient(circle, rgba(255, 23, 68, 0.15) 0%, transparent 75%);
+}
+
+@keyframes zigaAuraPulseGreen {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(0.97);
+    opacity: 0.84;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.05);
+    opacity: 1;
+    box-shadow:
+      0 0 16px #39ff14,
+      0 0 32px rgba(57, 255, 20, 0.95),
+      0 0 45px rgba(57, 255, 20, 0.45),
+      inset 0 0 12px rgba(57, 255, 20, 0.6);
+  }
+}
+
+@keyframes zigaAuraPulseRed {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(0.97);
+    opacity: 0.84;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.06);
+    opacity: 1;
+    box-shadow:
+      0 0 18px #ff1744,
+      0 0 34px rgba(255, 23, 68, 0.95),
+      0 0 48px rgba(255, 23, 68, 0.45),
+      inset 0 0 14px rgba(255, 23, 68, 0.6);
+  }
+}
+
+/* =================================================== */
+/* TACTICAL SANDBOX SIMULATION (MÔ PHỎNG NƯỚC ĐI)     */
+/* =================================================== */
+
+.ziga-sandbox-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483647 !important;
+  background: rgba(0, 0, 0, 0.78) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 15px !important;
+  box-sizing: border-box !important;
+  user-select: none !important;
+}
+
+.ziga-sandbox-overlay.hidden {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+.ziga-sb-card {
+  width: 440px;
+  max-width: 96vw;
+  background: var(--card, #18181b);
+  border: 1px solid var(--border, #27272a);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  position: relative;
+}
+
+.ziga-sb-flank {
+  position: absolute;
+  top: 52%;
+  transform: translateY(-50%);
+  width: 172px;
+  right: calc(100% + 14px);
+  background: var(--card, #18181b);
+  border: 1px solid var(--border, #27272a);
+  border-radius: 12px;
+  padding: 12px 10px;
+  box-sizing: border-box;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 50;
+  user-select: none;
+}
+
+.ziga-sb-flank-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+}
+
+.ziga-sb-flank-tag {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--muted-foreground, #94a3b8);
+}
+
+.ziga-sb-flank-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--foreground, #f8fafc);
+}
+
+.ziga-sb-flank-desc {
+  font-size: 10px;
+  color: var(--muted-foreground, #94a3b8);
+}
+
+.ziga-sb-time-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--muted, rgba(0, 0, 0, 0.55));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  padding: 7px 8px;
+}
+
+.ziga-sb-time-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ziga-sb-time-badge {
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  background: var(--secondary, #27272a);
+  color: var(--foreground, #fafafa);
+}
+
+.ziga-sb-time-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ziga-sb-time-num {
+  font-size: 21px;
+  font-weight: 900;
+  font-family: 'Inter', monospace, sans-serif;
+  color: var(--primary, #f97316);
+}
+
+.ziga-sb-total-num {
+  font-size: 16px;
+  font-weight: 800;
+  font-family: 'Inter', monospace, sans-serif;
+  color: var(--foreground, #fafafa);
+}
+
+.ziga-sb-progress-track {
+  width: 100%;
+  height: 5px;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.ziga-sb-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary, #f97316);
+  transition: width 0.25s linear;
+}
+
+.ziga-sb-note-text {
+  font-size: 8.5px;
+  color: var(--muted-foreground, #94a3b8);
+  text-align: center;
+}
+
+.ziga-sb-flank-jump-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  padding: 7px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  background: var(--primary, #f97316);
+  color: var(--primary-foreground, #ffffff);
+  border: none;
+  text-transform: uppercase;
+}
+
+.ziga-sb-flank-dismiss-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted-foreground, #64748b);
+  font-size: 9.5px;
+  text-align: center;
+  cursor: pointer;
+  padding: 3px 0;
+}
+
+.ziga-sb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--card, #18181b);
+  border-bottom: 1px solid var(--border, #27272a);
+  border-radius: 13px 13px 0 0;
+  cursor: grab;
+}
+
+.ziga-sb-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ziga-sb-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ziga-sb-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--foreground, #fafafa);
+  text-transform: uppercase;
+}
+
+.ziga-sb-subtitle {
+  font-size: 9.5px;
+  color: var(--muted-foreground, #94a3b8);
+}
+
+.ziga-sb-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ziga-sb-real-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: var(--muted, #27272a);
+  border: 1px solid var(--border, #3f3f46);
+  color: var(--foreground, #fafafa);
+}
+
+.ziga-sb-real-pill .ziga-sb-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary, #f97316);
+}
+
+.ziga-sb-btn-close {
+  background: var(--secondary, #27272a);
+  border: 1px solid var(--border, #3f3f46);
+  color: var(--foreground, #fafafa);
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.ziga-sb-subbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 14px;
+  background: var(--muted, rgba(0, 0, 0, 0.35));
+  border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.06));
+  font-size: 11px;
+}
+
+.ziga-sb-turn-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ziga-sb-subbar-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--muted-foreground, #94a3b8);
+}
+
+.ziga-sb-turn-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  background: var(--secondary, #27272a);
+  border: 1px solid var(--border, #3f3f46);
+  border-radius: 6px;
+  color: var(--foreground, #f1f5f9);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ziga-sb-turn-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.ziga-sb-turn-dot.red {
+  background: #ef4444;
+}
+
+.ziga-sb-turn-dot.black {
+  background: #475569;
+  border: 1px solid #94a3b8;
+}
+
+.ziga-sb-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--foreground, #cbd5e1);
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ziga-sb-history-count {
+  color: var(--muted-foreground, #94a3b8);
+  font-size: 10.5px;
+}
+
+.ziga-sb-board-container {
+  padding: 10px 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle, #f9dfad 0%, #e8c682 60%, #cc9f56 100%);
+  border: 2px solid #8c6239;
+  border-radius: 8px;
+  margin: 8px 12px;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.ziga-sb-board-bg {
+  position: relative;
+  width: 360px;
+  height: 405px;
+}
+
+.ziga-sb-svg-grid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.ziga-sb-pieces-layer,
+.ziga-sb-dest-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ziga-sb-piece {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.15s ease;
+  z-index: 10;
+}
+
+.ziga-sb-piece:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  z-index: 18;
+}
+
+.ziga-sb-piece.selected {
+  transform: translate(-50%, -50%) scale(1.15) !important;
+  z-index: 20 !important;
+}
+
+.ziga-sb-piece-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.ziga-sb-piece.red-piece .ziga-sb-piece-inner {
+  background: radial-gradient(circle at 35% 35%, #fff7eb, #e8cfa1 60%, #bd9f67 100%);
+  border: 1.5px solid #bd302b;
+  color: #c92a2a;
+}
+
+.ziga-sb-piece.black-piece .ziga-sb-piece-inner {
+  background: radial-gradient(circle at 35% 35%, #fff7eb, #ded0be 60%, #a89a87 100%);
+  border: 1.5px solid #2d3748;
+  color: #1a202c;
+}
+
+.ziga-sb-piece-char {
+  font-family: 'KaiTi', 'BiauKai', 'STKaiti', 'SimSun', serif;
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.ziga-sb-dest-dot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.ziga-sb-dest-dot.move {
+  width: 13px;
+  height: 13px;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981, inset 0 0 2px #ffffff;
+  z-index: 15;
+}
+
+.ziga-sb-dest-dot.capture {
+  width: 34px;
+  height: 34px;
+  border: 2.5px solid #ef4444;
+  background: rgba(239, 68, 68, 0.28);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.85);
+  z-index: 16;
+}
+
+.ziga-sb-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 12px;
+  background: var(--card, #18181b);
+  border-top: 1px solid var(--border, #27272a);
+  border-radius: 0 0 13px 13px;
+}
+
+.ziga-sb-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.ziga-sb-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--secondary, #27272a);
+  border: 1px solid var(--border, #3f3f46);
+  color: var(--foreground, #fafafa);
+}
+
+.ziga-sb-btn.primary {
+  background: var(--primary, #f97316);
+  border-color: var(--primary, #f97316);
+  color: var(--primary-foreground, #ffffff);
+}
+
+/* Mod Header & Sandbox Logo Styles */
+.ziga-sb-logo-icon,
+.ziga-mod-badge-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 22px !important;
+  height: 22px !important;
+  max-width: 22px !important;
+  max-height: 22px !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+.ziga-sb-logo-img,
+.ziga-mod-badge-img {
+  width: 22px !important;
+  height: 22px !important;
+  max-width: 22px !important;
+  max-height: 22px !important;
+  object-fit: contain !important;
+  border-radius: 4px !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.4) !important;
+  border: 1px solid rgba(212, 175, 55, 0.5) !important;
+  flex-shrink: 0 !important;
+}
+
+.ziga-sb-logo-svg-fallback {
+  width: 22px !important;
+  height: 22px !important;
+  max-width: 22px !important;
+  max-height: 22px !important;
+  border-radius: 4px !important;
+  vertical-align: middle !important;
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.4) !important;
+  border: 1px solid rgba(212, 175, 55, 0.5) !important;
+  flex-shrink: 0 !important;
+}
+
+/* Traditional 3D Wooden Xiangqi Piece Token & Chip */
+.ziga-piece-token {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45), inset 0 1px 1.5px rgba(255, 255, 255, 0.6);
+  font-family: "KaiTi", "BiauKai", "STKaiti", "SimSun", "Cinzel", serif;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1;
+  position: relative;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.ziga-piece-token::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Red Piece Styling */
+.ziga-piece-token.red-piece,
+.red-piece .ziga-piece-token {
+  background: radial-gradient(circle at 35% 35%, #fff7eb, #e8cfa1 60%, #bd9f67 100%);
+  border: 1.5px solid #bd302b;
+  color: #c92a2a;
+  text-shadow: 0 0 1px rgba(201, 42, 42, 0.5);
+}
+
+.ziga-piece-token.red-piece::before,
+.red-piece .ziga-piece-token::before {
+  border: 1px solid rgba(189, 48, 43, 0.45);
+}
+
+/* Black Piece Styling */
+.ziga-piece-token.black-piece,
+.black-piece .ziga-piece-token {
+  background: radial-gradient(circle at 35% 35%, #fff7eb, #ded0be 60%, #a89a87 100%);
+  border: 1.5px solid #2d3748;
+  color: #1a202c;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+.ziga-piece-token.black-piece::before,
+.black-piece .ziga-piece-token::before {
+  border: 1px solid rgba(45, 55, 72, 0.45);
+}
+
+.ziga-piece-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 3px 8px 3px 4px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.18s ease, background 0.18s ease;
+  user-select: none;
+}
+
+.ziga-piece-chip:hover {
+  transform: translateY(-1.5px);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.ziga-piece-chip.red-piece {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.ziga-piece-chip.black-piece {
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
+/* ========================================================================= */
+/* BASE UI PORTALS, POPOVERS, SELECTS, MODALS & DIALOGS ELEVATION OVER HUD   */
+/* ========================================================================= */
+[data-base-ui-portal] {
+  position: relative !important;
+  z-index: 2147483647 !important;
+}
+
+/* Base UI Portals & Popups (Select, Popover, Tooltip) - Top-most layer */
+[data-base-ui-portal],
+[data-base-ui-portal] > div,
+[data-base-ui-portal] .isolate,
+[data-base-ui-portal] [data-slot],
+[data-slot="popover-content"],
+[data-slot="select-content"],
+[data-slot="tooltip-content"],
+:has(> [data-slot="popover-content"]),
+:has(> [data-slot="select-content"]),
+:has(> [data-slot="tooltip-content"]) {
+  z-index: 2147483647 !important;
+}
+
+/* React Settings Host: fixed viewport container that takes zero layout space in document */
+#ziga-react-settings-host {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+  z-index: 2147483647 !important;
+}
+
+#ziga-react-settings-host > * {
+  pointer-events: auto !important;
+}
+
+/* Modals & Dialog contents */
+[data-slot="dialog-content"],
+#ziga-sandbox-modal {
+  z-index: 2147483646 !important;
+}
+
+/* Fullscreen Backdrops / Overlays */
+[data-slot="dialog-overlay"],
+.ziga-sandbox-overlay {
+  z-index: 2147483645 !important;
+}
+
+/* Floating HUD Widget - sits beneath modals & dropdowns */
+#ziga-mod-widget {
+  z-index: 2147483600 !important;
+}
+
+/* Contain scroll chaining: scrolling inside HUD or Modals will never scroll the outer webpage */
+#ziga-mod-widget,
+#ziga-mod-body,
+[data-slot="dialog-content"],
+[data-slot="dialog-overlay"],
+[data-slot="select-content"],
+[data-slot="popover-content"],
+.ziga-sandbox-overlay,
+#ziga-sandbox-modal,
+.ziga-sb-card,
+#ziga-mentor-floating-panel,
+.ziga-mentor-panel-card {
+  overscroll-behavior: contain !important;
+}
+
+/* ========================================================================= */
+/* BOOTSTRAP 4 / 5 IMMUNITY SHIELD FOR MOD UI WIDGET, CARDS & DIALOGS      */
+/* ========================================================================= */
+/* Host page loads bootstrap.css which sets .border { border: 1px solid #dee2e6 !important; } */
+/* We neutralize this leak across all mod containers and portals with ID specificity: */
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) :is(.border, .border-top, .border-bottom, .border-left, .border-right, .border-start, .border-end) {
+  border-color: var(--border) !important;
+}
+
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border {
+  border-color: var(--border) !important;
+}
+
+/* ========================================================================= */
+/* DYNAMIC HUD WIDGET PERSONALIZATION & THEME STYLING                         */
+/* ========================================================================= */
+#ziga-mod-widget {
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, border-radius 0.2s ease, transform 0.2s ease;
+}
+
+#ziga-mod-widget[data-card-opacity="transparent"] [data-slot="card"] {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+.dark #ziga-mod-widget[data-card-opacity="transparent"] [data-slot="card"] {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+:not(.dark) #ziga-mod-widget[data-card-opacity="transparent"] [data-slot="card"] {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+#ziga-mod-widget[data-card-opacity="solid"] [data-slot="card"] {
+  background-color: #1c1c20 !important;
+}
+
+:not(.dark) #ziga-mod-widget[data-card-opacity="solid"] [data-slot="card"] {
+  background-color: #f4f4f5 !important;
+}
+
+
+
