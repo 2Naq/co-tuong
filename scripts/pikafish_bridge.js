@@ -6,7 +6,10 @@ const path = require("path");
 const fs = require("fs");
 const { WebSocketServer, WebSocket } = require("ws");
 
-const PORT = parseInt(process.env.PORT || process.env.PIKAFISH_PORT || "8765", 10);
+const PORT = parseInt(
+  process.env.PORT || process.env.PIKAFISH_PORT || "8765",
+  10,
+);
 const HOST = "127.0.0.1";
 
 function resolvePikafishExe() {
@@ -28,7 +31,9 @@ function resolvePikafishExe() {
   // Tự động giải nén Pikafish.7z nếu có sẵn trong thư mục
   const archivePath = path.join(dir, "Pikafish.7z");
   if (fs.existsSync(archivePath)) {
-    console.log("📦 Đang tự động giải nén Pikafish.7z qua lệnh tar hệ thống...");
+    console.log(
+      "📦 Đang tự động giải nén Pikafish.7z qua lệnh tar hệ thống...",
+    );
     try {
       const { execSync } = require("child_process");
       execSync(`tar -xf "${archivePath}" -C "${dir}"`, { stdio: "inherit" });
@@ -45,15 +50,23 @@ function resolvePikafishExe() {
 
 const exePath = resolvePikafishExe();
 if (!exePath) {
-  console.error("❌ ERROR: Pikafish executable not found in third_party/pikafish/");
-  console.error("Please ensure Pikafish binary exists in third_party/pikafish/");
+  console.error(
+    "❌ ERROR: Pikafish executable not found in third_party/pikafish/",
+  );
+  console.error(
+    "Please ensure Pikafish binary exists in third_party/pikafish/",
+  );
   process.exit(1);
 }
 
 const exeDir = path.dirname(exePath);
-console.log("==================================================================");
-console.log("🐟 AN XIANQI - PIKAFISH NNUE NATIVE WEBSOCKET BRIDGE");
-console.log("==================================================================");
+console.log(
+  "==================================================================",
+);
+console.log("🦆 AN XIANQI - PIKAFISH NNUE NATIVE WEBSOCKET BRIDGE");
+console.log(
+  "==================================================================",
+);
 console.log(`📍 Engine binary: ${exePath}`);
 console.log(`🧠 Model file:    ${path.join(exeDir, "pikafish.nnue")}`);
 
@@ -89,14 +102,16 @@ const wss = new WebSocketServer({ server });
 
 wss.on("connection", (ws, req) => {
   const clientAddr = req.socket.remoteAddress;
-  console.log(`[Bridge] 🔌 Client connected from ${clientAddr}`);
+  console.log(`[Bridge] 🟢 Client connected from ${clientAddr}`);
 
   // Spawn isolated Pikafish instance for this connection
   let engine = null;
   try {
     engine = spawn(exePath, [], { cwd: exeDir });
     // Pre-configure Pikafish in Hardcore Grandmaster Mode (4 Threads, 64MB Hash, MultiPV 3, Skill 20)
-    engine.stdin.write("uci\nsetoption name Threads value 4\nsetoption name Hash value 64\nsetoption name MultiPV value 3\nsetoption name Skill Level value 20\nisready\n");
+    engine.stdin.write(
+      "uci\nsetoption name Threads value 4\nsetoption name Hash value 64\nsetoption name MultiPV value 3\nsetoption name Skill Level value 20\nisready\n",
+    );
   } catch (err) {
     console.error("[Bridge] Failed to spawn Pikafish:", err);
     ws.send(`err Failed to spawn engine: ${err.message}\n`);
@@ -129,7 +144,7 @@ wss.on("connection", (ws, req) => {
   });
 
   ws.on("close", () => {
-    console.log(`[Bridge] 🔌 Client disconnected (${clientAddr})`);
+    console.log(`[Bridge] ⛔ Client disconnected (${clientAddr})`);
     if (engine) {
       try {
         engine.stdin.write("quit\n");
@@ -149,8 +164,10 @@ wss.on("connection", (ws, req) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`🚀 Bridge listening at ws://${HOST}:${PORT}`);
-  console.log(`🌐 Ready for AN Xiangqi AI Agent extension connection!`);
-  console.log("==================================================================");
+  console.log(`🌐 Ready for AN Xiangqi extension connection!`);
+  console.log(
+    "==================================================================",
+  );
 });
 
 // Graceful exit
@@ -160,4 +177,3 @@ process.on("SIGINT", () => {
   server.close();
   process.exit(0);
 });
-

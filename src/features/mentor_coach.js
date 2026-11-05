@@ -49,6 +49,7 @@ import {
   getEngineProvider,
   setEngineProvider,
   listEngineProviders,
+  reconnectPikafish,
 } from "./engine_provider";
 
 (function (ZigaMod) {
@@ -289,14 +290,20 @@ import {
 
     // 3. Mã (Knight)
     if (piece.type === 5) {
-      if ((toCol === 2 || toCol === 6) && Math.abs(toRow - enemyBaseline) <= 2) {
+      if (
+        (toCol === 2 || toCol === 6) &&
+        Math.abs(toRow - enemyBaseline) <= 2
+      ) {
         return {
           tacticName: "Mã Ngọa Tào (Khóa Cung Tướng Địch)",
           why: `Phi Mã cắm thẳng vào huyệt đạo ngọa tào lộ ${tCol}, khóa chặt góc cung Tướng địch, đe dọa trực tiếp mạng sống của Tướng và mở đường cho Xe Pháo giáng đòn kết liễu.`,
           tag: "Ngọa Tào",
         };
       }
-      if ((toCol === 3 || toCol === 5) && Math.abs(toRow - enemyBaseline) <= 2) {
+      if (
+        (toCol === 3 || toCol === 5) &&
+        Math.abs(toRow - enemyBaseline) <= 2
+      ) {
         return {
           tacticName: "Mã Điếu Ngư (Mã Câu Cá Độc Chiêu)",
           why: `Mã chiếm vị trí Điếu Ngư hiểm hóc, kết hợp với Xe hoặc Pháo tạo thành thế thắt cổ không thể chống đỡ đối với Tướng địch.`,
@@ -369,6 +376,126 @@ import {
       tacticName: `Điều Động Quân Lực Lộ ${tCol}`,
       why: `Di chuyển ${piece.name} đến Lộ ${tCol} tạo liên kết thế trận, sẵn sàng ứng biến theo mọi diễn biến tiếp theo.`,
       tag: "Điều Quân",
+    };
+  }
+
+  /**
+   * Classifies classical Xiangqi mating motifs for forced mates and pre-mate combinations.
+   */
+  function classifyXiangqiMateMotif(pieces, move, myColor, oppColor, score) {
+    if (!move || !pieces) return null;
+    const enemyPalaceRows = myColor === 0 ? [7, 8, 9] : [0, 1, 2];
+    const enemyBaseline = myColor === 0 ? 9 : 0;
+    const oppKing = pieces.find((p) => p.type === 0 && p.color === oppColor);
+    const myKing = pieces.find((p) => p.type === 0 && p.color === myColor);
+    const movingPiece = pieces.find(
+      (p) =>
+        p.col === move.fromCol && p.row === move.fromRow && p.color === myColor,
+    );
+    if (!movingPiece) return null;
+
+    const toCol = move.toCol;
+    const toRow = move.toRow;
+
+    // 1. Bạch Kiểm Tướng (Mặt Tướng đối diện trực tiếp trợ chiến)
+    if (myKing && oppKing && myKing.col === oppKing.col) {
+      const minR = Math.min(myKing.row, oppKing.row);
+      const maxR = Math.max(myKing.row, oppKing.row);
+      const blockers = pieces.filter(
+        (p) =>
+          p.col === myKing.col &&
+          p.row > minR &&
+          p.row < maxR &&
+          !(p.col === move.fromCol && p.row === move.fromRow),
+      );
+      if (blockers.length === 0) {
+        return {
+          id: "face-king",
+          name: "Bạch Kiểm Tướng",
+          tag: "face-king",
+          desc: "Mượn uy thế Mặt Tướng trợ chiến trực tiếp trung lộ, kết liễu trận đấu bằng đòn Bạch Kiểm Tướng!",
+        };
+      }
+    }
+
+    // 2. Thiết Môn Khảm (Cửa sắt - Pháo/Xe ghim trung lộ, Xe cắm đáy)
+    const centerPinned = pieces.some(
+      (p) =>
+        p.color === myColor &&
+        p.col === 4 &&
+        (p.type === 4 || p.type === 3) &&
+        enemyPalaceRows.includes(p.row),
+    );
+    if (
+      (movingPiece.type === 3 && toRow === enemyBaseline) ||
+      (centerPinned && movingPiece.type === 3)
+    ) {
+      return {
+        id: "iron-gate",
+        name: "Thiết Môn Khảm",
+        tag: "iron-gate",
+        desc: "Pháo/Xe ghim chặt trung lộ, Xe đáy cắm xuống giáng đòn tuyệt sát Thiết Môn Khảm kinh điển!",
+      };
+    }
+
+    // 3. Mã Ngọa Tào (Cắm góc cung lộ 2 hoặc lộ 8)
+    const isNgocTaoCol = toCol === 1 || toCol === 7;
+    const isNgocTaoRow =
+      myColor === 0 ? toRow === 7 || toRow === 8 : toRow === 1 || toRow === 2;
+    if (movingPiece.type === 5 && isNgocTaoCol && isNgocTaoRow) {
+      return {
+        id: "resting-horse",
+        name: "Mã Ngọa Tào",
+        tag: "resting-horse",
+        desc: "Mã cắm góc hiểm Ngọa Tào, bóp nghẹt cửu cung không cho Tướng địch lối thoát!",
+      };
+    }
+
+    // 4. Mã Hậu Pháo (Pháo điểm hỏa sau lưng Mã)
+    if (movingPiece.type === 4 || movingPiece.type === 5) {
+      const hasHorseFront = pieces.some(
+        (p) =>
+          p.color === myColor &&
+          p.type === 5 &&
+          enemyPalaceRows.includes(p.row),
+      );
+      if (hasHorseFront && (movingPiece.type === 4 || movingPiece.type === 5)) {
+        return {
+          id: "horse-cannon-mate",
+          name: "Mã Hậu Pháo",
+          tag: "horse-cannon-mate",
+          desc: "Mã khóa cửa cung, Pháo phía sau điểm hỏa tuyệt sát đòn Mã Hậu Pháo bất khả hóa giải!",
+        };
+      }
+    }
+
+    // 5. Điếu Ngư Mã (Mã câu cá: cột 2 hoặc 6, hàng 7 hoặc 2)
+    const isDieuNguCol = toCol === 2 || toCol === 6;
+    const isDieuNguRow = myColor === 0 ? toRow === 7 : toRow === 2;
+    if (movingPiece.type === 5 && isDieuNguCol && isDieuNguRow) {
+      return {
+        id: "fishing-horse",
+        name: "Điếu Ngư Mã",
+        tag: "fishing-horse",
+        desc: "Thế trận Điếu Ngư Mã giăng lưới, phối hợp Xe sườn siết chặt thòng lọng tuyệt sát!",
+      };
+    }
+
+    // 6. Song Xe Bào (Double Chariot Assail)
+    if (movingPiece.type === 3 && enemyPalaceRows.includes(toRow)) {
+      return {
+        id: "double-rook",
+        name: "Song Xe Bào",
+        tag: "double-rook",
+        desc: "Hỏa lực Xe Pháo giáp công liên hoàn, dồn ép Tướng địch vào tử địa!",
+      };
+    }
+
+    return {
+      id: "mate-threat",
+      name: "Tuyệt Sát Liên Hoàn",
+      tag: "mate-threat",
+      desc: "Chuỗi đòn công sát dồn dập, ép đối phương vào thế chiếu bí không thể cứu vãn!",
     };
   }
 
@@ -446,9 +573,14 @@ import {
       inCheck,
       depth: 0,
       nodes: 0,
-      evalBreakdown: quickRes && quickRes.evalBreakdown ? quickRes.evalBreakdown : null,
+      evalBreakdown:
+        quickRes && quickRes.evalBreakdown ? quickRes.evalBreakdown : null,
       openingName: null,
-      engineName: activeProviderId === "pikafish" ? "Pikafish NNUE" : "AN Grandmaster JS",
+      engineName:
+        activeProviderId === "pikafish" ? "Pikafish NNUE" : "AN Grandmaster JS",
+      pikafishStatus:
+        activeProviderId === "pikafish" ? "cloud-nnue" : "js-engine",
+      mateThreat: null,
       maxim: currentMaxim,
       isQuickOnly: true,
     };
@@ -494,7 +626,9 @@ import {
 
       const targetPiece = pieces.find(
         (p) =>
-          p.col === line.toCol && p.row === line.toRow && p.color === targetColor,
+          p.col === line.toCol &&
+          p.row === line.toRow &&
+          p.color === targetColor,
       );
 
       const notation = getXiangqiNotation(
@@ -565,28 +699,34 @@ import {
               score: ol.score,
               answer:
                 ol.pv && ol.pv[1] ? { ...ol.pv[1], score: -ol.score } : null,
+              step4:
+                ol.pv && ol.pv[2] ? { ...ol.pv[2], score: ol.score } : null,
+              step5:
+                ol.pv && ol.pv[3] ? { ...ol.pv[3], score: -ol.score } : null,
             }));
           }
         } catch (e) {
-          console.warn("[AN Mod] Dynamic opponent reply generation fallback:", e);
+          console.warn(
+            "[AN Mod] Dynamic opponent reply generation fallback:",
+            e,
+          );
         }
       }
 
       const variations = rawReplies.map((rep, rIdx) => {
-        const oppPiece =
-          pieces.find(
-            (p) =>
-              p.col === rep.fromCol &&
-              p.row === rep.fromRow &&
-              p.color === oppColor,
-          ) || {
-            col: rep.fromCol,
-            row: rep.fromRow,
-            type: 6,
-            color: oppColor,
-            name: "Quân địch",
-            short: "Q",
-          };
+        const oppPiece = pieces.find(
+          (p) =>
+            p.col === rep.fromCol &&
+            p.row === rep.fromRow &&
+            p.color === oppColor,
+        ) || {
+          col: rep.fromCol,
+          row: rep.fromRow,
+          type: 6,
+          color: oppColor,
+          name: "Quân địch",
+          short: "Q",
+        };
 
         const oppTarget =
           rep.toCol === line.toCol && rep.toRow === line.toRow
@@ -646,7 +786,8 @@ import {
                 p.row === rep.answer.toRow &&
                 p.color === oppColor,
             );
-            const ansTCol = myColor === 0 ? 9 - rep.answer.toCol : rep.answer.toCol + 1;
+            const ansTCol =
+              myColor === 0 ? 9 - rep.answer.toCol : rep.answer.toCol + 1;
             if (ansTarget) {
               ansWhy = `Lập tức chém ${ansTarget.name} Lộ ${ansTCol}, đoạt ưu thế quyết định.`;
             } else if (rep.answer.score && rep.answer.score > 9000) {
@@ -689,6 +830,8 @@ import {
                 why: ansWhy,
               }
             : null,
+          step4: rep.step4 || null,
+          step5: rep.step5 || null,
         };
       });
 
@@ -698,7 +841,10 @@ import {
           idx: 0,
           label: "Biến 1: Địch cùng đường",
           shortLabel: "Hết cờ",
-          oppNotation: { short: "Hết nước", full: "Đối thủ không còn nước đi hợp lệ" },
+          oppNotation: {
+            short: "Hết nước",
+            full: "Đối thủ không còn nước đi hợp lệ",
+          },
           oppWhy: "Đối thủ lâm vào thế sát cục hoặc hết nước đi.",
           fromCol: null,
           fromRow: null,
@@ -706,13 +852,156 @@ import {
           toRow: null,
           oppPiece: null,
           answer: null,
+          step4: null,
+          step5: null,
         });
+      }
+
+      // Check classical Xiangqi mating motif
+      const isForcedMate = line.delivermate || line.score >= 9000;
+      const mateMotif = isForcedMate
+        ? classifyXiangqiMateMotif(
+            pieces,
+            line,
+            movingColor,
+            targetColor,
+            line.score,
+          )
+        : null;
+
+      // Build 5-step interactive tactical roadmap from PV / responses
+      const roadmap = [];
+      // 1. Ta đi
+      roadmap.push({
+        step: 1,
+        side: movingColor,
+        label: "1. Ta đi",
+        piece: movingPiece,
+        fromCol: line.fromCol,
+        fromRow: line.fromRow,
+        toCol: line.toCol,
+        toRow: line.toRow,
+        notation: notation,
+        why: desc.why,
+      });
+
+      // 2. Địch đáp
+      const rep0 = variations[0];
+      if (rep0 && rep0.fromCol != null && rep0.toCol != null) {
+        roadmap.push({
+          step: 2,
+          side: oppColor,
+          label: "2. Địch đáp",
+          piece: rep0.oppPiece,
+          fromCol: rep0.fromCol,
+          fromRow: rep0.fromRow,
+          toCol: rep0.toCol,
+          toRow: rep0.toRow,
+          notation: rep0.oppNotation,
+          why: rep0.oppWhy,
+        });
+
+        // 3. Ta bồi
+        if (
+          rep0.answer &&
+          rep0.answer.fromCol != null &&
+          rep0.answer.toCol != null
+        ) {
+          const ansPiece = pieces.find(
+            (p) =>
+              p.col === rep0.answer.fromCol &&
+              p.row === rep0.answer.fromRow &&
+              p.color === myColor,
+          );
+          roadmap.push({
+            step: 3,
+            side: myColor,
+            label: "3. Ta bồi",
+            piece: ansPiece,
+            fromCol: rep0.answer.fromCol,
+            fromRow: rep0.answer.fromRow,
+            toCol: rep0.answer.toCol,
+            toRow: rep0.answer.toRow,
+            notation: rep0.answer.notation,
+            why: rep0.answer.why,
+          });
+
+          // 4. Địch đỡ
+          const st4 = rep0.step4;
+          if (st4 && st4.fromCol != null && st4.toCol != null) {
+            const p4 = pieces.find(
+              (p) =>
+                p.col === st4.fromCol &&
+                p.row === st4.fromRow &&
+                p.color === oppColor,
+            );
+            const not4 = p4
+              ? getXiangqiNotation(
+                  p4,
+                  st4.fromCol,
+                  st4.fromRow,
+                  st4.toCol,
+                  st4.toRow,
+                  oppColor,
+                )
+              : { short: "Địch đi", full: "Nước phòng thủ của địch" };
+            roadmap.push({
+              step: 4,
+              side: oppColor,
+              label: "4. Địch đỡ",
+              piece: p4,
+              fromCol: st4.fromCol,
+              fromRow: st4.fromRow,
+              toCol: st4.toCol,
+              toRow: st4.toRow,
+              notation: not4,
+              why: "Địch gắng gượng xoay sở chống đỡ trước vòng vây.",
+            });
+
+            // 5. Ta dứt điểm / đoạt thế
+            const st5 = rep0.step5;
+            if (st5 && st5.fromCol != null && st5.toCol != null) {
+              const p5 = pieces.find(
+                (p) =>
+                  p.col === st5.fromCol &&
+                  p.row === st5.fromRow &&
+                  p.color === myColor,
+              );
+              const not5 = p5
+                ? getXiangqiNotation(
+                    p5,
+                    st5.fromCol,
+                    st5.fromRow,
+                    st5.toCol,
+                    st5.toRow,
+                    myColor,
+                  )
+                : { short: "Dứt điểm", full: "Nước đoạt thế quyết định" };
+              roadmap.push({
+                step: 5,
+                side: myColor,
+                label: "5. Dứt điểm",
+                piece: p5,
+                fromCol: st5.fromCol,
+                fromRow: st5.fromRow,
+                toCol: st5.toCol,
+                toRow: st5.toRow,
+                notation: not5,
+                why: "Giáng đòn dứt điểm đoạt thắng lợi quyết định trận đấu!",
+              });
+            }
+          }
+        }
       }
 
       // Dynamic strategic preparation linking Step 1 to Step 2 and Step 3
       let prepText = "";
-      const firstRep = variations[0];
-      if (firstRep && firstRep.oppNotation?.short && firstRep.oppNotation?.short !== "Địch đi") {
+      const firstRep = rep0 || variations[0];
+      if (
+        firstRep &&
+        firstRep.oppNotation?.short &&
+        firstRep.oppNotation?.short !== "Địch đi"
+      ) {
         if (firstRep.answer && firstRep.answer.notation?.short) {
           prepText = `Kế sách: Đón đầu nước ${firstRep.oppNotation.short} của địch để lập tức bồi đòn ${firstRep.answer.notation.short}, làm chủ thế trận.`;
         } else {
@@ -723,19 +1012,36 @@ import {
       const planWhy = prepText ? `${desc.why} (${prepText})` : desc.why;
 
       const planType = idx === 0 ? "attack" : idx === 1 ? "defend" : "maneuver";
-      const planBadge =
-        idx === 0 ? "Tối Ưu" : idx === 1 ? "Chắc Chắn" : "Đột Phá";
+      const planBadge = mateMotif
+        ? "Tuyệt Sát"
+        : idx === 0
+          ? "Tối Ưu"
+          : idx === 1
+            ? "Chắc Chắn"
+            : "Đột Phá";
+
+      const planTags =
+        line.tags && line.tags.length > 0
+          ? [...line.tags]
+          : desc.tag
+            ? [desc.tag]
+            : [];
+      if (mateMotif && !planTags.includes(mateMotif.tag)) {
+        planTags.unshift(mateMotif.tag);
+      }
 
       plans.push({
         id: `plan_${idx}`,
         idx,
-        name: `${notation.short} · ${desc.tacticName}`,
+        name: mateMotif
+          ? `${notation.short} · ${mateMotif.name}`
+          : `${notation.short} · ${desc.tacticName}`,
         shortNotation: notation.short,
         fullNotation: notation.full,
         type: planType,
         badge: planBadge,
-        tag: desc.tag,
-        tags: line.tags && line.tags.length > 0 ? line.tags : (desc.tag ? [desc.tag] : []),
+        tag: mateMotif ? mateMotif.tag : desc.tag,
+        tags: planTags,
         why: planWhy,
         score: line.score,
         piece: movingPiece,
@@ -744,6 +1050,7 @@ import {
         toCol: line.toCol,
         toRow: line.toRow,
         variations,
+        roadmap,
       });
     });
 
@@ -826,6 +1133,63 @@ import {
       }
     }
 
+    // Mate & Pre-Mate Threat Analysis (Offensive Climax & Defensive Danger)
+    let mateThreat = null;
+    const topScore = searchRes.score || 0;
+    if (
+      topScore >= 9000 ||
+      (plans[0] &&
+        plans[0].tags.some(
+          (t) =>
+            t === "iron-gate" ||
+            t === "resting-horse" ||
+            t === "horse-cannon-mate" ||
+            t === "face-king" ||
+            t === "fishing-horse" ||
+            t === "double-rook" ||
+            t === "mate-threat",
+        ))
+    ) {
+      const mateSteps = Math.max(
+        1,
+        Math.ceil((10000 - Math.min(topScore, 9999)) / 2),
+      );
+      const motifName =
+        plans[0]?.name.split("·")[1]?.trim() || "Sát Cục Tuyệt Tuyệt";
+      mateThreat = {
+        type: "attack",
+        motif: motifName,
+        steps: mateSteps,
+        title: `🏆 THẾ TRẬN TUYỆT SÁT (SÁT CỤC TRONG ${mateSteps} NƯỚC)`,
+        explanation: `Bạn đang nắm giữ thế sát [${motifName}]! Đi chính xác từng nước theo kế sách để kết liễu trận đấu!`,
+      };
+    } else if (topScore <= -300 || topScore <= -9000) {
+      const oppMateSteps =
+        topScore <= -9000
+          ? Math.max(
+              1,
+              Math.ceil((10000 - Math.min(Math.abs(topScore), 9999)) / 2),
+            )
+          : null;
+      mateThreat = {
+        type: "defense",
+        motif: "Hiểm Họa Tử Huyệt",
+        steps: oppMateSteps,
+        title: oppMateSteps
+          ? `🚨 CẢNH BÁO TỬ HUYỆT: NGUY CƠ BỊ SÁT CỤC (${oppMateSteps} NƯỚC)!`
+          : `🚨 CẢNH BÁO TỬ HUYỆT: NGUY CƠ BỊ SÁT CỤC!`,
+        explanation: `Đối thủ đang dồn dập vây hãm cửu cung. Bắt buộc phải triển khai nước cờ phòng ngự ${
+          plans[0]?.shortNotation || "cứu giá"
+        } để hóa giải đòn sát của địch!`,
+      };
+      if (plans[0]) {
+        plans[0].badge = "Cứu Mạng";
+        if (!plans[0].tags.includes("emergency-defend")) {
+          plans[0].tags.unshift("emergency-defend");
+        }
+      }
+    }
+
     const currentMaxim = XIANGQI_MAXIMS[phase === "Khai Cuộc" ? 4 : 0];
 
     return {
@@ -840,13 +1204,21 @@ import {
       coachCommentary,
       commentary,
       threatInfo,
+      mateThreat,
       plans,
       inCheck: searchRes.inCheck,
       depth: searchRes.depth,
       nodes: searchRes.nodes,
       openingName: searchRes.openingName || null,
       evalBreakdown: searchRes.evalBreakdown || null,
-      engineName: searchRes.engineName || (activeProviderId === "pikafish" ? "Pikafish NNUE" : "AN Grandmaster JS"),
+      engineName:
+        searchRes.engineName ||
+        (activeProviderId === "pikafish"
+          ? "Pikafish NNUE"
+          : "AN Grandmaster JS"),
+      pikafishStatus:
+        searchRes.pikafishStatus ||
+        (activeProviderId === "pikafish" ? "cloud-nnue" : "js-engine"),
       ttHits: searchRes.ttHits || 0,
       maxim: currentMaxim,
       allMaxims: XIANGQI_MAXIMS,
@@ -942,87 +1314,97 @@ import {
       if (!activePlan || activeStep === 0) return pieces;
 
       let current = pieces.map((p) => ({ ...p }));
+      const oppColor = 1 - myColor;
+
+      const applyMove = (
+        fromCol,
+        fromRow,
+        toCol,
+        toRow,
+        sideColor,
+        flagKey,
+      ) => {
+        if (
+          fromCol == null ||
+          toCol == null ||
+          fromRow == null ||
+          toRow == null
+        )
+          return;
+        current = current.filter(
+          (p) => !(p.col === toCol && p.row === toRow && p.color !== sideColor),
+        );
+        const moving = current.find(
+          (p) =>
+            p.col === fromCol && p.row === fromRow && p.color === sideColor,
+        );
+        if (moving) {
+          moving.col = toCol;
+          moving.row = toRow;
+          moving[flagKey] = true;
+        }
+      };
 
       // Step 1: Our Move
       if (activeStep >= 1) {
-        current = current.filter(
-          (p) =>
-            !(
-              p.col === activePlan.toCol &&
-              p.row === activePlan.toRow &&
-              p.color !== activePlan.piece?.color
-            ),
+        applyMove(
+          activePlan.fromCol,
+          activePlan.fromRow,
+          activePlan.toCol,
+          activePlan.toRow,
+          myColor,
+          "isMyMove",
         );
-        const moving = current.find(
-          (p) =>
-            p.col === activePlan.fromCol &&
-            p.row === activePlan.fromRow &&
-            p.color === activePlan.piece?.color,
-        );
-        if (moving) {
-          moving.col = activePlan.toCol;
-          moving.row = activePlan.toRow;
-          moving.isMyMove = true;
-        }
       }
 
       // Step 2: Selected Opponent Variation Move
-      if (
-        activeStep >= 2 &&
-        activeVariation &&
-        activeVariation.fromCol != null &&
-        activeVariation.toCol != null
-      ) {
-        const opp = activeVariation;
-        const oppColor = 1 - myColor;
-        current = current.filter(
-          (p) =>
-            !(
-              p.col === opp.toCol &&
-              p.row === opp.toRow &&
-              p.color === myColor
-            ),
+      if (activeStep >= 2 && activeVariation) {
+        applyMove(
+          activeVariation.fromCol,
+          activeVariation.fromRow,
+          activeVariation.toCol,
+          activeVariation.toRow,
+          oppColor,
+          "isOppMove",
         );
-        const moving = current.find(
-          (p) =>
-            p.col === opp.fromCol &&
-            p.row === opp.fromRow &&
-            p.color === oppColor,
-        );
-        if (moving) {
-          moving.col = opp.toCol;
-          moving.row = opp.toRow;
-          moving.isOppMove = true;
-        }
       }
 
       // Step 3: Friendly Follow-Up Move
-      if (
-        activeStep >= 3 &&
-        activeVariation?.answer &&
-        activeVariation.answer.fromCol != null &&
-        activeVariation.answer.toCol != null
-      ) {
-        const ans = activeVariation.answer;
-        current = current.filter(
-          (p) =>
-            !(
-              p.col === ans.toCol &&
-              p.row === ans.toRow &&
-              p.color !== myColor
-            ),
+      if (activeStep >= 3 && activeVariation?.answer) {
+        applyMove(
+          activeVariation.answer.fromCol,
+          activeVariation.answer.fromRow,
+          activeVariation.answer.toCol,
+          activeVariation.answer.toRow,
+          myColor,
+          "isFollowUpMove",
         );
-        const moving = current.find(
-          (p) =>
-            p.col === ans.fromCol &&
-            p.row === ans.fromRow &&
-            p.color === myColor,
+      }
+
+      // Step 4: Opponent Defense
+      const step4 = activeVariation?.step4 || activePlan?.roadmap?.[3];
+      if (activeStep >= 4 && step4) {
+        applyMove(
+          step4.fromCol,
+          step4.fromRow,
+          step4.toCol,
+          step4.toRow,
+          oppColor,
+          "isOppStep4",
         );
-        if (moving) {
-          moving.col = ans.toCol;
-          moving.row = ans.toRow;
-          moving.isFollowUpMove = true;
-        }
+      }
+
+      // Step 5: Friendly Climax
+      const step5 = activeVariation?.step5 || activePlan?.roadmap?.[4];
+      if (activeStep >= 5 && step5) {
+        applyMove(
+          step5.fromCol,
+          step5.fromRow,
+          step5.toCol,
+          step5.toRow,
+          myColor,
+          "isClimaxMove",
+        );
       }
 
       return current;
@@ -1051,59 +1433,92 @@ import {
     const activeArrow = useMemo(() => {
       if (!activePlan) return null;
 
+      let move = null;
+      let color = "var(--primary, #06b6d4)";
+      let marker = "url(#clean-arrow-blue)";
+      let dashed = false;
+
       if (activeStep === 0 || activeStep === 1) {
-        if (activePlan.fromCol == null || activePlan.toCol == null) return null;
-        const s = getSquarePos(activePlan.fromCol, activePlan.fromRow);
-        const e = getSquarePos(activePlan.toCol, activePlan.toRow);
-        if (!s || !e) return null;
-        return {
-          x1: s.x,
-          y1: s.y,
-          x2: e.x,
-          y2: e.y,
-          color: "var(--primary, #06b6d4)",
-          marker: "url(#clean-arrow-blue)",
-          dashed: false,
+        move = {
+          fromCol: activePlan.fromCol,
+          fromRow: activePlan.fromRow,
+          toCol: activePlan.toCol,
+          toRow: activePlan.toRow,
         };
+        color = "var(--primary, #06b6d4)";
+        marker = "url(#clean-arrow-blue)";
+        dashed = false;
+      } else if (activeStep === 2 && activeVariation) {
+        move = {
+          fromCol: activeVariation.fromCol,
+          fromRow: activeVariation.fromRow,
+          toCol: activeVariation.toCol,
+          toRow: activeVariation.toRow,
+        };
+        color = "#f43f5e";
+        marker = "url(#clean-arrow-red)";
+        dashed = true;
+      } else if (activeStep === 3 && activeVariation?.answer) {
+        move = {
+          fromCol: activeVariation.answer.fromCol,
+          fromRow: activeVariation.answer.fromRow,
+          toCol: activeVariation.answer.toCol,
+          toRow: activeVariation.answer.toRow,
+        };
+        color = "#f59e0b";
+        marker = "url(#clean-arrow-gold)";
+        dashed = false;
+      } else if (activeStep === 4) {
+        const step4 = activeVariation?.step4 || activePlan?.roadmap?.[3];
+        if (step4) {
+          move = {
+            fromCol: step4.fromCol,
+            fromRow: step4.fromRow,
+            toCol: step4.toCol,
+            toRow: step4.toRow,
+          };
+          color = "#fb923c";
+          marker = "url(#clean-arrow-orange)";
+          dashed = true;
+        }
+      } else if (activeStep === 5) {
+        const step5 = activeVariation?.step5 || activePlan?.roadmap?.[4];
+        if (step5) {
+          move = {
+            fromCol: step5.fromCol,
+            fromRow: step5.fromRow,
+            toCol: step5.toCol,
+            toRow: step5.toRow,
+          };
+          color = "#10b981";
+          marker = "url(#clean-arrow-emerald)";
+          dashed = false;
+        }
       }
 
-      if (activeStep === 2 && activeVariation) {
-        if (activeVariation.fromCol == null || activeVariation.toCol == null) return null;
-        const s = getSquarePos(
-          activeVariation.fromCol,
-          activeVariation.fromRow,
-        );
-        const e = getSquarePos(activeVariation.toCol, activeVariation.toRow);
-        if (!s || !e) return null;
-        return {
-          x1: s.x,
-          y1: s.y,
-          x2: e.x,
-          y2: e.y,
-          color: "#f43f5e",
-          marker: "url(#clean-arrow-red)",
-          dashed: true,
-        };
+      if (
+        !move ||
+        move.fromCol == null ||
+        move.toCol == null ||
+        move.fromRow == null ||
+        move.toRow == null
+      ) {
+        return null;
       }
 
-      if (activeStep === 3 && activeVariation?.answer) {
-        const ans = activeVariation.answer;
-        if (ans.fromCol == null || ans.toCol == null) return null;
-        const s = getSquarePos(ans.fromCol, ans.fromRow);
-        const e = getSquarePos(ans.toCol, ans.toRow);
-        if (!s || !e) return null;
-        return {
-          x1: s.x,
-          y1: s.y,
-          x2: e.x,
-          y2: e.y,
-          color: "#f59e0b",
-          marker: "url(#clean-arrow-gold)",
-          dashed: false,
-        };
-      }
+      const s = getSquarePos(move.fromCol, move.fromRow);
+      const e = getSquarePos(move.toCol, move.toRow);
+      if (!s || !e) return null;
 
-      return null;
+      return {
+        x1: s.x,
+        y1: s.y,
+        x2: e.x,
+        y2: e.y,
+        color,
+        marker,
+        dashed,
+      };
     }, [activePlan, activeVariation, activeStep, myColor]);
 
     // Active origin & target rings
@@ -1118,6 +1533,14 @@ import {
           activeVariation.answer.toCol,
           activeVariation.answer.toRow,
         );
+      if (activeStep === 4) {
+        const st4 = activeVariation?.step4 || activePlan?.roadmap?.[3];
+        return st4 ? getSquarePos(st4.toCol, st4.toRow) : null;
+      }
+      if (activeStep === 5) {
+        const st5 = activeVariation?.step5 || activePlan?.roadmap?.[4];
+        return st5 ? getSquarePos(st5.toCol, st5.toRow) : null;
+      }
       return null;
     }, [activePlan, activeVariation, activeStep, myColor]);
 
@@ -1132,6 +1555,14 @@ import {
           activeVariation.answer.fromCol,
           activeVariation.answer.fromRow,
         );
+      if (activeStep === 4) {
+        const st4 = activeVariation?.step4 || activePlan?.roadmap?.[3];
+        return st4 ? getSquarePos(st4.fromCol, st4.fromRow) : null;
+      }
+      if (activeStep === 5) {
+        const st5 = activeVariation?.step5 || activePlan?.roadmap?.[4];
+        return st5 ? getSquarePos(st5.fromCol, st5.fromRow) : null;
+      }
       return null;
     }, [activePlan, activeVariation, activeStep, myColor]);
 
@@ -1139,7 +1570,7 @@ import {
       <div className="flex flex-col gap-1.5">
         {/* SVG Board */}
         <div
-          className="relative mx-auto aspect-[400/450] w-full max-w-[250px] overflow-hidden rounded-xl border shadow-md select-none"
+          className="relative mx-auto aspect-400/450 w-full max-w-62.5 overflow-hidden rounded-xl border shadow-md select-none"
           style={{
             background: "#1c1814",
             borderColor: "rgba(100, 75, 45, 0.4)",
@@ -1185,6 +1616,28 @@ import {
                 orient="auto-start-reverse"
               >
                 <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#f59e0b" />
+              </marker>
+              <marker
+                id="clean-arrow-orange"
+                viewBox="0 0 10 10"
+                refX="7"
+                refY="5"
+                markerWidth="5"
+                markerHeight="5"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#fb923c" />
+              </marker>
+              <marker
+                id="clean-arrow-emerald"
+                viewBox="0 0 10 10"
+                refX="7"
+                refY="5"
+                markerWidth="5"
+                markerHeight="5"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#10b981" />
               </marker>
             </defs>
 
@@ -1366,6 +1819,10 @@ import {
             else if (p.isOppMove) borderStyle += " ring-2 ring-rose-500 z-20";
             else if (p.isFollowUpMove)
               borderStyle += " ring-2 ring-amber-400 z-20";
+            else if (p.isOppStep4)
+              borderStyle += " ring-2 ring-orange-400 z-20";
+            else if (p.isClimaxMove)
+              borderStyle += " ring-2 ring-emerald-400 z-20";
 
             return (
               <div
@@ -1385,68 +1842,125 @@ import {
           })}
         </div>
 
-        {/* Stepper Buttons (4 buttons to walk through the active line) */}
-        <div className="grid grid-cols-4 gap-1 pt-0.5">
+        {/* Stepper Buttons (6 buttons to walk through the active 5-step line) */}
+        <div className="grid grid-cols-6 gap-0.5 pt-0.5">
           <Button
             variant={activeStep === 0 ? "secondary" : "ghost"}
             size="xs"
-            className="h-5.5 gap-0.5 px-1 text-[9px]"
+            className="h-5.5 px-0.5 text-[8px] font-semibold"
             onClick={() => setActiveStep(0)}
+            title="Xem thế cờ thực tế hiện tại"
           >
-            <RotateCcw className="size-2.5" />
+            <RotateCcw className="size-2" />
             <span>Ván thật</span>
           </Button>
           <Button
             variant={activeStep === 1 ? "secondary" : "ghost"}
             size="xs"
-            className="h-5.5 gap-0.5 px-1 text-[9px]"
+            className="h-5.5 px-0.5 text-[8px] font-semibold"
             onClick={() => setActiveStep(1)}
+            title="1. Ta đi: Nước cờ tối ưu đề xuất"
           >
-            <Play className="size-2.5 text-cyan-400" />
-            <span>1. Ta đi</span>
+            <Play className="size-2 text-cyan-400" />
+            <span>1. Ta</span>
           </Button>
           <Button
             variant={activeStep === 2 ? "secondary" : "ghost"}
             size="xs"
             disabled={!activeVariation || activeVariation.fromCol == null}
-            className="h-5.5 gap-0.5 px-1 text-[9px]"
+            className="h-5.5 px-0.5 text-[8px] font-semibold"
             onClick={() => setActiveStep(2)}
+            title="2. Địch: Nước phản ứng dự kiến của đối phương"
           >
-            <Swords className="size-2.5 text-rose-400" />
+            <Swords className="size-2 text-rose-400" />
             <span>2. Địch</span>
           </Button>
           <Button
             variant={activeStep === 3 ? "secondary" : "ghost"}
             size="xs"
-            disabled={!activeVariation?.answer || activeVariation.answer.fromCol == null}
-            className="h-5.5 gap-0.5 px-1 text-[9px]"
+            disabled={
+              !activeVariation?.answer || activeVariation.answer.fromCol == null
+            }
+            className="h-5.5 px-0.5 text-[8px] font-semibold"
             onClick={() => setActiveStep(3)}
+            title="3. Ta bồi: Nước bồi đòn khai thác sơ hở"
           >
-            <Sparkles className="size-2.5 text-amber-400" />
-            <span>3. Ta bồi</span>
+            <Sparkles className="size-2 text-amber-400" />
+            <span>3. Bồi</span>
+          </Button>
+          <Button
+            variant={activeStep === 4 ? "secondary" : "ghost"}
+            size="xs"
+            disabled={!activeVariation?.step4 && !activePlan?.roadmap?.[3]}
+            className="h-5.5 px-0.5 text-[8px] font-semibold"
+            onClick={() => setActiveStep(4)}
+            title="4. Địch đỡ: Đối phương xoay sở chống đỡ"
+          >
+            <Shield className="size-2 text-orange-400" />
+            <span>4. Đỡ</span>
+          </Button>
+          <Button
+            variant={activeStep === 5 ? "secondary" : "ghost"}
+            size="xs"
+            disabled={!activeVariation?.step5 && !activePlan?.roadmap?.[4]}
+            className="h-5.5 px-0.5 text-[8px] font-semibold"
+            onClick={() => setActiveStep(5)}
+            title="5. Dứt điểm: Nước đoạt ưu thế hoặc sát cục"
+          >
+            <Trophy className="size-2 text-emerald-400" />
+            <span>5. Sát</span>
           </Button>
         </div>
 
         {/* Step context subtitle below stepper buttons */}
-        <div className="min-h-[18px] px-1.5 py-0.5 rounded bg-white/[0.03] border border-white/[0.06] text-[10px] leading-tight flex items-center">
+        <div className="flex min-h-4.75 items-center rounded border border-white/6 bg-white/3 px-1.5 py-0.5 text-[9.5px] leading-tight">
           {activeStep === 0 && (
             <span className="text-muted-foreground font-medium">
               Bàn cờ thực tế hiện tại
             </span>
           )}
           {activeStep === 1 && activePlan && (
-            <span className="text-cyan-400 font-semibold truncate">
-              1. Ta đi: <strong>{activePlan.shortNotation}</strong> ({activePlan.fullNotation})
+            <span className="truncate font-semibold text-cyan-400">
+              1. Ta đi: <strong>{activePlan.shortNotation}</strong> (
+              {activePlan.fullNotation})
             </span>
           )}
           {activeStep === 2 && activeVariation && (
-            <span className="text-rose-400 font-semibold truncate">
-              2. Địch đáp: <strong>{activeVariation.oppNotation?.short || "Nước đi"}</strong> — {activeVariation.oppWhy}
+            <span className="truncate font-semibold text-rose-400">
+              2. Địch đáp:{" "}
+              <strong>{activeVariation.oppNotation?.short || "Nước đi"}</strong>{" "}
+              — {activeVariation.oppWhy}
             </span>
           )}
           {activeStep === 3 && activeVariation?.answer && (
-            <span className="text-amber-400 font-semibold truncate">
-              3. Ta bồi: <strong>{activeVariation.answer.notation?.short || "Nước cờ"}</strong> — {activeVariation.answer.why}
+            <span className="truncate font-semibold text-amber-400">
+              3. Ta bồi:{" "}
+              <strong>
+                {activeVariation.answer.notation?.short || "Nước cờ"}
+              </strong>{" "}
+              — {activeVariation.answer.why}
+            </span>
+          )}
+          {activeStep === 4 && (
+            <span className="truncate font-semibold text-orange-400">
+              4. Địch đỡ:{" "}
+              <strong>
+                {activePlan?.roadmap?.[3]?.notation?.short || "Phòng thủ"}
+              </strong>{" "}
+              —{" "}
+              {activePlan?.roadmap?.[3]?.why ||
+                "Địch xoay sở chống đỡ trước vòng vây"}
+            </span>
+          )}
+          {activeStep === 5 && (
+            <span className="truncate font-semibold text-emerald-400">
+              5. Dứt điểm:{" "}
+              <strong>
+                {activePlan?.roadmap?.[4]?.notation?.short || "Đoạt thế"}
+              </strong>{" "}
+              —{" "}
+              {activePlan?.roadmap?.[4]?.why ||
+                "Giáng đòn đoạt thắng lợi quyết định!"}
             </span>
           )}
         </div>
@@ -1505,6 +2019,62 @@ import {
           color: "border-blue-500/40 text-blue-300 bg-blue-500/15",
           icon: Trophy,
         };
+      case "iron-gate":
+        return {
+          label: "Thiết Môn Khảm",
+          color:
+            "border-amber-400/50 text-amber-300 bg-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.25)]",
+          icon: Trophy,
+        };
+      case "resting-horse":
+        return {
+          label: "Mã Ngọa Tào",
+          color:
+            "border-amber-400/50 text-amber-300 bg-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.25)]",
+          icon: Trophy,
+        };
+      case "horse-cannon-mate":
+        return {
+          label: "Mã Hậu Pháo",
+          color:
+            "border-amber-400/50 text-amber-300 bg-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.25)]",
+          icon: Trophy,
+        };
+      case "fishing-horse":
+        return {
+          label: "Điếu Ngư Mã",
+          color:
+            "border-amber-400/50 text-amber-300 bg-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.25)]",
+          icon: Trophy,
+        };
+      case "face-king":
+        return {
+          label: "Bạch Kiểm Tướng",
+          color:
+            "border-amber-400/50 text-amber-300 bg-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.25)]",
+          icon: Trophy,
+        };
+      case "double-rook":
+        return {
+          label: "Song Xe Bào",
+          color:
+            "border-amber-400/50 text-amber-300 bg-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.25)]",
+          icon: Trophy,
+        };
+      case "mate-threat":
+        return {
+          label: "Tuyệt Sát",
+          color:
+            "border-amber-400/50 text-amber-300 bg-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.25)]",
+          icon: Trophy,
+        };
+      case "emergency-defend":
+        return {
+          label: "Cứu Mạng",
+          color:
+            "border-rose-500/60 text-rose-300 bg-rose-500/25 shadow-[0_0_8px_rgba(244,63,94,0.3)]",
+          icon: ShieldAlert,
+        };
       default:
         return {
           label: tag,
@@ -1518,11 +2088,14 @@ import {
   function EvaluationBreakdownTab({ breakdown, score, phase }) {
     if (!breakdown) {
       return (
-        <div className="flex flex-col items-center justify-center p-6 text-center text-muted-foreground/80">
-          <BrainCircuit className="size-6 text-cyan-400 mb-2" />
-          <span className="text-xs font-semibold text-foreground">Chưa có dữ liệu 5 Trụ Cột</span>
-          <span className="text-[10px] mt-1 text-muted-foreground">
-            Dữ liệu bóc tách hình thế sẽ tự động hiển thị khi động cơ phân tích xong thế trận.
+        <div className="text-muted-foreground/80 flex flex-col items-center justify-center p-6 text-center">
+          <BrainCircuit className="mb-2 size-6 text-cyan-400" />
+          <span className="text-foreground text-xs font-semibold">
+            Chưa có dữ liệu 5 Trụ Cột
+          </span>
+          <span className="text-muted-foreground mt-1 text-[10px]">
+            Dữ liệu bóc tách hình thế sẽ tự động hiển thị khi động cơ phân tích
+            xong thế trận.
           </span>
         </div>
       );
@@ -1573,9 +2146,13 @@ import {
 
     return (
       <div className="flex flex-col gap-2 pt-1">
-        <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] p-2 text-[10px]">
-          <span className="text-muted-foreground font-medium">Tổng điểm thế trận:</span>
-          <span className={`font-mono font-bold ${score >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+        <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/3 p-2 text-[10px]">
+          <span className="text-muted-foreground font-medium">
+            Tổng điểm thế trận:
+          </span>
+          <span
+            className={`font-mono font-bold ${score >= 0 ? "text-emerald-400" : "text-rose-400"}`}
+          >
             {score > 0 ? `+${score}` : score} điểm ({phase})
           </span>
         </div>
@@ -1585,41 +2162,105 @@ import {
             const Icon = pil.icon;
             const isAdv = pil.val > 0;
             const isDis = pil.val < 0;
-            const widthPct = Math.min(100, Math.max(8, Math.abs(pil.val) * 1.5));
+            const widthPct = Math.min(
+              100,
+              Math.max(8, Math.abs(pil.val) * 1.5),
+            );
 
             return (
               <div
                 key={pil.key}
-                className="flex flex-col gap-1 rounded-lg border border-white/[0.06] bg-black/20 p-2 text-[10px]"
+                className="flex flex-col gap-1 rounded-lg border border-white/6 bg-black/20 p-2 text-[10px]"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     <Icon className={`size-3.5 ${pil.color}`} />
-                    <span className="font-semibold text-foreground/90">{pil.name}</span>
+                    <span className="text-foreground/90 font-semibold">
+                      {pil.name}
+                    </span>
                   </div>
                   <span
                     className={`font-mono font-bold ${
-                      isAdv ? "text-emerald-400" : isDis ? "text-rose-400" : "text-muted-foreground"
+                      isAdv
+                        ? "text-emerald-400"
+                        : isDis
+                          ? "text-rose-400"
+                          : "text-muted-foreground"
                     }`}
                   >
                     {pil.val > 0 ? `+${pil.val}` : pil.val}
                   </span>
                 </div>
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/6">
                   <div
                     className={`h-full rounded-full transition-all duration-300 ${
-                      isAdv ? "bg-emerald-500" : isDis ? "bg-rose-500" : "bg-white/20"
+                      isAdv
+                        ? "bg-emerald-500"
+                        : isDis
+                          ? "bg-rose-500"
+                          : "bg-white/20"
                     }`}
                     style={{ width: `${widthPct}%` }}
                   />
                 </div>
-                <span className="text-[9px] text-muted-foreground/80 leading-tight">{pil.desc}</span>
+                <span className="text-muted-foreground/80 text-[9px] leading-tight">
+                  {pil.desc}
+                </span>
               </div>
             );
           })}
         </div>
       </div>
     );
+  }
+
+  // =========================================================================
+  // React Error Boundary to Prevent Mentor Crash
+  // =========================================================================
+  class MentorErrorBoundary extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = { hasError: false, error: null };
+    }
+
+    static getDerivedStateFromError(error) {
+      return { hasError: true, error };
+    }
+
+    componentDidCatch(error, errorInfo) {
+      console.error(
+        "[AN Mod] Mentor Coach Error caught by boundary:",
+        error,
+        errorInfo,
+      );
+    }
+
+    render() {
+      if (this.state.hasError) {
+        return (
+          <div className="flex flex-col items-center justify-center gap-2.5 rounded-2xl border border-rose-500/40 bg-zinc-950/95 p-4 text-center text-rose-300 shadow-2xl backdrop-blur-md">
+            <AlertTriangle className="size-6 animate-pulse text-rose-400" />
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[11px] font-bold text-white">
+                Đã xảy ra gián đoạn giao diện
+              </span>
+              <span className="text-muted-foreground text-[9.5px]">
+                Kỳ Đạo Sư đã tự động bảo vệ dữ liệu để không làm vỡ trận cờ.
+              </span>
+            </div>
+            <Button
+              size="xs"
+              variant="outline"
+              className="mt-1 h-6 border-white/20 text-[9.5px] hover:bg-white/10"
+              onClick={() => this.setState({ hasError: false, error: null })}
+            >
+              Khôi phục giao diện
+            </Button>
+          </div>
+        );
+      }
+      return this.props.children;
+    }
   }
 
   // =========================================================================
@@ -1679,8 +2320,8 @@ import {
 
     if (!analysis) {
       return (
-        <Card className="ziga-mentor-panel-card border-border/80 w-[340px] shadow-2xl backdrop-blur-2xl">
-          <div className="ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/[0.02] px-3.5 py-2.5 select-none">
+        <Card className="ziga-mentor-panel-card border-border/80 w-85 shadow-2xl backdrop-blur-2xl">
+          <div className="ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/2 px-3.5 py-2.5 select-none">
             <div className="flex items-center gap-2">
               <div
                 className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-white/10"
@@ -1722,7 +2363,8 @@ import {
         }}
       >
         {/* TẦNG 1: HEADER (Thanh Tiêu Đề & Nút Điều Khiển Tinh Gọn, Không Tràn Viền) */}
-        <div className="ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/[0.02] px-3 py-2 select-none">
+
+        <div className="ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/2 px-3 py-2 select-none">
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <div
               className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-white/10 shadow-xs"
@@ -1732,76 +2374,137 @@ import {
             </div>
             <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
               <div className="flex items-center gap-1.5 overflow-hidden">
-                <span className="text-foreground text-xs font-bold tracking-wider uppercase shrink-0">
+                <span className="text-foreground shrink-0 text-xs font-bold tracking-wider uppercase">
                   Kỳ Đạo Sư
                 </span>
-                <span
-                  className={`py-0.2 inline-flex shrink-0 items-center gap-0.5 rounded border px-1.5 font-mono text-[9px] font-semibold whitespace-nowrap ${
-                    analysis.evalScore >= 50
-                      ? "border-emerald-500/30 text-emerald-400"
-                      : analysis.evalScore <= -50
-                        ? "border-rose-500/30 text-rose-400"
-                        : "border-white/10 text-slate-300"
-                  }`}
-                  style={{
-                    background:
-                      analysis.evalScore >= 50
-                        ? "rgba(16, 185, 129, 0.1)"
-                        : analysis.evalScore <= -50
-                          ? "rgba(244, 63, 94, 0.1)"
-                          : "rgba(255, 255, 255, 0.05)",
-                  }}
-                >
-                  {analysis.evalScore >= 50 ? (
-                    <TrendingUp className="size-2.5" />
-                  ) : analysis.evalScore <= -50 ? (
-                    <TrendingDown className="size-2.5" />
-                  ) : (
-                    <Equal className="size-2.5" />
-                  )}
-                  <span>{analysis.evalText}</span>
-                </span>
               </div>
-              <div className="text-muted-foreground mt-0.5 flex items-center gap-1 text-[9px] whitespace-nowrap truncate overflow-hidden">
-                <span
-                  className="py-0.2 text-muted-foreground/90 rounded border border-white/[0.08] px-1 font-medium shrink-0"
-                  style={{ background: "rgba(255, 255, 255, 0.04)" }}
-                >
-                  {analysis.phase}
-                </span>
-                <span>•</span>
-                <span className="inline-flex items-center gap-1 font-medium shrink-0">
-                  {analysis.isMyTurn ? (
-                    <>
-                      <span className="size-1.5 animate-pulse rounded-full bg-emerald-400" />
-                      <span className="font-semibold text-emerald-400">
-                        Lượt bạn
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="bg-muted-foreground/50 size-1.5 rounded-full" />
-                      <span>Lượt đối thủ</span>
-                    </>
-                  )}
-                </span>
-                <span>•</span>
-                <span className="inline-flex items-center gap-1 font-medium shrink-0">
+              <div className="flex flex-col items-start justify-center gap-1">
+                <div className="text-muted-foreground mt-0.5 flex items-center gap-1 truncate overflow-hidden text-[9px] whitespace-nowrap">
                   <span
-                    className={`size-2 rounded-full border ${
-                      analysis.myColor === 0
-                        ? "border-red-400 bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.5)]"
-                        : "border-zinc-500 bg-zinc-800 shadow-[0_0_4px_rgba(0,0,0,0.5)]"
+                    className="py-0.2 text-muted-foreground/90 shrink-0 rounded border border-white/8 px-1 font-medium"
+                    style={{ background: "rgba(255, 255, 255, 0.04)" }}
+                  >
+                    {analysis.phase}
+                  </span>
+                  <span>•</span>
+                  <span className="inline-flex shrink-0 items-center gap-1 font-medium">
+                    {analysis.isMyTurn ? (
+                      <>
+                        <span className="size-1.5 animate-pulse rounded-full bg-emerald-400" />
+                        <span className="font-semibold text-emerald-400">
+                          Bạn
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="bg-muted-foreground/50 size-1.5 rounded-full" />
+                        <span>Đối thủ</span>
+                      </>
+                    )}
+                  </span>
+                  <span>•</span>
+                  <span className="inline-flex shrink-0 items-center gap-1 font-medium">
+                    <span
+                      className={`size-2 rounded-full border ${
+                        analysis.myColor === 0
+                          ? "border-red-400 bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.5)]"
+                          : "border-zinc-500 bg-zinc-800 shadow-[0_0_4px_rgba(0,0,0,0.5)]"
+                      }`}
+                    />
+                    <span>{analysis.myColor === 0 ? "Phe Đỏ" : "Phe Đen"}</span>
+                  </span>
+                </div>
+                <div className="flex flex-row justify-center gap-0.5">
+                  <span
+                    className={`py-0.2 inline-flex shrink-0 items-center gap-0.5 rounded border px-1.5 font-mono text-[9px] font-semibold whitespace-nowrap ${
+                      analysis.evalScore >= 50
+                        ? "border-emerald-500/30 text-emerald-400"
+                        : analysis.evalScore <= -50
+                          ? "border-rose-500/30 text-rose-400"
+                          : "border-white/10 text-slate-300"
                     }`}
-                  />
-                  <span>{analysis.myColor === 0 ? "Phe Đỏ" : "Phe Đen"}</span>
-                </span>
+                    style={{
+                      background:
+                        analysis.evalScore >= 50
+                          ? "rgba(16, 185, 129, 0.1)"
+                          : analysis.evalScore <= -50
+                            ? "rgba(244, 63, 94, 0.1)"
+                            : "rgba(255, 255, 255, 0.05)",
+                    }}
+                  >
+                    {analysis.evalScore >= 50 ? (
+                      <TrendingUp className="size-2.5" />
+                    ) : analysis.evalScore <= -50 ? (
+                      <TrendingDown className="size-2.5" />
+                    ) : (
+                      <Equal className="size-2.5" />
+                    )}
+                    <span>{analysis.evalText}</span>
+                  </span>
+                  {/* Live Engine Status Badge */}
+                  {(() => {
+                    const status =
+                      analysis.pikafishStatus ||
+                      (engineId === "pikafish" ? "cloud-nnue" : "js-engine");
+                    if (engineId === "pikafish") {
+                      if (status === "native-ws") {
+                        return (
+                          <span
+                            className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.25)] select-none"
+                            onClick={() => {
+                              reconnectPikafish();
+                            }}
+                            title="🟢 WS Native: 8765 đang kết nối trực tiếp (Hardcore Mode). Bấm để ping/kết nối lại."
+                          >
+                            <span className="size-1.5 animate-pulse rounded-full bg-emerald-400 text-nowrap shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
+                            <span>WS: 8765</span>
+                          </span>
+                        );
+                      } else if (status === "cloud-nnue") {
+                        return (
+                          <span
+                            className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-cyan-500/40 bg-cyan-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-cyan-300 shadow-[0_0_8px_rgba(6,182,212,0.2)] select-none"
+                            onClick={() => {
+                              reconnectPikafish();
+                            }}
+                            title="🌐 Pikafish Cloud (Depth 30-62 via ChessDB). Bấm để thử kết nối WS Local 8765."
+                          >
+                            <span className="size-1.5 rounded-full bg-cyan-400 text-nowrap shadow-[0_0_6px_rgba(34,211,238,0.9)]" />
+                            <span>Cloud+</span>
+                          </span>
+                        );
+                      } else {
+                        return (
+                          <span
+                            className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300 select-none"
+                            onClick={() => {
+                              reconnectPikafish();
+                            }}
+                            title="⚡ Đang dùng JS Engine dự phòng. Hãy chạy start_pikafish.bat và bấm vào đây để kết nối lại!"
+                          >
+                            <span className="size-1.5 rounded-full bg-amber-400 text-nowrap" />
+                            <span>JS Offline</span>
+                          </span>
+                        );
+                      }
+                    }
+                    return (
+                      <span
+                        className="inline-flex items-center gap-1 rounded-md border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-cyan-400 select-none"
+                        title="⚡ Động cơ tích hợp sẵn AN Grandmaster JS"
+                      >
+                        <Cpu className="size-2.5" />
+                        <span>JS Worker</span>
+                      </span>
+                    );
+                  })()}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Action Buttons: Compact & Cleanly Spaced */}
-          <div className="flex shrink-0 items-center gap-1 pl-1.5">
+          <div className="flex shrink-0 items-center gap-1.5 pl-1.5">
             {/* Engine Switcher Toggle Button */}
             <Button
               variant="ghost"
@@ -1812,8 +2515,8 @@ import {
               }`}
               className={`size-6.5 rounded-lg border transition-all ${
                 engineId === "pikafish"
-                  ? "border-amber-400/50 text-amber-300 bg-amber-500/15 hover:bg-amber-500/25"
-                  : "border-cyan-400/40 text-cyan-400 bg-cyan-500/15 hover:bg-cyan-500/25"
+                  ? "border-amber-400/50 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25"
+                  : "border-cyan-400/40 bg-cyan-500/15 text-cyan-400 hover:bg-cyan-500/25"
               }`}
             >
               {engineId === "pikafish" ? (
@@ -1828,7 +2531,7 @@ import {
               size="icon-xs"
               onClick={toggleCompactMode}
               title={isCompact ? "Mở rộng 2 cột (Studio)" : "Thu gọn 1 cột"}
-              className="text-muted-foreground hover:text-foreground size-6.5 rounded-lg border border-transparent transition-colors hover:border-white/10 hover:bg-white/[0.06]"
+              className="text-muted-foreground hover:text-foreground size-6.5 rounded-lg border border-transparent transition-colors hover:border-white/10 hover:bg-white/6"
             >
               {isCompact ? (
                 <Maximize2 className="size-3.5" />
@@ -1848,7 +2551,7 @@ import {
                 className={`size-6.5 rounded-lg border transition-colors ${
                   showMiniBoardInCompact
                     ? "border-cyan-400/40 text-cyan-400"
-                    : "text-muted-foreground hover:text-foreground border-transparent hover:border-white/10 hover:bg-white/[0.06]"
+                    : "text-muted-foreground hover:text-foreground border-transparent hover:border-white/10 hover:bg-white/6"
                 }`}
                 style={{
                   background: showMiniBoardInCompact
@@ -1865,7 +2568,7 @@ import {
               size="icon-xs"
               onClick={onClose}
               title="Đóng bảng cố vấn"
-              className="text-muted-foreground hover:text-foreground size-6.5 rounded-lg transition-colors hover:bg-rose-500/15 hover:text-rose-400"
+              className="text-muted-foreground hover:text-foreground size-6.5 rounded-lg transition-colors hover:bg-rose-500/15"
             >
               <X className="size-3.5" />
             </Button>
@@ -1876,11 +2579,16 @@ import {
         {analysis.openingName && (
           <div className="px-3 pt-2">
             <div className="flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-[10.5px] text-amber-300">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <Sparkles className="size-3.5 text-amber-400 shrink-0" />
-                <span className="truncate">Thế Trận: <strong>{analysis.openingName}</strong></span>
+              <div className="flex min-w-0 items-center gap-1.5">
+                <Sparkles className="size-3.5 shrink-0 text-amber-400" />
+                <span className="truncate">
+                  Thế Trận: <strong>{analysis.openingName}</strong>
+                </span>
               </div>
-              <Badge variant="outline" className="border-amber-400/40 text-amber-300 bg-amber-500/20 text-[9px] px-1.5 py-0 font-semibold shrink-0">
+              <Badge
+                variant="outline"
+                className="shrink-0 border-amber-400/40 bg-amber-500/20 px-1.5 py-0 text-[9px] font-semibold text-amber-300"
+              >
                 Khai Cuộc Chuẩn
               </Badge>
             </div>
@@ -1980,6 +2688,36 @@ import {
                       </span>
                     </div>
                   )}
+
+                  {analysis.mateThreat && (
+                    <div
+                      className={`mt-1.5 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[10.5px] ${
+                        analysis.mateThreat.type === "attack"
+                          ? "border-amber-500/40 bg-amber-500/15 text-amber-200 shadow-[0_0_12px_rgba(245,158,11,0.2)]"
+                          : "animate-pulse border-rose-500/50 bg-rose-500/20 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.3)]"
+                      }`}
+                    >
+                      {analysis.mateThreat.type === "attack" ? (
+                        <Trophy className="size-4 shrink-0 text-amber-400" />
+                      ) : (
+                        <ShieldAlert className="size-4 shrink-0 text-rose-400" />
+                      )}
+                      <div className="flex min-w-0 flex-col">
+                        <span
+                          className={`text-[10px] font-bold tracking-wide uppercase ${
+                            analysis.mateThreat.type === "attack"
+                              ? "text-amber-300"
+                              : "text-rose-300"
+                          }`}
+                        >
+                          {analysis.mateThreat.title}
+                        </span>
+                        <span className="text-[9.5px] leading-tight opacity-90">
+                          {analysis.mateThreat.explanation}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -2011,6 +2749,7 @@ import {
                   setSelectedPlanIdx={setSelectedPlanIdx}
                   activeVariationIdx={activeVariationIdx}
                   setActiveVariationIdx={setActiveVariationIdx}
+                  activeStep={activeStep}
                   setActiveStep={setActiveStep}
                   onDrawPlan={(p, varIdx) => drawPlanArrowOnBoard(p, varIdx)}
                 />
@@ -2041,6 +2780,7 @@ import {
                   setSelectedPlanIdx={setSelectedPlanIdx}
                   activeVariationIdx={activeVariationIdx}
                   setActiveVariationIdx={setActiveVariationIdx}
+                  activeStep={activeStep}
                   setActiveStep={setActiveStep}
                   onDrawPlan={(p, varIdx) => drawPlanArrowOnBoard(p, varIdx)}
                 />
@@ -2063,6 +2803,7 @@ import {
     setSelectedPlanIdx,
     activeVariationIdx,
     setActiveVariationIdx,
+    activeStep,
     setActiveStep,
     onDrawPlan,
   }) {
@@ -2102,227 +2843,266 @@ import {
               const currentVar =
                 p.variations?.[currentVarIdx] || p.variations?.[0];
 
-            return (
-              <div
-                key={p.id}
-                className="flex cursor-pointer flex-col gap-2 rounded-xl p-2.5 transition-all"
-                style={{
-                  background: isSelected
-                    ? "rgba(255, 255, 255, 0.05)"
-                    : "rgba(255, 255, 255, 0.02)",
-                  border: isSelected
-                    ? "1px solid var(--primary, #06b6d4)"
-                    : "1px solid rgba(255, 255, 255, 0.08)",
-                  borderLeft: isSelected
-                    ? "3.5px solid var(--primary, #06b6d4)"
-                    : "1px solid rgba(255, 255, 255, 0.08)",
-                  boxShadow: isSelected
-                    ? "0 4px 14px rgba(0, 0, 0, 0.25)"
-                    : "none",
-                }}
-                onClick={() => {
-                  setSelectedPlanIdx(idx);
-                  setActiveVariationIdx(0);
-                  setActiveStep(1);
-                  onDrawPlan(p, 0);
-                }}
-              >
-                {/* Header: Badge, Move Notation & Tactical Purpose */}
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center justify-between gap-1">
-                    <div className="flex items-center gap-1.5">
-                      <Badge
-                        variant="outline"
-                        className="text-foreground/90 inline-flex items-center gap-1 rounded border border-white/15 px-1.5 py-0 text-[9px] font-semibold"
-                        style={{ background: "rgba(255, 255, 255, 0.06)" }}
-                      >
-                        {p.type === "attack" ? (
-                          <Sparkles className="size-2.5 text-cyan-400" />
-                        ) : p.type === "defend" ? (
-                          <Shield className="size-2.5 text-rose-400" />
-                        ) : (
-                          <Zap className="size-2.5 text-amber-400" />
-                        )}
-                        <span>{p.badge}</span>
-                      </Badge>
-                      <span className="text-primary font-mono text-[11.5px] font-bold">
-                        {p.shortNotation}
-                      </span>
-                    </div>
-                    <span className="text-foreground text-[11px] font-bold">
-                      {p.name.split("·")[1] || p.name}
-                    </span>
-                  </div>
-
-                  {/* Tactical Tags Badges */}
-                  {p.tags && p.tags.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1">
-                      {p.tags.map((t, tIdx) => {
-                        const badgeProps = getTacticalBadgeProps(t);
-                        const IconComp = badgeProps.icon;
-                        return (
-                          <span
-                            key={tIdx}
-                            className={`inline-flex items-center gap-0.5 rounded border px-1.5 py-0.2 text-[8.5px] font-semibold ${badgeProps.color}`}
-                          >
-                            <IconComp className="size-2" />
-                            <span>{badgeProps.label}</span>
-                          </span>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-
-                {/* Step 1: Ta Đi */}
-                <div className="flex items-start gap-1.5 text-[10.5px]">
-                  <span className="shrink-0 font-bold text-cyan-400">
-                    1. Ta đi:
-                  </span>
-                  <span className="text-foreground/90 leading-tight font-medium">
-                    <strong>{p.fullNotation}</strong> — {p.why}
-                  </span>
-                </div>
-
-                {/* Step 2: DỰ ĐOÁN PHẢN ỨNG ĐỐI THỦ (2 ĐẾN 3 BIẾN SỐ) */}
-                {isSelected && p.variations && p.variations.length > 0 && (
-                  <div className="flex flex-col gap-1.5 rounded-lg border border-white/[0.06] bg-black/25 p-2 text-[10px]">
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground text-[9.5px] font-semibold">
-                        Dự đoán phản ứng của địch ({p.variations.length} biến):
-                      </span>
-                      <span className="font-mono text-[9px] text-rose-400">
-                        2. Địch đáp
+              return (
+                <div
+                  key={p.id}
+                  className="flex cursor-pointer flex-col gap-2 rounded-xl p-2.5 transition-all"
+                  style={{
+                    background: isSelected
+                      ? "rgba(255, 255, 255, 0.05)"
+                      : "rgba(255, 255, 255, 0.02)",
+                    border: isSelected
+                      ? "1px solid var(--primary, #06b6d4)"
+                      : "1px solid rgba(255, 255, 255, 0.08)",
+                    borderLeft: isSelected
+                      ? "3.5px solid var(--primary, #06b6d4)"
+                      : "1px solid rgba(255, 255, 255, 0.08)",
+                    boxShadow: isSelected
+                      ? "0 4px 14px rgba(0, 0, 0, 0.25)"
+                      : "none",
+                  }}
+                  onClick={() => {
+                    setSelectedPlanIdx(idx);
+                    setActiveVariationIdx(0);
+                    setActiveStep(1);
+                    onDrawPlan(p, 0);
+                  }}
+                >
+                  {/* Header: Badge, Move Notation & Tactical Purpose */}
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="flex items-center gap-1.5">
+                        <Badge
+                          variant="outline"
+                          className="text-foreground/90 inline-flex items-center gap-1 rounded border border-white/15 px-1.5 py-0 text-[9px] font-semibold"
+                          style={{ background: "rgba(255, 255, 255, 0.06)" }}
+                        >
+                          {p.type === "attack" ? (
+                            <Sparkles className="size-2.5 text-cyan-400" />
+                          ) : p.type === "defend" ? (
+                            <Shield className="size-2.5 text-rose-400" />
+                          ) : (
+                            <Zap className="size-2.5 text-amber-400" />
+                          )}
+                          <span>{p.badge}</span>
+                        </Badge>
+                        <span className="text-primary font-mono text-[11.5px] font-bold">
+                          {p.shortNotation}
+                        </span>
+                      </div>
+                      <span className="text-foreground text-[11px] font-bold">
+                        {p.name.split("·")[1] || p.name}
                       </span>
                     </div>
 
-                    {/* Variations Segmented Selector */}
-                    <div className="flex flex-wrap gap-1">
-                      {p.variations.map((v, vIdx) => {
-                        const isVarActive = currentVarIdx === vIdx;
-                        return (
-                          <button
-                            key={v.idx}
-                            type="button"
-                            className={`rounded border px-2 py-0.5 text-[9.5px] font-medium transition-colors ${
-                              isVarActive
-                                ? "border-cyan-400/50 font-bold text-cyan-300 shadow-xs"
-                                : "text-muted-foreground border-white/10 hover:bg-white/[0.06]"
-                            }`}
-                            style={{
-                              background: isVarActive
-                                ? "rgba(6, 182, 212, 0.15)"
-                                : "rgba(255, 255, 255, 0.03)",
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setActiveVariationIdx(vIdx);
-                              setActiveStep(2);
-                              onDrawPlan(p, vIdx);
-                            }}
-                          >
-                            {v.shortLabel}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Active Variation Explanation */}
-                    {currentVar && (
-                      <div className="flex flex-col gap-1 border-t border-white/[0.05] pt-1">
-                        <div className="flex items-start gap-1">
-                          <span className="shrink-0 font-bold text-rose-400">
-                            Địch:
-                          </span>
-                          <span className="text-muted-foreground leading-tight">
-                            <strong>
-                              {currentVar.oppNotation?.full || "Nước đi"}
-                            </strong>{" "}
-                            ({currentVar.oppWhy})
-                          </span>
-                        </div>
-
-                        {/* Step 3: Đòn phản kích của ta cho biến này */}
-                        {currentVar.answer ? (
-                          <div className="flex items-start gap-1">
-                            <span className="shrink-0 font-bold text-amber-400">
-                              3. Ta bồi:
+                    {/* Tactical Tags Badges */}
+                    {p.tags && p.tags.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1">
+                        {p.tags.map((t, tIdx) => {
+                          const badgeProps = getTacticalBadgeProps(t);
+                          const IconComp = badgeProps.icon;
+                          return (
+                            <span
+                              key={tIdx}
+                              className={`py-0.2 inline-flex items-center gap-0.5 rounded border px-1.5 text-[8.5px] font-semibold ${badgeProps.color}`}
+                            >
+                              <IconComp className="size-2" />
+                              <span>{badgeProps.label}</span>
                             </span>
-                            <span className="text-foreground/90 leading-tight font-medium">
-                              <strong>
-                                {currentVar.answer.notation?.full || "Nước cờ"}
-                              </strong>{" "}
-                              ({currentVar.answer.why})
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="flex items-start gap-1 text-emerald-400">
-                            <span className="shrink-0 font-bold">
-                              3. Kết cục:
-                            </span>
-                            <span className="leading-tight">
-                              Đối thủ lâm vào thế cùng lực kiệt.
-                            </span>
-                          </div>
-                        )}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
-                )}
 
-                {/* Action Buttons */}
-                <div className="flex items-center gap-1.5 pt-0.5">
-                  <Button
-                    variant="default"
-                    size="xs"
-                    className="h-5.5 flex-1 gap-1 text-[9.5px] font-medium"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedPlanIdx(idx);
-                      onDrawPlan(p, currentVarIdx);
-                    }}
-                  >
-                    <Crosshair className="size-3" />
-                    <span>Vẽ Lên Bàn Thật</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="xs"
-                    className="h-5.5 gap-1 text-[9.5px] font-medium"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedPlanIdx(idx);
-                      setActiveStep(1);
-                    }}
-                  >
-                    <Play className="size-3" />
-                    <span>Thử Trên Bàn Nhỏ</span>
-                  </Button>
+                  {/* Step 1: Ta Đi */}
+                  <div className="flex items-start gap-1.5 text-[10.5px]">
+                    <span className="shrink-0 font-bold text-cyan-400">
+                      1. Ta đi:
+                    </span>
+                    <span className="text-foreground/90 leading-tight font-medium">
+                      <strong>{p.fullNotation}</strong> — {p.why}
+                    </span>
+                  </div>
+
+                  {/* Step 2: DỰ ĐOÁN PHẢN ỨNG ĐỐI THỦ (2 ĐẾN 3 BIẾN SỐ) */}
+                  {isSelected && p.variations && p.variations.length > 0 && (
+                    <div className="flex flex-col gap-1.5 rounded-lg border border-white/6 bg-black/25 p-2 text-[10px]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground text-[9.5px] font-semibold">
+                          Dự đoán phản ứng của địch ({p.variations.length}{" "}
+                          biến):
+                        </span>
+                        <span className="font-mono text-[9px] text-rose-400">
+                          2. Địch đáp
+                        </span>
+                      </div>
+
+                      {/* Variations Segmented Selector */}
+                      <div className="flex flex-wrap gap-1">
+                        {p.variations.map((v, vIdx) => {
+                          const isVarActive = currentVarIdx === vIdx;
+                          return (
+                            <button
+                              key={v.idx}
+                              type="button"
+                              className={`rounded border px-2 py-0.5 text-[9.5px] font-medium transition-colors ${
+                                isVarActive
+                                  ? "border-cyan-400/50 font-bold text-cyan-300 shadow-xs"
+                                  : "text-muted-foreground border-white/10 hover:bg-white/6"
+                              }`}
+                              style={{
+                                background: isVarActive
+                                  ? "rgba(6, 182, 212, 0.15)"
+                                  : "rgba(255, 255, 255, 0.03)",
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveVariationIdx(vIdx);
+                                setActiveStep(2);
+                                onDrawPlan(p, vIdx);
+                              }}
+                            >
+                              {v.shortLabel}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Active Variation Explanation */}
+                      {currentVar && (
+                        <div className="flex flex-col gap-1 border-t border-white/5 pt-1">
+                          <div className="flex items-start gap-1">
+                            <span className="shrink-0 font-bold text-rose-400">
+                              Địch:
+                            </span>
+                            <span className="text-muted-foreground leading-tight">
+                              <strong>
+                                {currentVar.oppNotation?.full || "Nước đi"}
+                              </strong>{" "}
+                              ({currentVar.oppWhy})
+                            </span>
+                          </div>
+
+                          {/* Step 3: Đòn phản kích của ta cho biến này */}
+                          {currentVar.answer ? (
+                            <div className="flex items-start gap-1">
+                              <span className="shrink-0 font-bold text-amber-400">
+                                3. Ta bồi:
+                              </span>
+                              <span className="text-foreground/90 leading-tight font-medium">
+                                <strong>
+                                  {currentVar.answer.notation?.full ||
+                                    "Nước cờ"}
+                                </strong>{" "}
+                                ({currentVar.answer.why})
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="flex items-start gap-1 text-emerald-400">
+                              <span className="shrink-0 font-bold">
+                                3. Kết cục:
+                              </span>
+                              <span className="leading-tight">
+                                Đối thủ lâm vào thế cùng lực kiệt.
+                              </span>
+                            </div>
+                          )}
+                          {/* 5-Step Tactical Roadmap Pills */}
+                          {p.roadmap && p.roadmap.length >= 4 && (
+                            <div className="mt-0.5 flex flex-col gap-1 border-t border-white/5 pt-1.5">
+                              <span className="text-muted-foreground text-[9px] font-semibold">
+                                Lộ trình tác chiến 5 bước:
+                              </span>
+                              <div className="flex items-center gap-1 overflow-x-auto pb-0.5">
+                                {p.roadmap.map((rm, rmIdx) => (
+                                  <button
+                                    key={rmIdx}
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedPlanIdx(idx);
+                                      setActiveStep(rm.step);
+                                    }}
+                                    className={`shrink-0 rounded border px-1.5 py-0.5 text-[8.5px] font-semibold transition-all ${
+                                      activeStep === rm.step
+                                        ? "border-cyan-400 bg-cyan-500/20 text-cyan-300 shadow-sm"
+                                        : "text-muted-foreground hover:text-foreground border-white/10 bg-white/3 hover:border-white/20"
+                                    }`}
+                                  >
+                                    {rm.step === 1 &&
+                                      `1. Ta: ${rm.notation?.short || "Đi"}`}
+                                    {rm.step === 2 &&
+                                      `2. Địch: ${rm.notation?.short || "Đáp"}`}
+                                    {rm.step === 3 &&
+                                      `3. Bồi: ${rm.notation?.short || "Bồi"}`}
+                                    {rm.step === 4 &&
+                                      `4. Đỡ: ${rm.notation?.short || "Đỡ"}`}
+                                    {rm.step === 5 &&
+                                      `5. Sát: ${rm.notation?.short || "Sát"}`}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    <Button
+                      variant="default"
+                      size="xs"
+                      className="h-5.5 flex-1 gap-1 text-[9.5px] font-medium"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedPlanIdx(idx);
+                        onDrawPlan(p, currentVarIdx);
+                      }}
+                    >
+                      <Crosshair className="size-3" />
+                      <span>Vẽ Lên Bàn Thật</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="xs"
+                      className="h-5.5 gap-1 text-[9.5px] font-medium"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedPlanIdx(idx);
+                        setActiveStep(1);
+                      }}
+                    >
+                      <Play className="size-3" />
+                      <span>Thử Trên Bàn Nhỏ</span>
+                    </Button>
+                  </div>
                 </div>
+              );
+            })
+          ) : (
+            <div className="text-muted-foreground/80 flex flex-1 flex-col items-center justify-center gap-2.5 p-6 text-center">
+              <BrainCircuit
+                className={`size-6 text-cyan-400 ${
+                  analysis?.isSearching ? "animate-pulse" : ""
+                }`}
+              />
+              <div className="flex flex-col gap-1">
+                <span className="text-foreground text-xs font-semibold">
+                  {analysis?.isSearching
+                    ? "AI đang tính toán các biến cờ chuyên sâu..."
+                    : "Đang theo dõi thế trận ván đấu..."}
+                </span>
+                <span className="text-muted-foreground text-[10px]">
+                  {analysis?.isSearching
+                    ? "Thuật toán Alpha-Beta chạy ngầm qua Web Worker (0% lag bàn cờ)."
+                    : "Thực hiện nước cờ hoặc đợi đối thủ để cập nhật kế sách mới."}
+                </span>
               </div>
-            );
-          })
-        ) : (
-          <div className="flex flex-1 flex-col items-center justify-center gap-2.5 p-6 text-center text-muted-foreground/80">
-            <BrainCircuit
-              className={`size-6 text-cyan-400 ${
-                analysis?.isSearching ? "animate-pulse" : ""
-              }`}
-            />
-            <div className="flex flex-col gap-1">
-              <span className="text-foreground text-xs font-semibold">
-                {analysis?.isSearching
-                  ? "AI đang tính toán các biến cờ chuyên sâu..."
-                  : "Đang theo dõi thế trận ván đấu..."}
-              </span>
-              <span className="text-[10px] text-muted-foreground">
-                {analysis?.isSearching
-                  ? "Thuật toán Alpha-Beta chạy ngầm qua Web Worker (0% lag bàn cờ)."
-                  : "Thực hiện nước cờ hoặc đợi đối thủ để cập nhật kế sách mới."}
-              </span>
             </div>
-          </div>
-        )}
+          )}
         </TabsContent>
 
         {/* TAB 2: HÌNH THẾ 5 TRỤ CỘT (GRANDMASTER EVALUATION) */}
@@ -2344,7 +3124,7 @@ import {
           className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1"
           data-scrollable="true"
         >
-          <div className="border-border/40 rounded-xl border bg-white/[0.02] p-2.5">
+          <div className="border-border/40 rounded-xl border bg-white/2 p-2.5">
             <span className="text-primary block text-[10.5px] font-bold">
               "{analysis.maxim.rule}"
             </span>
@@ -2514,10 +3294,12 @@ import {
     document.body.appendChild(mentorPanelEl);
     const root = createRoot(mentorPanelEl);
     root.render(
-      <MentorFloatingPanel
-        initialAnalysis={cachedAnalysis}
-        onClose={() => toggleMentorFloatingPanel(false)}
-      />,
+      <MentorErrorBoundary>
+        <MentorFloatingPanel
+          initialAnalysis={cachedAnalysis}
+          onClose={() => toggleMentorFloatingPanel(false)}
+        />
+      </MentorErrorBoundary>,
     );
 
     setupMentorDraggable(mentorPanelEl);

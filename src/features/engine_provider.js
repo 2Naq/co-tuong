@@ -59,6 +59,31 @@ export function setEngineProvider(providerId) {
 }
 
 /**
+ * Gets transport status of current engine provider.
+ */
+export function getEngineTransportStatus() {
+  const pika = getEngineProvider("pikafish");
+  if (pika && typeof pika.getTransportStatus === "function") {
+    return pika.getTransportStatus();
+  }
+  return {
+    type: "js-engine",
+    label: "JS Worker",
+    color: "cyan",
+  };
+}
+
+/**
+ * Forces WebSocket reconnection attempt to local Pikafish bridge.
+ */
+export function reconnectPikafish() {
+  const pika = getEngineProvider("pikafish");
+  if (pika && typeof pika.reconnect === "function") {
+    pika.reconnect();
+  }
+}
+
+/**
  * Lists available engine providers with their connection status.
  */
 export function listEngineProviders() {

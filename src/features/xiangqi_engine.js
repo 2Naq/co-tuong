@@ -1727,6 +1727,18 @@ export function createXiangqiEngine() {
             score: line.score,
           };
         }
+        if (line.pv && line.pv.length >= 4 && line.pv[3]) {
+          reply.step4 = {
+            ...decode(line.pv[3]),
+            score: -line.score,
+          };
+        }
+        if (line.pv && line.pv.length >= 5 && line.pv[4]) {
+          reply.step5 = {
+            ...decode(line.pv[4]),
+            score: line.score,
+          };
+        }
         unmakeMove(oppReplyMove, cap2);
         out.replies.push(reply);
 

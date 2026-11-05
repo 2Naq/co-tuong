@@ -46340,6 +46340,18 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               score: line.score
             };
           }
+          if (line.pv && line.pv.length >= 4 && line.pv[3]) {
+            reply.step4 = {
+              ...decode(line.pv[3]),
+              score: -line.score
+            };
+          }
+          if (line.pv && line.pv.length >= 5 && line.pv[4]) {
+            reply.step5 = {
+              ...decode(line.pv[4]),
+              score: line.score
+            };
+          }
           unmakeMove(oppReplyMove, cap2);
           out.replies.push(reply);
           const altMoves = legalMoves(1 - side2);
@@ -46763,12 +46775,16 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               if (pvMoves[1]) {
                 const oppMv = uciToMove(pvMoves[1]);
                 const ansMv = pvMoves[2] ? uciToMove(pvMoves[2]) : null;
+                const step4Mv = pvMoves[3] ? uciToMove(pvMoves[3]) : null;
+                const step5Mv = pvMoves[4] ? uciToMove(pvMoves[4]) : null;
                 if (oppMv) {
                   formattedLines[0].replies = [
                     {
                       ...oppMv,
                       score: -formattedLines[0].score,
-                      answer: ansMv ? { ...ansMv, score: formattedLines[0].score } : null
+                      answer: ansMv ? { ...ansMv, score: formattedLines[0].score } : null,
+                      step4: step4Mv ? { ...step4Mv, score: -formattedLines[0].score } : null,
+                      step5: step5Mv ? { ...step5Mv, score: formattedLines[0].score } : null
                     }
                   ];
                 }
@@ -46968,7 +46984,9 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
               {
                 ...uciToMove(cl.pv[1]),
                 score: -cl.score,
-                answer: cl.pv[2] ? { ...uciToMove(cl.pv[2]), score: cl.score } : null
+                answer: cl.pv[2] ? { ...uciToMove(cl.pv[2]), score: cl.score } : null,
+                step4: cl.pv[3] ? { ...uciToMove(cl.pv[3]), score: -cl.score } : null,
+                step5: cl.pv[4] ? { ...uciToMove(cl.pv[4]), score: cl.score } : null
               }
             ] : []
           };
@@ -46980,7 +46998,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           inCheck: false,
           depth: collectedLines[0]?.depth || maxDepth,
           nodes: collectedLines[0]?.nodes || 0,
-          engineName: "Pikafish NNUE",
+          engineName: "Pikafish NNUE (Native WS: 8765)",
+          pikafishStatus: "native-ws",
           score: topScore,
           lines: formattedLines,
           threat: null,
@@ -47023,6 +47042,24 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       analyzeAsync,
       quickEvaluate,
       dispose,
+      ensureSocket,
+      reconnect: () => ensureSocket(true),
+      getTransportStatus: () => {
+        if (socketReady && socket && socket.readyState === WebSocket.OPEN) {
+          return {
+            type: "native-ws",
+            label: "WS: 8765",
+            statusText: "WS Native (8765)",
+            color: "emerald"
+          };
+        }
+        return {
+          type: "cloud-nnue",
+          label: "Cloud D30+",
+          statusText: "Cloud NNUE (D30+)",
+          color: "cyan"
+        };
+      },
       isAvailable: () => true
       // Available via Cloud Pikafish NNUE or Native UCI Bridge
     };
@@ -47118,6 +47155,12 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
     if (providerId === "pikafish" || providerId === "js-engine") {
       activeProviderId = providerId;
       console.log(`[Engine Provider] Switched active provider to: "${providerId}"`);
+    }
+  }
+  function reconnectPikafish() {
+    const pika = getEngineProvider("pikafish");
+    if (pika && typeof pika.reconnect === "function") {
+      pika.reconnect();
     }
   }
 
@@ -47401,6 +47444,92 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         tag: "\u0110i\u1EC1u Qu\xE2n"
       };
     }
+    function classifyXiangqiMateMotif(pieces, move, myColor, oppColor, score) {
+      if (!move || !pieces) return null;
+      const enemyPalaceRows = myColor === 0 ? [7, 8, 9] : [0, 1, 2];
+      const enemyBaseline = myColor === 0 ? 9 : 0;
+      const oppKing = pieces.find((p) => p.type === 0 && p.color === oppColor);
+      const myKing = pieces.find((p) => p.type === 0 && p.color === myColor);
+      const movingPiece = pieces.find(
+        (p) => p.col === move.fromCol && p.row === move.fromRow && p.color === myColor
+      );
+      if (!movingPiece) return null;
+      const toCol = move.toCol;
+      const toRow = move.toRow;
+      if (myKing && oppKing && myKing.col === oppKing.col) {
+        const minR = Math.min(myKing.row, oppKing.row);
+        const maxR = Math.max(myKing.row, oppKing.row);
+        const blockers = pieces.filter(
+          (p) => p.col === myKing.col && p.row > minR && p.row < maxR && !(p.col === move.fromCol && p.row === move.fromRow)
+        );
+        if (blockers.length === 0) {
+          return {
+            id: "face-king",
+            name: "B\u1EA1ch Ki\u1EC3m T\u01B0\u1EDBng",
+            tag: "face-king",
+            desc: "M\u01B0\u1EE3n uy th\u1EBF M\u1EB7t T\u01B0\u1EDBng tr\u1EE3 chi\u1EBFn tr\u1EF1c ti\u1EBFp trung l\u1ED9, k\u1EBFt li\u1EC5u tr\u1EADn \u0111\u1EA5u b\u1EB1ng \u0111\xF2n B\u1EA1ch Ki\u1EC3m T\u01B0\u1EDBng!"
+          };
+        }
+      }
+      const centerPinned = pieces.some(
+        (p) => p.color === myColor && p.col === 4 && (p.type === 4 || p.type === 3) && enemyPalaceRows.includes(p.row)
+      );
+      if (movingPiece.type === 3 && toRow === enemyBaseline || centerPinned && movingPiece.type === 3) {
+        return {
+          id: "iron-gate",
+          name: "Thi\u1EBFt M\xF4n Kh\u1EA3m",
+          tag: "iron-gate",
+          desc: "Ph\xE1o/Xe ghim ch\u1EB7t trung l\u1ED9, Xe \u0111\xE1y c\u1EAFm xu\u1ED1ng gi\xE1ng \u0111\xF2n tuy\u1EC7t s\xE1t Thi\u1EBFt M\xF4n Kh\u1EA3m kinh \u0111i\u1EC3n!"
+        };
+      }
+      const isNgocTaoCol = toCol === 1 || toCol === 7;
+      const isNgocTaoRow = myColor === 0 ? toRow === 7 || toRow === 8 : toRow === 1 || toRow === 2;
+      if (movingPiece.type === 5 && isNgocTaoCol && isNgocTaoRow) {
+        return {
+          id: "resting-horse",
+          name: "M\xE3 Ng\u1ECDa T\xE0o",
+          tag: "resting-horse",
+          desc: "M\xE3 c\u1EAFm g\xF3c hi\u1EC3m Ng\u1ECDa T\xE0o, b\xF3p ngh\u1EB9t c\u1EEDu cung kh\xF4ng cho T\u01B0\u1EDBng \u0111\u1ECBch l\u1ED1i tho\xE1t!"
+        };
+      }
+      if (movingPiece.type === 4 || movingPiece.type === 5) {
+        const hasHorseFront = pieces.some(
+          (p) => p.color === myColor && p.type === 5 && enemyPalaceRows.includes(p.row)
+        );
+        if (hasHorseFront && (movingPiece.type === 4 || movingPiece.type === 5)) {
+          return {
+            id: "horse-cannon-mate",
+            name: "M\xE3 H\u1EADu Ph\xE1o",
+            tag: "horse-cannon-mate",
+            desc: "M\xE3 kh\xF3a c\u1EEDa cung, Ph\xE1o ph\xEDa sau \u0111i\u1EC3m h\u1ECFa tuy\u1EC7t s\xE1t \u0111\xF2n M\xE3 H\u1EADu Ph\xE1o b\u1EA5t kh\u1EA3 h\xF3a gi\u1EA3i!"
+          };
+        }
+      }
+      const isDieuNguCol = toCol === 2 || toCol === 6;
+      const isDieuNguRow = myColor === 0 ? toRow === 7 : toRow === 2;
+      if (movingPiece.type === 5 && isDieuNguCol && isDieuNguRow) {
+        return {
+          id: "fishing-horse",
+          name: "\u0110i\u1EBFu Ng\u01B0 M\xE3",
+          tag: "fishing-horse",
+          desc: "Th\u1EBF tr\u1EADn \u0110i\u1EBFu Ng\u01B0 M\xE3 gi\u0103ng l\u01B0\u1EDBi, ph\u1ED1i h\u1EE3p Xe s\u01B0\u1EDDn si\u1EBFt ch\u1EB7t th\xF2ng l\u1ECDng tuy\u1EC7t s\xE1t!"
+        };
+      }
+      if (movingPiece.type === 3 && enemyPalaceRows.includes(toRow)) {
+        return {
+          id: "double-rook",
+          name: "Song Xe B\xE0o",
+          tag: "double-rook",
+          desc: "H\u1ECFa l\u1EF1c Xe Ph\xE1o gi\xE1p c\xF4ng li\xEAn ho\xE0n, d\u1ED3n \xE9p T\u01B0\u1EDBng \u0111\u1ECBch v\xE0o t\u1EED \u0111\u1ECBa!"
+        };
+      }
+      return {
+        id: "mate-threat",
+        name: "Tuy\u1EC7t S\xE1t Li\xEAn Ho\xE0n",
+        tag: "mate-threat",
+        desc: "Chu\u1ED7i \u0111\xF2n c\xF4ng s\xE1t d\u1ED3n d\u1EADp, \xE9p \u0111\u1ED1i ph\u01B0\u01A1ng v\xE0o th\u1EBF chi\u1EBFu b\xED kh\xF4ng th\u1EC3 c\u1EE9u v\xE3n!"
+      };
+    }
     function buildQuickAnalysis(quickRes, gameData, pieces) {
       if (!gameData || !pieces || pieces.length === 0) return null;
       const myColor = gameData.myColor;
@@ -47463,6 +47592,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         evalBreakdown: quickRes && quickRes.evalBreakdown ? quickRes.evalBreakdown : null,
         openingName: null,
         engineName: activeProviderId2 === "pikafish" ? "Pikafish NNUE" : "AN Grandmaster JS",
+        pikafishStatus: activeProviderId2 === "pikafish" ? "cloud-nnue" : "js-engine",
+        mateThreat: null,
         maxim: currentMaxim,
         isQuickOnly: true
       };
@@ -47540,11 +47671,16 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                 toCol: ol.toCol,
                 toRow: ol.toRow,
                 score: ol.score,
-                answer: ol.pv && ol.pv[1] ? { ...ol.pv[1], score: -ol.score } : null
+                answer: ol.pv && ol.pv[1] ? { ...ol.pv[1], score: -ol.score } : null,
+                step4: ol.pv && ol.pv[2] ? { ...ol.pv[2], score: ol.score } : null,
+                step5: ol.pv && ol.pv[3] ? { ...ol.pv[3], score: -ol.score } : null
               }));
             }
           } catch (e) {
-            console.warn("[AN Mod] Dynamic opponent reply generation fallback:", e);
+            console.warn(
+              "[AN Mod] Dynamic opponent reply generation fallback:",
+              e
+            );
           }
         }
         const variations = rawReplies.map((rep, rIdx) => {
@@ -47633,7 +47769,9 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
               toRow: rep.answer.toRow,
               notation: ansNot,
               why: ansWhy
-            } : null
+            } : null,
+            step4: rep.step4 || null,
+            step5: rep.step5 || null
           };
         });
         if (variations.length === 0) {
@@ -47641,18 +47779,128 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             idx: 0,
             label: "Bi\u1EBFn 1: \u0110\u1ECBch c\xF9ng \u0111\u01B0\u1EDDng",
             shortLabel: "H\u1EBFt c\u1EDD",
-            oppNotation: { short: "H\u1EBFt n\u01B0\u1EDBc", full: "\u0110\u1ED1i th\u1EE7 kh\xF4ng c\xF2n n\u01B0\u1EDBc \u0111i h\u1EE3p l\u1EC7" },
+            oppNotation: {
+              short: "H\u1EBFt n\u01B0\u1EDBc",
+              full: "\u0110\u1ED1i th\u1EE7 kh\xF4ng c\xF2n n\u01B0\u1EDBc \u0111i h\u1EE3p l\u1EC7"
+            },
             oppWhy: "\u0110\u1ED1i th\u1EE7 l\xE2m v\xE0o th\u1EBF s\xE1t c\u1EE5c ho\u1EB7c h\u1EBFt n\u01B0\u1EDBc \u0111i.",
             fromCol: null,
             fromRow: null,
             toCol: null,
             toRow: null,
             oppPiece: null,
-            answer: null
+            answer: null,
+            step4: null,
+            step5: null
           });
         }
+        const isForcedMate = line.delivermate || line.score >= 9e3;
+        const mateMotif = isForcedMate ? classifyXiangqiMateMotif(
+          pieces,
+          line,
+          movingColor,
+          targetColor,
+          line.score
+        ) : null;
+        const roadmap = [];
+        roadmap.push({
+          step: 1,
+          side: movingColor,
+          label: "1. Ta \u0111i",
+          piece: movingPiece,
+          fromCol: line.fromCol,
+          fromRow: line.fromRow,
+          toCol: line.toCol,
+          toRow: line.toRow,
+          notation,
+          why: desc.why
+        });
+        const rep0 = variations[0];
+        if (rep0 && rep0.fromCol != null && rep0.toCol != null) {
+          roadmap.push({
+            step: 2,
+            side: oppColor,
+            label: "2. \u0110\u1ECBch \u0111\xE1p",
+            piece: rep0.oppPiece,
+            fromCol: rep0.fromCol,
+            fromRow: rep0.fromRow,
+            toCol: rep0.toCol,
+            toRow: rep0.toRow,
+            notation: rep0.oppNotation,
+            why: rep0.oppWhy
+          });
+          if (rep0.answer && rep0.answer.fromCol != null && rep0.answer.toCol != null) {
+            const ansPiece = pieces.find(
+              (p) => p.col === rep0.answer.fromCol && p.row === rep0.answer.fromRow && p.color === myColor
+            );
+            roadmap.push({
+              step: 3,
+              side: myColor,
+              label: "3. Ta b\u1ED3i",
+              piece: ansPiece,
+              fromCol: rep0.answer.fromCol,
+              fromRow: rep0.answer.fromRow,
+              toCol: rep0.answer.toCol,
+              toRow: rep0.answer.toRow,
+              notation: rep0.answer.notation,
+              why: rep0.answer.why
+            });
+            const st4 = rep0.step4;
+            if (st4 && st4.fromCol != null && st4.toCol != null) {
+              const p4 = pieces.find(
+                (p) => p.col === st4.fromCol && p.row === st4.fromRow && p.color === oppColor
+              );
+              const not4 = p4 ? getXiangqiNotation(
+                p4,
+                st4.fromCol,
+                st4.fromRow,
+                st4.toCol,
+                st4.toRow,
+                oppColor
+              ) : { short: "\u0110\u1ECBch \u0111i", full: "N\u01B0\u1EDBc ph\xF2ng th\u1EE7 c\u1EE7a \u0111\u1ECBch" };
+              roadmap.push({
+                step: 4,
+                side: oppColor,
+                label: "4. \u0110\u1ECBch \u0111\u1EE1",
+                piece: p4,
+                fromCol: st4.fromCol,
+                fromRow: st4.fromRow,
+                toCol: st4.toCol,
+                toRow: st4.toRow,
+                notation: not4,
+                why: "\u0110\u1ECBch g\u1EAFng g\u01B0\u1EE3ng xoay s\u1EDF ch\u1ED1ng \u0111\u1EE1 tr\u01B0\u1EDBc v\xF2ng v\xE2y."
+              });
+              const st5 = rep0.step5;
+              if (st5 && st5.fromCol != null && st5.toCol != null) {
+                const p5 = pieces.find(
+                  (p) => p.col === st5.fromCol && p.row === st5.fromRow && p.color === myColor
+                );
+                const not5 = p5 ? getXiangqiNotation(
+                  p5,
+                  st5.fromCol,
+                  st5.fromRow,
+                  st5.toCol,
+                  st5.toRow,
+                  myColor
+                ) : { short: "D\u1EE9t \u0111i\u1EC3m", full: "N\u01B0\u1EDBc \u0111o\u1EA1t th\u1EBF quy\u1EBFt \u0111\u1ECBnh" };
+                roadmap.push({
+                  step: 5,
+                  side: myColor,
+                  label: "5. D\u1EE9t \u0111i\u1EC3m",
+                  piece: p5,
+                  fromCol: st5.fromCol,
+                  fromRow: st5.fromRow,
+                  toCol: st5.toCol,
+                  toRow: st5.toRow,
+                  notation: not5,
+                  why: "Gi\xE1ng \u0111\xF2n d\u1EE9t \u0111i\u1EC3m \u0111o\u1EA1t th\u1EAFng l\u1EE3i quy\u1EBFt \u0111\u1ECBnh tr\u1EADn \u0111\u1EA5u!"
+                });
+              }
+            }
+          }
+        }
         let prepText = "";
-        const firstRep = variations[0];
+        const firstRep = rep0 || variations[0];
         if (firstRep && firstRep.oppNotation?.short && firstRep.oppNotation?.short !== "\u0110\u1ECBch \u0111i") {
           if (firstRep.answer && firstRep.answer.notation?.short) {
             prepText = `K\u1EBF s\xE1ch: \u0110\xF3n \u0111\u1EA7u n\u01B0\u1EDBc ${firstRep.oppNotation.short} c\u1EE7a \u0111\u1ECBch \u0111\u1EC3 l\u1EADp t\u1EE9c b\u1ED3i \u0111\xF2n ${firstRep.answer.notation.short}, l\xE0m ch\u1EE7 th\u1EBF tr\u1EADn.`;
@@ -47662,17 +47910,21 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         }
         const planWhy = prepText ? `${desc.why} (${prepText})` : desc.why;
         const planType = idx === 0 ? "attack" : idx === 1 ? "defend" : "maneuver";
-        const planBadge = idx === 0 ? "T\u1ED1i \u01AFu" : idx === 1 ? "Ch\u1EAFc Ch\u1EAFn" : "\u0110\u1ED9t Ph\xE1";
+        const planBadge = mateMotif ? "Tuy\u1EC7t S\xE1t" : idx === 0 ? "T\u1ED1i \u01AFu" : idx === 1 ? "Ch\u1EAFc Ch\u1EAFn" : "\u0110\u1ED9t Ph\xE1";
+        const planTags = line.tags && line.tags.length > 0 ? [...line.tags] : desc.tag ? [desc.tag] : [];
+        if (mateMotif && !planTags.includes(mateMotif.tag)) {
+          planTags.unshift(mateMotif.tag);
+        }
         plans.push({
           id: `plan_${idx}`,
           idx,
-          name: `${notation.short} \xB7 ${desc.tacticName}`,
+          name: mateMotif ? `${notation.short} \xB7 ${mateMotif.name}` : `${notation.short} \xB7 ${desc.tacticName}`,
           shortNotation: notation.short,
           fullNotation: notation.full,
           type: planType,
           badge: planBadge,
-          tag: desc.tag,
-          tags: line.tags && line.tags.length > 0 ? line.tags : desc.tag ? [desc.tag] : [],
+          tag: mateMotif ? mateMotif.tag : desc.tag,
+          tags: planTags,
           why: planWhy,
           score: line.score,
           piece: movingPiece,
@@ -47680,7 +47932,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           fromRow: line.fromRow,
           toCol: line.toCol,
           toRow: line.toRow,
-          variations
+          variations,
+          roadmap
         });
       });
       let commentary = {
@@ -47746,6 +47999,42 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           };
         }
       }
+      let mateThreat = null;
+      const topScore = searchRes.score || 0;
+      if (topScore >= 9e3 || plans[0] && plans[0].tags.some(
+        (t) => t === "iron-gate" || t === "resting-horse" || t === "horse-cannon-mate" || t === "face-king" || t === "fishing-horse" || t === "double-rook" || t === "mate-threat"
+      )) {
+        const mateSteps = Math.max(
+          1,
+          Math.ceil((1e4 - Math.min(topScore, 9999)) / 2)
+        );
+        const motifName = plans[0]?.name.split("\xB7")[1]?.trim() || "S\xE1t C\u1EE5c Tuy\u1EC7t Tuy\u1EC7t";
+        mateThreat = {
+          type: "attack",
+          motif: motifName,
+          steps: mateSteps,
+          title: `\u{1F3C6} TH\u1EBE TR\u1EACN TUY\u1EC6T S\xC1T (S\xC1T C\u1EE4C TRONG ${mateSteps} N\u01AF\u1EDAC)`,
+          explanation: `B\u1EA1n \u0111ang n\u1EAFm gi\u1EEF th\u1EBF s\xE1t [${motifName}]! \u0110i ch\xEDnh x\xE1c t\u1EEBng n\u01B0\u1EDBc theo k\u1EBF s\xE1ch \u0111\u1EC3 k\u1EBFt li\u1EC5u tr\u1EADn \u0111\u1EA5u!`
+        };
+      } else if (topScore <= -300 || topScore <= -9e3) {
+        const oppMateSteps = topScore <= -9e3 ? Math.max(
+          1,
+          Math.ceil((1e4 - Math.min(Math.abs(topScore), 9999)) / 2)
+        ) : null;
+        mateThreat = {
+          type: "defense",
+          motif: "Hi\u1EC3m H\u1ECDa T\u1EED Huy\u1EC7t",
+          steps: oppMateSteps,
+          title: oppMateSteps ? `\u{1F6A8} C\u1EA2NH B\xC1O T\u1EEC HUY\u1EC6T: NGUY C\u01A0 B\u1ECA S\xC1T C\u1EE4C (${oppMateSteps} N\u01AF\u1EDAC)!` : `\u{1F6A8} C\u1EA2NH B\xC1O T\u1EEC HUY\u1EC6T: NGUY C\u01A0 B\u1ECA S\xC1T C\u1EE4C!`,
+          explanation: `\u0110\u1ED1i th\u1EE7 \u0111ang d\u1ED3n d\u1EADp v\xE2y h\xE3m c\u1EEDu cung. B\u1EAFt bu\u1ED9c ph\u1EA3i tri\u1EC3n khai n\u01B0\u1EDBc c\u1EDD ph\xF2ng ng\u1EF1 ${plans[0]?.shortNotation || "c\u1EE9u gi\xE1"} \u0111\u1EC3 h\xF3a gi\u1EA3i \u0111\xF2n s\xE1t c\u1EE7a \u0111\u1ECBch!`
+        };
+        if (plans[0]) {
+          plans[0].badge = "C\u1EE9u M\u1EA1ng";
+          if (!plans[0].tags.includes("emergency-defend")) {
+            plans[0].tags.unshift("emergency-defend");
+          }
+        }
+      }
       const currentMaxim = XIANGQI_MAXIMS[phase === "Khai Cu\u1ED9c" ? 4 : 0];
       return {
         phase,
@@ -47759,6 +48048,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         coachCommentary,
         commentary,
         threatInfo,
+        mateThreat,
         plans,
         inCheck: searchRes.inCheck,
         depth: searchRes.depth,
@@ -47766,6 +48056,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         openingName: searchRes.openingName || null,
         evalBreakdown: searchRes.evalBreakdown || null,
         engineName: searchRes.engineName || (activeProviderId2 === "pikafish" ? "Pikafish NNUE" : "AN Grandmaster JS"),
+        pikafishStatus: searchRes.pikafishStatus || (activeProviderId2 === "pikafish" ? "cloud-nnue" : "js-engine"),
         ttHits: searchRes.ttHits || 0,
         maxim: currentMaxim,
         allMaxims: XIANGQI_MAXIMS,
@@ -47839,47 +48130,73 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         if (!pieces) return [];
         if (!activePlan || activeStep === 0) return pieces;
         let current = pieces.map((p) => ({ ...p }));
+        const oppColor = 1 - myColor;
+        const applyMove = (fromCol, fromRow, toCol, toRow, sideColor, flagKey) => {
+          if (fromCol == null || toCol == null || fromRow == null || toRow == null)
+            return;
+          current = current.filter(
+            (p) => !(p.col === toCol && p.row === toRow && p.color !== sideColor)
+          );
+          const moving = current.find(
+            (p) => p.col === fromCol && p.row === fromRow && p.color === sideColor
+          );
+          if (moving) {
+            moving.col = toCol;
+            moving.row = toRow;
+            moving[flagKey] = true;
+          }
+        };
         if (activeStep >= 1) {
-          current = current.filter(
-            (p) => !(p.col === activePlan.toCol && p.row === activePlan.toRow && p.color !== activePlan.piece?.color)
+          applyMove(
+            activePlan.fromCol,
+            activePlan.fromRow,
+            activePlan.toCol,
+            activePlan.toRow,
+            myColor,
+            "isMyMove"
           );
-          const moving = current.find(
-            (p) => p.col === activePlan.fromCol && p.row === activePlan.fromRow && p.color === activePlan.piece?.color
-          );
-          if (moving) {
-            moving.col = activePlan.toCol;
-            moving.row = activePlan.toRow;
-            moving.isMyMove = true;
-          }
         }
-        if (activeStep >= 2 && activeVariation && activeVariation.fromCol != null && activeVariation.toCol != null) {
-          const opp = activeVariation;
-          const oppColor = 1 - myColor;
-          current = current.filter(
-            (p) => !(p.col === opp.toCol && p.row === opp.toRow && p.color === myColor)
+        if (activeStep >= 2 && activeVariation) {
+          applyMove(
+            activeVariation.fromCol,
+            activeVariation.fromRow,
+            activeVariation.toCol,
+            activeVariation.toRow,
+            oppColor,
+            "isOppMove"
           );
-          const moving = current.find(
-            (p) => p.col === opp.fromCol && p.row === opp.fromRow && p.color === oppColor
-          );
-          if (moving) {
-            moving.col = opp.toCol;
-            moving.row = opp.toRow;
-            moving.isOppMove = true;
-          }
         }
-        if (activeStep >= 3 && activeVariation?.answer && activeVariation.answer.fromCol != null && activeVariation.answer.toCol != null) {
-          const ans = activeVariation.answer;
-          current = current.filter(
-            (p) => !(p.col === ans.toCol && p.row === ans.toRow && p.color !== myColor)
+        if (activeStep >= 3 && activeVariation?.answer) {
+          applyMove(
+            activeVariation.answer.fromCol,
+            activeVariation.answer.fromRow,
+            activeVariation.answer.toCol,
+            activeVariation.answer.toRow,
+            myColor,
+            "isFollowUpMove"
           );
-          const moving = current.find(
-            (p) => p.col === ans.fromCol && p.row === ans.fromRow && p.color === myColor
+        }
+        const step4 = activeVariation?.step4 || activePlan?.roadmap?.[3];
+        if (activeStep >= 4 && step4) {
+          applyMove(
+            step4.fromCol,
+            step4.fromRow,
+            step4.toCol,
+            step4.toRow,
+            oppColor,
+            "isOppStep4"
           );
-          if (moving) {
-            moving.col = ans.toCol;
-            moving.row = ans.toRow;
-            moving.isFollowUpMove = true;
-          }
+        }
+        const step5 = activeVariation?.step5 || activePlan?.roadmap?.[4];
+        if (activeStep >= 5 && step5) {
+          applyMove(
+            step5.fromCol,
+            step5.fromRow,
+            step5.toCol,
+            step5.toRow,
+            myColor,
+            "isClimaxMove"
+          );
         }
         return current;
       }, [pieces, activePlan, activeVariation, activeStep, myColor]);
@@ -47901,56 +48218,82 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       };
       const activeArrow = (0, import_react15.useMemo)(() => {
         if (!activePlan) return null;
+        let move = null;
+        let color = "var(--primary, #06b6d4)";
+        let marker = "url(#clean-arrow-blue)";
+        let dashed = false;
         if (activeStep === 0 || activeStep === 1) {
-          if (activePlan.fromCol == null || activePlan.toCol == null) return null;
-          const s = getSquarePos(activePlan.fromCol, activePlan.fromRow);
-          const e = getSquarePos(activePlan.toCol, activePlan.toRow);
-          if (!s || !e) return null;
-          return {
-            x1: s.x,
-            y1: s.y,
-            x2: e.x,
-            y2: e.y,
-            color: "var(--primary, #06b6d4)",
-            marker: "url(#clean-arrow-blue)",
-            dashed: false
+          move = {
+            fromCol: activePlan.fromCol,
+            fromRow: activePlan.fromRow,
+            toCol: activePlan.toCol,
+            toRow: activePlan.toRow
           };
-        }
-        if (activeStep === 2 && activeVariation) {
-          if (activeVariation.fromCol == null || activeVariation.toCol == null) return null;
-          const s = getSquarePos(
-            activeVariation.fromCol,
-            activeVariation.fromRow
-          );
-          const e = getSquarePos(activeVariation.toCol, activeVariation.toRow);
-          if (!s || !e) return null;
-          return {
-            x1: s.x,
-            y1: s.y,
-            x2: e.x,
-            y2: e.y,
-            color: "#f43f5e",
-            marker: "url(#clean-arrow-red)",
-            dashed: true
+          color = "var(--primary, #06b6d4)";
+          marker = "url(#clean-arrow-blue)";
+          dashed = false;
+        } else if (activeStep === 2 && activeVariation) {
+          move = {
+            fromCol: activeVariation.fromCol,
+            fromRow: activeVariation.fromRow,
+            toCol: activeVariation.toCol,
+            toRow: activeVariation.toRow
           };
-        }
-        if (activeStep === 3 && activeVariation?.answer) {
-          const ans = activeVariation.answer;
-          if (ans.fromCol == null || ans.toCol == null) return null;
-          const s = getSquarePos(ans.fromCol, ans.fromRow);
-          const e = getSquarePos(ans.toCol, ans.toRow);
-          if (!s || !e) return null;
-          return {
-            x1: s.x,
-            y1: s.y,
-            x2: e.x,
-            y2: e.y,
-            color: "#f59e0b",
-            marker: "url(#clean-arrow-gold)",
-            dashed: false
+          color = "#f43f5e";
+          marker = "url(#clean-arrow-red)";
+          dashed = true;
+        } else if (activeStep === 3 && activeVariation?.answer) {
+          move = {
+            fromCol: activeVariation.answer.fromCol,
+            fromRow: activeVariation.answer.fromRow,
+            toCol: activeVariation.answer.toCol,
+            toRow: activeVariation.answer.toRow
           };
+          color = "#f59e0b";
+          marker = "url(#clean-arrow-gold)";
+          dashed = false;
+        } else if (activeStep === 4) {
+          const step4 = activeVariation?.step4 || activePlan?.roadmap?.[3];
+          if (step4) {
+            move = {
+              fromCol: step4.fromCol,
+              fromRow: step4.fromRow,
+              toCol: step4.toCol,
+              toRow: step4.toRow
+            };
+            color = "#fb923c";
+            marker = "url(#clean-arrow-orange)";
+            dashed = true;
+          }
+        } else if (activeStep === 5) {
+          const step5 = activeVariation?.step5 || activePlan?.roadmap?.[4];
+          if (step5) {
+            move = {
+              fromCol: step5.fromCol,
+              fromRow: step5.fromRow,
+              toCol: step5.toCol,
+              toRow: step5.toRow
+            };
+            color = "#10b981";
+            marker = "url(#clean-arrow-emerald)";
+            dashed = false;
+          }
         }
-        return null;
+        if (!move || move.fromCol == null || move.toCol == null || move.fromRow == null || move.toRow == null) {
+          return null;
+        }
+        const s = getSquarePos(move.fromCol, move.fromRow);
+        const e = getSquarePos(move.toCol, move.toRow);
+        if (!s || !e) return null;
+        return {
+          x1: s.x,
+          y1: s.y,
+          x2: e.x,
+          y2: e.y,
+          color,
+          marker,
+          dashed
+        };
       }, [activePlan, activeVariation, activeStep, myColor]);
       const targetRingPos = (0, import_react15.useMemo)(() => {
         if (!activePlan) return null;
@@ -47963,6 +48306,14 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             activeVariation.answer.toCol,
             activeVariation.answer.toRow
           );
+        if (activeStep === 4) {
+          const st4 = activeVariation?.step4 || activePlan?.roadmap?.[3];
+          return st4 ? getSquarePos(st4.toCol, st4.toRow) : null;
+        }
+        if (activeStep === 5) {
+          const st5 = activeVariation?.step5 || activePlan?.roadmap?.[4];
+          return st5 ? getSquarePos(st5.toCol, st5.toRow) : null;
+        }
         return null;
       }, [activePlan, activeVariation, activeStep, myColor]);
       const originRingPos = (0, import_react15.useMemo)(() => {
@@ -47976,13 +48327,21 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             activeVariation.answer.fromCol,
             activeVariation.answer.fromRow
           );
+        if (activeStep === 4) {
+          const st4 = activeVariation?.step4 || activePlan?.roadmap?.[3];
+          return st4 ? getSquarePos(st4.fromCol, st4.fromRow) : null;
+        }
+        if (activeStep === 5) {
+          const st5 = activeVariation?.step5 || activePlan?.roadmap?.[4];
+          return st5 ? getSquarePos(st5.fromCol, st5.fromRow) : null;
+        }
         return null;
       }, [activePlan, activeVariation, activeStep, myColor]);
       return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1.5", children: [
         /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
           "div",
           {
-            className: "relative mx-auto aspect-[400/450] w-full max-w-[250px] overflow-hidden rounded-xl border shadow-md select-none",
+            className: "relative mx-auto aspect-400/450 w-full max-w-62.5 overflow-hidden rounded-xl border shadow-md select-none",
             style: {
               background: "#1c1814",
               borderColor: "rgba(100, 75, 45, 0.4)"
@@ -48038,6 +48397,32 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                           markerHeight: "5",
                           orient: "auto-start-reverse",
                           children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("path", { d: "M 0 1.5 L 9 5 L 0 8.5 z", fill: "#f59e0b" })
+                        }
+                      ),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                        "marker",
+                        {
+                          id: "clean-arrow-orange",
+                          viewBox: "0 0 10 10",
+                          refX: "7",
+                          refY: "5",
+                          markerWidth: "5",
+                          markerHeight: "5",
+                          orient: "auto-start-reverse",
+                          children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("path", { d: "M 0 1.5 L 9 5 L 0 8.5 z", fill: "#fb923c" })
+                        }
+                      ),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                        "marker",
+                        {
+                          id: "clean-arrow-emerald",
+                          viewBox: "0 0 10 10",
+                          refX: "7",
+                          refY: "5",
+                          markerWidth: "5",
+                          markerHeight: "5",
+                          orient: "auto-start-reverse",
+                          children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("path", { d: "M 0 1.5 L 9 5 L 0 8.5 z", fill: "#10b981" })
                         }
                       )
                     ] }),
@@ -48235,6 +48620,10 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                 else if (p.isOppMove) borderStyle += " ring-2 ring-rose-500 z-20";
                 else if (p.isFollowUpMove)
                   borderStyle += " ring-2 ring-amber-400 z-20";
+                else if (p.isOppStep4)
+                  borderStyle += " ring-2 ring-orange-400 z-20";
+                else if (p.isClimaxMove)
+                  borderStyle += " ring-2 ring-emerald-400 z-20";
                 return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                   "div",
                   {
@@ -48252,16 +48641,17 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             ]
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "grid grid-cols-4 gap-1 pt-0.5", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "grid grid-cols-6 gap-0.5 pt-0.5", children: [
           /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
             Button3,
             {
               variant: activeStep === 0 ? "secondary" : "ghost",
               size: "xs",
-              className: "h-5.5 gap-0.5 px-1 text-[9px]",
+              className: "h-5.5 px-0.5 text-[8px] font-semibold",
               onClick: () => setActiveStep(0),
+              title: "Xem th\u1EBF c\u1EDD th\u1EF1c t\u1EBF hi\u1EC7n t\u1EA1i",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(RotateCcw, { className: "size-2.5" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(RotateCcw, { className: "size-2" }),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "V\xE1n th\u1EADt" })
               ]
             }
@@ -48271,11 +48661,12 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             {
               variant: activeStep === 1 ? "secondary" : "ghost",
               size: "xs",
-              className: "h-5.5 gap-0.5 px-1 text-[9px]",
+              className: "h-5.5 px-0.5 text-[8px] font-semibold",
               onClick: () => setActiveStep(1),
+              title: "1. Ta \u0111i: N\u01B0\u1EDBc c\u1EDD t\u1ED1i \u01B0u \u0111\u1EC1 xu\u1EA5t",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Play, { className: "size-2.5 text-cyan-400" }),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "1. Ta \u0111i" })
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Play, { className: "size-2 text-cyan-400" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "1. Ta" })
               ]
             }
           ),
@@ -48285,10 +48676,11 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
               variant: activeStep === 2 ? "secondary" : "ghost",
               size: "xs",
               disabled: !activeVariation || activeVariation.fromCol == null,
-              className: "h-5.5 gap-0.5 px-1 text-[9px]",
+              className: "h-5.5 px-0.5 text-[8px] font-semibold",
               onClick: () => setActiveStep(2),
+              title: "2. \u0110\u1ECBch: N\u01B0\u1EDBc ph\u1EA3n \u1EE9ng d\u1EF1 ki\u1EBFn c\u1EE7a \u0111\u1ED1i ph\u01B0\u01A1ng",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Swords, { className: "size-2.5 text-rose-400" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Swords, { className: "size-2 text-rose-400" }),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "2. \u0110\u1ECBch" })
               ]
             }
@@ -48299,35 +48691,88 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
               variant: activeStep === 3 ? "secondary" : "ghost",
               size: "xs",
               disabled: !activeVariation?.answer || activeVariation.answer.fromCol == null,
-              className: "h-5.5 gap-0.5 px-1 text-[9px]",
+              className: "h-5.5 px-0.5 text-[8px] font-semibold",
               onClick: () => setActiveStep(3),
+              title: "3. Ta b\u1ED3i: N\u01B0\u1EDBc b\u1ED3i \u0111\xF2n khai th\xE1c s\u01A1 h\u1EDF",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-2.5 text-amber-400" }),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "3. Ta b\u1ED3i" })
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-2 text-amber-400" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "3. B\u1ED3i" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+            Button3,
+            {
+              variant: activeStep === 4 ? "secondary" : "ghost",
+              size: "xs",
+              disabled: !activeVariation?.step4 && !activePlan?.roadmap?.[3],
+              className: "h-5.5 px-0.5 text-[8px] font-semibold",
+              onClick: () => setActiveStep(4),
+              title: "4. \u0110\u1ECBch \u0111\u1EE1: \u0110\u1ED1i ph\u01B0\u01A1ng xoay s\u1EDF ch\u1ED1ng \u0111\u1EE1",
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Shield, { className: "size-2 text-orange-400" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "4. \u0110\u1EE1" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+            Button3,
+            {
+              variant: activeStep === 5 ? "secondary" : "ghost",
+              size: "xs",
+              disabled: !activeVariation?.step5 && !activePlan?.roadmap?.[4],
+              className: "h-5.5 px-0.5 text-[8px] font-semibold",
+              onClick: () => setActiveStep(5),
+              title: "5. D\u1EE9t \u0111i\u1EC3m: N\u01B0\u1EDBc \u0111o\u1EA1t \u01B0u th\u1EBF ho\u1EB7c s\xE1t c\u1EE5c",
+              children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Trophy, { className: "size-2 text-emerald-400" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "5. S\xE1t" })
               ]
             }
           )
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "min-h-[18px] px-1.5 py-0.5 rounded bg-white/[0.03] border border-white/[0.06] text-[10px] leading-tight flex items-center", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-h-4.75 items-center rounded border border-white/6 bg-white/3 px-1.5 py-0.5 text-[9.5px] leading-tight", children: [
           activeStep === 0 && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground font-medium", children: "B\xE0n c\u1EDD th\u1EF1c t\u1EBF hi\u1EC7n t\u1EA1i" }),
-          activeStep === 1 && activePlan && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-cyan-400 font-semibold truncate", children: [
+          activeStep === 1 && activePlan && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "truncate font-semibold text-cyan-400", children: [
             "1. Ta \u0111i: ",
             /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: activePlan.shortNotation }),
             " (",
             activePlan.fullNotation,
             ")"
           ] }),
-          activeStep === 2 && activeVariation && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-rose-400 font-semibold truncate", children: [
-            "2. \u0110\u1ECBch \u0111\xE1p: ",
+          activeStep === 2 && activeVariation && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "truncate font-semibold text-rose-400", children: [
+            "2. \u0110\u1ECBch \u0111\xE1p:",
+            " ",
             /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: activeVariation.oppNotation?.short || "N\u01B0\u1EDBc \u0111i" }),
-            " \u2014 ",
+            " ",
+            "\u2014 ",
             activeVariation.oppWhy
           ] }),
-          activeStep === 3 && activeVariation?.answer && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-amber-400 font-semibold truncate", children: [
-            "3. Ta b\u1ED3i: ",
+          activeStep === 3 && activeVariation?.answer && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "truncate font-semibold text-amber-400", children: [
+            "3. Ta b\u1ED3i:",
+            " ",
             /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: activeVariation.answer.notation?.short || "N\u01B0\u1EDBc c\u1EDD" }),
-            " \u2014 ",
+            " ",
+            "\u2014 ",
             activeVariation.answer.why
+          ] }),
+          activeStep === 4 && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "truncate font-semibold text-orange-400", children: [
+            "4. \u0110\u1ECBch \u0111\u1EE1:",
+            " ",
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: activePlan?.roadmap?.[3]?.notation?.short || "Ph\xF2ng th\u1EE7" }),
+            " ",
+            "\u2014",
+            " ",
+            activePlan?.roadmap?.[3]?.why || "\u0110\u1ECBch xoay s\u1EDF ch\u1ED1ng \u0111\u1EE1 tr\u01B0\u1EDBc v\xF2ng v\xE2y"
+          ] }),
+          activeStep === 5 && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "truncate font-semibold text-emerald-400", children: [
+            "5. D\u1EE9t \u0111i\u1EC3m:",
+            " ",
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: activePlan?.roadmap?.[4]?.notation?.short || "\u0110o\u1EA1t th\u1EBF" }),
+            " ",
+            "\u2014",
+            " ",
+            activePlan?.roadmap?.[4]?.why || "Gi\xE1ng \u0111\xF2n \u0111o\u1EA1t th\u1EAFng l\u1EE3i quy\u1EBFt \u0111\u1ECBnh!"
           ] })
         ] })
       ] });
@@ -48382,6 +48827,54 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             color: "border-blue-500/40 text-blue-300 bg-blue-500/15",
             icon: Trophy
           };
+        case "iron-gate":
+          return {
+            label: "Thi\u1EBFt M\xF4n Kh\u1EA3m",
+            color: "border-amber-400/50 text-amber-300 bg-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.25)]",
+            icon: Trophy
+          };
+        case "resting-horse":
+          return {
+            label: "M\xE3 Ng\u1ECDa T\xE0o",
+            color: "border-amber-400/50 text-amber-300 bg-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.25)]",
+            icon: Trophy
+          };
+        case "horse-cannon-mate":
+          return {
+            label: "M\xE3 H\u1EADu Ph\xE1o",
+            color: "border-amber-400/50 text-amber-300 bg-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.25)]",
+            icon: Trophy
+          };
+        case "fishing-horse":
+          return {
+            label: "\u0110i\u1EBFu Ng\u01B0 M\xE3",
+            color: "border-amber-400/50 text-amber-300 bg-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.25)]",
+            icon: Trophy
+          };
+        case "face-king":
+          return {
+            label: "B\u1EA1ch Ki\u1EC3m T\u01B0\u1EDBng",
+            color: "border-amber-400/50 text-amber-300 bg-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.25)]",
+            icon: Trophy
+          };
+        case "double-rook":
+          return {
+            label: "Song Xe B\xE0o",
+            color: "border-amber-400/50 text-amber-300 bg-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.25)]",
+            icon: Trophy
+          };
+        case "mate-threat":
+          return {
+            label: "Tuy\u1EC7t S\xE1t",
+            color: "border-amber-400/50 text-amber-300 bg-amber-500/20 shadow-[0_0_8px_rgba(245,158,11,0.25)]",
+            icon: Trophy
+          };
+        case "emergency-defend":
+          return {
+            label: "C\u1EE9u M\u1EA1ng",
+            color: "border-rose-500/60 text-rose-300 bg-rose-500/25 shadow-[0_0_8px_rgba(244,63,94,0.3)]",
+            icon: ShieldAlert
+          };
         default:
           return {
             label: tag,
@@ -48392,10 +48885,10 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
     }
     function EvaluationBreakdownTab({ breakdown, score, phase }) {
       if (!breakdown) {
-        return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col items-center justify-center p-6 text-center text-muted-foreground/80", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(BrainCircuit, { className: "size-6 text-cyan-400 mb-2" }),
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-xs font-semibold text-foreground", children: "Ch\u01B0a c\xF3 d\u1EEF li\u1EC7u 5 Tr\u1EE5 C\u1ED9t" }),
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[10px] mt-1 text-muted-foreground", children: "D\u1EEF li\u1EC7u b\xF3c t\xE1ch h\xECnh th\u1EBF s\u1EBD t\u1EF1 \u0111\u1ED9ng hi\u1EC3n th\u1ECB khi \u0111\u1ED9ng c\u01A1 ph\xE2n t\xEDch xong th\u1EBF tr\u1EADn." })
+        return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "text-muted-foreground/80 flex flex-col items-center justify-center p-6 text-center", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(BrainCircuit, { className: "mb-2 size-6 text-cyan-400" }),
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-xs font-semibold", children: "Ch\u01B0a c\xF3 d\u1EEF li\u1EC7u 5 Tr\u1EE5 C\u1ED9t" }),
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground mt-1 text-[10px]", children: "D\u1EEF li\u1EC7u b\xF3c t\xE1ch h\xECnh th\u1EBF s\u1EBD t\u1EF1 \u0111\u1ED9ng hi\u1EC3n th\u1ECB khi \u0111\u1ED9ng c\u01A1 ph\xE2n t\xEDch xong th\u1EBF tr\u1EADn." })
         ] });
       }
       const pillars = [
@@ -48441,29 +48934,38 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         }
       ];
       return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-2 pt-1", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] p-2 text-[10px]", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between rounded-lg border border-white/10 bg-white/3 p-2 text-[10px]", children: [
           /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground font-medium", children: "T\u1ED5ng \u0111i\u1EC3m th\u1EBF tr\u1EADn:" }),
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: `font-mono font-bold ${score >= 0 ? "text-emerald-400" : "text-rose-400"}`, children: [
-            score > 0 ? `+${score}` : score,
-            " \u0111i\u1EC3m (",
-            phase,
-            ")"
-          ] })
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+            "span",
+            {
+              className: `font-mono font-bold ${score >= 0 ? "text-emerald-400" : "text-rose-400"}`,
+              children: [
+                score > 0 ? `+${score}` : score,
+                " \u0111i\u1EC3m (",
+                phase,
+                ")"
+              ]
+            }
+          )
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex flex-col gap-1.5", children: pillars.map((pil) => {
           const Icon2 = pil.icon;
           const isAdv = pil.val > 0;
           const isDis = pil.val < 0;
-          const widthPct = Math.min(100, Math.max(8, Math.abs(pil.val) * 1.5));
+          const widthPct = Math.min(
+            100,
+            Math.max(8, Math.abs(pil.val) * 1.5)
+          );
           return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
             "div",
             {
-              className: "flex flex-col gap-1 rounded-lg border border-white/[0.06] bg-black/20 p-2 text-[10px]",
+              className: "flex flex-col gap-1 rounded-lg border border-white/6 bg-black/20 p-2 text-[10px]",
               children: [
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-1.5", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Icon2, { className: `size-3.5 ${pil.color}` }),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "font-semibold text-foreground/90", children: pil.name })
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground/90 font-semibold", children: pil.name })
                   ] }),
                   /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                     "span",
@@ -48473,20 +48975,58 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                     }
                   )
                 ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "h-1.5 w-full overflow-hidden rounded-full bg-white/6", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                   "div",
                   {
                     className: `h-full rounded-full transition-all duration-300 ${isAdv ? "bg-emerald-500" : isDis ? "bg-rose-500" : "bg-white/20"}`,
                     style: { width: `${widthPct}%` }
                   }
                 ) }),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[9px] text-muted-foreground/80 leading-tight", children: pil.desc })
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground/80 text-[9px] leading-tight", children: pil.desc })
               ]
             },
             pil.key
           );
         }) })
       ] });
+    }
+    class MentorErrorBoundary extends import_react15.default.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+      componentDidCatch(error, errorInfo) {
+        console.error(
+          "[AN Mod] Mentor Coach Error caught by boundary:",
+          error,
+          errorInfo
+        );
+      }
+      render() {
+        if (this.state.hasError) {
+          return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col items-center justify-center gap-2.5 rounded-2xl border border-rose-500/40 bg-zinc-950/95 p-4 text-center text-rose-300 shadow-2xl backdrop-blur-md", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TriangleAlert, { className: "size-6 animate-pulse text-rose-400" }),
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-0.5", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[11px] font-bold text-white", children: "\u0110\xE3 x\u1EA3y ra gi\xE1n \u0111o\u1EA1n giao di\u1EC7n" }),
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground text-[9.5px]", children: "K\u1EF3 \u0110\u1EA1o S\u01B0 \u0111\xE3 t\u1EF1 \u0111\u1ED9ng b\u1EA3o v\u1EC7 d\u1EEF li\u1EC7u \u0111\u1EC3 kh\xF4ng l\xE0m v\u1EE1 tr\u1EADn c\u1EDD." })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+              Button3,
+              {
+                size: "xs",
+                variant: "outline",
+                className: "mt-1 h-6 border-white/20 text-[9.5px] hover:bg-white/10",
+                onClick: () => this.setState({ hasError: false, error: null }),
+                children: "Kh\xF4i ph\u1EE5c giao di\u1EC7n"
+              }
+            )
+          ] });
+        }
+        return this.props.children;
+      }
     }
     function MentorFloatingPanel({ initialAnalysis, onClose }) {
       const [analysis, setAnalysis] = (0, import_react15.useState)(initialAnalysis);
@@ -48534,8 +49074,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         });
       };
       if (!analysis) {
-        return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Card, { className: "ziga-mentor-panel-card border-border/80 w-[340px] shadow-2xl backdrop-blur-2xl", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/[0.02] px-3.5 py-2.5 select-none", children: [
+        return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(Card, { className: "ziga-mentor-panel-card border-border/80 w-85 shadow-2xl backdrop-blur-2xl", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/2 px-3.5 py-2.5 select-none", children: [
             /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-2", children: [
               /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                 "div",
@@ -48574,7 +49114,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             borderColor: "rgba(255, 255, 255, 0.12)"
           },
           children: [
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/[0.02] px-3 py-2 select-none", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/2 px-3 py-2 select-none", children: [
               /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-1 items-center gap-2", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                   "div",
@@ -48585,53 +49125,117 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                   }
                 ),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-1 flex-col overflow-hidden", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-1.5 overflow-hidden", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-xs font-bold tracking-wider uppercase shrink-0", children: "K\u1EF3 \u0110\u1EA1o S\u01B0" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
-                      "span",
-                      {
-                        className: `py-0.2 inline-flex shrink-0 items-center gap-0.5 rounded border px-1.5 font-mono text-[9px] font-semibold whitespace-nowrap ${analysis.evalScore >= 50 ? "border-emerald-500/30 text-emerald-400" : analysis.evalScore <= -50 ? "border-rose-500/30 text-rose-400" : "border-white/10 text-slate-300"}`,
-                        style: {
-                          background: analysis.evalScore >= 50 ? "rgba(16, 185, 129, 0.1)" : analysis.evalScore <= -50 ? "rgba(244, 63, 94, 0.1)" : "rgba(255, 255, 255, 0.05)"
-                        },
-                        children: [
-                          analysis.evalScore >= 50 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TrendingUp, { className: "size-2.5" }) : analysis.evalScore <= -50 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TrendingDown, { className: "size-2.5" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Equal, { className: "size-2.5" }),
-                          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: analysis.evalText })
-                        ]
-                      }
-                    )
-                  ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "text-muted-foreground mt-0.5 flex items-center gap-1 text-[9px] whitespace-nowrap truncate overflow-hidden", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                      "span",
-                      {
-                        className: "py-0.2 text-muted-foreground/90 rounded border border-white/[0.08] px-1 font-medium shrink-0",
-                        style: { background: "rgba(255, 255, 255, 0.04)" },
-                        children: analysis.phase
-                      }
-                    ),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "\u2022" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "inline-flex items-center gap-1 font-medium shrink-0", children: analysis.isMyTurn ? /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_jsx_runtime56.Fragment, { children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 animate-pulse rounded-full bg-emerald-400" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "font-semibold text-emerald-400", children: "L\u01B0\u1EE3t b\u1EA1n" })
-                    ] }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_jsx_runtime56.Fragment, { children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "bg-muted-foreground/50 size-1.5 rounded-full" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "L\u01B0\u1EE3t \u0111\u1ED1i th\u1EE7" })
-                    ] }) }),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "\u2022" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "inline-flex items-center gap-1 font-medium shrink-0", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex items-center gap-1.5 overflow-hidden", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground shrink-0 text-xs font-bold tracking-wider uppercase", children: "K\u1EF3 \u0110\u1EA1o S\u01B0" }) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col items-start justify-center gap-1", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "text-muted-foreground mt-0.5 flex items-center gap-1 truncate overflow-hidden text-[9px] whitespace-nowrap", children: [
                       /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                         "span",
                         {
-                          className: `size-2 rounded-full border ${analysis.myColor === 0 ? "border-red-400 bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.5)]" : "border-zinc-500 bg-zinc-800 shadow-[0_0_4px_rgba(0,0,0,0.5)]"}`
+                          className: "py-0.2 text-muted-foreground/90 shrink-0 rounded border border-white/8 px-1 font-medium",
+                          style: { background: "rgba(255, 255, 255, 0.04)" },
+                          children: analysis.phase
                         }
                       ),
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: analysis.myColor === 0 ? "Phe \u0110\u1ECF" : "Phe \u0110en" })
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "\u2022" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "inline-flex shrink-0 items-center gap-1 font-medium", children: analysis.isMyTurn ? /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_jsx_runtime56.Fragment, { children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 animate-pulse rounded-full bg-emerald-400" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "font-semibold text-emerald-400", children: "B\u1EA1n" })
+                      ] }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_jsx_runtime56.Fragment, { children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "bg-muted-foreground/50 size-1.5 rounded-full" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "\u0110\u1ED1i th\u1EE7" })
+                      ] }) }),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "\u2022" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "inline-flex shrink-0 items-center gap-1 font-medium", children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                          "span",
+                          {
+                            className: `size-2 rounded-full border ${analysis.myColor === 0 ? "border-red-400 bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.5)]" : "border-zinc-500 bg-zinc-800 shadow-[0_0_4px_rgba(0,0,0,0.5)]"}`
+                          }
+                        ),
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: analysis.myColor === 0 ? "Phe \u0110\u1ECF" : "Phe \u0110en" })
+                      ] })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-row justify-center gap-0.5", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                        "span",
+                        {
+                          className: `py-0.2 inline-flex shrink-0 items-center gap-0.5 rounded border px-1.5 font-mono text-[9px] font-semibold whitespace-nowrap ${analysis.evalScore >= 50 ? "border-emerald-500/30 text-emerald-400" : analysis.evalScore <= -50 ? "border-rose-500/30 text-rose-400" : "border-white/10 text-slate-300"}`,
+                          style: {
+                            background: analysis.evalScore >= 50 ? "rgba(16, 185, 129, 0.1)" : analysis.evalScore <= -50 ? "rgba(244, 63, 94, 0.1)" : "rgba(255, 255, 255, 0.05)"
+                          },
+                          children: [
+                            analysis.evalScore >= 50 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TrendingUp, { className: "size-2.5" }) : analysis.evalScore <= -50 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TrendingDown, { className: "size-2.5" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Equal, { className: "size-2.5" }),
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: analysis.evalText })
+                          ]
+                        }
+                      ),
+                      (() => {
+                        const status = analysis.pikafishStatus || (engineId === "pikafish" ? "cloud-nnue" : "js-engine");
+                        if (engineId === "pikafish") {
+                          if (status === "native-ws") {
+                            return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                              "span",
+                              {
+                                className: "inline-flex cursor-pointer items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.25)] select-none",
+                                onClick: () => {
+                                  reconnectPikafish();
+                                },
+                                title: "\u{1F7E2} WS Native: 8765 \u0111ang k\u1EBFt n\u1ED1i tr\u1EF1c ti\u1EBFp (Hardcore Mode). B\u1EA5m \u0111\u1EC3 ping/k\u1EBFt n\u1ED1i l\u1EA1i.",
+                                children: [
+                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 animate-pulse rounded-full bg-emerald-400 text-nowrap shadow-[0_0_6px_rgba(52,211,153,0.9)]" }),
+                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "WS: 8765" })
+                                ]
+                              }
+                            );
+                          } else if (status === "cloud-nnue") {
+                            return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                              "span",
+                              {
+                                className: "inline-flex cursor-pointer items-center gap-1 rounded-md border border-cyan-500/40 bg-cyan-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-cyan-300 shadow-[0_0_8px_rgba(6,182,212,0.2)] select-none",
+                                onClick: () => {
+                                  reconnectPikafish();
+                                },
+                                title: "\u{1F310} Pikafish Cloud (Depth 30-62 via ChessDB). B\u1EA5m \u0111\u1EC3 th\u1EED k\u1EBFt n\u1ED1i WS Local 8765.",
+                                children: [
+                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 rounded-full bg-cyan-400 text-nowrap shadow-[0_0_6px_rgba(34,211,238,0.9)]" }),
+                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "Cloud+" })
+                                ]
+                              }
+                            );
+                          } else {
+                            return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                              "span",
+                              {
+                                className: "inline-flex cursor-pointer items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300 select-none",
+                                onClick: () => {
+                                  reconnectPikafish();
+                                },
+                                title: "\u26A1 \u0110ang d\xF9ng JS Engine d\u1EF1 ph\xF2ng. H\xE3y ch\u1EA1y start_pikafish.bat v\xE0 b\u1EA5m v\xE0o \u0111\xE2y \u0111\u1EC3 k\u1EBFt n\u1ED1i l\u1EA1i!",
+                                children: [
+                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 rounded-full bg-amber-400 text-nowrap" }),
+                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "JS Offline" })
+                                ]
+                              }
+                            );
+                          }
+                        }
+                        return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                          "span",
+                          {
+                            className: "inline-flex items-center gap-1 rounded-md border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-cyan-400 select-none",
+                            title: "\u26A1 \u0110\u1ED9ng c\u01A1 t\xEDch h\u1EE3p s\u1EB5n AN Grandmaster JS",
+                            children: [
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Cpu, { className: "size-2.5" }),
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "JS Worker" })
+                            ]
+                          }
+                        );
+                      })()
                     ] })
                   ] })
                 ] })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex shrink-0 items-center gap-1 pl-1.5", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex shrink-0 items-center gap-1.5 pl-1.5", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                   Button3,
                   {
@@ -48639,7 +49243,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                     size: "icon-xs",
                     onClick: handleToggleEngine,
                     title: `\u0110ang d\xF9ng: ${analysis.engineName || "AN Grandmaster JS"}. B\u1EA5m \u0111\u1EC3 chuy\u1EC3n sang ${engineId === "js-engine" ? "Pikafish NNUE" : "AN Grandmaster JS"}`,
-                    className: `size-6.5 rounded-lg border transition-all ${engineId === "pikafish" ? "border-amber-400/50 text-amber-300 bg-amber-500/15 hover:bg-amber-500/25" : "border-cyan-400/40 text-cyan-400 bg-cyan-500/15 hover:bg-cyan-500/25"}`,
+                    className: `size-6.5 rounded-lg border transition-all ${engineId === "pikafish" ? "border-amber-400/50 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25" : "border-cyan-400/40 bg-cyan-500/15 text-cyan-400 hover:bg-cyan-500/25"}`,
                     children: engineId === "pikafish" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Fish, { className: "size-3.5" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Cpu, { className: "size-3.5" })
                   }
                 ),
@@ -48650,7 +49254,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                     size: "icon-xs",
                     onClick: toggleCompactMode,
                     title: isCompact ? "M\u1EDF r\u1ED9ng 2 c\u1ED9t (Studio)" : "Thu g\u1ECDn 1 c\u1ED9t",
-                    className: "text-muted-foreground hover:text-foreground size-6.5 rounded-lg border border-transparent transition-colors hover:border-white/10 hover:bg-white/[0.06]",
+                    className: "text-muted-foreground hover:text-foreground size-6.5 rounded-lg border border-transparent transition-colors hover:border-white/10 hover:bg-white/6",
                     children: isCompact ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Maximize2, { className: "size-3.5" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Minimize2, { className: "size-3.5" })
                   }
                 ),
@@ -48661,7 +49265,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                     size: "icon-xs",
                     onClick: () => setShowMiniBoardInCompact((p) => !p),
                     title: showMiniBoardInCompact ? "\u1EA8n b\xE0n c\u1EDD nh\u1ECF" : "Hi\u1EC7n b\xE0n c\u1EDD nh\u1ECF",
-                    className: `size-6.5 rounded-lg border transition-colors ${showMiniBoardInCompact ? "border-cyan-400/40 text-cyan-400" : "text-muted-foreground hover:text-foreground border-transparent hover:border-white/10 hover:bg-white/[0.06]"}`,
+                    className: `size-6.5 rounded-lg border transition-colors ${showMiniBoardInCompact ? "border-cyan-400/40 text-cyan-400" : "text-muted-foreground hover:text-foreground border-transparent hover:border-white/10 hover:bg-white/6"}`,
                     style: {
                       background: showMiniBoardInCompact ? "rgba(6, 182, 212, 0.12)" : "transparent"
                     },
@@ -48675,21 +49279,28 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                     size: "icon-xs",
                     onClick: onClose,
                     title: "\u0110\xF3ng b\u1EA3ng c\u1ED1 v\u1EA5n",
-                    className: "text-muted-foreground hover:text-foreground size-6.5 rounded-lg transition-colors hover:bg-rose-500/15 hover:text-rose-400",
+                    className: "text-muted-foreground hover:text-foreground size-6.5 rounded-lg transition-colors hover:bg-rose-500/15",
                     children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(X, { className: "size-3.5" })
                   }
                 )
               ] })
             ] }),
             analysis.openingName && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "px-3 pt-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-[10.5px] text-amber-300", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-1.5 min-w-0", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-3.5 text-amber-400 shrink-0" }),
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 items-center gap-1.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-3.5 shrink-0 text-amber-400" }),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "truncate", children: [
                   "Th\u1EBF Tr\u1EADn: ",
                   /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: analysis.openingName })
                 ] })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Badge, { variant: "outline", className: "border-amber-400/40 text-amber-300 bg-amber-500/20 text-[9px] px-1.5 py-0 font-semibold shrink-0", children: "Khai Cu\u1ED9c Chu\u1EA9n" })
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                Badge,
+                {
+                  variant: "outline",
+                  className: "shrink-0 border-amber-400/40 bg-amber-500/20 px-1.5 py-0 text-[9px] font-semibold text-amber-300",
+                  children: "Khai Cu\u1ED9c Chu\u1EA9n"
+                }
+              )
             ] }) }),
             /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "px-3 pt-2", children: (() => {
               const comm = analysis.commentary || {
@@ -48747,6 +49358,25 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                             /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "leading-tight font-medium", children: analysis.threatInfo.desc })
                           ]
                         }
+                      ),
+                      analysis.mateThreat && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                        "div",
+                        {
+                          className: `mt-1.5 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[10.5px] ${analysis.mateThreat.type === "attack" ? "border-amber-500/40 bg-amber-500/15 text-amber-200 shadow-[0_0_12px_rgba(245,158,11,0.2)]" : "animate-pulse border-rose-500/50 bg-rose-500/20 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.3)]"}`,
+                          children: [
+                            analysis.mateThreat.type === "attack" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Trophy, { className: "size-4 shrink-0 text-amber-400" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ShieldAlert, { className: "size-4 shrink-0 text-rose-400" }),
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-col", children: [
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                                "span",
+                                {
+                                  className: `text-[10px] font-bold tracking-wide uppercase ${analysis.mateThreat.type === "attack" ? "text-amber-300" : "text-rose-300"}`,
+                                  children: analysis.mateThreat.title
+                                }
+                              ),
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[9.5px] leading-tight opacity-90", children: analysis.mateThreat.explanation })
+                            ] })
+                          ]
+                        }
                       )
                     ] })
                   ]
@@ -48777,6 +49407,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                     setSelectedPlanIdx,
                     activeVariationIdx,
                     setActiveVariationIdx,
+                    activeStep,
                     setActiveStep,
                     onDrawPlan: (p, varIdx) => drawPlanArrowOnBoard(p, varIdx)
                   }
@@ -48806,6 +49437,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                     setSelectedPlanIdx,
                     activeVariationIdx,
                     setActiveVariationIdx,
+                    activeStep,
                     setActiveStep,
                     onDrawPlan: (p, varIdx) => drawPlanArrowOnBoard(p, varIdx)
                   }
@@ -48824,6 +49456,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       setSelectedPlanIdx,
       activeVariationIdx,
       setActiveVariationIdx,
+      activeStep,
       setActiveStep,
       onDrawPlan
     }) {
@@ -48905,7 +49538,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                             return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
                               "span",
                               {
-                                className: `inline-flex items-center gap-0.5 rounded border px-1.5 py-0.2 text-[8.5px] font-semibold ${badgeProps.color}`,
+                                className: `py-0.2 inline-flex items-center gap-0.5 rounded border px-1.5 text-[8.5px] font-semibold ${badgeProps.color}`,
                                 children: [
                                   /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(IconComp, { className: "size-2" }),
                                   /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: badgeProps.label })
@@ -48923,12 +49556,13 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                             p.why
                           ] })
                         ] }),
-                        isSelected && p.variations && p.variations.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1.5 rounded-lg border border-white/[0.06] bg-black/25 p-2 text-[10px]", children: [
+                        isSelected && p.variations && p.variations.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1.5 rounded-lg border border-white/6 bg-black/25 p-2 text-[10px]", children: [
                           /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between", children: [
                             /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-muted-foreground text-[9.5px] font-semibold", children: [
                               "D\u1EF1 \u0111o\xE1n ph\u1EA3n \u1EE9ng c\u1EE7a \u0111\u1ECBch (",
                               p.variations.length,
-                              " bi\u1EBFn):"
+                              " ",
+                              "bi\u1EBFn):"
                             ] }),
                             /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "font-mono text-[9px] text-rose-400", children: "2. \u0110\u1ECBch \u0111\xE1p" })
                           ] }),
@@ -48938,7 +49572,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                               "button",
                               {
                                 type: "button",
-                                className: `rounded border px-2 py-0.5 text-[9.5px] font-medium transition-colors ${isVarActive ? "border-cyan-400/50 font-bold text-cyan-300 shadow-xs" : "text-muted-foreground border-white/10 hover:bg-white/[0.06]"}`,
+                                className: `rounded border px-2 py-0.5 text-[9.5px] font-medium transition-colors ${isVarActive ? "border-cyan-400/50 font-bold text-cyan-300 shadow-xs" : "text-muted-foreground border-white/10 hover:bg-white/6"}`,
                                 style: {
                                   background: isVarActive ? "rgba(6, 182, 212, 0.15)" : "rgba(255, 255, 255, 0.03)"
                                 },
@@ -48953,7 +49587,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                               v.idx
                             );
                           }) }),
-                          currentVar && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1 border-t border-white/[0.05] pt-1", children: [
+                          currentVar && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1 border-t border-white/5 pt-1", children: [
                             /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-start gap-1", children: [
                               /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "shrink-0 font-bold text-rose-400", children: "\u0110\u1ECBch:" }),
                               /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-muted-foreground leading-tight", children: [
@@ -48976,6 +49610,29 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                             ] }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-start gap-1 text-emerald-400", children: [
                               /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "shrink-0 font-bold", children: "3. K\u1EBFt c\u1EE5c:" }),
                               /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "leading-tight", children: "\u0110\u1ED1i th\u1EE7 l\xE2m v\xE0o th\u1EBF c\xF9ng l\u1EF1c ki\u1EC7t." })
+                            ] }),
+                            p.roadmap && p.roadmap.length >= 4 && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "mt-0.5 flex flex-col gap-1 border-t border-white/5 pt-1.5", children: [
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground text-[9px] font-semibold", children: "L\u1ED9 tr\xECnh t\xE1c chi\u1EBFn 5 b\u01B0\u1EDBc:" }),
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex items-center gap-1 overflow-x-auto pb-0.5", children: p.roadmap.map((rm, rmIdx) => /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                                "button",
+                                {
+                                  type: "button",
+                                  onClick: (e) => {
+                                    e.stopPropagation();
+                                    setSelectedPlanIdx(idx);
+                                    setActiveStep(rm.step);
+                                  },
+                                  className: `shrink-0 rounded border px-1.5 py-0.5 text-[8.5px] font-semibold transition-all ${activeStep === rm.step ? "border-cyan-400 bg-cyan-500/20 text-cyan-300 shadow-sm" : "text-muted-foreground hover:text-foreground border-white/10 bg-white/3 hover:border-white/20"}`,
+                                  children: [
+                                    rm.step === 1 && `1. Ta: ${rm.notation?.short || "\u0110i"}`,
+                                    rm.step === 2 && `2. \u0110\u1ECBch: ${rm.notation?.short || "\u0110\xE1p"}`,
+                                    rm.step === 3 && `3. B\u1ED3i: ${rm.notation?.short || "B\u1ED3i"}`,
+                                    rm.step === 4 && `4. \u0110\u1EE1: ${rm.notation?.short || "\u0110\u1EE1"}`,
+                                    rm.step === 5 && `5. S\xE1t: ${rm.notation?.short || "S\xE1t"}`
+                                  ]
+                                },
+                                rmIdx
+                              )) })
                             ] })
                           ] })
                         ] }),
@@ -49019,7 +49676,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                     },
                     p.id
                   );
-                }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-1 flex-col items-center justify-center gap-2.5 p-6 text-center text-muted-foreground/80", children: [
+                }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "text-muted-foreground/80 flex flex-1 flex-col items-center justify-center gap-2.5 p-6 text-center", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                     BrainCircuit,
                     {
@@ -49028,7 +49685,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                   ),
                   /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-xs font-semibold", children: analysis?.isSearching ? "AI \u0111ang t\xEDnh to\xE1n c\xE1c bi\u1EBFn c\u1EDD chuy\xEAn s\xE2u..." : "\u0110ang theo d\xF5i th\u1EBF tr\u1EADn v\xE1n \u0111\u1EA5u..." }),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[10px] text-muted-foreground", children: analysis?.isSearching ? "Thu\u1EADt to\xE1n Alpha-Beta ch\u1EA1y ng\u1EA7m qua Web Worker (0% lag b\xE0n c\u1EDD)." : "Th\u1EF1c hi\u1EC7n n\u01B0\u1EDBc c\u1EDD ho\u1EB7c \u0111\u1EE3i \u0111\u1ED1i th\u1EE7 \u0111\u1EC3 c\u1EADp nh\u1EADt k\u1EBF s\xE1ch m\u1EDBi." })
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground text-[10px]", children: analysis?.isSearching ? "Thu\u1EADt to\xE1n Alpha-Beta ch\u1EA1y ng\u1EA7m qua Web Worker (0% lag b\xE0n c\u1EDD)." : "Th\u1EF1c hi\u1EC7n n\u01B0\u1EDBc c\u1EDD ho\u1EB7c \u0111\u1EE3i \u0111\u1ED1i th\u1EE7 \u0111\u1EC3 c\u1EADp nh\u1EADt k\u1EBF s\xE1ch m\u1EDBi." })
                   ] })
                 ] })
               }
@@ -49056,7 +49713,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                 className: "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1",
                 "data-scrollable": "true",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "border-border/40 rounded-xl border bg-white/[0.02] p-2.5", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "border-border/40 rounded-xl border bg-white/2 p-2.5", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-primary block text-[10.5px] font-bold", children: [
                       '"',
                       analysis.maxim.rule,
@@ -49197,13 +49854,13 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       document.body.appendChild(mentorPanelEl);
       const root = (0, import_client4.createRoot)(mentorPanelEl);
       root.render(
-        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(MentorErrorBoundary, { children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
           MentorFloatingPanel,
           {
             initialAnalysis: cachedAnalysis,
             onClose: () => toggleMentorFloatingPanel(false)
           }
-        )
+        ) })
       );
       setupMentorDraggable(mentorPanelEl);
       return mentorPanelEl;

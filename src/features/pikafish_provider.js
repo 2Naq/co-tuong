@@ -212,12 +212,16 @@ export function createPikafishProvider(options = {}) {
             if (pvMoves[1]) {
               const oppMv = uciToMove(pvMoves[1]);
               const ansMv = pvMoves[2] ? uciToMove(pvMoves[2]) : null;
+              const step4Mv = pvMoves[3] ? uciToMove(pvMoves[3]) : null;
+              const step5Mv = pvMoves[4] ? uciToMove(pvMoves[4]) : null;
               if (oppMv) {
                 formattedLines[0].replies = [
                   {
                     ...oppMv,
                     score: -formattedLines[0].score,
                     answer: ansMv ? { ...ansMv, score: formattedLines[0].score } : null,
+                    step4: step4Mv ? { ...step4Mv, score: -formattedLines[0].score } : null,
+                    step5: step5Mv ? { ...step5Mv, score: formattedLines[0].score } : null,
                   },
                 ];
               }
@@ -463,6 +467,8 @@ export function createPikafishProvider(options = {}) {
                   ...uciToMove(cl.pv[1]),
                   score: -cl.score,
                   answer: cl.pv[2] ? { ...uciToMove(cl.pv[2]), score: cl.score } : null,
+                  step4: cl.pv[3] ? { ...uciToMove(cl.pv[3]), score: -cl.score } : null,
+                  step5: cl.pv[4] ? { ...uciToMove(cl.pv[4]), score: cl.score } : null,
                 },
               ]
             : [],
@@ -476,7 +482,8 @@ export function createPikafishProvider(options = {}) {
         inCheck: false,
         depth: collectedLines[0]?.depth || maxDepth,
         nodes: collectedLines[0]?.nodes || 0,
-        engineName: "Pikafish NNUE",
+        engineName: "Pikafish NNUE (Native WS: 8765)",
+        pikafishStatus: "native-ws",
         score: topScore,
         lines: formattedLines,
         threat: null,
@@ -521,6 +528,24 @@ export function createPikafishProvider(options = {}) {
     analyzeAsync,
     quickEvaluate,
     dispose,
+    ensureSocket,
+    reconnect: () => ensureSocket(true),
+    getTransportStatus: () => {
+      if (socketReady && socket && socket.readyState === WebSocket.OPEN) {
+        return {
+          type: "native-ws",
+          label: "WS: 8765",
+          statusText: "WS Native (8765)",
+          color: "emerald",
+        };
+      }
+      return {
+        type: "cloud-nnue",
+        label: "Cloud D30+",
+        statusText: "Cloud NNUE (D30+)",
+        color: "cyan",
+      };
+    },
     isAvailable: () => true, // Available via Cloud Pikafish NNUE or Native UCI Bridge
   };
 }
