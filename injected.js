@@ -47912,10 +47912,10 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       } else if (!isMyTurn) {
         commentary = {
           type: "waiting",
-          title: "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6",
+          title: "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6 \u0110ANG SUY NGH\u0128",
           move: null,
           shortMove: null,
-          why: "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i..."
+          why: "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc c\u1EDD. H\xE3y quan s\xE1t tr\u1EADn th\u1EBF v\xE0 gi\u1EEF v\u1EEFng s\u1EF1 t\u1EADp trung!"
         };
       }
       const coachCommentary = commentary.move ? `Khuy\xEAn d\xF9ng ${commentary.move}! ${commentary.why}` : commentary.why;
@@ -47963,11 +47963,10 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         let phase = "Trung Cu\u1ED9c";
         if (totalPieces >= 28) phase = "Khai Cu\u1ED9c";
         else if (totalPieces <= 14) phase = "T\xE0n Cu\u1ED9c";
-        const searchedSide = searchRes.side !== void 0 ? searchRes.side : isMyTurn ? myColor : oppColor;
-        const movingColor = searchedSide;
-        const targetColor = 1 - searchedSide;
+        const movingColor = myColor;
+        const targetColor = oppColor;
         const rawScore = searchRes.score || 0;
-        const topScore = searchedSide === myColor ? rawScore : -rawScore;
+        const topScore = searchRes.side !== void 0 && searchRes.side !== myColor ? -rawScore : rawScore;
         const evalPoints = (topScore / 100).toFixed(1);
         let evalText = "C\xE2n b\u1EB1ng (0.0)";
         if (topScore >= 50) evalText = `+${evalPoints}\u0111 (B\u1EA1n \u01B0u)`;
@@ -48412,18 +48411,12 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             why: plans[0].why
           };
         } else if (!isMyTurn) {
-          const oppPlan = plans[0];
-          const oppShort = oppPlan ? oppPlan.shortNotation : null;
-          const myAnswer = oppPlan?.variations?.[0]?.answer?.notation?.short || oppPlan?.roadmap?.[1]?.notation?.short || null;
-          const isOffenseDominating = topScore >= 350 || plans[0]?.tags?.some(
-            (t) => t === "K\u1EB9p C\u1ED5" || t === "clamp-neck" || t === "iron-gate" || t === "resting-horse"
-          ) || plans[0]?.name && plans[0].name.includes("Kh\xF3a T\u01B0\u1EDBng");
           commentary = {
-            type: isOffenseDominating ? "mate" : "waiting",
-            title: isOffenseDominating ? "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6 (B\u1EA0N \u0110ANG C\xD4NG S\xC1T \xC1P \u0110\u1EA2O)" : "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6 \u0110ANG SUY NGH\u0128",
-            move: oppShort ? `\u0110\u1ECBch d\u1EF1 ki\u1EBFn: ${oppShort}` : null,
-            shortMove: oppShort,
-            why: oppShort ? `\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i... D\u1EF1 ki\u1EBFn \u0111\u1ECBch \u0111i ${oppShort}.${myAnswer ? ` B\u1EA1n chu\u1EA9n b\u1ECB s\u1EB5n \u0111\u1ED1i s\xE1ch ${myAnswer}!` : ""}` : "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i..."
+            type: "waiting",
+            title: "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6 \u0110ANG SUY NGH\u0128",
+            move: null,
+            shortMove: null,
+            why: "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc c\u1EDD. H\xE3y quan s\xE1t tr\u1EADn th\u1EBF v\xE0 gi\u1EEF v\u1EEFng s\u1EF1 t\u1EADp trung!"
           };
         } else if (plans[0]) {
           commentary = {
@@ -48541,9 +48534,15 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
     function triggerDeepAnalysis(gameData, pieces) {
       if (!gameData || !pieces || pieces.length === 0) return;
       const myColor = gameData.myColor;
-      const oppColor = gameData.oppColor;
       const activeColor = gameData.gameLayer && gameData.gameLayer.Yc !== void 0 ? gameData.gameLayer.Yc : myColor;
       const isMyTurn = activeColor === myColor;
+      if (!isMyTurn) {
+        if (cancelWorkerSearch) {
+          cancelWorkerSearch();
+          cancelWorkerSearch = null;
+        }
+        return;
+      }
       const currentHash = lastAnalysisHash;
       if (cancelWorkerSearch) {
         cancelWorkerSearch();
@@ -48556,7 +48555,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       const isCoUp = Boolean(
         window.ZigaMod && window.ZigaMod.isCoUpGame && gameData && gameData.gameLayer && window.ZigaMod.isCoUpGame(gameData.gameLayer)
       );
-      const sideToAnalyze = isMyTurn ? myColor : oppColor;
+      const sideToAnalyze = myColor;
       const provider = getEngineProvider(activeProviderId2);
       cancelWorkerSearch = provider.analyzeAsync(
         {
@@ -48575,7 +48574,6 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                 "[AN Mod] Background engine search error, retrying with emergency fallback:",
                 err
               );
-              lastAnalysisHash = "";
               try {
                 const fbRes = engine.analyze({
                   pieces,
@@ -48621,7 +48619,6 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
               }
             }
             if (!deepAnalysis) {
-              lastAnalysisHash = "";
               return;
             }
             deepAnalysis.isSearching = false;
@@ -48640,7 +48637,6 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
               "[AN Mod] Uncaught error in triggerDeepAnalysis callback:",
               cbErr
             );
-            lastAnalysisHash = "";
           } finally {
             if (cachedAnalysis && cachedAnalysis.isSearching) {
               cachedAnalysis.isSearching = false;
@@ -49204,6 +49200,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             {
               variant: activeStep === 1 ? "secondary" : "ghost",
               size: "xs",
+              disabled: !activePlan,
               className: "h-5.5 px-0.5 text-[8px] font-semibold",
               onClick: () => setActiveStep(1),
               title: "1. Ta \u0111i: N\u01B0\u1EDBc c\u1EDD t\u1ED1i \u01B0u \u0111\u1EC1 xu\u1EA5t",
@@ -49275,7 +49272,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           )
         ] }),
         /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-h-4.75 items-center rounded border border-white/6 bg-white/3 px-1.5 py-0.5 text-[9.5px] leading-tight", children: [
-          activeStep === 0 && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground font-medium", children: "B\xE0n c\u1EDD th\u1EF1c t\u1EBF hi\u1EC7n t\u1EA1i" }),
+          (activeStep === 0 || !activePlan) && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground font-medium", children: "B\xE0n c\u1EDD th\u1EF1c t\u1EBF hi\u1EC7n t\u1EA1i" }),
           activeStep === 1 && activePlan && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "truncate font-semibold text-cyan-400", children: [
             "1. Ta \u0111i: ",
             /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: activePlan.shortNotation }),
@@ -49623,7 +49620,14 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         }
         return true;
       });
-      const [showMiniBoardInCompact, setShowMiniBoardInCompact] = (0, import_react15.useState)(false);
+      const [showMiniBoardInCompact, setShowMiniBoardInCompact] = (0, import_react15.useState)(() => {
+        try {
+          const saved = localStorage.getItem("ziga_mentor_show_mini_board");
+          if (saved !== null) return saved === "true";
+        } catch (e) {
+        }
+        return true;
+      });
       mentorSetter = (nextAnalysis) => {
         if (nextAnalysis) {
           setAnalysis(nextAnalysis);
@@ -49882,87 +49886,6 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                 }
               )
             ] }) }),
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "px-3 pt-2", children: (() => {
-              const comm = analysis.commentary || {
-                type: "optimal",
-                title: "G\u1EE2I \xDD T\u1ED0I \u01AFU",
-                move: analysis.plans?.[0]?.fullNotation,
-                why: analysis.coachCommentary
-              };
-              const isMate = comm.type === "mate";
-              const isDanger = comm.type === "danger";
-              return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
-                "div",
-                {
-                  className: `relative flex items-start gap-2.5 rounded-xl border p-2.5 transition-all ${isMate ? "border-l-[3.5px] border-white/10 border-l-amber-500" : isDanger ? "border-l-[3.5px] border-white/10 border-l-rose-500" : "border-l-[3.5px] border-white/10 border-l-cyan-400"}`,
-                  style: {
-                    background: "rgba(255, 255, 255, 0.03)"
-                  },
-                  children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                      "div",
-                      {
-                        className: `flex size-7 shrink-0 items-center justify-center rounded-lg border ${isMate ? "border-amber-500/30 text-amber-400" : isDanger ? "border-rose-500/30 text-rose-400" : "border-cyan-400/30 text-cyan-400"}`,
-                        style: {
-                          background: isMate ? "rgba(245, 158, 11, 0.12)" : isDanger ? "rgba(244, 63, 94, 0.12)" : "rgba(6, 182, 212, 0.12)"
-                        },
-                        children: isMate ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Trophy, { className: "size-4" }) : isDanger ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TriangleAlert, { className: "size-4" }) : comm.type === "turn" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Crosshair, { className: "size-4" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Lightbulb, { className: "size-4" })
-                      }
-                    ),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-1 flex-col gap-0.5", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-wrap items-center gap-1.5", children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                          "span",
-                          {
-                            className: `text-[9.5px] font-bold tracking-wider uppercase ${isMate ? "text-amber-400" : isDanger ? "text-rose-400" : "text-cyan-400"}`,
-                            children: comm.title
-                          }
-                        ),
-                        comm.move && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                          "span",
-                          {
-                            className: "text-foreground py-0.2 rounded border border-white/15 px-1.5 font-mono text-[10.5px] font-bold",
-                            style: { background: "rgba(255, 255, 255, 0.08)" },
-                            children: comm.move
-                          }
-                        )
-                      ] }),
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground/90 text-[11px] leading-snug font-medium", children: comm.why }),
-                      analysis.threatInfo && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
-                        "div",
-                        {
-                          className: "mt-1 flex items-center gap-1.5 rounded-md border border-rose-500/30 px-2 py-1 text-[10px] text-rose-300",
-                          style: { background: "rgba(244, 63, 94, 0.1)" },
-                          children: [
-                            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ShieldAlert, { className: "size-3.5 shrink-0 text-rose-400" }),
-                            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "leading-tight font-medium", children: analysis.threatInfo.desc })
-                          ]
-                        }
-                      ),
-                      analysis.mateThreat && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
-                        "div",
-                        {
-                          className: `mt-1.5 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[10.5px] ${analysis.mateThreat.type === "attack" ? "border-amber-500/40 bg-amber-500/15 text-amber-200 shadow-[0_0_12px_rgba(245,158,11,0.2)]" : "animate-pulse border-rose-500/50 bg-rose-500/20 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.3)]"}`,
-                          children: [
-                            analysis.mateThreat.type === "attack" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Trophy, { className: "size-4 shrink-0 text-amber-400" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ShieldAlert, { className: "size-4 shrink-0 text-rose-400" }),
-                            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-col", children: [
-                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                                "span",
-                                {
-                                  className: `text-[10px] font-bold tracking-wide uppercase ${analysis.mateThreat.type === "attack" ? "text-amber-300" : "text-rose-300"}`,
-                                  children: analysis.mateThreat.title
-                                }
-                              ),
-                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[9.5px] leading-tight opacity-90", children: analysis.mateThreat.explanation })
-                            ] })
-                          ]
-                        }
-                      )
-                    ] })
-                  ]
-                }
-              );
-            })() }),
             /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex min-h-0 flex-1 flex-col overflow-hidden p-3 pt-2", children: !isCompact ? (
               /* Studio Mode (Dual Pane) */
               /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "grid min-h-0 flex-1 grid-cols-12 gap-3 overflow-hidden", children: [
@@ -49977,26 +49900,29 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                     setActiveStep
                   }
                 ) }),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "col-span-7 flex min-h-0 flex-col gap-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                  PlansTabsSection,
-                  {
-                    tab,
-                    setTab,
-                    analysis,
-                    selectedPlanIdx,
-                    setSelectedPlanIdx,
-                    activeVariationIdx,
-                    setActiveVariationIdx,
-                    activeStep,
-                    setActiveStep,
-                    onDrawPlan: (p, varIdx) => drawPlanArrowOnBoard(p, varIdx)
-                  }
-                ) })
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "col-span-7 flex min-h-0 flex-1 flex-col gap-2 overflow-hidden", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(InsightBanner, { analysis }),
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex min-h-0 flex-1 flex-col overflow-hidden", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                    PlansTabsSection,
+                    {
+                      tab,
+                      setTab,
+                      analysis,
+                      selectedPlanIdx,
+                      setSelectedPlanIdx,
+                      activeVariationIdx,
+                      setActiveVariationIdx,
+                      activeStep,
+                      setActiveStep,
+                      onDrawPlan: (p, varIdx) => drawPlanArrowOnBoard(p, varIdx)
+                    }
+                  ) })
+                ] })
               ] })
             ) : (
-              /* Compact Mode (Single Column - Never blocks board!) */
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-h-0 flex-1 flex-col gap-2.5 overflow-hidden", children: [
-                showMiniBoardInCompact && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "border-border/30 rounded-xl border bg-black/30 p-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+              /* Compact Mode (Single Column - Bàn cờ nhỏ trên cùng, Gợi ý tối ưu nằm ngay dưới) */
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-h-0 flex-1 flex-col gap-2 overflow-hidden", children: [
+                showMiniBoardInCompact && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "border-border/30 shrink-0 rounded-xl border bg-black/30 p-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                   MentorMiniBoard,
                   {
                     pieces: analysis.pieces,
@@ -50007,6 +49933,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                     setActiveStep
                   }
                 ) }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "shrink-0", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(InsightBanner, { analysis }) }),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex min-h-0 flex-1 flex-col overflow-hidden", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                   PlansTabsSection,
                   {
@@ -50024,6 +49951,88 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                 ) })
               ] })
             ) })
+          ]
+        }
+      );
+    }
+    function InsightBanner({ analysis }) {
+      if (!analysis) return null;
+      const comm = analysis.commentary || {
+        type: "optimal",
+        title: "G\u1EE2I \xDD T\u1ED0I \u01AFU",
+        move: analysis.plans?.[0]?.fullNotation,
+        why: analysis.coachCommentary
+      };
+      const isMate = comm.type === "mate";
+      const isDanger = comm.type === "danger";
+      return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+        "div",
+        {
+          className: `relative flex items-start gap-2.5 rounded-xl border p-2.5 transition-all ${isMate ? "border-l-[3.5px] border-white/10 border-l-amber-500" : isDanger ? "border-l-[3.5px] border-white/10 border-l-rose-500" : "border-l-[3.5px] border-white/10 border-l-cyan-400"}`,
+          style: {
+            background: "rgba(255, 255, 255, 0.03)"
+          },
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+              "div",
+              {
+                className: `flex size-7 shrink-0 items-center justify-center rounded-lg border ${isMate ? "border-amber-500/30 text-amber-400" : isDanger ? "border-rose-500/30 text-rose-400" : "border-cyan-400/30 text-cyan-400"}`,
+                style: {
+                  background: isMate ? "rgba(245, 158, 11, 0.12)" : isDanger ? "rgba(244, 63, 94, 0.12)" : "rgba(6, 182, 212, 0.12)"
+                },
+                children: isMate ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Trophy, { className: "size-4" }) : isDanger ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TriangleAlert, { className: "size-4" }) : comm.type === "turn" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Crosshair, { className: "size-4" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Lightbulb, { className: "size-4" })
+              }
+            ),
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-1 flex-col gap-0.5", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-wrap items-center gap-1.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  "span",
+                  {
+                    className: `text-[9.5px] font-bold tracking-wider uppercase ${isMate ? "text-amber-400" : isDanger ? "text-rose-400" : "text-cyan-400"}`,
+                    children: comm.title
+                  }
+                ),
+                comm.move && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  "span",
+                  {
+                    className: "text-foreground py-0.2 rounded border border-white/15 px-1.5 font-mono text-[10.5px] font-bold",
+                    style: { background: "rgba(255, 255, 255, 0.08)" },
+                    children: comm.move
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground/90 text-[11px] leading-snug font-medium", children: comm.why }),
+              analysis.threatInfo && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                "div",
+                {
+                  className: "mt-1 flex items-center gap-1.5 rounded-md border border-rose-500/30 px-2 py-1 text-[10px] text-rose-300",
+                  style: { background: "rgba(244, 63, 94, 0.1)" },
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ShieldAlert, { className: "size-3.5 shrink-0 text-rose-400" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "leading-tight font-medium", children: analysis.threatInfo.desc })
+                  ]
+                }
+              ),
+              analysis.mateThreat && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                "div",
+                {
+                  className: `mt-1.5 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[10.5px] ${analysis.mateThreat.type === "attack" ? "border-amber-500/40 bg-amber-500/15 text-amber-200 shadow-[0_0_12px_rgba(245,158,11,0.2)]" : "animate-pulse border-rose-500/50 bg-rose-500/20 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.3)]"}`,
+                  children: [
+                    analysis.mateThreat.type === "attack" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Trophy, { className: "size-4 shrink-0 text-amber-400" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ShieldAlert, { className: "size-4 shrink-0 text-rose-400" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-col", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                        "span",
+                        {
+                          className: `text-[10px] font-bold tracking-wide uppercase ${analysis.mateThreat.type === "attack" ? "text-amber-300" : "text-rose-300"}`,
+                          children: analysis.mateThreat.title
+                        }
+                      ),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-[9.5px] leading-tight opacity-90", children: analysis.mateThreat.explanation })
+                    ] })
+                  ]
+                }
+              )
+            ] })
           ]
         }
       );
@@ -50264,8 +50273,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                     }
                   ),
                   /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-xs font-semibold", children: analysis?.isSearching ? "AI \u0111ang t\xEDnh to\xE1n c\xE1c bi\u1EBFn c\u1EDD chuy\xEAn s\xE2u..." : "\u0110ang theo d\xF5i th\u1EBF tr\u1EADn v\xE1n \u0111\u1EA5u..." }),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground text-[10px]", children: analysis?.isSearching ? "Thu\u1EADt to\xE1n Alpha-Beta ch\u1EA1y ng\u1EA7m qua Web Worker (0% lag b\xE0n c\u1EDD)." : "Th\u1EF1c hi\u1EC7n n\u01B0\u1EDBc c\u1EDD ho\u1EB7c \u0111\u1EE3i \u0111\u1ED1i th\u1EE7 \u0111\u1EC3 c\u1EADp nh\u1EADt k\u1EBF s\xE1ch m\u1EDBi." })
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-xs font-semibold", children: analysis?.isSearching ? "AI \u0111ang t\xEDnh to\xE1n c\xE1c bi\u1EBFn c\u1EDD chuy\xEAn s\xE2u..." : !analysis?.isMyTurn ? "L\u01B0\u1EE3t \u0111\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129..." : "\u0110ang theo d\xF5i th\u1EBF tr\u1EADn v\xE1n \u0111\u1EA5u..." }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground text-[10px]", children: analysis?.isSearching ? "Thu\u1EADt to\xE1n Pikafish NNUE / Web Worker ch\u1EA1y ng\u1EA7m (0% lag b\xE0n c\u1EDD)." : !analysis?.isMyTurn ? "K\u1EBF s\xE1ch ph\u1EA3n c\xF4ng s\u1EBD l\u1EADp t\u1EE9c xu\u1EA5t hi\u1EC7n khi \u0111\u1EBFn l\u01B0\u1EE3t b\u1EA1n \u0111i." : "Th\u1EF1c hi\u1EC7n n\u01B0\u1EDBc c\u1EDD \u0111\u1EC3 c\u1EADp nh\u1EADt k\u1EBF s\xE1ch m\u1EDBi." })
                   ] })
                 ] })
               }
@@ -50623,6 +50632,10 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           cancelWorkerSearch();
           cancelWorkerSearch = null;
         }
+        clearMentorPlanArrows();
+        if (mentorSetter) {
+          mentorSetter(null);
+        }
         return;
       }
       lastKnownGameData = gameData;
@@ -50637,31 +50650,66 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         if (analyzeDebounceTimer !== null || cachedAnalysis && cachedAnalysis.isSearching) {
           if (cachedAnalysis && cachedAnalysis.searchStartTime && Date.now() - cachedAnalysis.searchStartTime > 5e3) {
             cachedAnalysis.isSearching = false;
-            lastAnalysisHash = "";
-          } else {
-            return;
+            if (mentorSetter) {
+              mentorSetter({ ...cachedAnalysis, isSearching: false });
+            }
           }
+          return;
         }
-        if (cachedAnalysis && !cachedAnalysis.isQuickOnly && Array.isArray(cachedAnalysis.plans) && cachedAnalysis.plans.length > 0) {
+        if (cachedAnalysis) {
           return;
         }
       }
       lastAnalysisHash = stateHash;
-      clearMentorPlanArrows();
       const pieces = getBoardState(gameData.gameLayer);
       if (!pieces || pieces.length === 0) return;
       const quickRes = asyncWorker.quickEvaluate(pieces, gameData.myColor);
       const quickAnalysis = buildQuickAnalysis(quickRes, gameData, pieces);
-      const freshTransitionalAnalysis = {
+      const activeColor = gameData.gameLayer && gameData.gameLayer.Yc !== void 0 ? gameData.gameLayer.Yc : gameData.myColor;
+      const isMyTurn = activeColor === gameData.myColor;
+      if (!isMyTurn) {
+        clearMentorPlanArrows();
+        if (analyzeDebounceTimer) {
+          clearTimeout(analyzeDebounceTimer);
+          analyzeDebounceTimer = null;
+        }
+        if (cancelWorkerSearch) {
+          cancelWorkerSearch();
+          cancelWorkerSearch = null;
+        }
+        const waitingAnalysis = {
+          ...quickAnalysis,
+          isSearching: false,
+          isQuickOnly: false,
+          plans: [],
+          activeStep: 0,
+          selectedPlanIdx: 0,
+          commentary: {
+            type: "waiting",
+            title: "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6 \u0110ANG SUY NGH\u0128",
+            move: null,
+            shortMove: null,
+            why: "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc c\u1EDD. H\xE3y quan s\xE1t tr\u1EADn th\u1EBF v\xE0 gi\u1EEF v\u1EEFng s\u1EF1 t\u1EADp trung!"
+          }
+        };
+        cachedAnalysis = waitingAnalysis;
+        updateMentorHudCardText(waitingAnalysis);
+        if (mentorSetter) {
+          mentorSetter(waitingAnalysis);
+        }
+        return;
+      }
+      clearMentorPlanArrows();
+      const transitionalAnalysis = {
         ...quickAnalysis,
         isSearching: true,
         isQuickOnly: true,
         searchStartTime: Date.now(),
-        plans: [],
+        plans: cachedAnalysis?.plans?.length ? cachedAnalysis.plans : [],
         activeStep: 1,
         selectedPlanIdx: 0
       };
-      cachedAnalysis = freshTransitionalAnalysis;
+      cachedAnalysis = transitionalAnalysis;
       if (quickAnalysis) {
         updateMentorHudCardText(quickAnalysis);
       }
@@ -50678,7 +50726,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         return;
       }
       if (mentorSetter) {
-        mentorSetter(freshTransitionalAnalysis);
+        mentorSetter(transitionalAnalysis);
       }
       if (analyzeDebounceTimer) {
         clearTimeout(analyzeDebounceTimer);
@@ -53651,6 +53699,21 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       const gameLayer = window.BkGlobal.Yj.ja ? window.BkGlobal.Yj.ja() : null;
       if (!gameLayer || !gameLayer.V || !Array.isArray(gameLayer.V) || gameLayer.V.length !== 32) {
         return null;
+      }
+      if (typeof gameLayer.isRunning === "function" && !gameLayer.isRunning()) {
+        return null;
+      }
+      if (typeof gameLayer.isVisible === "function" && !gameLayer.isVisible()) {
+        return null;
+      }
+      if (typeof gameLayer.getParent === "function" && !gameLayer.getParent()) {
+        return null;
+      }
+      if (gameLayer.T && typeof gameLayer.T === "function") {
+        const table = gameLayer.T();
+        if (table && table.Fb !== void 0 && table.Fb !== 1 && table.Fb !== 2) {
+          return null;
+        }
       }
       const logicMgr = window.BkLogicManager ? window.BkLogicManager.na() : null;
       const myPlayer = logicMgr && logicMgr.Ba ? logicMgr.Ba() : null;

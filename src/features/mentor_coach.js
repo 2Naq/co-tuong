@@ -634,10 +634,10 @@ import {
     } else if (!isMyTurn) {
       commentary = {
         type: "waiting",
-        title: "LƯỢT ĐỐI THỦ",
+        title: "LƯỢT ĐỐI THỦ ĐANG SUY NGHĨ",
         move: null,
         shortMove: null,
-        why: "Đối thủ đang suy nghĩ nước đi...",
+        why: "Đối thủ đang suy nghĩ nước cờ. Hãy quan sát trận thế và giữ vững sự tập trung!",
       };
     }
 
@@ -709,18 +709,15 @@ import {
       else if (totalPieces <= 14) phase = "Tàn Cuộc";
 
       // Numerical Advantage Score (centipawn to points)
-      // Determine which side's moves are returned in searchRes
-      const searchedSide =
-        searchRes.side !== undefined
-          ? searchRes.side
-          : isMyTurn
-            ? myColor
-            : oppColor;
-      const movingColor = searchedSide;
-      const targetColor = 1 - searchedSide;
+      // Kế sách và lộ trình chiến thuật luôn được xây dựng cho Người Chơi (Ta đi)
+      const movingColor = myColor;
+      const targetColor = oppColor;
 
       const rawScore = searchRes.score || 0;
-      const topScore = searchedSide === myColor ? rawScore : -rawScore;
+      const topScore =
+        searchRes.side !== undefined && searchRes.side !== myColor
+          ? -rawScore
+          : rawScore;
       const evalPoints = (topScore / 100).toFixed(1);
       let evalText = "Cân bằng (0.0)";
       if (topScore >= 50) evalText = `+${evalPoints}đ (Bạn ưu)`;
@@ -1299,33 +1296,12 @@ import {
         why: plans[0].why,
       };
     } else if (!isMyTurn) {
-      const oppPlan = plans[0];
-      const oppShort = oppPlan ? oppPlan.shortNotation : null;
-      const myAnswer =
-        oppPlan?.variations?.[0]?.answer?.notation?.short ||
-        oppPlan?.roadmap?.[1]?.notation?.short ||
-        null;
-      const isOffenseDominating =
-        topScore >= 350 ||
-        plans[0]?.tags?.some(
-          (t) =>
-            t === "Kẹp Cổ" ||
-            t === "clamp-neck" ||
-            t === "iron-gate" ||
-            t === "resting-horse",
-        ) ||
-        (plans[0]?.name && plans[0].name.includes("Khóa Tướng"));
-
       commentary = {
-        type: isOffenseDominating ? "mate" : "waiting",
-        title: isOffenseDominating
-          ? "LƯỢT ĐỐI THỦ (BẠN ĐANG CÔNG SÁT ÁP ĐẢO)"
-          : "LƯỢT ĐỐI THỦ ĐANG SUY NGHĨ",
-        move: oppShort ? `Địch dự kiến: ${oppShort}` : null,
-        shortMove: oppShort,
-        why: oppShort
-          ? `Đối thủ đang suy nghĩ nước đi... Dự kiến địch đi ${oppShort}.${myAnswer ? ` Bạn chuẩn bị sẵn đối sách ${myAnswer}!` : ""}`
-          : "Đối thủ đang suy nghĩ nước đi...",
+        type: "waiting",
+        title: "LƯỢT ĐỐI THỦ ĐANG SUY NGHĨ",
+        move: null,
+        shortMove: null,
+        why: "Đối thủ đang suy nghĩ nước cờ. Hãy quan sát trận thế và giữ vững sự tập trung!",
       };
     } else if (plans[0]) {
       commentary = {
@@ -1494,12 +1470,24 @@ import {
   function triggerDeepAnalysis(gameData, pieces) {
     if (!gameData || !pieces || pieces.length === 0) return;
     const myColor = gameData.myColor;
-    const oppColor = gameData.oppColor;
     const activeColor =
       gameData.gameLayer && gameData.gameLayer.Yc !== undefined
         ? gameData.gameLayer.Yc
         : myColor;
     const isMyTurn = activeColor === myColor;
+
+    // QUY TẮC BẮT BUỘC: Kỳ Đạo Sư là Cố Vấn Tối Cao cho Người Chơi (Ta)!
+    // Khi đang trong lượt của đối thủ (địch đang suy nghĩ trên bàn thật),
+    // TUYỆT ĐỐI KHÔNG search biến cờ của địch để đè vào danh sách kế sách của người chơi!
+    // Tránh tình trạng hiển thị "1. Ta đi" bằng quân địch khiến bàn cờ nhỏ và tính toán bị loạn.
+    if (!isMyTurn) {
+      if (cancelWorkerSearch) {
+        cancelWorkerSearch();
+        cancelWorkerSearch = null;
+      }
+      return;
+    }
+
     const currentHash = lastAnalysisHash;
 
     if (cancelWorkerSearch) {
@@ -1520,7 +1508,8 @@ import {
       window.ZigaMod.isCoUpGame(gameData.gameLayer)
     );
 
-    const sideToAnalyze = isMyTurn ? myColor : oppColor;
+    // Luôn tính toán biến cờ cho Người Chơi (myColor)
+    const sideToAnalyze = myColor;
     const provider = getEngineProvider(activeProviderId);
     cancelWorkerSearch = provider.analyzeAsync(
       {
@@ -1539,7 +1528,7 @@ import {
               "[AN Mod] Background engine search error, retrying with emergency fallback:",
               err,
             );
-            lastAnalysisHash = "";
+            // KHÔNG reset lastAnalysisHash = "" để tránh vòng lặp re-render 300ms!
             try {
               const fbRes = engine.analyze({
                 pieces,
@@ -1591,7 +1580,6 @@ import {
           }
 
           if (!deepAnalysis) {
-            lastAnalysisHash = "";
             return;
           }
 
@@ -1612,7 +1600,6 @@ import {
             "[AN Mod] Uncaught error in triggerDeepAnalysis callback:",
             cbErr,
           );
-          lastAnalysisHash = "";
         } finally {
           if (cachedAnalysis && cachedAnalysis.isSearching) {
             cachedAnalysis.isSearching = false;
@@ -2201,6 +2188,7 @@ import {
           <Button
             variant={activeStep === 1 ? "secondary" : "ghost"}
             size="xs"
+            disabled={!activePlan}
             className="h-5.5 px-0.5 text-[8px] font-semibold"
             onClick={() => setActiveStep(1)}
             title="1. Ta đi: Nước cờ tối ưu đề xuất"
@@ -2258,7 +2246,7 @@ import {
 
         {/* Step context subtitle below stepper buttons */}
         <div className="flex min-h-4.75 items-center rounded border border-white/6 bg-white/3 px-1.5 py-0.5 text-[9.5px] leading-tight">
-          {activeStep === 0 && (
+          {(activeStep === 0 || !activePlan) && (
             <span className="text-muted-foreground font-medium">
               Bàn cờ thực tế hiện tại
             </span>
@@ -2672,7 +2660,13 @@ import {
       return true; // Default to COMPACT to NEVER cover the chessboard!
     });
 
-    const [showMiniBoardInCompact, setShowMiniBoardInCompact] = useState(false);
+    const [showMiniBoardInCompact, setShowMiniBoardInCompact] = useState(() => {
+      try {
+        const saved = localStorage.getItem("ziga_mentor_show_mini_board");
+        if (saved !== null) return saved === "true";
+      } catch (e) {}
+      return true; // Mặc định luôn bật bàn cờ nhỏ khi mở Kỳ Đạo Sư
+    });
 
     mentorSetter = (nextAnalysis) => {
       if (nextAnalysis) {
@@ -2987,136 +2981,7 @@ import {
           </div>
         )}
 
-        {/* TẦNG 2: HIGHLIGHT INSIGHT BANNER (LUXURY FROSTED GLASS - KHÔNG LÒE LOẸT) */}
-        <div className="px-3 pt-2">
-          {(() => {
-            const comm = analysis.commentary || {
-              type: "optimal",
-              title: "GỢI Ý TỐI ƯU",
-              move: analysis.plans?.[0]?.fullNotation,
-              why: analysis.coachCommentary,
-            };
-
-            const isMate = comm.type === "mate";
-            const isDanger = comm.type === "danger";
-
-            return (
-              <div
-                className={`relative flex items-start gap-2.5 rounded-xl border p-2.5 transition-all ${
-                  isMate
-                    ? "border-l-[3.5px] border-white/10 border-l-amber-500"
-                    : isDanger
-                      ? "border-l-[3.5px] border-white/10 border-l-rose-500"
-                      : "border-l-[3.5px] border-white/10 border-l-cyan-400"
-                }`}
-                style={{
-                  background: "rgba(255, 255, 255, 0.03)",
-                }}
-              >
-                {/* Left Lucide Icon Container */}
-                <div
-                  className={`flex size-7 shrink-0 items-center justify-center rounded-lg border ${
-                    isMate
-                      ? "border-amber-500/30 text-amber-400"
-                      : isDanger
-                        ? "border-rose-500/30 text-rose-400"
-                        : "border-cyan-400/30 text-cyan-400"
-                  }`}
-                  style={{
-                    background: isMate
-                      ? "rgba(245, 158, 11, 0.12)"
-                      : isDanger
-                        ? "rgba(244, 63, 94, 0.12)"
-                        : "rgba(6, 182, 212, 0.12)",
-                  }}
-                >
-                  {isMate ? (
-                    <Trophy className="size-4" />
-                  ) : isDanger ? (
-                    <AlertTriangle className="size-4" />
-                  ) : comm.type === "turn" ? (
-                    <Crosshair className="size-4" />
-                  ) : (
-                    <Lightbulb className="size-4" />
-                  )}
-                </div>
-
-                {/* Content with Clear Hierarchy */}
-                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span
-                      className={`text-[9.5px] font-bold tracking-wider uppercase ${
-                        isMate
-                          ? "text-amber-400"
-                          : isDanger
-                            ? "text-rose-400"
-                            : "text-cyan-400"
-                      }`}
-                    >
-                      {comm.title}
-                    </span>
-                    {comm.move && (
-                      <span
-                        className="text-foreground py-0.2 rounded border border-white/15 px-1.5 font-mono text-[10.5px] font-bold"
-                        style={{ background: "rgba(255, 255, 255, 0.08)" }}
-                      >
-                        {comm.move}
-                      </span>
-                    )}
-                  </div>
-
-                  <span className="text-foreground/90 text-[11px] leading-snug font-medium">
-                    {comm.why}
-                  </span>
-
-                  {analysis.threatInfo && (
-                    <div
-                      className="mt-1 flex items-center gap-1.5 rounded-md border border-rose-500/30 px-2 py-1 text-[10px] text-rose-300"
-                      style={{ background: "rgba(244, 63, 94, 0.1)" }}
-                    >
-                      <ShieldAlert className="size-3.5 shrink-0 text-rose-400" />
-                      <span className="leading-tight font-medium">
-                        {analysis.threatInfo.desc}
-                      </span>
-                    </div>
-                  )}
-
-                  {analysis.mateThreat && (
-                    <div
-                      className={`mt-1.5 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[10.5px] ${
-                        analysis.mateThreat.type === "attack"
-                          ? "border-amber-500/40 bg-amber-500/15 text-amber-200 shadow-[0_0_12px_rgba(245,158,11,0.2)]"
-                          : "animate-pulse border-rose-500/50 bg-rose-500/20 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.3)]"
-                      }`}
-                    >
-                      {analysis.mateThreat.type === "attack" ? (
-                        <Trophy className="size-4 shrink-0 text-amber-400" />
-                      ) : (
-                        <ShieldAlert className="size-4 shrink-0 text-rose-400" />
-                      )}
-                      <div className="flex min-w-0 flex-col">
-                        <span
-                          className={`text-[10px] font-bold tracking-wide uppercase ${
-                            analysis.mateThreat.type === "attack"
-                              ? "text-amber-300"
-                              : "text-rose-300"
-                          }`}
-                        >
-                          {analysis.mateThreat.title}
-                        </span>
-                        <span className="text-[9.5px] leading-tight opacity-90">
-                          {analysis.mateThreat.explanation}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })()}
-        </div>
-
-        {/* TẦNG 3: NỘI DUNG CHÍNH (COMPACT vs DUAL PANE) */}
+        {/* TẦNG NỘI DUNG CHÍNH (COMPACT vs DUAL PANE) */}
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3 pt-2">
           {!isCompact ? (
             /* Studio Mode (Dual Pane) */
@@ -3132,26 +2997,30 @@ import {
                 />
               </div>
 
-              <div className="col-span-7 flex min-h-0 flex-col gap-2">
-                <PlansTabsSection
-                  tab={tab}
-                  setTab={setTab}
-                  analysis={analysis}
-                  selectedPlanIdx={selectedPlanIdx}
-                  setSelectedPlanIdx={setSelectedPlanIdx}
-                  activeVariationIdx={activeVariationIdx}
-                  setActiveVariationIdx={setActiveVariationIdx}
-                  activeStep={activeStep}
-                  setActiveStep={setActiveStep}
-                  onDrawPlan={(p, varIdx) => drawPlanArrowOnBoard(p, varIdx)}
-                />
+              <div className="col-span-7 flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+                <InsightBanner analysis={analysis} />
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                  <PlansTabsSection
+                    tab={tab}
+                    setTab={setTab}
+                    analysis={analysis}
+                    selectedPlanIdx={selectedPlanIdx}
+                    setSelectedPlanIdx={setSelectedPlanIdx}
+                    activeVariationIdx={activeVariationIdx}
+                    setActiveVariationIdx={setActiveVariationIdx}
+                    activeStep={activeStep}
+                    setActiveStep={setActiveStep}
+                    onDrawPlan={(p, varIdx) => drawPlanArrowOnBoard(p, varIdx)}
+                  />
+                </div>
               </div>
             </div>
           ) : (
-            /* Compact Mode (Single Column - Never blocks board!) */
-            <div className="flex min-h-0 flex-1 flex-col gap-2.5 overflow-hidden">
+            /* Compact Mode (Single Column - Bàn cờ nhỏ trên cùng, Gợi ý tối ưu nằm ngay dưới) */
+            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+              {/* 1. Bàn Cờ Nhỏ Hiện Ngay Phía Trên (Mặc định luôn bật khi mở Kỳ Đạo Sư) */}
               {showMiniBoardInCompact && (
-                <div className="border-border/30 rounded-xl border bg-black/30 p-2">
+                <div className="border-border/30 shrink-0 rounded-xl border bg-black/30 p-2">
                   <MentorMiniBoard
                     pieces={analysis.pieces}
                     myColor={analysis.myColor}
@@ -3163,6 +3032,12 @@ import {
                 </div>
               )}
 
+              {/* 2. Dời Thẻ Gợi Ý Tối Ưu / Nhận Định Chiến Thuật Xuống Phía Dưới Bàn Cờ Nhỏ */}
+              <div className="shrink-0">
+                <InsightBanner analysis={analysis} />
+              </div>
+
+              {/* 3. Danh Sách Kế Sách, 5 Trụ Cột, Tâm Pháp */}
               <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                 <PlansTabsSection
                   tab={tab}
@@ -3181,6 +3056,136 @@ import {
           )}
         </div>
       </Card>
+    );
+  }
+
+  // =========================================================================
+  // Sub-Component: Highlight Insight Banner (Frosted Glass Tactical Coach)
+  // =========================================================================
+  function InsightBanner({ analysis }) {
+    if (!analysis) return null;
+    const comm = analysis.commentary || {
+      type: "optimal",
+      title: "GỢI Ý TỐI ƯU",
+      move: analysis.plans?.[0]?.fullNotation,
+      why: analysis.coachCommentary,
+    };
+
+    const isMate = comm.type === "mate";
+    const isDanger = comm.type === "danger";
+
+    return (
+      <div
+        className={`relative flex items-start gap-2.5 rounded-xl border p-2.5 transition-all ${
+          isMate
+            ? "border-l-[3.5px] border-white/10 border-l-amber-500"
+            : isDanger
+              ? "border-l-[3.5px] border-white/10 border-l-rose-500"
+              : "border-l-[3.5px] border-white/10 border-l-cyan-400"
+        }`}
+        style={{
+          background: "rgba(255, 255, 255, 0.03)",
+        }}
+      >
+        {/* Left Lucide Icon Container */}
+        <div
+          className={`flex size-7 shrink-0 items-center justify-center rounded-lg border ${
+            isMate
+              ? "border-amber-500/30 text-amber-400"
+              : isDanger
+                ? "border-rose-500/30 text-rose-400"
+                : "border-cyan-400/30 text-cyan-400"
+          }`}
+          style={{
+            background: isMate
+              ? "rgba(245, 158, 11, 0.12)"
+              : isDanger
+                ? "rgba(244, 63, 94, 0.12)"
+                : "rgba(6, 182, 212, 0.12)",
+          }}
+        >
+          {isMate ? (
+            <Trophy className="size-4" />
+          ) : isDanger ? (
+            <AlertTriangle className="size-4" />
+          ) : comm.type === "turn" ? (
+            <Crosshair className="size-4" />
+          ) : (
+            <Lightbulb className="size-4" />
+          )}
+        </div>
+
+        {/* Content with Clear Hierarchy */}
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span
+              className={`text-[9.5px] font-bold tracking-wider uppercase ${
+                isMate
+                  ? "text-amber-400"
+                  : isDanger
+                    ? "text-rose-400"
+                    : "text-cyan-400"
+              }`}
+            >
+              {comm.title}
+            </span>
+            {comm.move && (
+              <span
+                className="text-foreground py-0.2 rounded border border-white/15 px-1.5 font-mono text-[10.5px] font-bold"
+                style={{ background: "rgba(255, 255, 255, 0.08)" }}
+              >
+                {comm.move}
+              </span>
+            )}
+          </div>
+
+          <span className="text-foreground/90 text-[11px] leading-snug font-medium">
+            {comm.why}
+          </span>
+
+          {analysis.threatInfo && (
+            <div
+              className="mt-1 flex items-center gap-1.5 rounded-md border border-rose-500/30 px-2 py-1 text-[10px] text-rose-300"
+              style={{ background: "rgba(244, 63, 94, 0.1)" }}
+            >
+              <ShieldAlert className="size-3.5 shrink-0 text-rose-400" />
+              <span className="leading-tight font-medium">
+                {analysis.threatInfo.desc}
+              </span>
+            </div>
+          )}
+
+          {analysis.mateThreat && (
+            <div
+              className={`mt-1.5 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[10.5px] ${
+                analysis.mateThreat.type === "attack"
+                  ? "border-amber-500/40 bg-amber-500/15 text-amber-200 shadow-[0_0_12px_rgba(245,158,11,0.2)]"
+                  : "animate-pulse border-rose-500/50 bg-rose-500/20 text-rose-200 shadow-[0_0_12px_rgba(244,63,94,0.3)]"
+              }`}
+            >
+              {analysis.mateThreat.type === "attack" ? (
+                <Trophy className="size-4 shrink-0 text-amber-400" />
+              ) : (
+                <ShieldAlert className="size-4 shrink-0 text-rose-400" />
+              )}
+              <div className="flex min-w-0 flex-col">
+                <span
+                  className={`text-[10px] font-bold tracking-wide uppercase ${
+                    analysis.mateThreat.type === "attack"
+                      ? "text-amber-300"
+                      : "text-rose-300"
+                  }`}
+                >
+                  {analysis.mateThreat.title}
+                </span>
+                <span className="text-[9.5px] leading-tight opacity-90">
+                  {analysis.mateThreat.explanation}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     );
   }
 
@@ -3485,12 +3490,16 @@ import {
                 <span className="text-foreground text-xs font-semibold">
                   {analysis?.isSearching
                     ? "AI đang tính toán các biến cờ chuyên sâu..."
-                    : "Đang theo dõi thế trận ván đấu..."}
+                    : !analysis?.isMyTurn
+                      ? "Lượt đối thủ đang suy nghĩ..."
+                      : "Đang theo dõi thế trận ván đấu..."}
                 </span>
                 <span className="text-muted-foreground text-[10px]">
                   {analysis?.isSearching
-                    ? "Thuật toán Alpha-Beta chạy ngầm qua Web Worker (0% lag bàn cờ)."
-                    : "Thực hiện nước cờ hoặc đợi đối thủ để cập nhật kế sách mới."}
+                    ? "Thuật toán Pikafish NNUE / Web Worker chạy ngầm (0% lag bàn cờ)."
+                    : !analysis?.isMyTurn
+                      ? "Kế sách phản công sẽ lập tức xuất hiện khi đến lượt bạn đi."
+                      : "Thực hiện nước cờ để cập nhật kế sách mới."}
                 </span>
               </div>
             </div>
@@ -3913,6 +3922,10 @@ import {
         cancelWorkerSearch();
         cancelWorkerSearch = null;
       }
+      clearMentorPlanArrows();
+      if (mentorSetter) {
+        mentorSetter(null);
+      }
       return;
     }
 
@@ -3932,32 +3945,25 @@ import {
         analyzeDebounceTimer !== null ||
         (cachedAnalysis && cachedAnalysis.isSearching)
       ) {
-        // Watchdog chống kẹt: nếu isSearching đã quá 5s (do worker lag hoặc crash), tự reset để tiếp tục phân tích
+        // Watchdog chống kẹt: nếu isSearching đã quá 5s (do worker lag hoặc crash), tự reset
         if (
           cachedAnalysis &&
           cachedAnalysis.searchStartTime &&
           Date.now() - cachedAnalysis.searchStartTime > 5000
         ) {
           cachedAnalysis.isSearching = false;
-          lastAnalysisHash = "";
-        } else {
-          return;
+          if (mentorSetter) {
+            mentorSetter({ ...cachedAnalysis, isSearching: false });
+          }
         }
+        return;
       }
-      // 2. Đã có kết quả phân tích sâu hoàn chỉnh cho thế trận này -> giữ nguyên
-      if (
-        cachedAnalysis &&
-        !cachedAnalysis.isQuickOnly &&
-        Array.isArray(cachedAnalysis.plans) &&
-        cachedAnalysis.plans.length > 0
-      ) {
+      // 2. Thế trận không đổi và đã phân tích xong -> giữ nguyên tuyệt đối, KHÔNG re-render!
+      if (cachedAnalysis) {
         return;
       }
     }
     lastAnalysisHash = stateHash;
-
-    // Xóa ngay các mũi tên vẽ nước cờ cũ trên bàn cờ khi có nước đi mới
-    clearMentorPlanArrows();
 
     const pieces = getBoardState(gameData.gameLayer);
     if (!pieces || pieces.length === 0) return;
@@ -3966,18 +3972,62 @@ import {
     const quickRes = asyncWorker.quickEvaluate(pieces, gameData.myColor);
     const quickAnalysis = buildQuickAnalysis(quickRes, gameData, pieces);
 
-    // BẮT BUỘC: Khi thế cờ thay đổi (quân vừa di chuyển), hủy ngay plans cũ của lượt trước
-    // để tránh bị "treo bước" hoặc hiển thị gợi ý sai của lượt cũ!
-    const freshTransitionalAnalysis = {
+    const activeColor =
+      gameData.gameLayer && gameData.gameLayer.Yc !== undefined
+        ? gameData.gameLayer.Yc
+        : gameData.myColor;
+    const isMyTurn = activeColor === gameData.myColor;
+
+    if (!isMyTurn) {
+      // Đang trong lượt của đối thủ:
+      // Xóa mũi tên kế sách cũ để tránh nhầm lẫn
+      clearMentorPlanArrows();
+      if (analyzeDebounceTimer) {
+        clearTimeout(analyzeDebounceTimer);
+        analyzeDebounceTimer = null;
+      }
+      if (cancelWorkerSearch) {
+        cancelWorkerSearch();
+        cancelWorkerSearch = null;
+      }
+
+      const waitingAnalysis = {
+        ...quickAnalysis,
+        isSearching: false,
+        isQuickOnly: false,
+        plans: [],
+        activeStep: 0,
+        selectedPlanIdx: 0,
+        commentary: {
+          type: "waiting",
+          title: "LƯỢT ĐỐI THỦ ĐANG SUY NGHĨ",
+          move: null,
+          shortMove: null,
+          why: "Đối thủ đang suy nghĩ nước cờ. Hãy quan sát trận thế và giữ vững sự tập trung!",
+        },
+      };
+      cachedAnalysis = waitingAnalysis;
+      updateMentorHudCardText(waitingAnalysis);
+      if (mentorSetter) {
+        mentorSetter(waitingAnalysis);
+      }
+      return;
+    }
+
+    // Đang trong lượt của Người Chơi (Ta đi):
+    clearMentorPlanArrows();
+
+    // Giữ lại plans cũ trong giai đoạn chờ để tránh UI chớp giật (bàn cờ nhỏ và tab kế sách không bị biến mất đột ngột)
+    const transitionalAnalysis = {
       ...quickAnalysis,
       isSearching: true,
       isQuickOnly: true,
       searchStartTime: Date.now(),
-      plans: [],
+      plans: cachedAnalysis?.plans?.length ? cachedAnalysis.plans : [],
       activeStep: 1,
       selectedPlanIdx: 0,
     };
-    cachedAnalysis = freshTransitionalAnalysis;
+    cachedAnalysis = transitionalAnalysis;
 
     if (quickAnalysis) {
       updateMentorHudCardText(quickAnalysis);
@@ -3998,9 +4048,9 @@ import {
       return;
     }
 
-    // Modal is OPEN: cập nhật ngay UI sang trạng thái tính toán sạch của thế cờ mới
+    // Modal is OPEN: cập nhật mượt mà UI
     if (mentorSetter) {
-      mentorSetter(freshTransitionalAnalysis);
+      mentorSetter(transitionalAnalysis);
     }
 
     if (analyzeDebounceTimer) {

@@ -23,6 +23,25 @@
       return null;
     }
 
+    // Kiểm tra gameLayer còn đang chạy và hiển thị trong scene hiện tại không (tránh giữ rác khi đã ra sảnh/lobby)
+    if (typeof gameLayer.isRunning === "function" && !gameLayer.isRunning()) {
+      return null;
+    }
+    if (typeof gameLayer.isVisible === "function" && !gameLayer.isVisible()) {
+      return null;
+    }
+    if (typeof gameLayer.getParent === "function" && !gameLayer.getParent()) {
+      return null;
+    }
+    if (gameLayer.T && typeof gameLayer.T === "function") {
+      const table = gameLayer.T();
+      // Trong Ziga: Fb là trạng thái bàn chơi (1: Đang chờ trong phòng, 2: Đang thi đấu)
+      // Nếu Fb là 0 hoặc 3 (đã rời bàn hoặc ván kết thúc về sảnh), không coi là bàn đang hoạt động
+      if (table && table.Fb !== undefined && table.Fb !== 1 && table.Fb !== 2) {
+        return null;
+      }
+    }
+
     const logicMgr = window.BkLogicManager ? window.BkLogicManager.na() : null;
     const myPlayer = logicMgr && logicMgr.Ba ? logicMgr.Ba() : null;
 
