@@ -102,16 +102,62 @@ export function createPikafishProvider(options = {}) {
   let wasmWorker = null;
   let activeRequestId = 0;
   let activeCallback = null;
+  let reconnectTimer = null;
+  let heartbeatTimer = null;
+
+  function safeSend(cmd) {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+      try {
+        socket.send(cmd);
+        return true;
+      } catch (e) {
+        console.warn("[Pikafish Provider] safeSend failed:", e);
+        return false;
+      }
+    }
+    return false;
+  }
+
+  function scheduleAutoReconnect(delayMs = 1200) {
+    if (reconnectTimer) clearTimeout(reconnectTimer);
+    reconnectTimer = setTimeout(() => {
+      reconnectTimer = null;
+      ensureSocket(true);
+    }, delayMs);
+  }
+
+  function startHeartbeat() {
+    stopHeartbeat();
+    heartbeatTimer = setInterval(() => {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        // Gửi lệnh isready giữ cho TCP connection luôn ấm, tránh Windows / Chrome idle timeout
+        safeSend("isready\n");
+      } else if (!socket || socket.readyState === WebSocket.CLOSED) {
+        scheduleAutoReconnect(500);
+      }
+    }, 10000);
+  }
+
+  function stopHeartbeat() {
+    if (heartbeatTimer) {
+      clearInterval(heartbeatTimer);
+      heartbeatTimer = null;
+    }
+  }
 
   function ensureSocket(force = false) {
     if (typeof window === "undefined" || typeof WebSocket === "undefined") return;
-    if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+    if (
+      socket &&
+      (socket.readyState === WebSocket.OPEN ||
+        socket.readyState === WebSocket.CONNECTING)
+    ) {
       return;
     }
 
     const now = Date.now();
-    // Tự động kết nối lại nhanh (cooldown 4 giây thay vì 60 giây) nếu bridge bị khởi động lại
-    if (!force && socketFailedOnce && now - lastSocketAttempt < 4000) {
+    // Tự động kết nối lại nhanh (cooldown 1.5s thay vì 4s)
+    if (!force && socketFailedOnce && now - lastSocketAttempt < 1500) {
       return;
     }
 
@@ -140,6 +186,11 @@ export function createPikafishProvider(options = {}) {
     }
 
     try {
+      if (socket) {
+        try {
+          socket.close();
+        } catch (e) {}
+      }
       socket = new WebSocket(wsUrl);
       socket.onopen = () => {
         console.log(
@@ -149,28 +200,50 @@ export function createPikafishProvider(options = {}) {
         );
         socketReady = true;
         socketFailedOnce = false;
-        socket.send("uci\n");
-        socket.send("setoption name Threads value 4\n");
-        socket.send("setoption name Hash value 128\n");
-        socket.send("setoption name MultiPV value 3\n");
-        socket.send("isready\n");
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+          reconnectTimer = null;
+        }
+        safeSend("uci\n");
+        safeSend("setoption name Threads value 4\n");
+        safeSend("setoption name Hash value 128\n");
+        safeSend("setoption name MultiPV value 3\n");
+        safeSend("isready\n");
         notifyStatusChange();
+        startHeartbeat();
       };
       socket.onerror = () => {
         socketReady = false;
         socketFailedOnce = true;
+        stopHeartbeat();
         notifyStatusChange();
+        scheduleAutoReconnect(1500);
       };
       socket.onclose = () => {
         socketReady = false;
         socketFailedOnce = true;
+        stopHeartbeat();
         notifyStatusChange();
+        scheduleAutoReconnect(1500);
       };
     } catch (e) {
       socketReady = false;
       socketFailedOnce = true;
       notifyStatusChange();
+      scheduleAutoReconnect(2000);
     }
+  }
+
+  // Khởi động watchdog nền vĩnh viễn (kiểm tra mỗi 2.5s)
+  if (typeof window !== "undefined") {
+    if (window.__zigaPikafishWatchdog) {
+      clearInterval(window.__zigaPikafishWatchdog);
+    }
+    window.__zigaPikafishWatchdog = setInterval(() => {
+      if (!socket || socket.readyState === WebSocket.CLOSED) {
+        ensureSocket(false);
+      }
+    }, 2500);
   }
 
   // Initialize transport if in browser environment
@@ -463,8 +536,10 @@ export function createPikafishProvider(options = {}) {
     // Ensure connection to native UCI bridge
     ensureSocket();
 
-    // Check if Pikafish transport is active and available
-    const isPikafishActive = socketReady && socket && socket.readyState === WebSocket.OPEN;
+    function runRoutine() {
+      // Check if Pikafish transport is active and available
+      const isPikafishActive =
+        socketReady && socket && socket.readyState === WebSocket.OPEN;
 
     if (!isPikafishActive) {
       // 1. Try ChessDB Cloud Pikafish API (Depth 30-62 Grandmaster evaluation)
@@ -581,11 +656,11 @@ export function createPikafishProvider(options = {}) {
 
     // Send UCI search command
     const goCommand = `position fen ${fen}\ngo movetime ${Math.min(timeMs, 2000)} depth ${maxDepth}\n`;
-    socket.send(goCommand);
+    safeSend(goCommand);
 
     const timer = setTimeout(() => {
       if (activeRequestId === currentId) {
-        socket.send("stop\n");
+        safeSend("stop\n");
       }
     }, timeMs + 100);
 
@@ -678,23 +753,60 @@ export function createPikafishProvider(options = {}) {
       cb(null, result);
     }
 
-    return function cancel() {
-      if (activeRequestId === currentId) {
-        clearTimeout(timer);
-        if (hardTimeout) {
-          clearTimeout(hardTimeout);
-          hardTimeout = null;
+      return function cancel() {
+        if (activeRequestId === currentId) {
+          clearTimeout(timer);
+          if (hardTimeout) {
+            clearTimeout(hardTimeout);
+            hardTimeout = null;
+          }
+          cleanup();
+          safeSend("stop\n");
+          activeCallback = null;
         }
-        cleanup();
-        if (socketReady && socket) {
-          socket.send("stop\n");
+      };
+    }
+
+    // Nếu socket đang trong quá trình kết nối (CONNECTING), đợi tối đa 350ms thay vì vội vàng bỏ Pikafish!
+    if (socket && socket.readyState === WebSocket.CONNECTING) {
+      let isCancelled = false;
+      let cancelSub = null;
+      let checkCount = 0;
+      const pollTimer = setInterval(() => {
+        checkCount++;
+        if (isCancelled) {
+          clearInterval(pollTimer);
+          return;
         }
-        activeCallback = null;
-      }
-    };
+        if (socketReady && socket && socket.readyState === WebSocket.OPEN) {
+          clearInterval(pollTimer);
+          cancelSub = runRoutine();
+        } else if (
+          checkCount >= 14 ||
+          !socket ||
+          socket.readyState !== WebSocket.CONNECTING
+        ) {
+          clearInterval(pollTimer);
+          cancelSub = runRoutine();
+        }
+      }, 25);
+
+      return () => {
+        isCancelled = true;
+        clearInterval(pollTimer);
+        if (typeof cancelSub === "function") cancelSub();
+      };
+    }
+
+    return runRoutine();
   }
 
   function dispose() {
+    stopHeartbeat();
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
     if (socket) {
       try {
         socket.close();

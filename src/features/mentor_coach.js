@@ -694,39 +694,47 @@ import {
   function buildTacticalAnalysis(searchRes, gameData, pieces) {
     if (!gameData || !pieces || pieces.length === 0 || !searchRes) return null;
 
-    const myColor = gameData.myColor;
-    const oppColor = gameData.oppColor;
-    const gameLayer = gameData.gameLayer;
-    const activeColor =
-      gameLayer && gameLayer.Yc !== undefined ? gameLayer.Yc : myColor;
-    const isMyTurn = activeColor === myColor;
+    try {
+      const myColor = gameData.myColor;
+      const oppColor = gameData.oppColor;
+      const gameLayer = gameData.gameLayer;
+      const activeColor =
+        gameLayer && gameLayer.Yc !== undefined ? gameLayer.Yc : myColor;
+      const isMyTurn = activeColor === myColor;
 
-    // Phase determination
-    const totalPieces = pieces.length;
-    let phase = "Trung Cuộc";
-    if (totalPieces >= 28) phase = "Khai Cuộc";
-    else if (totalPieces <= 14) phase = "Tàn Cuộc";
+      // Phase determination
+      const totalPieces = pieces.length;
+      let phase = "Trung Cuộc";
+      if (totalPieces >= 28) phase = "Khai Cuộc";
+      else if (totalPieces <= 14) phase = "Tàn Cuộc";
 
-    // Numerical Advantage Score (centipawn to points)
-    const topScore = searchRes.score || 0;
-    const evalPoints = (topScore / 100).toFixed(1);
-    let evalText = "Cân bằng (0.0)";
-    if (topScore >= 50) evalText = `+${evalPoints}đ (Bạn ưu)`;
-    else if (topScore <= -50) evalText = `${evalPoints}đ (Địch ưu)`;
+      // Numerical Advantage Score (centipawn to points)
+      // Determine which side's moves are returned in searchRes
+      const searchedSide =
+        searchRes.side !== undefined
+          ? searchRes.side
+          : isMyTurn
+            ? myColor
+            : oppColor;
+      const movingColor = searchedSide;
+      const targetColor = 1 - searchedSide;
 
-    let inCheck = Boolean(searchRes.inCheck);
-    if (!inCheck) {
-      try {
-        engine.setup(pieces);
-        inCheck = Boolean(engine.inCheck(myColor));
-      } catch (e) {}
-    }
+      const rawScore = searchRes.score || 0;
+      const topScore = searchedSide === myColor ? rawScore : -rawScore;
+      const evalPoints = (topScore / 100).toFixed(1);
+      let evalText = "Cân bằng (0.0)";
+      if (topScore >= 50) evalText = `+${evalPoints}đ (Bạn ưu)`;
+      else if (topScore <= -50) evalText = `${evalPoints}đ (Địch ưu)`;
 
-    // Plans MUST ALWAYS be generated from the player's perspective (myColor)
-    // The Mentor is strictly the player's Grandmaster Tactical Advisor.
-    const plans = [];
-    const movingColor = myColor;
-    const targetColor = oppColor;
+      let inCheck = Boolean(searchRes.inCheck);
+      if (!inCheck) {
+        try {
+          engine.setup(pieces);
+          inCheck = Boolean(engine.inCheck(myColor));
+        } catch (e) {}
+      }
+
+      const plans = [];
 
     (searchRes.lines || []).forEach((line, idx) => {
       const movingPiece = pieces.find(
@@ -1291,6 +1299,12 @@ import {
         why: plans[0].why,
       };
     } else if (!isMyTurn) {
+      const oppPlan = plans[0];
+      const oppShort = oppPlan ? oppPlan.shortNotation : null;
+      const myAnswer =
+        oppPlan?.variations?.[0]?.answer?.notation?.short ||
+        oppPlan?.roadmap?.[1]?.notation?.short ||
+        null;
       const isOffenseDominating =
         topScore >= 350 ||
         plans[0]?.tags?.some(
@@ -1307,12 +1321,10 @@ import {
         title: isOffenseDominating
           ? "LƯỢT ĐỐI THỦ (BẠN ĐANG CÔNG SÁT ÁP ĐẢO)"
           : "LƯỢT ĐỐI THỦ ĐANG SUY NGHĨ",
-        move: plans[0] ? `Ta sẵn sàng: ${plans[0].shortNotation}` : null,
-        shortMove: plans[0] ? plans[0].shortNotation : null,
-        why: plans[0]
-          ? isOffenseDominating
-            ? `Đối thủ đang lúng túng chống đỡ. Bạn đã sẵn sàng phương án dứt điểm: ${plans[0].fullNotation}!`
-            : `Đối thủ đang suy nghĩ nước đi... Bạn sẵn sàng phương án đối sách: ${plans[0].fullNotation}.`
+        move: oppShort ? `Địch dự kiến: ${oppShort}` : null,
+        shortMove: oppShort,
+        why: oppShort
+          ? `Đối thủ đang suy nghĩ nước đi... Dự kiến địch đi ${oppShort}.${myAnswer ? ` Bạn chuẩn bị sẵn đối sách ${myAnswer}!` : ""}`
           : "Đối thủ đang suy nghĩ nước đi...",
       };
     } else if (plans[0]) {
@@ -1472,12 +1484,17 @@ import {
       allMaxims: XIANGQI_MAXIMS,
       isQuickOnly: false,
     };
+  } catch (err) {
+    console.error("[AN Mod] Fatal error in buildTacticalAnalysis:", err);
+    return null;
   }
+}
 
   // Asynchronous Deep Engine Search via Dedicated Background Web Worker (Zero UI Lag)
   function triggerDeepAnalysis(gameData, pieces) {
     if (!gameData || !pieces || pieces.length === 0) return;
     const myColor = gameData.myColor;
+    const oppColor = gameData.oppColor;
     const activeColor =
       gameData.gameLayer && gameData.gameLayer.Yc !== undefined
         ? gameData.gameLayer.Yc
@@ -1491,6 +1508,7 @@ import {
     }
 
     if (cachedAnalysis && mentorSetter) {
+      cachedAnalysis.searchStartTime = Date.now();
       mentorSetter({ ...cachedAnalysis, isSearching: true });
     }
 
@@ -1502,11 +1520,12 @@ import {
       window.ZigaMod.isCoUpGame(gameData.gameLayer)
     );
 
+    const sideToAnalyze = isMyTurn ? myColor : oppColor;
     const provider = getEngineProvider(activeProviderId);
     cancelWorkerSearch = provider.analyzeAsync(
       {
         pieces,
-        side: myColor, // ALWAYS search for player (myColor) - keeps mentor strictly player-focused
+        side: sideToAnalyze,
         maxDepth: activeProviderId === "pikafish" ? 28 : 12,
         timeMs: activeProviderId === "pikafish" ? 1500 : 800,
         multiPV: 3,
@@ -1514,71 +1533,93 @@ import {
       },
       (err, searchRes) => {
         cancelWorkerSearch = null;
-        if (err || !searchRes || searchRes.error) {
-          console.warn("[AN Mod] Background engine search error, retrying with emergency fallback:", err);
-          lastAnalysisHash = "";
-          try {
-            const fbRes = engine.analyze({
-              pieces,
-              side: myColor,
-              maxDepth: 5,
-              timeMs: 250,
-              multiPV: 3,
-            });
-            if (fbRes && !fbRes.error) {
-              const fbDeep = buildTacticalAnalysis(fbRes, gameData, pieces);
-              if (fbDeep) {
-                fbDeep.isSearching = false;
-                fbDeep.isQuickOnly = false;
-                cachedAnalysis = fbDeep;
-                updateMentorHudCardText(fbDeep);
-                if (mentorSetter) {
-                  mentorSetter(fbDeep);
-                }
-                if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
-                  renderMentorFloatingContent(fbDeep);
+        try {
+          if (err || !searchRes || searchRes.error) {
+            console.warn(
+              "[AN Mod] Background engine search error, retrying with emergency fallback:",
+              err,
+            );
+            lastAnalysisHash = "";
+            try {
+              const fbRes = engine.analyze({
+                pieces,
+                side: sideToAnalyze,
+                maxDepth: 5,
+                timeMs: 250,
+                multiPV: 3,
+              });
+              if (fbRes && !fbRes.error) {
+                const fbDeep = buildTacticalAnalysis(fbRes, gameData, pieces);
+                if (fbDeep) {
+                  fbDeep.isSearching = false;
+                  fbDeep.isQuickOnly = false;
+                  cachedAnalysis = fbDeep;
+                  updateMentorHudCardText(fbDeep);
+                  if (mentorSetter) {
+                    mentorSetter(fbDeep);
+                  }
+                  if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
+                    renderMentorFloatingContent(fbDeep);
+                  }
                 }
               }
-            }
-          } catch (e) {}
-          return;
-        }
+            } catch (e) {}
+            return;
+          }
 
-        // Drop stale results if board state changed during search
-        if (lastAnalysisHash !== currentHash) return;
+          // Drop stale results if board state changed during search
+          if (lastAnalysisHash !== currentHash) return;
 
-        let deepAnalysis = buildTacticalAnalysis(searchRes, gameData, pieces);
-        if (!deepAnalysis || !deepAnalysis.plans || deepAnalysis.plans.length === 0) {
-          try {
-            const fbRes = engine.analyze({
-              pieces,
-              side: myColor,
-              maxDepth: 5,
-              timeMs: 250,
-              multiPV: 3,
-            });
-            if (fbRes && !fbRes.error) {
-              deepAnalysis = buildTacticalAnalysis(fbRes, gameData, pieces);
-            }
-          } catch (e) {}
-        }
+          let deepAnalysis = buildTacticalAnalysis(searchRes, gameData, pieces);
+          if (
+            !deepAnalysis ||
+            !deepAnalysis.plans ||
+            deepAnalysis.plans.length === 0
+          ) {
+            try {
+              const fbRes = engine.analyze({
+                pieces,
+                side: sideToAnalyze,
+                maxDepth: 5,
+                timeMs: 250,
+                multiPV: 3,
+              });
+              if (fbRes && !fbRes.error) {
+                deepAnalysis = buildTacticalAnalysis(fbRes, gameData, pieces);
+              }
+            } catch (e) {}
+          }
 
-        if (!deepAnalysis) {
+          if (!deepAnalysis) {
+            lastAnalysisHash = "";
+            return;
+          }
+
+          deepAnalysis.isSearching = false;
+          deepAnalysis.isQuickOnly = false;
+          cachedAnalysis = deepAnalysis;
+          ZigaMod.lastEngineAnalysis = deepAnalysis;
+          updateMentorHudCardText(deepAnalysis);
+
+          if (mentorSetter) {
+            mentorSetter(deepAnalysis);
+          }
+          if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
+            renderMentorFloatingContent(deepAnalysis);
+          }
+        } catch (cbErr) {
+          console.error(
+            "[AN Mod] Uncaught error in triggerDeepAnalysis callback:",
+            cbErr,
+          );
           lastAnalysisHash = "";
-          return;
-        }
-
-        deepAnalysis.isSearching = false;
-        deepAnalysis.isQuickOnly = false;
-        cachedAnalysis = deepAnalysis;
-        ZigaMod.lastEngineAnalysis = deepAnalysis;
-        updateMentorHudCardText(deepAnalysis);
-
-        if (mentorSetter) {
-          mentorSetter(deepAnalysis);
-        }
-        if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
-          renderMentorFloatingContent(deepAnalysis);
+        } finally {
+          if (cachedAnalysis && cachedAnalysis.isSearching) {
+            cachedAnalysis.isSearching = false;
+            if (mentorSetter) {
+              mentorSetter({ ...cachedAnalysis });
+            }
+          }
         }
       },
     );
@@ -3891,7 +3932,17 @@ import {
         analyzeDebounceTimer !== null ||
         (cachedAnalysis && cachedAnalysis.isSearching)
       ) {
-        return;
+        // Watchdog chống kẹt: nếu isSearching đã quá 5s (do worker lag hoặc crash), tự reset để tiếp tục phân tích
+        if (
+          cachedAnalysis &&
+          cachedAnalysis.searchStartTime &&
+          Date.now() - cachedAnalysis.searchStartTime > 5000
+        ) {
+          cachedAnalysis.isSearching = false;
+          lastAnalysisHash = "";
+        } else {
+          return;
+        }
       }
       // 2. Đã có kết quả phân tích sâu hoàn chỉnh cho thế trận này -> giữ nguyên
       if (
@@ -3921,6 +3972,7 @@ import {
       ...quickAnalysis,
       isSearching: true,
       isQuickOnly: true,
+      searchStartTime: Date.now(),
       plans: [],
       activeStep: 1,
       selectedPlanIdx: 0,

@@ -1048,8 +1048,8 @@
       }
     }
 
-    // Player node properties
-    const pNode = data.myColor === 0 ? gl.gc : gl.dc;
+    // Player node properties (Left seat gc is local player)
+    const pNode = gl.gc || gl.dc;
     if (pNode) {
       for (const p of ["turnTime", "maxTurnTime", "timePerTurn"]) {
         if (typeof pNode[p] === "number" && pNode[p] >= 10 && pNode[p] <= 300) {
@@ -1073,9 +1073,9 @@
   }
 
   // 1. Dedicated Extractor for Green Radial Progress Ring (cc.ProgressTimer around avatar)
-  function findGreenProgressTimer(gl, targetColor) {
+  function findGreenProgressTimer(gl, targetColor, myColor = 0) {
     if (!gl) return null;
-    const pNode = targetColor === 0 ? gl.gc : gl.dc;
+    const pNode = targetColor === myColor ? (gl.gc || gl.dc) : (gl.dc || gl.gc);
     if (!pNode) return null;
 
     function searchProgress(node, depth) {
@@ -1153,9 +1153,9 @@
   }
 
   // 2. Dedicated Extractor for Total Match Clock (e.g. 12:26 under avatar)
-  function findTotalMatchTime(gl, targetColor) {
+  function findTotalMatchTime(gl, targetColor, myColor = 0) {
     if (!gl) return null;
-    const pNode = targetColor === 0 ? gl.gc : gl.dc;
+    const pNode = targetColor === myColor ? (gl.gc || gl.dc) : (gl.dc || gl.gc);
 
     function searchForTimeStr(node, depth) {
       if (!node || depth < 0) return null;
@@ -1282,7 +1282,7 @@
     if (!data || !data.gameLayer) return null;
     const gl = data.gameLayer;
     const color = targetColor !== undefined ? targetColor : data.myColor;
-    const pNode = color === 0 ? gl.gc : gl.dc;
+    const pNode = color === data.myColor ? (gl.gc || gl.dc) : (gl.dc || gl.gc);
 
     // 1. Search player node view and data
     if (pNode) {

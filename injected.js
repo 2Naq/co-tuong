@@ -16285,7 +16285,7 @@
           return gl[p];
         }
       }
-      const pNode = data.myColor === 0 ? gl.gc : gl.dc;
+      const pNode = gl.gc || gl.dc;
       if (pNode) {
         for (const p of ["turnTime", "maxTurnTime", "timePerTurn"]) {
           if (typeof pNode[p] === "number" && pNode[p] >= 10 && pNode[p] <= 300) {
@@ -16302,9 +16302,9 @@
       }
       return 60;
     }
-    function findGreenProgressTimer(gl, targetColor) {
+    function findGreenProgressTimer(gl, targetColor, myColor = 0) {
       if (!gl) return null;
-      const pNode = targetColor === 0 ? gl.gc : gl.dc;
+      const pNode = targetColor === myColor ? gl.gc || gl.dc : gl.dc || gl.gc;
       if (!pNode) return null;
       function searchProgress(node, depth) {
         if (!node || depth < 0) return null;
@@ -16359,9 +16359,9 @@
       }
       return searchProgress(pNode, 6);
     }
-    function findTotalMatchTime(gl, targetColor) {
+    function findTotalMatchTime(gl, targetColor, myColor = 0) {
       if (!gl) return null;
-      const pNode = targetColor === 0 ? gl.gc : gl.dc;
+      const pNode = targetColor === myColor ? gl.gc || gl.dc : gl.dc || gl.gc;
       function searchForTimeStr(node, depth) {
         if (!node || depth < 0) return null;
         try {
@@ -16474,7 +16474,7 @@
       if (!data || !data.gameLayer) return null;
       const gl = data.gameLayer;
       const color = targetColor !== void 0 ? targetColor : data.myColor;
-      const pNode = color === 0 ? gl.gc : gl.dc;
+      const pNode = color === data.myColor ? gl.gc || gl.dc : gl.dc || gl.gc;
       if (pNode) {
         const pFound = searchCocosNodeForCountdown(pNode, 4);
         if (pFound !== null) return pFound;
@@ -46693,13 +46693,50 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     let wasmWorker = null;
     let activeRequestId = 0;
     let activeCallback = null;
+    let reconnectTimer = null;
+    let heartbeatTimer = null;
+    function safeSend(cmd) {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        try {
+          socket.send(cmd);
+          return true;
+        } catch (e) {
+          console.warn("[Pikafish Provider] safeSend failed:", e);
+          return false;
+        }
+      }
+      return false;
+    }
+    function scheduleAutoReconnect(delayMs = 1200) {
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      reconnectTimer = setTimeout(() => {
+        reconnectTimer = null;
+        ensureSocket(true);
+      }, delayMs);
+    }
+    function startHeartbeat() {
+      stopHeartbeat();
+      heartbeatTimer = setInterval(() => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+          safeSend("isready\n");
+        } else if (!socket || socket.readyState === WebSocket.CLOSED) {
+          scheduleAutoReconnect(500);
+        }
+      }, 1e4);
+    }
+    function stopHeartbeat() {
+      if (heartbeatTimer) {
+        clearInterval(heartbeatTimer);
+        heartbeatTimer = null;
+      }
+    }
     function ensureSocket(force = false) {
       if (typeof window === "undefined" || typeof WebSocket === "undefined") return;
       if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
         return;
       }
       const now = Date.now();
-      if (!force && socketFailedOnce && now - lastSocketAttempt < 4e3) {
+      if (!force && socketFailedOnce && now - lastSocketAttempt < 1500) {
         return;
       }
       lastSocketAttempt = now;
@@ -46716,6 +46753,12 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         }
       }
       try {
+        if (socket) {
+          try {
+            socket.close();
+          } catch (e) {
+          }
+        }
         socket = new WebSocket(wsUrl);
         socket.onopen = () => {
           console.log(
@@ -46725,28 +46768,48 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           );
           socketReady = true;
           socketFailedOnce = false;
-          socket.send("uci\n");
-          socket.send("setoption name Threads value 4\n");
-          socket.send("setoption name Hash value 128\n");
-          socket.send("setoption name MultiPV value 3\n");
-          socket.send("isready\n");
+          if (reconnectTimer) {
+            clearTimeout(reconnectTimer);
+            reconnectTimer = null;
+          }
+          safeSend("uci\n");
+          safeSend("setoption name Threads value 4\n");
+          safeSend("setoption name Hash value 128\n");
+          safeSend("setoption name MultiPV value 3\n");
+          safeSend("isready\n");
           notifyStatusChange();
+          startHeartbeat();
         };
         socket.onerror = () => {
           socketReady = false;
           socketFailedOnce = true;
+          stopHeartbeat();
           notifyStatusChange();
+          scheduleAutoReconnect(1500);
         };
         socket.onclose = () => {
           socketReady = false;
           socketFailedOnce = true;
+          stopHeartbeat();
           notifyStatusChange();
+          scheduleAutoReconnect(1500);
         };
       } catch (e) {
         socketReady = false;
         socketFailedOnce = true;
         notifyStatusChange();
+        scheduleAutoReconnect(2e3);
       }
+    }
+    if (typeof window !== "undefined") {
+      if (window.__zigaPikafishWatchdog) {
+        clearInterval(window.__zigaPikafishWatchdog);
+      }
+      window.__zigaPikafishWatchdog = setInterval(() => {
+        if (!socket || socket.readyState === WebSocket.CLOSED) {
+          ensureSocket(false);
+        }
+      }, 2500);
     }
     if (typeof window !== "undefined") {
       ensureSocket();
@@ -46986,201 +47049,231 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         };
       }
       ensureSocket();
-      const isPikafishActive = socketReady && socket && socket.readyState === WebSocket.OPEN;
-      if (!isPikafishActive) {
-        let isCancelled = false;
-        const cancelChessDb = queryChessDbCloud(fen, side2, input.pieces, (cErr, cResult) => {
-          if (isCancelled) return;
-          if (!cErr && cResult && cResult.lines && cResult.lines.length > 0) {
-            if (activeRequestId === currentId && typeof activeCallback === "function") {
-              const cb = activeCallback;
-              activeCallback = null;
-              cb(null, cResult);
-            }
-            return;
-          }
-          if (allowFallback) {
-            const cancelFallback = getFallback().analyzeAsync(input, (err, res) => {
+      function runRoutine() {
+        const isPikafishActive = socketReady && socket && socket.readyState === WebSocket.OPEN;
+        if (!isPikafishActive) {
+          let isCancelled = false;
+          const cancelChessDb = queryChessDbCloud(fen, side2, input.pieces, (cErr, cResult) => {
+            if (isCancelled) return;
+            if (!cErr && cResult && cResult.lines && cResult.lines.length > 0) {
               if (activeRequestId === currentId && typeof activeCallback === "function") {
                 const cb = activeCallback;
                 activeCallback = null;
-                if (err) {
-                  cb(err);
-                } else {
-                  const enriched = {
-                    ...res,
-                    engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
-                    pikafishStatus: "offline-fallback"
-                  };
-                  cb(null, enriched);
-                }
+                cb(null, cResult);
               }
-            });
-            return cancelFallback;
-          } else if (typeof callback === "function") {
-            callback(new Error("Pikafish native bridge and ChessDB Cloud are offline"));
+              return;
+            }
+            if (allowFallback) {
+              const cancelFallback = getFallback().analyzeAsync(input, (err, res) => {
+                if (activeRequestId === currentId && typeof activeCallback === "function") {
+                  const cb = activeCallback;
+                  activeCallback = null;
+                  if (err) {
+                    cb(err);
+                  } else {
+                    const enriched = {
+                      ...res,
+                      engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
+                      pikafishStatus: "offline-fallback"
+                    };
+                    cb(null, enriched);
+                  }
+                }
+              });
+              return cancelFallback;
+            } else if (typeof callback === "function") {
+              callback(new Error("Pikafish native bridge and ChessDB Cloud are offline"));
+            }
+          });
+          return () => {
+            isCancelled = true;
+            if (typeof cancelChessDb === "function") cancelChessDb();
+          };
+        }
+        let collectedLines = [];
+        let bestMove = null;
+        let uciListener = null;
+        const cleanup = () => {
+          if (socket && uciListener) {
+            socket.removeEventListener("message", uciListener);
+            uciListener = null;
           }
-        });
-        return () => {
-          isCancelled = true;
-          if (typeof cancelChessDb === "function") cancelChessDb();
         };
-      }
-      let collectedLines = [];
-      let bestMove = null;
-      let uciListener = null;
-      const cleanup = () => {
-        if (socket && uciListener) {
-          socket.removeEventListener("message", uciListener);
-          uciListener = null;
-        }
-      };
-      const hardTimeoutMs = Math.min(timeMs + 350, 2500);
-      let hardTimeout = setTimeout(() => {
-        if (activeRequestId === currentId && typeof activeCallback === "function") {
-          console.warn("[Pikafish Provider] Engine response timed out, switching to JS fallback");
-          cleanup();
-          if (allowFallback) {
-            getFallback().analyzeAsync(input, (err, res) => {
-              if (activeRequestId === currentId && typeof activeCallback === "function") {
-                const cb = activeCallback;
-                activeCallback = null;
-                if (err) cb(err);
-                else {
-                  cb(null, {
-                    ...res,
-                    engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
-                    pikafishStatus: "offline-fallback"
-                  });
+        const hardTimeoutMs = Math.min(timeMs + 350, 2500);
+        let hardTimeout = setTimeout(() => {
+          if (activeRequestId === currentId && typeof activeCallback === "function") {
+            console.warn("[Pikafish Provider] Engine response timed out, switching to JS fallback");
+            cleanup();
+            if (allowFallback) {
+              getFallback().analyzeAsync(input, (err, res) => {
+                if (activeRequestId === currentId && typeof activeCallback === "function") {
+                  const cb = activeCallback;
+                  activeCallback = null;
+                  if (err) cb(err);
+                  else {
+                    cb(null, {
+                      ...res,
+                      engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
+                      pikafishStatus: "offline-fallback"
+                    });
+                  }
                 }
+              });
+            } else {
+              finalizePikafishResult();
+            }
+          }
+        }, hardTimeoutMs);
+        const searchStartTime = Date.now();
+        uciListener = (event) => {
+          if (activeRequestId !== currentId) return;
+          const text = typeof event.data === "string" ? event.data : "";
+          const lines = text.split("\n");
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith("info ") && trimmed.includes("multipv ")) {
+              const parsed = parseUciInfo(trimmed);
+              if (parsed && parsed.multipv > 0) {
+                collectedLines[parsed.multipv - 1] = parsed;
               }
-            });
-          } else {
-            finalizePikafishResult();
-          }
-        }
-      }, hardTimeoutMs);
-      const searchStartTime = Date.now();
-      uciListener = (event) => {
-        if (activeRequestId !== currentId) return;
-        const text = typeof event.data === "string" ? event.data : "";
-        const lines = text.split("\n");
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (trimmed.startsWith("info ") && trimmed.includes("multipv ")) {
-            const parsed = parseUciInfo(trimmed);
-            if (parsed && parsed.multipv > 0) {
-              collectedLines[parsed.multipv - 1] = parsed;
+            } else if (trimmed.startsWith("bestmove ")) {
+              if (collectedLines.length === 0 && Date.now() - searchStartTime < 150) {
+                console.log("[Pikafish Provider] Ignored trailing bestmove from previous search");
+                continue;
+              }
+              const parts = trimmed.split(/\s+/);
+              bestMove = parts[1];
+              finalizePikafishResult();
             }
-          } else if (trimmed.startsWith("bestmove ")) {
-            if (collectedLines.length === 0 && Date.now() - searchStartTime < 150) {
-              console.log("[Pikafish Provider] Ignored trailing bestmove from previous search");
-              continue;
-            }
-            const parts = trimmed.split(/\s+/);
-            bestMove = parts[1];
-            finalizePikafishResult();
           }
-        }
-      };
-      socket.addEventListener("message", uciListener);
-      const goCommand = `position fen ${fen}
+        };
+        socket.addEventListener("message", uciListener);
+        const goCommand = `position fen ${fen}
 go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
 `;
-      socket.send(goCommand);
-      const timer = setTimeout(() => {
-        if (activeRequestId === currentId) {
-          socket.send("stop\n");
-        }
-      }, timeMs + 100);
-      function finalizePikafishResult() {
-        clearTimeout(timer);
-        if (hardTimeout) {
-          clearTimeout(hardTimeout);
-          hardTimeout = null;
-        }
-        cleanup();
-        if (activeRequestId !== currentId || typeof activeCallback !== "function") return;
-        const cb = activeCallback;
-        activeCallback = null;
-        const formattedLines = [];
-        for (const cl of collectedLines) {
-          if (!cl || !cl.pv || !cl.pv[0]) continue;
-          const moveCoord = uciToMove(cl.pv[0], isFlipped);
-          if (!moveCoord) continue;
-          formattedLines.push({
-            fromCol: moveCoord.fromCol,
-            fromRow: moveCoord.fromRow,
-            toCol: moveCoord.toCol,
-            toRow: moveCoord.toRow,
-            score: cl.score,
-            isMate: Boolean(cl.isMate || Math.abs(cl.score) >= 9500),
-            delivermate: Boolean(cl.isMate || Math.abs(cl.score) >= 9500),
-            exact: true,
-            pv: cl.pv.map((mv) => uciToMove(mv, isFlipped)).filter(Boolean),
-            tags: detectUciTacticalTags(cl, side2, input.pieces),
-            replies: cl.pv[1] ? [
-              {
-                ...uciToMove(cl.pv[1], isFlipped),
-                score: -cl.score,
-                answer: cl.pv[2] ? { ...uciToMove(cl.pv[2], isFlipped), score: cl.score } : null,
-                step4: cl.pv[3] ? { ...uciToMove(cl.pv[3], isFlipped), score: -cl.score } : null,
-                step5: cl.pv[4] ? { ...uciToMove(cl.pv[4], isFlipped), score: cl.score } : null
-              }
-            ] : []
-          });
-        }
-        const topScore = formattedLines[0] ? formattedLines[0].score : 0;
-        const isSideInCheck = checkSideInCheck(input.pieces, side2);
-        const result = {
-          side: side2,
-          mated: Math.abs(topScore) > 9500,
-          inCheck: isSideInCheck,
-          depth: collectedLines[0]?.depth || maxDepth,
-          nodes: collectedLines[0]?.nodes || 0,
-          engineName: "Pikafish NNUE (Native WS: 8765)",
-          pikafishStatus: "native-ws",
-          score: topScore,
-          lines: formattedLines,
-          threat: null,
-          legalCount: formattedLines.length,
-          ms: timeMs
-        };
-        if (formattedLines.length === 0 && allowFallback) {
-          console.warn("[Pikafish Provider] Pikafish returned 0 lines, seamlessly routing to JS Grandmaster engine");
-          getFallback().analyzeAsync(input, (fErr, fRes) => {
-            if (typeof cb === "function") {
-              if (fErr || !fRes) {
-                cb(null, result);
-              } else {
-                cb(null, {
-                  ...fRes,
-                  engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
-                  pikafishStatus: "offline-fallback"
-                });
-              }
-            }
-          });
-          return;
-        }
-        cb(null, result);
-      }
-      return function cancel() {
-        if (activeRequestId === currentId) {
+        safeSend(goCommand);
+        const timer = setTimeout(() => {
+          if (activeRequestId === currentId) {
+            safeSend("stop\n");
+          }
+        }, timeMs + 100);
+        function finalizePikafishResult() {
           clearTimeout(timer);
           if (hardTimeout) {
             clearTimeout(hardTimeout);
             hardTimeout = null;
           }
           cleanup();
-          if (socketReady && socket) {
-            socket.send("stop\n");
-          }
+          if (activeRequestId !== currentId || typeof activeCallback !== "function") return;
+          const cb = activeCallback;
           activeCallback = null;
+          const formattedLines = [];
+          for (const cl of collectedLines) {
+            if (!cl || !cl.pv || !cl.pv[0]) continue;
+            const moveCoord = uciToMove(cl.pv[0], isFlipped);
+            if (!moveCoord) continue;
+            formattedLines.push({
+              fromCol: moveCoord.fromCol,
+              fromRow: moveCoord.fromRow,
+              toCol: moveCoord.toCol,
+              toRow: moveCoord.toRow,
+              score: cl.score,
+              isMate: Boolean(cl.isMate || Math.abs(cl.score) >= 9500),
+              delivermate: Boolean(cl.isMate || Math.abs(cl.score) >= 9500),
+              exact: true,
+              pv: cl.pv.map((mv) => uciToMove(mv, isFlipped)).filter(Boolean),
+              tags: detectUciTacticalTags(cl, side2, input.pieces),
+              replies: cl.pv[1] ? [
+                {
+                  ...uciToMove(cl.pv[1], isFlipped),
+                  score: -cl.score,
+                  answer: cl.pv[2] ? { ...uciToMove(cl.pv[2], isFlipped), score: cl.score } : null,
+                  step4: cl.pv[3] ? { ...uciToMove(cl.pv[3], isFlipped), score: -cl.score } : null,
+                  step5: cl.pv[4] ? { ...uciToMove(cl.pv[4], isFlipped), score: cl.score } : null
+                }
+              ] : []
+            });
+          }
+          const topScore = formattedLines[0] ? formattedLines[0].score : 0;
+          const isSideInCheck = checkSideInCheck(input.pieces, side2);
+          const result = {
+            side: side2,
+            mated: Math.abs(topScore) > 9500,
+            inCheck: isSideInCheck,
+            depth: collectedLines[0]?.depth || maxDepth,
+            nodes: collectedLines[0]?.nodes || 0,
+            engineName: "Pikafish NNUE (Native WS: 8765)",
+            pikafishStatus: "native-ws",
+            score: topScore,
+            lines: formattedLines,
+            threat: null,
+            legalCount: formattedLines.length,
+            ms: timeMs
+          };
+          if (formattedLines.length === 0 && allowFallback) {
+            console.warn("[Pikafish Provider] Pikafish returned 0 lines, seamlessly routing to JS Grandmaster engine");
+            getFallback().analyzeAsync(input, (fErr, fRes) => {
+              if (typeof cb === "function") {
+                if (fErr || !fRes) {
+                  cb(null, result);
+                } else {
+                  cb(null, {
+                    ...fRes,
+                    engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
+                    pikafishStatus: "offline-fallback"
+                  });
+                }
+              }
+            });
+            return;
+          }
+          cb(null, result);
         }
-      };
+        return function cancel() {
+          if (activeRequestId === currentId) {
+            clearTimeout(timer);
+            if (hardTimeout) {
+              clearTimeout(hardTimeout);
+              hardTimeout = null;
+            }
+            cleanup();
+            safeSend("stop\n");
+            activeCallback = null;
+          }
+        };
+      }
+      if (socket && socket.readyState === WebSocket.CONNECTING) {
+        let isCancelled = false;
+        let cancelSub = null;
+        let checkCount = 0;
+        const pollTimer = setInterval(() => {
+          checkCount++;
+          if (isCancelled) {
+            clearInterval(pollTimer);
+            return;
+          }
+          if (socketReady && socket && socket.readyState === WebSocket.OPEN) {
+            clearInterval(pollTimer);
+            cancelSub = runRoutine();
+          } else if (checkCount >= 14 || !socket || socket.readyState !== WebSocket.CONNECTING) {
+            clearInterval(pollTimer);
+            cancelSub = runRoutine();
+          }
+        }, 25);
+        return () => {
+          isCancelled = true;
+          clearInterval(pollTimer);
+          if (typeof cancelSub === "function") cancelSub();
+        };
+      }
+      return runRoutine();
     }
     function dispose() {
+      stopHeartbeat();
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+        reconnectTimer = null;
+      }
       if (socket) {
         try {
           socket.close();
@@ -47860,584 +47953,595 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
     }
     function buildTacticalAnalysis(searchRes, gameData, pieces) {
       if (!gameData || !pieces || pieces.length === 0 || !searchRes) return null;
-      const myColor = gameData.myColor;
-      const oppColor = gameData.oppColor;
-      const gameLayer = gameData.gameLayer;
-      const activeColor = gameLayer && gameLayer.Yc !== void 0 ? gameLayer.Yc : myColor;
-      const isMyTurn = activeColor === myColor;
-      const totalPieces = pieces.length;
-      let phase = "Trung Cu\u1ED9c";
-      if (totalPieces >= 28) phase = "Khai Cu\u1ED9c";
-      else if (totalPieces <= 14) phase = "T\xE0n Cu\u1ED9c";
-      const topScore = searchRes.score || 0;
-      const evalPoints = (topScore / 100).toFixed(1);
-      let evalText = "C\xE2n b\u1EB1ng (0.0)";
-      if (topScore >= 50) evalText = `+${evalPoints}\u0111 (B\u1EA1n \u01B0u)`;
-      else if (topScore <= -50) evalText = `${evalPoints}\u0111 (\u0110\u1ECBch \u01B0u)`;
-      let inCheck = Boolean(searchRes.inCheck);
-      if (!inCheck) {
-        try {
-          engine.setup(pieces);
-          inCheck = Boolean(engine.inCheck(myColor));
-        } catch (e) {
-        }
-      }
-      const plans = [];
-      const movingColor = myColor;
-      const targetColor = oppColor;
-      (searchRes.lines || []).forEach((line, idx) => {
-        const movingPiece = pieces.find(
-          (p) => p.col === line.fromCol && p.row === line.fromRow && p.color === movingColor
-        );
-        if (!movingPiece) return;
-        const targetPiece = pieces.find(
-          (p) => p.col === line.toCol && p.row === line.toRow && p.color === targetColor
-        );
-        const notation = getXiangqiNotation(
-          movingPiece,
-          line.fromCol,
-          line.fromRow,
-          line.toCol,
-          line.toRow,
-          movingColor
-        );
-        const isMate = line.delivermate || line.score >= engine.MATE - 100;
-        const isCheck = inCheck;
-        const desc = getTacticalDescription(
-          movingPiece,
-          targetPiece,
-          notation,
-          line.toCol,
-          line.toRow,
-          movingColor,
-          isCheck,
-          isMate,
-          line.replies,
-          pieces,
-          evalPoints
-        );
-        let rawReplies = (line.replies || []).filter(
-          (r2) => r2 && r2.fromCol != null && r2.toCol != null
-        );
-        if (rawReplies.length === 0) {
+      try {
+        const myColor = gameData.myColor;
+        const oppColor = gameData.oppColor;
+        const gameLayer = gameData.gameLayer;
+        const activeColor = gameLayer && gameLayer.Yc !== void 0 ? gameLayer.Yc : myColor;
+        const isMyTurn = activeColor === myColor;
+        const totalPieces = pieces.length;
+        let phase = "Trung Cu\u1ED9c";
+        if (totalPieces >= 28) phase = "Khai Cu\u1ED9c";
+        else if (totalPieces <= 14) phase = "T\xE0n Cu\u1ED9c";
+        const searchedSide = searchRes.side !== void 0 ? searchRes.side : isMyTurn ? myColor : oppColor;
+        const movingColor = searchedSide;
+        const targetColor = 1 - searchedSide;
+        const rawScore = searchRes.score || 0;
+        const topScore = searchedSide === myColor ? rawScore : -rawScore;
+        const evalPoints = (topScore / 100).toFixed(1);
+        let evalText = "C\xE2n b\u1EB1ng (0.0)";
+        if (topScore >= 50) evalText = `+${evalPoints}\u0111 (B\u1EA1n \u01B0u)`;
+        else if (topScore <= -50) evalText = `${evalPoints}\u0111 (\u0110\u1ECBch \u01B0u)`;
+        let inCheck = Boolean(searchRes.inCheck);
+        if (!inCheck) {
           try {
-            const afterOurMove = pieces.filter(
-              (p) => !(p.col === line.toCol && p.row === line.toRow && p.color === oppColor)
-            ).map(
-              (p) => p.col === line.fromCol && p.row === line.fromRow && p.color === movingColor ? { ...p, col: line.toCol, row: line.toRow } : { ...p }
+            engine.setup(pieces);
+            inCheck = Boolean(engine.inCheck(myColor));
+          } catch (e) {
+          }
+        }
+        const plans = [];
+        (searchRes.lines || []).forEach((line, idx) => {
+          const movingPiece = pieces.find(
+            (p) => p.col === line.fromCol && p.row === line.fromRow && p.color === movingColor
+          );
+          if (!movingPiece) return;
+          const targetPiece = pieces.find(
+            (p) => p.col === line.toCol && p.row === line.toRow && p.color === targetColor
+          );
+          const notation = getXiangqiNotation(
+            movingPiece,
+            line.fromCol,
+            line.fromRow,
+            line.toCol,
+            line.toRow,
+            movingColor
+          );
+          const isMate = line.delivermate || line.score >= engine.MATE - 100;
+          const isCheck = inCheck;
+          const desc = getTacticalDescription(
+            movingPiece,
+            targetPiece,
+            notation,
+            line.toCol,
+            line.toRow,
+            movingColor,
+            isCheck,
+            isMate,
+            line.replies,
+            pieces,
+            evalPoints
+          );
+          let rawReplies = (line.replies || []).filter(
+            (r2) => r2 && r2.fromCol != null && r2.toCol != null
+          );
+          if (rawReplies.length === 0) {
+            try {
+              const afterOurMove = pieces.filter(
+                (p) => !(p.col === line.toCol && p.row === line.toRow && p.color === oppColor)
+              ).map(
+                (p) => p.col === line.fromCol && p.row === line.fromRow && p.color === movingColor ? { ...p, col: line.toCol, row: line.toRow } : { ...p }
+              );
+              const oppSearch = engine.analyze({
+                pieces: afterOurMove,
+                side: oppColor,
+                maxDepth: 3,
+                timeMs: 40,
+                multiPV: 3
+              });
+              if (oppSearch && oppSearch.lines && oppSearch.lines.length > 0) {
+                rawReplies = oppSearch.lines.map((ol) => ({
+                  fromCol: ol.fromCol,
+                  fromRow: ol.fromRow,
+                  toCol: ol.toCol,
+                  toRow: ol.toRow,
+                  score: ol.score,
+                  answer: ol.pv && ol.pv[1] ? { ...ol.pv[1], score: -ol.score } : null,
+                  step4: ol.pv && ol.pv[2] ? { ...ol.pv[2], score: ol.score } : null,
+                  step5: ol.pv && ol.pv[3] ? { ...ol.pv[3], score: -ol.score } : null
+                }));
+              }
+            } catch (e) {
+              console.warn(
+                "[AN Mod] Dynamic opponent reply generation fallback:",
+                e
+              );
+            }
+          }
+          const variations = rawReplies.map((rep, rIdx) => {
+            const oppPiece = pieces.find(
+              (p) => p.col === rep.fromCol && p.row === rep.fromRow && p.color === oppColor
+            ) || {
+              col: rep.fromCol,
+              row: rep.fromRow,
+              type: 6,
+              color: oppColor,
+              name: "Qu\xE2n \u0111\u1ECBch",
+              short: "Q"
+            };
+            const oppTarget = rep.toCol === line.toCol && rep.toRow === line.toRow ? movingPiece : pieces.find(
+              (p) => p.col === rep.toCol && p.row === rep.toRow && p.color === myColor
             );
-            const oppSearch = engine.analyze({
-              pieces: afterOurMove,
+            const oppNot = getXiangqiNotation(
+              oppPiece,
+              rep.fromCol,
+              rep.fromRow,
+              rep.toCol,
+              rep.toRow,
+              oppColor
+            );
+            let oppWhy = "";
+            const oppTCol = oppColor === 0 ? 9 - rep.toCol : rep.toCol + 1;
+            if (oppTarget) {
+              oppWhy = `Ph\u1EA3n ph\xE1o ch\xE9m ${oppTarget.name} t\u1EA1i L\u1ED9 ${oppTCol} nh\u1EB1m gi\u1EA3i t\u1ECFa s\u1EE9c \xE9p.`;
+            } else if (oppPiece && (oppPiece.type === 1 || oppPiece.type === 2)) {
+              oppWhy = `B\u1ED5 ${oppPiece.name} c\u1EE7ng c\u1ED1 ph\xF2ng tuy\u1EBFn tr\u01B0\u1EDBc th\u1EBF c\xF4ng d\u1ED3n d\u1EADp c\u1EE7a ta.`;
+            } else if (oppPiece && oppPiece.type === 3) {
+              oppWhy = `Xu\u1EA5t Xe ki\u1EC3m so\xE1t L\u1ED9 ${oppTCol} h\xF2ng ng\u0103n ch\u1EB7n m\u0169i \u0111\u1ED9t ph\xE1 c\u1EE7a ta.`;
+            } else if (oppPiece && oppPiece.type === 5) {
+              oppWhy = `Nh\u1EA3y M\xE3 l\xEAn L\u1ED9 ${oppTCol} h\xF2ng t\xECm ki\u1EBFm c\u01A1 h\u1ED9i ph\u1EA3n k\xEDch.`;
+            } else {
+              oppWhy = `\u0110i\u1EC1u qu\xE2n ph\u1EA3n \u1EE9ng c\u1EE7ng c\u1ED1 tr\u1EADn \u0111\u1ECBa.`;
+            }
+            let ansNot = null;
+            let ansWhy = "";
+            if (rep.answer) {
+              const ansPiece = pieces.find(
+                (p) => p.col === rep.answer.fromCol && p.row === rep.answer.fromRow && p.color === myColor
+              );
+              if (ansPiece) {
+                ansNot = getXiangqiNotation(
+                  ansPiece,
+                  rep.answer.fromCol,
+                  rep.answer.fromRow,
+                  rep.answer.toCol,
+                  rep.answer.toRow,
+                  myColor
+                );
+                const ansTarget = pieces.find(
+                  (p) => p.col === rep.answer.toCol && p.row === rep.answer.toRow && p.color === oppColor
+                );
+                const ansTCol = myColor === 0 ? 9 - rep.answer.toCol : rep.answer.toCol + 1;
+                if (ansTarget) {
+                  ansWhy = `L\u1EADp t\u1EE9c ch\xE9m ${ansTarget.name} L\u1ED9 ${ansTCol}, \u0111o\u1EA1t \u01B0u th\u1EBF quy\u1EBFt \u0111\u1ECBnh.`;
+                } else if (rep.answer.score && rep.answer.score > 9e3) {
+                  ansWhy = `Gi\xE1ng \u0111\xF2n s\xE1t c\u1EE5c k\u1EBFt li\u1EC5u tr\u1EADn \u0111\u1EA5u!`;
+                } else if (ansPiece.type === 3) {
+                  ansWhy = `Xe b\u1ED3i \u0111\xF2n kh\u1ED1ng ch\u1EBF L\u1ED9 ${ansTCol}, si\u1EBFt ch\u1EB7t v\xF2ng v\xE2y \xE9p \u0111\u1ECBch v\xE0o th\u1EBF b\xED.`;
+                } else if (ansPiece.type === 4) {
+                  ansWhy = `Ph\xE1o b\u1ED3i th\xEAm \u0111\xF2n c\xF4ng k\xEDch s\u01B0\u1EDDn/trung l\u1ED9, kh\xF3a ch\u1EB7t \u0111\u01B0\u1EDDng t\u1EA9u tho\xE1t.`;
+                } else {
+                  ansWhy = `B\u1ED3i th\xEAm \u0111\xF2n ${ansNot.short} gi\u1EEF v\u1EEFng \u01B0u th\u1EBF \xE1p \u0111\u1EA3o.`;
+                }
+              }
+            }
+            const varLabel = rIdx === 0 ? `Bi\u1EBFn 1 (Ph\u1ED5 bi\u1EBFn): ${oppNot.short}` : rIdx === 1 ? `Bi\u1EBFn 2 (Ph\xF2ng th\u1EE7): ${oppNot.short}` : `Bi\u1EBFn 3 (Ph\u1EA3n c\xF4ng): ${oppNot.short}`;
+            return {
+              idx: rIdx,
+              label: varLabel,
+              shortLabel: `Bi\u1EBFn ${rIdx + 1}: ${oppNot.short}`,
+              oppNotation: oppNot,
+              oppWhy,
+              fromCol: rep.fromCol,
+              fromRow: rep.fromRow,
+              toCol: rep.toCol,
+              toRow: rep.toRow,
+              oppPiece,
+              answer: rep.answer ? {
+                fromCol: rep.answer.fromCol,
+                fromRow: rep.answer.fromRow,
+                toCol: rep.answer.toCol,
+                toRow: rep.answer.toRow,
+                notation: ansNot,
+                why: ansWhy
+              } : null,
+              step4: rep.step4 || null,
+              step5: rep.step5 || null
+            };
+          });
+          if (variations.length === 0) {
+            variations.push({
+              idx: 0,
+              label: "Bi\u1EBFn 1: \u0110\u1ECBch c\xF9ng \u0111\u01B0\u1EDDng",
+              shortLabel: "H\u1EBFt c\u1EDD",
+              oppNotation: {
+                short: "H\u1EBFt n\u01B0\u1EDBc",
+                full: "\u0110\u1ED1i th\u1EE7 kh\xF4ng c\xF2n n\u01B0\u1EDBc \u0111i h\u1EE3p l\u1EC7"
+              },
+              oppWhy: "\u0110\u1ED1i th\u1EE7 l\xE2m v\xE0o th\u1EBF s\xE1t c\u1EE5c ho\u1EB7c h\u1EBFt n\u01B0\u1EDBc \u0111i.",
+              fromCol: null,
+              fromRow: null,
+              toCol: null,
+              toRow: null,
+              oppPiece: null,
+              answer: null,
+              step4: null,
+              step5: null
+            });
+          }
+          const isForcedMate = line.delivermate || line.score >= 9e3;
+          const mateMotif = isForcedMate ? classifyXiangqiMateMotif(
+            pieces,
+            line,
+            movingColor,
+            targetColor,
+            line.score
+          ) : null;
+          const roadmap = [];
+          roadmap.push({
+            step: 1,
+            side: movingColor,
+            label: "1. Ta \u0111i",
+            piece: movingPiece,
+            fromCol: line.fromCol,
+            fromRow: line.fromRow,
+            toCol: line.toCol,
+            toRow: line.toRow,
+            notation,
+            why: desc.why
+          });
+          const rep0 = variations[0];
+          if (rep0 && rep0.fromCol != null && rep0.toCol != null) {
+            roadmap.push({
+              step: 2,
               side: oppColor,
-              maxDepth: 3,
-              timeMs: 40,
+              label: "2. \u0110\u1ECBch \u0111\xE1p",
+              piece: rep0.oppPiece,
+              fromCol: rep0.fromCol,
+              fromRow: rep0.fromRow,
+              toCol: rep0.toCol,
+              toRow: rep0.toRow,
+              notation: rep0.oppNotation,
+              why: rep0.oppWhy
+            });
+            if (rep0.answer && rep0.answer.fromCol != null && rep0.answer.toCol != null) {
+              const ansPiece = pieces.find(
+                (p) => p.col === rep0.answer.fromCol && p.row === rep0.answer.fromRow && p.color === myColor
+              );
+              roadmap.push({
+                step: 3,
+                side: myColor,
+                label: "3. Ta b\u1ED3i",
+                piece: ansPiece,
+                fromCol: rep0.answer.fromCol,
+                fromRow: rep0.answer.fromRow,
+                toCol: rep0.answer.toCol,
+                toRow: rep0.answer.toRow,
+                notation: rep0.answer.notation,
+                why: rep0.answer.why
+              });
+              const st4 = rep0.step4;
+              if (st4 && st4.fromCol != null && st4.toCol != null) {
+                const p4 = pieces.find(
+                  (p) => p.col === st4.fromCol && p.row === st4.fromRow && p.color === oppColor
+                );
+                const not4 = p4 ? getXiangqiNotation(
+                  p4,
+                  st4.fromCol,
+                  st4.fromRow,
+                  st4.toCol,
+                  st4.toRow,
+                  oppColor
+                ) : { short: "\u0110\u1ECBch \u0111i", full: "N\u01B0\u1EDBc ph\xF2ng th\u1EE7 c\u1EE7a \u0111\u1ECBch" };
+                roadmap.push({
+                  step: 4,
+                  side: oppColor,
+                  label: "4. \u0110\u1ECBch \u0111\u1EE1",
+                  piece: p4,
+                  fromCol: st4.fromCol,
+                  fromRow: st4.fromRow,
+                  toCol: st4.toCol,
+                  toRow: st4.toRow,
+                  notation: not4,
+                  why: "\u0110\u1ECBch g\u1EAFng g\u01B0\u1EE3ng xoay s\u1EDF ch\u1ED1ng \u0111\u1EE1 tr\u01B0\u1EDBc v\xF2ng v\xE2y."
+                });
+                const st5 = rep0.step5;
+                if (st5 && st5.fromCol != null && st5.toCol != null) {
+                  const p5 = pieces.find(
+                    (p) => p.col === st5.fromCol && p.row === st5.fromRow && p.color === myColor
+                  );
+                  const not5 = p5 ? getXiangqiNotation(
+                    p5,
+                    st5.fromCol,
+                    st5.fromRow,
+                    st5.toCol,
+                    st5.toRow,
+                    myColor
+                  ) : { short: "D\u1EE9t \u0111i\u1EC3m", full: "N\u01B0\u1EDBc \u0111o\u1EA1t th\u1EBF quy\u1EBFt \u0111\u1ECBnh" };
+                  roadmap.push({
+                    step: 5,
+                    side: myColor,
+                    label: "5. D\u1EE9t \u0111i\u1EC3m",
+                    piece: p5,
+                    fromCol: st5.fromCol,
+                    fromRow: st5.fromRow,
+                    toCol: st5.toCol,
+                    toRow: st5.toRow,
+                    notation: not5,
+                    why: "Gi\xE1ng \u0111\xF2n d\u1EE9t \u0111i\u1EC3m \u0111o\u1EA1t th\u1EAFng l\u1EE3i quy\u1EBFt \u0111\u1ECBnh tr\u1EADn \u0111\u1EA5u!"
+                  });
+                }
+              }
+            }
+          }
+          let prepText = "";
+          const firstRep = rep0 || variations[0];
+          if (firstRep && firstRep.oppNotation?.short && firstRep.oppNotation?.short !== "\u0110\u1ECBch \u0111i") {
+            if (firstRep.answer && firstRep.answer.notation?.short) {
+              prepText = `K\u1EBF s\xE1ch: \u0110\xF3n \u0111\u1EA7u n\u01B0\u1EDBc ${firstRep.oppNotation.short} c\u1EE7a \u0111\u1ECBch \u0111\u1EC3 l\u1EADp t\u1EE9c b\u1ED3i \u0111\xF2n ${firstRep.answer.notation.short}, l\xE0m ch\u1EE7 th\u1EBF tr\u1EADn.`;
+            } else {
+              prepText = `K\u1EBF s\xE1ch: Kh\u1ED1ng ch\u1EBF bi\u1EBFn ph\u1EA3n \u1EE9ng ${firstRep.oppNotation.short} c\u1EE7a \u0111\u1ED1i ph\u01B0\u01A1ng, \u0111o\u1EA1t ti\xEAn c\u01A1 \xE1p \u0111\u1EA3o.`;
+            }
+          }
+          const planWhy = prepText ? `${desc.why} (${prepText})` : desc.why;
+          const planType = idx === 0 ? "attack" : idx === 1 ? "defend" : "maneuver";
+          const planBadge = mateMotif ? "Tuy\u1EC7t S\xE1t" : idx === 0 ? "T\u1ED1i \u01AFu" : idx === 1 ? "Ch\u1EAFc Ch\u1EAFn" : "\u0110\u1ED9t Ph\xE1";
+          const planTags = line.tags && line.tags.length > 0 ? [...line.tags] : desc.tag ? [desc.tag] : [];
+          if (mateMotif && !planTags.includes(mateMotif.tag)) {
+            planTags.unshift(mateMotif.tag);
+          }
+          plans.push({
+            id: `plan_${idx}`,
+            idx,
+            name: mateMotif ? `${notation.short} \xB7 ${mateMotif.name}` : `${notation.short} \xB7 ${desc.tacticName}`,
+            shortNotation: notation.short,
+            fullNotation: notation.full,
+            type: planType,
+            badge: planBadge,
+            tag: mateMotif ? mateMotif.tag : desc.tag,
+            tags: planTags,
+            why: planWhy,
+            score: line.score,
+            piece: movingPiece,
+            fromCol: line.fromCol,
+            fromRow: line.fromRow,
+            toCol: line.toCol,
+            toRow: line.toRow,
+            variations,
+            roadmap
+          });
+        });
+        if (plans.length === 0) {
+          try {
+            const fallbackRes = engine.analyze({
+              pieces,
+              side: movingColor,
+              maxDepth: 4,
+              timeMs: 120,
               multiPV: 3
             });
-            if (oppSearch && oppSearch.lines && oppSearch.lines.length > 0) {
-              rawReplies = oppSearch.lines.map((ol) => ({
-                fromCol: ol.fromCol,
-                fromRow: ol.fromRow,
-                toCol: ol.toCol,
-                toRow: ol.toRow,
-                score: ol.score,
-                answer: ol.pv && ol.pv[1] ? { ...ol.pv[1], score: -ol.score } : null,
-                step4: ol.pv && ol.pv[2] ? { ...ol.pv[2], score: ol.score } : null,
-                step5: ol.pv && ol.pv[3] ? { ...ol.pv[3], score: -ol.score } : null
-              }));
+            if (fallbackRes && fallbackRes.lines && fallbackRes.lines.length > 0) {
+              fallbackRes.lines.forEach((line) => {
+                const movingPiece = pieces.find(
+                  (p) => p.col === line.fromCol && p.row === line.fromRow && p.color === movingColor
+                );
+                if (!movingPiece) return;
+                const notation = getXiangqiNotation(
+                  movingPiece,
+                  line.fromCol,
+                  line.fromRow,
+                  line.toCol,
+                  line.toRow,
+                  movingColor
+                );
+                const fullNotation = notation ? notation.full : "";
+                const shortNotation = notation ? notation.short : "";
+                plans.push({
+                  id: `fallback-${line.fromCol}-${line.fromRow}-${line.toCol}-${line.toRow}`,
+                  name: `Tri\u1EC3n khai ${movingPiece.name}`,
+                  badge: "An To\xE0n",
+                  fullNotation,
+                  shortNotation,
+                  tag: "reposition",
+                  tags: ["reposition"],
+                  why: `Ch\u1EE7 \u0111\u1ED9ng \u0111i\u1EC1u \u0111\u1ED9ng ${movingPiece.name} \u1ED5n \u0111\u1ECBnh th\u1EBF tr\u1EADn, c\u1EE7ng c\u1ED1 ph\xF2ng th\u1EE7 v\xE0 \u0111\xF3n b\u1EAFt th\u1EDDi c\u01A1 ph\u1EA3n c\xF4ng.`,
+                  score: line.score || 0,
+                  piece: movingPiece,
+                  fromCol: line.fromCol,
+                  fromRow: line.fromRow,
+                  toCol: line.toCol,
+                  toRow: line.toRow,
+                  variations: [],
+                  roadmap: [
+                    {
+                      step: 1,
+                      type: "my",
+                      fromCol: line.fromCol,
+                      fromRow: line.fromRow,
+                      toCol: line.toCol,
+                      toRow: line.toRow,
+                      piece: movingPiece,
+                      notation: { short: shortNotation, full: fullNotation },
+                      shortNotation,
+                      explanation: `Tri\u1EC3n khai ${movingPiece.name} ki\u1EC3m so\xE1t v\u1ECB tr\xED tr\u1ECDng y\u1EBFu.`,
+                      badge: "N\u01B0\u1EDBc \u0110i Khuy\xEAn D\xF9ng"
+                    }
+                  ]
+                });
+              });
             }
           } catch (e) {
-            console.warn(
-              "[AN Mod] Dynamic opponent reply generation fallback:",
-              e
-            );
+            console.warn("[AN Mod] Fallback plan generation error:", e);
           }
         }
-        const variations = rawReplies.map((rep, rIdx) => {
-          const oppPiece = pieces.find(
-            (p) => p.col === rep.fromCol && p.row === rep.fromRow && p.color === oppColor
-          ) || {
-            col: rep.fromCol,
-            row: rep.fromRow,
-            type: 6,
-            color: oppColor,
-            name: "Qu\xE2n \u0111\u1ECBch",
-            short: "Q"
-          };
-          const oppTarget = rep.toCol === line.toCol && rep.toRow === line.toRow ? movingPiece : pieces.find(
-            (p) => p.col === rep.toCol && p.row === rep.toRow && p.color === myColor
-          );
-          const oppNot = getXiangqiNotation(
-            oppPiece,
-            rep.fromCol,
-            rep.fromRow,
-            rep.toCol,
-            rep.toRow,
-            oppColor
-          );
-          let oppWhy = "";
-          const oppTCol = oppColor === 0 ? 9 - rep.toCol : rep.toCol + 1;
-          if (oppTarget) {
-            oppWhy = `Ph\u1EA3n ph\xE1o ch\xE9m ${oppTarget.name} t\u1EA1i L\u1ED9 ${oppTCol} nh\u1EB1m gi\u1EA3i t\u1ECFa s\u1EE9c \xE9p.`;
-          } else if (oppPiece && (oppPiece.type === 1 || oppPiece.type === 2)) {
-            oppWhy = `B\u1ED5 ${oppPiece.name} c\u1EE7ng c\u1ED1 ph\xF2ng tuy\u1EBFn tr\u01B0\u1EDBc th\u1EBF c\xF4ng d\u1ED3n d\u1EADp c\u1EE7a ta.`;
-          } else if (oppPiece && oppPiece.type === 3) {
-            oppWhy = `Xu\u1EA5t Xe ki\u1EC3m so\xE1t L\u1ED9 ${oppTCol} h\xF2ng ng\u0103n ch\u1EB7n m\u0169i \u0111\u1ED9t ph\xE1 c\u1EE7a ta.`;
-          } else if (oppPiece && oppPiece.type === 5) {
-            oppWhy = `Nh\u1EA3y M\xE3 l\xEAn L\u1ED9 ${oppTCol} h\xF2ng t\xECm ki\u1EBFm c\u01A1 h\u1ED9i ph\u1EA3n k\xEDch.`;
-          } else {
-            oppWhy = `\u0110i\u1EC1u qu\xE2n ph\u1EA3n \u1EE9ng c\u1EE7ng c\u1ED1 tr\u1EADn \u0111\u1ECBa.`;
-          }
-          let ansNot = null;
-          let ansWhy = "";
-          if (rep.answer) {
-            const ansPiece = pieces.find(
-              (p) => p.col === rep.answer.fromCol && p.row === rep.answer.fromRow && p.color === myColor
-            );
-            if (ansPiece) {
-              ansNot = getXiangqiNotation(
-                ansPiece,
-                rep.answer.fromCol,
-                rep.answer.fromRow,
-                rep.answer.toCol,
-                rep.answer.toRow,
-                myColor
-              );
-              const ansTarget = pieces.find(
-                (p) => p.col === rep.answer.toCol && p.row === rep.answer.toRow && p.color === oppColor
-              );
-              const ansTCol = myColor === 0 ? 9 - rep.answer.toCol : rep.answer.toCol + 1;
-              if (ansTarget) {
-                ansWhy = `L\u1EADp t\u1EE9c ch\xE9m ${ansTarget.name} L\u1ED9 ${ansTCol}, \u0111o\u1EA1t \u01B0u th\u1EBF quy\u1EBFt \u0111\u1ECBnh.`;
-              } else if (rep.answer.score && rep.answer.score > 9e3) {
-                ansWhy = `Gi\xE1ng \u0111\xF2n s\xE1t c\u1EE5c k\u1EBFt li\u1EC5u tr\u1EADn \u0111\u1EA5u!`;
-              } else if (ansPiece.type === 3) {
-                ansWhy = `Xe b\u1ED3i \u0111\xF2n kh\u1ED1ng ch\u1EBF L\u1ED9 ${ansTCol}, si\u1EBFt ch\u1EB7t v\xF2ng v\xE2y \xE9p \u0111\u1ECBch v\xE0o th\u1EBF b\xED.`;
-              } else if (ansPiece.type === 4) {
-                ansWhy = `Ph\xE1o b\u1ED3i th\xEAm \u0111\xF2n c\xF4ng k\xEDch s\u01B0\u1EDDn/trung l\u1ED9, kh\xF3a ch\u1EB7t \u0111\u01B0\u1EDDng t\u1EA9u tho\xE1t.`;
-              } else {
-                ansWhy = `B\u1ED3i th\xEAm \u0111\xF2n ${ansNot.short} gi\u1EEF v\u1EEFng \u01B0u th\u1EBF \xE1p \u0111\u1EA3o.`;
-              }
-            }
-          }
-          const varLabel = rIdx === 0 ? `Bi\u1EBFn 1 (Ph\u1ED5 bi\u1EBFn): ${oppNot.short}` : rIdx === 1 ? `Bi\u1EBFn 2 (Ph\xF2ng th\u1EE7): ${oppNot.short}` : `Bi\u1EBFn 3 (Ph\u1EA3n c\xF4ng): ${oppNot.short}`;
-          return {
-            idx: rIdx,
-            label: varLabel,
-            shortLabel: `Bi\u1EBFn ${rIdx + 1}: ${oppNot.short}`,
-            oppNotation: oppNot,
-            oppWhy,
-            fromCol: rep.fromCol,
-            fromRow: rep.fromRow,
-            toCol: rep.toCol,
-            toRow: rep.toRow,
-            oppPiece,
-            answer: rep.answer ? {
-              fromCol: rep.answer.fromCol,
-              fromRow: rep.answer.fromRow,
-              toCol: rep.answer.toCol,
-              toRow: rep.answer.toRow,
-              notation: ansNot,
-              why: ansWhy
-            } : null,
-            step4: rep.step4 || null,
-            step5: rep.step5 || null
-          };
-        });
-        if (variations.length === 0) {
-          variations.push({
-            idx: 0,
-            label: "Bi\u1EBFn 1: \u0110\u1ECBch c\xF9ng \u0111\u01B0\u1EDDng",
-            shortLabel: "H\u1EBFt c\u1EDD",
-            oppNotation: {
-              short: "H\u1EBFt n\u01B0\u1EDBc",
-              full: "\u0110\u1ED1i th\u1EE7 kh\xF4ng c\xF2n n\u01B0\u1EDBc \u0111i h\u1EE3p l\u1EC7"
-            },
-            oppWhy: "\u0110\u1ED1i th\u1EE7 l\xE2m v\xE0o th\u1EBF s\xE1t c\u1EE5c ho\u1EB7c h\u1EBFt n\u01B0\u1EDBc \u0111i.",
-            fromCol: null,
-            fromRow: null,
-            toCol: null,
-            toRow: null,
-            oppPiece: null,
-            answer: null,
-            step4: null,
-            step5: null
-          });
-        }
-        const isForcedMate = line.delivermate || line.score >= 9e3;
-        const mateMotif = isForcedMate ? classifyXiangqiMateMotif(
-          pieces,
-          line,
-          movingColor,
-          targetColor,
-          line.score
-        ) : null;
-        const roadmap = [];
-        roadmap.push({
-          step: 1,
-          side: movingColor,
-          label: "1. Ta \u0111i",
-          piece: movingPiece,
-          fromCol: line.fromCol,
-          fromRow: line.fromRow,
-          toCol: line.toCol,
-          toRow: line.toRow,
-          notation,
-          why: desc.why
-        });
-        const rep0 = variations[0];
-        if (rep0 && rep0.fromCol != null && rep0.toCol != null) {
-          roadmap.push({
-            step: 2,
-            side: oppColor,
-            label: "2. \u0110\u1ECBch \u0111\xE1p",
-            piece: rep0.oppPiece,
-            fromCol: rep0.fromCol,
-            fromRow: rep0.fromRow,
-            toCol: rep0.toCol,
-            toRow: rep0.toRow,
-            notation: rep0.oppNotation,
-            why: rep0.oppWhy
-          });
-          if (rep0.answer && rep0.answer.fromCol != null && rep0.answer.toCol != null) {
-            const ansPiece = pieces.find(
-              (p) => p.col === rep0.answer.fromCol && p.row === rep0.answer.fromRow && p.color === myColor
-            );
-            roadmap.push({
-              step: 3,
-              side: myColor,
-              label: "3. Ta b\u1ED3i",
-              piece: ansPiece,
-              fromCol: rep0.answer.fromCol,
-              fromRow: rep0.answer.fromRow,
-              toCol: rep0.answer.toCol,
-              toRow: rep0.answer.toRow,
-              notation: rep0.answer.notation,
-              why: rep0.answer.why
-            });
-            const st4 = rep0.step4;
-            if (st4 && st4.fromCol != null && st4.toCol != null) {
-              const p4 = pieces.find(
-                (p) => p.col === st4.fromCol && p.row === st4.fromRow && p.color === oppColor
-              );
-              const not4 = p4 ? getXiangqiNotation(
-                p4,
-                st4.fromCol,
-                st4.fromRow,
-                st4.toCol,
-                st4.toRow,
-                oppColor
-              ) : { short: "\u0110\u1ECBch \u0111i", full: "N\u01B0\u1EDBc ph\xF2ng th\u1EE7 c\u1EE7a \u0111\u1ECBch" };
-              roadmap.push({
-                step: 4,
-                side: oppColor,
-                label: "4. \u0110\u1ECBch \u0111\u1EE1",
-                piece: p4,
-                fromCol: st4.fromCol,
-                fromRow: st4.fromRow,
-                toCol: st4.toCol,
-                toRow: st4.toRow,
-                notation: not4,
-                why: "\u0110\u1ECBch g\u1EAFng g\u01B0\u1EE3ng xoay s\u1EDF ch\u1ED1ng \u0111\u1EE1 tr\u01B0\u1EDBc v\xF2ng v\xE2y."
-              });
-              const st5 = rep0.step5;
-              if (st5 && st5.fromCol != null && st5.toCol != null) {
-                const p5 = pieces.find(
-                  (p) => p.col === st5.fromCol && p.row === st5.fromRow && p.color === myColor
-                );
-                const not5 = p5 ? getXiangqiNotation(
-                  p5,
-                  st5.fromCol,
-                  st5.fromRow,
-                  st5.toCol,
-                  st5.toRow,
-                  myColor
-                ) : { short: "D\u1EE9t \u0111i\u1EC3m", full: "N\u01B0\u1EDBc \u0111o\u1EA1t th\u1EBF quy\u1EBFt \u0111\u1ECBnh" };
-                roadmap.push({
-                  step: 5,
-                  side: myColor,
-                  label: "5. D\u1EE9t \u0111i\u1EC3m",
-                  piece: p5,
-                  fromCol: st5.fromCol,
-                  fromRow: st5.fromRow,
-                  toCol: st5.toCol,
-                  toRow: st5.toRow,
-                  notation: not5,
-                  why: "Gi\xE1ng \u0111\xF2n d\u1EE9t \u0111i\u1EC3m \u0111o\u1EA1t th\u1EAFng l\u1EE3i quy\u1EBFt \u0111\u1ECBnh tr\u1EADn \u0111\u1EA5u!"
-                });
-              }
-            }
-          }
-        }
-        let prepText = "";
-        const firstRep = rep0 || variations[0];
-        if (firstRep && firstRep.oppNotation?.short && firstRep.oppNotation?.short !== "\u0110\u1ECBch \u0111i") {
-          if (firstRep.answer && firstRep.answer.notation?.short) {
-            prepText = `K\u1EBF s\xE1ch: \u0110\xF3n \u0111\u1EA7u n\u01B0\u1EDBc ${firstRep.oppNotation.short} c\u1EE7a \u0111\u1ECBch \u0111\u1EC3 l\u1EADp t\u1EE9c b\u1ED3i \u0111\xF2n ${firstRep.answer.notation.short}, l\xE0m ch\u1EE7 th\u1EBF tr\u1EADn.`;
-          } else {
-            prepText = `K\u1EBF s\xE1ch: Kh\u1ED1ng ch\u1EBF bi\u1EBFn ph\u1EA3n \u1EE9ng ${firstRep.oppNotation.short} c\u1EE7a \u0111\u1ED1i ph\u01B0\u01A1ng, \u0111o\u1EA1t ti\xEAn c\u01A1 \xE1p \u0111\u1EA3o.`;
-          }
-        }
-        const planWhy = prepText ? `${desc.why} (${prepText})` : desc.why;
-        const planType = idx === 0 ? "attack" : idx === 1 ? "defend" : "maneuver";
-        const planBadge = mateMotif ? "Tuy\u1EC7t S\xE1t" : idx === 0 ? "T\u1ED1i \u01AFu" : idx === 1 ? "Ch\u1EAFc Ch\u1EAFn" : "\u0110\u1ED9t Ph\xE1";
-        const planTags = line.tags && line.tags.length > 0 ? [...line.tags] : desc.tag ? [desc.tag] : [];
-        if (mateMotif && !planTags.includes(mateMotif.tag)) {
-          planTags.unshift(mateMotif.tag);
-        }
-        plans.push({
-          id: `plan_${idx}`,
-          idx,
-          name: mateMotif ? `${notation.short} \xB7 ${mateMotif.name}` : `${notation.short} \xB7 ${desc.tacticName}`,
-          shortNotation: notation.short,
-          fullNotation: notation.full,
-          type: planType,
-          badge: planBadge,
-          tag: mateMotif ? mateMotif.tag : desc.tag,
-          tags: planTags,
-          why: planWhy,
-          score: line.score,
-          piece: movingPiece,
-          fromCol: line.fromCol,
-          fromRow: line.fromRow,
-          toCol: line.toCol,
-          toRow: line.toRow,
-          variations,
-          roadmap
-        });
-      });
-      if (plans.length === 0) {
-        try {
-          const fallbackRes = engine.analyze({
-            pieces,
-            side: movingColor,
-            maxDepth: 4,
-            timeMs: 120,
-            multiPV: 3
-          });
-          if (fallbackRes && fallbackRes.lines && fallbackRes.lines.length > 0) {
-            fallbackRes.lines.forEach((line) => {
-              const movingPiece = pieces.find(
-                (p) => p.col === line.fromCol && p.row === line.fromRow && p.color === movingColor
-              );
-              if (!movingPiece) return;
-              const notation = getXiangqiNotation(
-                movingPiece,
-                line.fromCol,
-                line.fromRow,
-                line.toCol,
-                line.toRow,
-                movingColor
-              );
-              const fullNotation = notation ? notation.full : "";
-              const shortNotation = notation ? notation.short : "";
-              plans.push({
-                id: `fallback-${line.fromCol}-${line.fromRow}-${line.toCol}-${line.toRow}`,
-                name: `Tri\u1EC3n khai ${movingPiece.name}`,
-                badge: "An To\xE0n",
-                fullNotation,
-                shortNotation,
-                tag: "reposition",
-                tags: ["reposition"],
-                why: `Ch\u1EE7 \u0111\u1ED9ng \u0111i\u1EC1u \u0111\u1ED9ng ${movingPiece.name} \u1ED5n \u0111\u1ECBnh th\u1EBF tr\u1EADn, c\u1EE7ng c\u1ED1 ph\xF2ng th\u1EE7 v\xE0 \u0111\xF3n b\u1EAFt th\u1EDDi c\u01A1 ph\u1EA3n c\xF4ng.`,
-                score: line.score || 0,
-                piece: movingPiece,
-                fromCol: line.fromCol,
-                fromRow: line.fromRow,
-                toCol: line.toCol,
-                toRow: line.toRow,
-                variations: [],
-                roadmap: [
-                  {
-                    step: 1,
-                    type: "my",
-                    fromCol: line.fromCol,
-                    fromRow: line.fromRow,
-                    toCol: line.toCol,
-                    toRow: line.toRow,
-                    piece: movingPiece,
-                    notation: { short: shortNotation, full: fullNotation },
-                    shortNotation,
-                    explanation: `Tri\u1EC3n khai ${movingPiece.name} ki\u1EC3m so\xE1t v\u1ECB tr\xED tr\u1ECDng y\u1EBFu.`,
-                    badge: "N\u01B0\u1EDBc \u0110i Khuy\xEAn D\xF9ng"
-                  }
-                ]
-              });
-            });
-          }
-        } catch (e) {
-          console.warn("[AN Mod] Fallback plan generation error:", e);
-        }
-      }
-      const discThreat = detectDiscoveredCheckThreat(pieces, myColor, oppColor);
-      let commentary = {
-        type: "optimal",
-        title: "G\u1EE2I \xDD T\u1ED0I \u01AFU",
-        move: plans[0] ? plans[0].fullNotation : null,
-        shortMove: plans[0] ? plans[0].shortNotation : null,
-        why: plans[0] ? plans[0].why : "H\xE3y tri\u1EC3n khai n\u01B0\u1EDBc c\u1EDD c\u1EA9n tr\u1ECDng."
-      };
-      if (inCheck) {
-        const escapePlan = plans[0];
-        commentary = {
-          type: "danger",
-          title: "\u{1F6A8} T\u01AF\u1EDANG \u0110ANG B\u1ECA CHI\u1EBEU! B\u1EAET BU\u1ED8C C\u1EE8U GI\xC1!",
-          move: escapePlan ? escapePlan.fullNotation : null,
-          shortMove: escapePlan ? escapePlan.shortNotation : null,
-          why: escapePlan ? `T\u01B0\u1EDBng \u0111ang b\u1ECB \u0111\u1ED1i ph\u01B0\u01A1ng chi\u1EBFu! H\xE3y \u0111i ngay ${escapePlan.fullNotation} \u0111\u1EC3 h\xF3a gi\u1EA3i th\u1EBF chi\u1EBFu an to\xE0n.` : "T\u01B0\u1EDBng c\u1EE7a b\u1EA1n \u0111ang b\u1ECB \u0111\u1ED1i ph\u01B0\u01A1ng chi\u1EBFu! C\u1EA7n \u01B0u ti\xEAn tuy\u1EC7t \u0111\u1ED1i h\xF3a gi\u1EA3i th\u1EBF chi\u1EBFu.",
-          badge: "C\u1EE8U GI\xC1 C\u1EA4P THI\u1EBET"
-        };
-        plans.forEach((p) => {
-          p.type = "defend";
-          p.badge = "Gi\u1EA3i Chi\u1EBFu";
-        });
-      } else if (topScore <= -9e3) {
-        commentary = {
-          type: "danger",
-          title: "\u{1F6A8} B\xC1O \u0110\u1ED8NG S\xC1T C\u1EE4C! NGUY C\u01A0 B\u1ECA B\u1EE8C T\u1EEC!",
-          move: plans[0] ? plans[0].fullNotation : null,
-          shortMove: plans[0] ? plans[0].shortNotation : null,
-          why: plans[0] ? `\u0110\u1ED1i ph\u01B0\u01A1ng \u0111ang gi\u0103ng b\u1EABy s\xE1t c\u1EE5c nguy hi\u1EC3m! N\u01B0\u1EDBc \u0111i duy nh\u1EA5t k\xE9o d\xE0i: ${plans[0].fullNotation}.` : "\u0110\u1ED1i ph\u01B0\u01A1ng \u0111ang c\xF3 \u0111\xF2n s\xE1t c\u1EE5c quy\u1EBFt \u0111\u1ECBnh! H\xE3y t\u1EADp trung to\xE0n l\u1EF1c ph\xF2ng th\u1EE7.",
-          badge: "B\xC1O \u0110\u1ED8NG \u0110\u1ECE"
-        };
-      } else if (discThreat) {
-        commentary = {
-          type: "danger",
-          title: "C\u1EA2NH B\xC1O CHI\u1EBEU R\xDAT",
-          move: plans[0] ? plans[0].fullNotation : null,
-          shortMove: plans[0] ? plans[0].shortNotation : null,
-          why: discThreat.desc
-        };
-      } else if (plans[0]?.tag?.includes("S\xE1t C\u1EE5c")) {
-        commentary = {
-          type: "mate",
-          title: "\u0110\xD2N S\xC1T C\u1EE4C TUY\u1EC6T K\u1EF8",
-          move: plans[0].fullNotation,
-          shortMove: plans[0].shortNotation,
-          why: plans[0].why
-        };
-      } else if (!isMyTurn) {
-        const isOffenseDominating = topScore >= 350 || plans[0]?.tags?.some(
-          (t) => t === "K\u1EB9p C\u1ED5" || t === "clamp-neck" || t === "iron-gate" || t === "resting-horse"
-        ) || plans[0]?.name && plans[0].name.includes("Kh\xF3a T\u01B0\u1EDBng");
-        commentary = {
-          type: isOffenseDominating ? "mate" : "waiting",
-          title: isOffenseDominating ? "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6 (B\u1EA0N \u0110ANG C\xD4NG S\xC1T \xC1P \u0110\u1EA2O)" : "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6 \u0110ANG SUY NGH\u0128",
-          move: plans[0] ? `Ta s\u1EB5n s\xE0ng: ${plans[0].shortNotation}` : null,
-          shortMove: plans[0] ? plans[0].shortNotation : null,
-          why: plans[0] ? isOffenseDominating ? `\u0110\u1ED1i th\u1EE7 \u0111ang l\xFAng t\xFAng ch\u1ED1ng \u0111\u1EE1. B\u1EA1n \u0111\xE3 s\u1EB5n s\xE0ng ph\u01B0\u01A1ng \xE1n d\u1EE9t \u0111i\u1EC3m: ${plans[0].fullNotation}!` : `\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i... B\u1EA1n s\u1EB5n s\xE0ng ph\u01B0\u01A1ng \xE1n \u0111\u1ED1i s\xE1ch: ${plans[0].fullNotation}.` : "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i..."
-        };
-      } else if (plans[0]) {
-        commentary = {
+        const discThreat = detectDiscoveredCheckThreat(pieces, myColor, oppColor);
+        let commentary = {
           type: "optimal",
           title: "G\u1EE2I \xDD T\u1ED0I \u01AFU",
-          move: plans[0].fullNotation,
-          shortMove: plans[0].shortNotation,
-          why: plans[0].why
+          move: plans[0] ? plans[0].fullNotation : null,
+          shortMove: plans[0] ? plans[0].shortNotation : null,
+          why: plans[0] ? plans[0].why : "H\xE3y tri\u1EC3n khai n\u01B0\u1EDBc c\u1EDD c\u1EA9n tr\u1ECDng."
         };
-      } else {
-        commentary = {
-          type: "turn",
-          title: "L\u01AF\u1EE2T \u0110I C\u1EE6A B\u1EA0N",
-          move: null,
-          shortMove: null,
-          why: "\u0110\u1EBFn l\u01B0\u1EE3t b\u1EA1n \u0111i. H\xE3y tri\u1EC3n khai n\u01B0\u1EDBc c\u1EDD c\u1EA9n tr\u1ECDng."
-        };
-      }
-      const coachCommentary = commentary.move ? `Khuy\xEAn d\xF9ng ${commentary.move}! ${commentary.why}` : commentary.why;
-      let threatInfo = discThreat ? { desc: discThreat.desc } : null;
-      if (!threatInfo && searchRes.threat && searchRes.threat.gain >= 150) {
-        const thPiece = pieces.find(
-          (p) => p.col === searchRes.threat.fromCol && p.row === searchRes.threat.fromRow && p.color === oppColor
-        );
-        const thTarget = pieces.find(
-          (p) => p.col === searchRes.threat.toCol && p.row === searchRes.threat.toRow && p.color === myColor
-        );
-        if (thPiece && thTarget) {
-          threatInfo = {
-            desc: `${thPiece.name} \u0111\u1ECBch \u0111ang d\xF2m ng\xF3 ${thTarget.name} c\u1EE7a b\u1EA1n t\u1EA1i L\u1ED9 ${myColor === 0 ? 9 - thTarget.col : thTarget.col + 1}!`
+        if (inCheck) {
+          const escapePlan = plans[0];
+          commentary = {
+            type: "danger",
+            title: "\u{1F6A8} T\u01AF\u1EDANG \u0110ANG B\u1ECA CHI\u1EBEU! B\u1EAET BU\u1ED8C C\u1EE8U GI\xC1!",
+            move: escapePlan ? escapePlan.fullNotation : null,
+            shortMove: escapePlan ? escapePlan.shortNotation : null,
+            why: escapePlan ? `T\u01B0\u1EDBng \u0111ang b\u1ECB \u0111\u1ED1i ph\u01B0\u01A1ng chi\u1EBFu! H\xE3y \u0111i ngay ${escapePlan.fullNotation} \u0111\u1EC3 h\xF3a gi\u1EA3i th\u1EBF chi\u1EBFu an to\xE0n.` : "T\u01B0\u1EDBng c\u1EE7a b\u1EA1n \u0111ang b\u1ECB \u0111\u1ED1i ph\u01B0\u01A1ng chi\u1EBFu! C\u1EA7n \u01B0u ti\xEAn tuy\u1EC7t \u0111\u1ED1i h\xF3a gi\u1EA3i th\u1EBF chi\u1EBFu.",
+            badge: "C\u1EE8U GI\xC1 C\u1EA4P THI\u1EBET"
+          };
+          plans.forEach((p) => {
+            p.type = "defend";
+            p.badge = "Gi\u1EA3i Chi\u1EBFu";
+          });
+        } else if (topScore <= -9e3) {
+          commentary = {
+            type: "danger",
+            title: "\u{1F6A8} B\xC1O \u0110\u1ED8NG S\xC1T C\u1EE4C! NGUY C\u01A0 B\u1ECA B\u1EE8C T\u1EEC!",
+            move: plans[0] ? plans[0].fullNotation : null,
+            shortMove: plans[0] ? plans[0].shortNotation : null,
+            why: plans[0] ? `\u0110\u1ED1i ph\u01B0\u01A1ng \u0111ang gi\u0103ng b\u1EABy s\xE1t c\u1EE5c nguy hi\u1EC3m! N\u01B0\u1EDBc \u0111i duy nh\u1EA5t k\xE9o d\xE0i: ${plans[0].fullNotation}.` : "\u0110\u1ED1i ph\u01B0\u01A1ng \u0111ang c\xF3 \u0111\xF2n s\xE1t c\u1EE5c quy\u1EBFt \u0111\u1ECBnh! H\xE3y t\u1EADp trung to\xE0n l\u1EF1c ph\xF2ng th\u1EE7.",
+            badge: "B\xC1O \u0110\u1ED8NG \u0110\u1ECE"
+          };
+        } else if (discThreat) {
+          commentary = {
+            type: "danger",
+            title: "C\u1EA2NH B\xC1O CHI\u1EBEU R\xDAT",
+            move: plans[0] ? plans[0].fullNotation : null,
+            shortMove: plans[0] ? plans[0].shortNotation : null,
+            why: discThreat.desc
+          };
+        } else if (plans[0]?.tag?.includes("S\xE1t C\u1EE5c")) {
+          commentary = {
+            type: "mate",
+            title: "\u0110\xD2N S\xC1T C\u1EE4C TUY\u1EC6T K\u1EF8",
+            move: plans[0].fullNotation,
+            shortMove: plans[0].shortNotation,
+            why: plans[0].why
+          };
+        } else if (!isMyTurn) {
+          const oppPlan = plans[0];
+          const oppShort = oppPlan ? oppPlan.shortNotation : null;
+          const myAnswer = oppPlan?.variations?.[0]?.answer?.notation?.short || oppPlan?.roadmap?.[1]?.notation?.short || null;
+          const isOffenseDominating = topScore >= 350 || plans[0]?.tags?.some(
+            (t) => t === "K\u1EB9p C\u1ED5" || t === "clamp-neck" || t === "iron-gate" || t === "resting-horse"
+          ) || plans[0]?.name && plans[0].name.includes("Kh\xF3a T\u01B0\u1EDBng");
+          commentary = {
+            type: isOffenseDominating ? "mate" : "waiting",
+            title: isOffenseDominating ? "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6 (B\u1EA0N \u0110ANG C\xD4NG S\xC1T \xC1P \u0110\u1EA2O)" : "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6 \u0110ANG SUY NGH\u0128",
+            move: oppShort ? `\u0110\u1ECBch d\u1EF1 ki\u1EBFn: ${oppShort}` : null,
+            shortMove: oppShort,
+            why: oppShort ? `\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i... D\u1EF1 ki\u1EBFn \u0111\u1ECBch \u0111i ${oppShort}.${myAnswer ? ` B\u1EA1n chu\u1EA9n b\u1ECB s\u1EB5n \u0111\u1ED1i s\xE1ch ${myAnswer}!` : ""}` : "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc \u0111i..."
+          };
+        } else if (plans[0]) {
+          commentary = {
+            type: "optimal",
+            title: "G\u1EE2I \xDD T\u1ED0I \u01AFU",
+            move: plans[0].fullNotation,
+            shortMove: plans[0].shortNotation,
+            why: plans[0].why
+          };
+        } else {
+          commentary = {
+            type: "turn",
+            title: "L\u01AF\u1EE2T \u0110I C\u1EE6A B\u1EA0N",
+            move: null,
+            shortMove: null,
+            why: "\u0110\u1EBFn l\u01B0\u1EE3t b\u1EA1n \u0111i. H\xE3y tri\u1EC3n khai n\u01B0\u1EDBc c\u1EDD c\u1EA9n tr\u1ECDng."
           };
         }
-      }
-      let mateThreat = null;
-      if (topScore >= 9e3 || plans[0] && plans[0].tags.some(
-        (t) => t === "iron-gate" || t === "resting-horse" || t === "horse-cannon-mate" || t === "face-king" || t === "fishing-horse" || t === "double-rook" || t === "mate-threat" || t === "K\u1EB9p C\u1ED5" || t === "clamp-neck"
-      ) || plans[0] && plans[0].name && plans[0].name.includes("Kh\xF3a T\u01B0\u1EDBng")) {
-        const mateSteps = Math.max(
-          1,
-          Math.ceil((1e4 - Math.min(Math.max(topScore, 9e3), 9999)) / 2)
-        );
-        const motifName = plans[0]?.name.split("\xB7")[1]?.trim() || plans[0]?.name || "S\xE1t C\u1EE5c Tuy\u1EC7t K\u1EF9";
-        mateThreat = {
-          type: "attack",
-          motif: motifName,
-          steps: mateSteps,
-          title: `TH\u1EBE TR\u1EACN TUY\u1EC6T S\xC1T [${motifName}]`,
-          explanation: `B\u1EA1n \u0111ang n\u1EAFm gi\u1EEF th\u1EBF s\xE1t [trong ${mateSteps} n\u01B0\u1EDBc \u0111i]! T\u01B0\u1EDBng c\u1EE7a b\u1EA1n ho\xE0n to\xE0n an to\xE0n, h\xE3y \u0111i ch\xEDnh x\xE1c theo g\u1EE3i \xFD \u0111\u1EC3 k\u1EBFt li\u1EC5u tr\u1EADn \u0111\u1EA5u!`
-        };
-      } else if (topScore <= -300 || topScore <= -9e3) {
-        const oppMateSteps = topScore <= -9e3 ? Math.max(
-          1,
-          Math.ceil((1e4 - Math.min(Math.abs(topScore), 9999)) / 2)
-        ) : null;
-        mateThreat = {
-          type: "defense",
-          motif: "Hi\u1EC3m H\u1ECDa T\u1EED Huy\u1EC7t",
-          steps: oppMateSteps,
-          title: oppMateSteps ? `\u{1F6A8} C\u1EA2NH B\xC1O T\u1EEC HUY\u1EC6T: NGUY C\u01A0 B\u1ECA S\xC1T C\u1EE4C (${oppMateSteps} N\u01AF\u1EDAC)!` : `\u{1F6A8} C\u1EA2NH B\xC1O T\u1EEC HUY\u1EC6T: NGUY C\u01A0 B\u1ECA S\xC1T C\u1EE4C!`,
-          explanation: `\u0110\u1ED1i th\u1EE7 \u0111ang d\u1ED3n d\u1EADp v\xE2y h\xE3m c\u1EEDu cung. B\u1EAFt bu\u1ED9c ph\u1EA3i tri\u1EC3n khai n\u01B0\u1EDBc c\u1EDD ph\xF2ng ng\u1EF1 ${plans[0]?.shortNotation || "c\u1EE9u gi\xE1"} \u0111\u1EC3 h\xF3a gi\u1EA3i \u0111\xF2n s\xE1t c\u1EE7a \u0111\u1ECBch!`
-        };
-        if (plans[0]) {
-          plans[0].badge = "C\u1EE9u M\u1EA1ng";
-          if (!plans[0].tags.includes("emergency-defend")) {
-            plans[0].tags.unshift("emergency-defend");
+        const coachCommentary = commentary.move ? `Khuy\xEAn d\xF9ng ${commentary.move}! ${commentary.why}` : commentary.why;
+        let threatInfo = discThreat ? { desc: discThreat.desc } : null;
+        if (!threatInfo && searchRes.threat && searchRes.threat.gain >= 150) {
+          const thPiece = pieces.find(
+            (p) => p.col === searchRes.threat.fromCol && p.row === searchRes.threat.fromRow && p.color === oppColor
+          );
+          const thTarget = pieces.find(
+            (p) => p.col === searchRes.threat.toCol && p.row === searchRes.threat.toRow && p.color === myColor
+          );
+          if (thPiece && thTarget) {
+            threatInfo = {
+              desc: `${thPiece.name} \u0111\u1ECBch \u0111ang d\xF2m ng\xF3 ${thTarget.name} c\u1EE7a b\u1EA1n t\u1EA1i L\u1ED9 ${myColor === 0 ? 9 - thTarget.col : thTarget.col + 1}!`
+            };
           }
         }
-      } else if (discThreat) {
-        mateThreat = {
-          type: "defense",
-          motif: "Chi\u1EBFu R\xFAt Nguy Hi\u1EC3m",
-          steps: 1,
-          title: "\u{1F6A8} C\u1EA2NH B\xC1O \u0110\xD2N CHI\u1EBEU R\xDAT!",
-          explanation: discThreat.desc
-        };
-        if (plans[0]) {
-          plans[0].badge = "H\xF3a Gi\u1EA3i Chi\u1EBFu R\xFAt";
-          if (!plans[0].tags.includes("emergency-defend")) {
-            plans[0].tags.unshift("emergency-defend");
+        let mateThreat = null;
+        if (topScore >= 9e3 || plans[0] && plans[0].tags.some(
+          (t) => t === "iron-gate" || t === "resting-horse" || t === "horse-cannon-mate" || t === "face-king" || t === "fishing-horse" || t === "double-rook" || t === "mate-threat" || t === "K\u1EB9p C\u1ED5" || t === "clamp-neck"
+        ) || plans[0] && plans[0].name && plans[0].name.includes("Kh\xF3a T\u01B0\u1EDBng")) {
+          const mateSteps = Math.max(
+            1,
+            Math.ceil((1e4 - Math.min(Math.max(topScore, 9e3), 9999)) / 2)
+          );
+          const motifName = plans[0]?.name.split("\xB7")[1]?.trim() || plans[0]?.name || "S\xE1t C\u1EE5c Tuy\u1EC7t K\u1EF9";
+          mateThreat = {
+            type: "attack",
+            motif: motifName,
+            steps: mateSteps,
+            title: `TH\u1EBE TR\u1EACN TUY\u1EC6T S\xC1T [${motifName}]`,
+            explanation: `B\u1EA1n \u0111ang n\u1EAFm gi\u1EEF th\u1EBF s\xE1t [trong ${mateSteps} n\u01B0\u1EDBc \u0111i]! T\u01B0\u1EDBng c\u1EE7a b\u1EA1n ho\xE0n to\xE0n an to\xE0n, h\xE3y \u0111i ch\xEDnh x\xE1c theo g\u1EE3i \xFD \u0111\u1EC3 k\u1EBFt li\u1EC5u tr\u1EADn \u0111\u1EA5u!`
+          };
+        } else if (topScore <= -300 || topScore <= -9e3) {
+          const oppMateSteps = topScore <= -9e3 ? Math.max(
+            1,
+            Math.ceil((1e4 - Math.min(Math.abs(topScore), 9999)) / 2)
+          ) : null;
+          mateThreat = {
+            type: "defense",
+            motif: "Hi\u1EC3m H\u1ECDa T\u1EED Huy\u1EC7t",
+            steps: oppMateSteps,
+            title: oppMateSteps ? `\u{1F6A8} C\u1EA2NH B\xC1O T\u1EEC HUY\u1EC6T: NGUY C\u01A0 B\u1ECA S\xC1T C\u1EE4C (${oppMateSteps} N\u01AF\u1EDAC)!` : `\u{1F6A8} C\u1EA2NH B\xC1O T\u1EEC HUY\u1EC6T: NGUY C\u01A0 B\u1ECA S\xC1T C\u1EE4C!`,
+            explanation: `\u0110\u1ED1i th\u1EE7 \u0111ang d\u1ED3n d\u1EADp v\xE2y h\xE3m c\u1EEDu cung. B\u1EAFt bu\u1ED9c ph\u1EA3i tri\u1EC3n khai n\u01B0\u1EDBc c\u1EDD ph\xF2ng ng\u1EF1 ${plans[0]?.shortNotation || "c\u1EE9u gi\xE1"} \u0111\u1EC3 h\xF3a gi\u1EA3i \u0111\xF2n s\xE1t c\u1EE7a \u0111\u1ECBch!`
+          };
+          if (plans[0]) {
+            plans[0].badge = "C\u1EE9u M\u1EA1ng";
+            if (!plans[0].tags.includes("emergency-defend")) {
+              plans[0].tags.unshift("emergency-defend");
+            }
+          }
+        } else if (discThreat) {
+          mateThreat = {
+            type: "defense",
+            motif: "Chi\u1EBFu R\xFAt Nguy Hi\u1EC3m",
+            steps: 1,
+            title: "\u{1F6A8} C\u1EA2NH B\xC1O \u0110\xD2N CHI\u1EBEU R\xDAT!",
+            explanation: discThreat.desc
+          };
+          if (plans[0]) {
+            plans[0].badge = "H\xF3a Gi\u1EA3i Chi\u1EBFu R\xFAt";
+            if (!plans[0].tags.includes("emergency-defend")) {
+              plans[0].tags.unshift("emergency-defend");
+            }
           }
         }
+        const currentMaxim = XIANGQI_MAXIMS[phase === "Khai Cu\u1ED9c" ? 4 : 0];
+        return {
+          phase,
+          isMyTurn,
+          myColor,
+          oppColor,
+          pieces,
+          evalScore: searchRes.score,
+          evalPoints,
+          evalText,
+          coachCommentary,
+          commentary,
+          threatInfo,
+          mateThreat,
+          plans,
+          inCheck,
+          depth: searchRes.depth,
+          nodes: searchRes.nodes,
+          openingName: searchRes.openingName || null,
+          evalBreakdown: searchRes.evalBreakdown || null,
+          engineName: searchRes.engineName || (activeProviderId2 === "pikafish" ? getEngineTransportStatus().type === "native-ws" ? "Pikafish NNUE (Native WS: 8765)" : "Pikafish 17 NNUE (Cloud)" : "AN Grandmaster JS"),
+          pikafishStatus: searchRes.pikafishStatus || (activeProviderId2 === "pikafish" ? getEngineTransportStatus().type : "js-engine"),
+          ttHits: searchRes.ttHits || 0,
+          maxim: currentMaxim,
+          allMaxims: XIANGQI_MAXIMS,
+          isQuickOnly: false
+        };
+      } catch (err) {
+        console.error("[AN Mod] Fatal error in buildTacticalAnalysis:", err);
+        return null;
       }
-      const currentMaxim = XIANGQI_MAXIMS[phase === "Khai Cu\u1ED9c" ? 4 : 0];
-      return {
-        phase,
-        isMyTurn,
-        myColor,
-        oppColor,
-        pieces,
-        evalScore: searchRes.score,
-        evalPoints,
-        evalText,
-        coachCommentary,
-        commentary,
-        threatInfo,
-        mateThreat,
-        plans,
-        inCheck,
-        depth: searchRes.depth,
-        nodes: searchRes.nodes,
-        openingName: searchRes.openingName || null,
-        evalBreakdown: searchRes.evalBreakdown || null,
-        engineName: searchRes.engineName || (activeProviderId2 === "pikafish" ? getEngineTransportStatus().type === "native-ws" ? "Pikafish NNUE (Native WS: 8765)" : "Pikafish 17 NNUE (Cloud)" : "AN Grandmaster JS"),
-        pikafishStatus: searchRes.pikafishStatus || (activeProviderId2 === "pikafish" ? getEngineTransportStatus().type : "js-engine"),
-        ttHits: searchRes.ttHits || 0,
-        maxim: currentMaxim,
-        allMaxims: XIANGQI_MAXIMS,
-        isQuickOnly: false
-      };
     }
     function triggerDeepAnalysis(gameData, pieces) {
       if (!gameData || !pieces || pieces.length === 0) return;
       const myColor = gameData.myColor;
+      const oppColor = gameData.oppColor;
       const activeColor = gameData.gameLayer && gameData.gameLayer.Yc !== void 0 ? gameData.gameLayer.Yc : myColor;
       const isMyTurn = activeColor === myColor;
       const currentHash = lastAnalysisHash;
@@ -48446,17 +48550,18 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         cancelWorkerSearch = null;
       }
       if (cachedAnalysis && mentorSetter) {
+        cachedAnalysis.searchStartTime = Date.now();
         mentorSetter({ ...cachedAnalysis, isSearching: true });
       }
       const isCoUp = Boolean(
         window.ZigaMod && window.ZigaMod.isCoUpGame && gameData && gameData.gameLayer && window.ZigaMod.isCoUpGame(gameData.gameLayer)
       );
+      const sideToAnalyze = isMyTurn ? myColor : oppColor;
       const provider = getEngineProvider(activeProviderId2);
       cancelWorkerSearch = provider.analyzeAsync(
         {
           pieces,
-          side: myColor,
-          // ALWAYS search for player (myColor) - keeps mentor strictly player-focused
+          side: sideToAnalyze,
           maxDepth: activeProviderId2 === "pikafish" ? 28 : 12,
           timeMs: activeProviderId2 === "pikafish" ? 1500 : 800,
           multiPV: 3,
@@ -48464,67 +48569,85 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         },
         (err, searchRes) => {
           cancelWorkerSearch = null;
-          if (err || !searchRes || searchRes.error) {
-            console.warn("[AN Mod] Background engine search error, retrying with emergency fallback:", err);
-            lastAnalysisHash = "";
-            try {
-              const fbRes = engine.analyze({
-                pieces,
-                side: myColor,
-                maxDepth: 5,
-                timeMs: 250,
-                multiPV: 3
-              });
-              if (fbRes && !fbRes.error) {
-                const fbDeep = buildTacticalAnalysis(fbRes, gameData, pieces);
-                if (fbDeep) {
-                  fbDeep.isSearching = false;
-                  fbDeep.isQuickOnly = false;
-                  cachedAnalysis = fbDeep;
-                  updateMentorHudCardText(fbDeep);
-                  if (mentorSetter) {
-                    mentorSetter(fbDeep);
-                  }
-                  if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
-                    renderMentorFloatingContent(fbDeep);
+          try {
+            if (err || !searchRes || searchRes.error) {
+              console.warn(
+                "[AN Mod] Background engine search error, retrying with emergency fallback:",
+                err
+              );
+              lastAnalysisHash = "";
+              try {
+                const fbRes = engine.analyze({
+                  pieces,
+                  side: sideToAnalyze,
+                  maxDepth: 5,
+                  timeMs: 250,
+                  multiPV: 3
+                });
+                if (fbRes && !fbRes.error) {
+                  const fbDeep = buildTacticalAnalysis(fbRes, gameData, pieces);
+                  if (fbDeep) {
+                    fbDeep.isSearching = false;
+                    fbDeep.isQuickOnly = false;
+                    cachedAnalysis = fbDeep;
+                    updateMentorHudCardText(fbDeep);
+                    if (mentorSetter) {
+                      mentorSetter(fbDeep);
+                    }
+                    if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
+                      renderMentorFloatingContent(fbDeep);
+                    }
                   }
                 }
+              } catch (e) {
               }
-            } catch (e) {
+              return;
             }
-            return;
-          }
-          if (lastAnalysisHash !== currentHash) return;
-          let deepAnalysis = buildTacticalAnalysis(searchRes, gameData, pieces);
-          if (!deepAnalysis || !deepAnalysis.plans || deepAnalysis.plans.length === 0) {
-            try {
-              const fbRes = engine.analyze({
-                pieces,
-                side: myColor,
-                maxDepth: 5,
-                timeMs: 250,
-                multiPV: 3
-              });
-              if (fbRes && !fbRes.error) {
-                deepAnalysis = buildTacticalAnalysis(fbRes, gameData, pieces);
+            if (lastAnalysisHash !== currentHash) return;
+            let deepAnalysis = buildTacticalAnalysis(searchRes, gameData, pieces);
+            if (!deepAnalysis || !deepAnalysis.plans || deepAnalysis.plans.length === 0) {
+              try {
+                const fbRes = engine.analyze({
+                  pieces,
+                  side: sideToAnalyze,
+                  maxDepth: 5,
+                  timeMs: 250,
+                  multiPV: 3
+                });
+                if (fbRes && !fbRes.error) {
+                  deepAnalysis = buildTacticalAnalysis(fbRes, gameData, pieces);
+                }
+              } catch (e) {
               }
-            } catch (e) {
             }
-          }
-          if (!deepAnalysis) {
+            if (!deepAnalysis) {
+              lastAnalysisHash = "";
+              return;
+            }
+            deepAnalysis.isSearching = false;
+            deepAnalysis.isQuickOnly = false;
+            cachedAnalysis = deepAnalysis;
+            ZigaMod.lastEngineAnalysis = deepAnalysis;
+            updateMentorHudCardText(deepAnalysis);
+            if (mentorSetter) {
+              mentorSetter(deepAnalysis);
+            }
+            if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
+              renderMentorFloatingContent(deepAnalysis);
+            }
+          } catch (cbErr) {
+            console.error(
+              "[AN Mod] Uncaught error in triggerDeepAnalysis callback:",
+              cbErr
+            );
             lastAnalysisHash = "";
-            return;
-          }
-          deepAnalysis.isSearching = false;
-          deepAnalysis.isQuickOnly = false;
-          cachedAnalysis = deepAnalysis;
-          ZigaMod.lastEngineAnalysis = deepAnalysis;
-          updateMentorHudCardText(deepAnalysis);
-          if (mentorSetter) {
-            mentorSetter(deepAnalysis);
-          }
-          if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
-            renderMentorFloatingContent(deepAnalysis);
+          } finally {
+            if (cachedAnalysis && cachedAnalysis.isSearching) {
+              cachedAnalysis.isSearching = false;
+              if (mentorSetter) {
+                mentorSetter({ ...cachedAnalysis });
+              }
+            }
           }
         }
       );
@@ -50512,7 +50635,12 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       );
       if (stateHash === lastAnalysisHash) {
         if (analyzeDebounceTimer !== null || cachedAnalysis && cachedAnalysis.isSearching) {
-          return;
+          if (cachedAnalysis && cachedAnalysis.searchStartTime && Date.now() - cachedAnalysis.searchStartTime > 5e3) {
+            cachedAnalysis.isSearching = false;
+            lastAnalysisHash = "";
+          } else {
+            return;
+          }
         }
         if (cachedAnalysis && !cachedAnalysis.isQuickOnly && Array.isArray(cachedAnalysis.plans) && cachedAnalysis.plans.length > 0) {
           return;
@@ -50528,6 +50656,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         ...quickAnalysis,
         isSearching: true,
         isQuickOnly: true,
+        searchStartTime: Date.now(),
         plans: [],
         activeStep: 1,
         selectedPlanIdx: 0
@@ -53535,10 +53664,6 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         localUserName = window.BkGlobal.Z.userName || "";
       }
       const localUserId = myPlayer && (myPlayer.id || myPlayer.userId) || window.BkGlobal && window.BkGlobal.Z && (window.BkGlobal.Z.id || window.BkGlobal.Z.userId) || "";
-      const redUserName = gameLayer.gc && gameLayer.gc.Z ? gameLayer.gc.Z.userName : "";
-      const blackUserName = gameLayer.dc && gameLayer.dc.Z ? gameLayer.dc.Z.userName : "";
-      const redUserId = gameLayer.gc && gameLayer.gc.Z ? gameLayer.gc.Z.id || gameLayer.gc.Z.userId : "";
-      const blackUserId = gameLayer.dc && gameLayer.dc.Z ? gameLayer.dc.Z.id || gameLayer.dc.Z.userId : "";
       if (myPlayer) {
         isSpectator = !!myPlayer.Ka;
       }
@@ -53568,36 +53693,22 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           }
         }
       }
-      let avatarColor = null;
-      if (gameLayer.gc && gameLayer.dc) {
-        const gcx = typeof gameLayer.gc.getPositionX === "function" ? gameLayer.gc.getPositionX() : gameLayer.gc.x;
-        const dcx = typeof gameLayer.dc.getPositionX === "function" ? gameLayer.dc.getPositionX() : gameLayer.dc.x;
-        if (typeof gcx === "number" && typeof dcx === "number" && gcx !== dcx) {
-          avatarColor = dcx < gcx ? 1 : 0;
-        }
-      }
-      if (localUserId && blackUserId && localUserId === blackUserId) {
-        myColor = 1;
-      } else if (localUserId && redUserId && localUserId === redUserId) {
-        myColor = 0;
-      } else if (localUserName && blackUserName && localUserName === blackUserName && localUserName !== redUserName) {
-        myColor = 1;
-      } else if (localUserName && redUserName && localUserName === redUserName && localUserName !== blackUserName) {
-        myColor = 0;
+      if (!isSpectator && gameLayer.Nj !== void 0 && (gameLayer.Nj === 0 || gameLayer.Nj === 1)) {
+        myColor = gameLayer.Nj;
       } else if (!isSpectator && bottomKingColor !== null) {
         myColor = bottomKingColor;
-      } else if (!isSpectator && avatarColor !== null) {
-        myColor = avatarColor;
       } else if (!isSpectator && myPlayer && myPlayer.ka !== void 0 && (myPlayer.ka === 0 || myPlayer.ka === 1)) {
         myColor = myPlayer.ka;
-      } else if (gameLayer.Nj !== void 0 && (gameLayer.Nj === 0 || gameLayer.Nj === 1)) {
-        myColor = gameLayer.Nj;
       } else if (bottomKingColor !== null) {
         myColor = bottomKingColor;
       }
       const oppColor = 1 - myColor;
-      let myName = localUserName || (myColor === 0 ? redUserName || "B\xEAn \u0110\u1ECF" : blackUserName || "B\xEAn \u0110en");
-      let oppName = oppColor === 0 ? redUserName || "B\xEAn \u0110\u1ECF" : blackUserName || "B\xEAn \u0110en";
+      const seatLeftUser = gameLayer.gc && gameLayer.gc.Z ? gameLayer.gc.Z.userName : "";
+      const seatRightUser = gameLayer.dc && gameLayer.dc.Z ? gameLayer.dc.Z.userName : "";
+      let myName = localUserName || seatLeftUser || (myColor === 0 ? "B\xEAn \u0110\u1ECF" : "B\xEAn \u0110en");
+      let oppName = seatRightUser || (oppColor === 0 ? "B\xEAn \u0110\u1ECF" : "B\xEAn \u0110en");
+      const redUserName = myColor === 0 ? myName : oppName;
+      const blackUserName = myColor === 1 ? myName : oppName;
       const deadMyPieces = [];
       const deadOppPieces = [];
       const aliveMyPieces = [];

@@ -115,6 +115,11 @@ wss.on("connection", (ws, req) => {
   const sessionTag = `[Session #${sessionId}]`;
   const clientAddr = req.socket.remoteAddress;
 
+  ws.isAlive = true;
+  ws.on("pong", () => {
+    ws.isAlive = true;
+  });
+
   // Isolated Pikafish instance manager for this connection
   let engine = null;
 
@@ -125,10 +130,23 @@ wss.on("connection", (ws, req) => {
         `${sessionTag} 🟢 Spawned Pikafish (PID: ${eng.pid}) for client ${clientAddr}`,
       );
 
+      // Prevent unhandled EPIPE crash if Pikafish process exits
+      eng.stdin.on("error", (err) => {
+        console.warn(`${sessionTag} [Engine stdin error]:`, err.message);
+      });
+
+      eng.on("error", (err) => {
+        console.error(`${sessionTag} ❌ Engine process error:`, err.message);
+      });
+
       // Pre-configure Pikafish in Hardcore Grandmaster Mode (4 Threads, 128MB Hash, MultiPV 3)
-      eng.stdin.write(
-        "uci\nsetoption name Threads value 4\nsetoption name Hash value 128\nsetoption name MultiPV value 3\nisready\n",
-      );
+      try {
+        eng.stdin.write(
+          "uci\nsetoption name Threads value 4\nsetoption name Hash value 128\nsetoption name MultiPV value 3\nisready\n",
+        );
+      } catch (e) {
+        console.warn(`${sessionTag} Error initializing engine:`, e.message);
+      }
 
       eng.stdout.on("data", (data) => {
         const text = data.toString();
@@ -136,7 +154,11 @@ wss.on("connection", (ws, req) => {
           console.log(`${sessionTag} ⚡ Engine ready (readyok received, NNUE active)`);
         }
         if (ws.readyState === WebSocket.OPEN) {
-          ws.send(text);
+          try {
+            ws.send(text);
+          } catch (e) {
+            console.warn(`${sessionTag} Error sending to client:`, e.message);
+          }
         }
       });
 
@@ -159,33 +181,51 @@ wss.on("connection", (ws, req) => {
 
   engine = spawnEngine();
   if (!engine) {
-    ws.send("err Failed to spawn engine\n");
-    ws.close();
+    try {
+      ws.send("err Failed to spawn engine\n");
+      ws.close();
+    } catch (e) {}
     return;
   }
 
   ws.on("message", (msg) => {
-    const str = msg.toString();
-    if (!engine || engine.exitCode !== null || !engine.stdin.writable) {
+    ws.isAlive = true;
+    const str = msg.toString().trim();
+    if (!str) return;
+
+    if (str === "ping") {
+      try {
+        ws.send("pong\n");
+      } catch (e) {}
+      return;
+    }
+
+    if (!engine || engine.exitCode !== null || !engine.stdin || !engine.stdin.writable) {
       console.log(`${sessionTag} 🔄 Engine process dead, respawning...`);
       engine = spawnEngine();
     }
-    if (engine && engine.stdin.writable) {
-      engine.stdin.write(str.endsWith("\n") ? str : str + "\n");
+    if (engine && engine.stdin && engine.stdin.writable) {
+      try {
+        engine.stdin.write(str + "\n");
+      } catch (e) {
+        console.warn(`${sessionTag} Stdin write failed:`, e.message);
+      }
     } else if (ws.readyState === WebSocket.OPEN) {
-      ws.send("bestmove (none)\n");
+      try {
+        ws.send("bestmove (none)\n");
+      } catch (e) {}
     }
   });
 
   ws.on("close", () => {
-    console.log(`${sessionTag} ⛔ Client disconnected, stopping engine PID ${engine.pid}...`);
+    console.log(`${sessionTag} ⛔ Client disconnected, stopping engine PID ${engine?.pid || "unknown"}...`);
     if (engine && engine.exitCode === null) {
       try {
         engine.stdin.write("quit\n");
       } catch (e) {}
       setTimeout(() => {
         try {
-          if (engine.exitCode === null && !engine.killed) {
+          if (engine && engine.exitCode === null && !engine.killed) {
             engine.kill();
           }
         } catch (e) {}
@@ -196,6 +236,24 @@ wss.on("connection", (ws, req) => {
   ws.on("error", (err) => {
     console.error(`${sessionTag} ⚠️ WebSocket error:`, err);
   });
+});
+
+// Periodic ping/pong heartbeat to keep TCP alive and sweep dead connections
+const heartbeatInterval = setInterval(() => {
+  wss.clients.forEach((ws) => {
+    if (ws.isAlive === false) {
+      console.log("[Bridge] Client ping timed out, terminating inactive connection...");
+      return ws.terminate();
+    }
+    ws.isAlive = false;
+    try {
+      ws.ping();
+    } catch (e) {}
+  });
+}, 20000);
+
+wss.on("close", () => {
+  clearInterval(heartbeatInterval);
 });
 
 server.listen(PORT, HOST, () => {

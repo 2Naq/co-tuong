@@ -3778,12 +3778,6 @@ iframe[id^="google_ads"],
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .text-foreground, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).text-foreground {
   color: var(--foreground) !important;
 }
-:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .text-foreground\/20, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).text-foreground\/20 {}
-@supports (color: color-mix(in lab, red, red)) {
-  :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .text-foreground\/20, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).text-foreground\/20 {
-    color: color-mix(in oklab, var(--foreground) 20%, transparent) !important;
-  }
-}
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .text-foreground\/40, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).text-foreground\/40 {}
 @supports (color: color-mix(in lab, red, red)) {
   :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .text-foreground\/40, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).text-foreground\/40 {

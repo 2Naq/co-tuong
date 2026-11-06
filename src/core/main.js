@@ -43,15 +43,6 @@
       (window.BkGlobal && window.BkGlobal.Z && (window.BkGlobal.Z.id || window.BkGlobal.Z.userId)) ||
       "";
 
-    const redUserName =
-      gameLayer.gc && gameLayer.gc.Z ? gameLayer.gc.Z.userName : "";
-    const blackUserName =
-      gameLayer.dc && gameLayer.dc.Z ? gameLayer.dc.Z.userName : "";
-    const redUserId =
-      gameLayer.gc && gameLayer.gc.Z ? (gameLayer.gc.Z.id || gameLayer.gc.Z.userId) : "";
-    const blackUserId =
-      gameLayer.dc && gameLayer.dc.Z ? (gameLayer.dc.Z.id || gameLayer.dc.Z.userId) : "";
-
     if (myPlayer) {
       isSpectator = !!myPlayer.Ka;
     }
@@ -98,70 +89,40 @@
       }
     }
 
-    // 3. Định vị ghế avatar người chơi: Trên Ziga, avatar người chơi cục bộ luôn ở bên trái bàn cờ
-    let avatarColor = null;
-    if (gameLayer.gc && gameLayer.dc) {
-      const gcx =
-        typeof gameLayer.gc.getPositionX === "function"
-          ? gameLayer.gc.getPositionX()
-          : gameLayer.gc.x;
-      const dcx =
-        typeof gameLayer.dc.getPositionX === "function"
-          ? gameLayer.dc.getPositionX()
-          : gameLayer.dc.x;
-      if (typeof gcx === "number" && typeof dcx === "number" && gcx !== dcx) {
-        avatarColor = dcx < gcx ? 1 : 0;
-      }
+    // 3. Quyết định phe người chơi (0: Đỏ, 1: Đen) với trật tự ưu tiên chuẩn xác tuyệt đối:
+    // Ưu tiên 1: gameLayer.Nj - biến chính thức của Cocos2d engine chỉ định màu quân của người chơi cục bộ (0: Đỏ, 1: Đen).
+    if (!isSpectator && gameLayer.Nj !== undefined && (gameLayer.Nj === 0 || gameLayer.Nj === 1)) {
+      myColor = gameLayer.Nj;
     }
-
-    // 4. Quyết định phe người chơi (0: Đỏ, 1: Đen) với cơ chế nhiều lớp bảo vệ:
-    if (localUserId && blackUserId && localUserId === blackUserId) {
-      myColor = 1;
-    } else if (localUserId && redUserId && localUserId === redUserId) {
-      myColor = 0;
-    } else if (
-      localUserName &&
-      blackUserName &&
-      localUserName === blackUserName &&
-      localUserName !== redUserName
-    ) {
-      myColor = 1;
-    } else if (
-      localUserName &&
-      redUserName &&
-      localUserName === redUserName &&
-      localUserName !== blackUserName
-    ) {
-      myColor = 0;
-    } else if (!isSpectator && bottomKingColor !== null) {
-      // Ưu tiên cực cao: Tướng ở nửa dưới bàn cờ chính là phe của người chơi thực tế
+    // Ưu tiên 2: Vị trí thực tế của Tướng ở nửa dưới màn hình (người chơi trên Ziga luôn có Tướng ở nửa dưới bàn cờ)
+    else if (!isSpectator && bottomKingColor !== null) {
       myColor = bottomKingColor;
-    } else if (!isSpectator && avatarColor !== null) {
-      // Ưu tiên phụ: Avatar ghế người chơi nằm bên trái
-      myColor = avatarColor;
-    } else if (
+    }
+    // Ưu tiên 3: myPlayer.ka từ BkLogicManager
+    else if (
       !isSpectator &&
       myPlayer &&
       myPlayer.ka !== undefined &&
       (myPlayer.ka === 0 || myPlayer.ka === 1)
     ) {
       myColor = myPlayer.ka;
-    } else if (
-      gameLayer.Nj !== undefined &&
-      (gameLayer.Nj === 0 || gameLayer.Nj === 1)
-    ) {
-      myColor = gameLayer.Nj;
-    } else if (bottomKingColor !== null) {
+    }
+    // Ưu tiên 4: Dành cho chế độ khán giả (Spectator)
+    else if (bottomKingColor !== null) {
       myColor = bottomKingColor;
     }
 
     const oppColor = 1 - myColor;
 
-    let myName =
-      localUserName ||
-      (myColor === 0 ? redUserName || "Bên Đỏ" : blackUserName || "Bên Đen");
-    let oppName =
-      oppColor === 0 ? redUserName || "Bên Đỏ" : blackUserName || "Bên Đen";
+    // 4. Lấy thông tin tên người chơi & đối thủ từ ghế avatar (gc: Ghế Trái / Người chơi cục bộ, dc: Ghế Phải / Đối thủ):
+    const seatLeftUser = gameLayer.gc && gameLayer.gc.Z ? gameLayer.gc.Z.userName : "";
+    const seatRightUser = gameLayer.dc && gameLayer.dc.Z ? gameLayer.dc.Z.userName : "";
+
+    let myName = localUserName || seatLeftUser || (myColor === 0 ? "Bên Đỏ" : "Bên Đen");
+    let oppName = seatRightUser || (oppColor === 0 ? "Bên Đỏ" : "Bên Đen");
+
+    const redUserName = myColor === 0 ? myName : oppName;
+    const blackUserName = myColor === 1 ? myName : oppName;
 
     const deadMyPieces = [];
     const deadOppPieces = [];
