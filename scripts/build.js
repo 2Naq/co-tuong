@@ -364,6 +364,14 @@ async function main() {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(triggerRebuild, 150);
     });
+
+    const manifestPath = path.join(rootDir, 'manifest.json');
+    if (fs.existsSync(manifestPath)) {
+      fs.watch(manifestPath, () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(triggerRebuild, 150);
+      });
+    }
   }
 }
 

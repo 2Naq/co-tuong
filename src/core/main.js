@@ -29,7 +29,7 @@
     let myColor = 0;
     let isSpectator = false;
 
-    // 1. Lấy tên người chơi cục bộ để so khớp với 2 ghế bàn cờ (gc: Đỏ, dc: Đen)
+    // 1. Lấy thông tin định danh người chơi cục bộ
     let localUserName = "";
     if (myPlayer && typeof myPlayer.getName === "function") {
       localUserName = myPlayer.getName() || "";
@@ -38,35 +38,121 @@
       localUserName = window.BkGlobal.Z.userName || "";
     }
 
+    const localUserId =
+      (myPlayer && (myPlayer.id || myPlayer.userId)) ||
+      (window.BkGlobal && window.BkGlobal.Z && (window.BkGlobal.Z.id || window.BkGlobal.Z.userId)) ||
+      "";
+
     const redUserName =
       gameLayer.gc && gameLayer.gc.Z ? gameLayer.gc.Z.userName : "";
     const blackUserName =
       gameLayer.dc && gameLayer.dc.Z ? gameLayer.dc.Z.userName : "";
+    const redUserId =
+      gameLayer.gc && gameLayer.gc.Z ? (gameLayer.gc.Z.id || gameLayer.gc.Z.userId) : "";
+    const blackUserId =
+      gameLayer.dc && gameLayer.dc.Z ? (gameLayer.dc.Z.id || gameLayer.dc.Z.userId) : "";
 
     if (myPlayer) {
       isSpectator = !!myPlayer.Ka;
     }
 
-    // Xác thực phe người chơi (0: Đỏ, 1: Đen):
-    // Ưu tiên 1: So khớp username của người dùng với ghế dc (Đen) hoặc gc (Đỏ)
-    if (localUserName && blackUserName && localUserName === blackUserName) {
-      myColor = 1; // Phe Đen
-    } else if (localUserName && redUserName && localUserName === redUserName) {
-      myColor = 0; // Phe Đỏ
+    // 2. Định vị quân Tướng (type 0) trên bàn cờ để xác định phe nào đang ở nửa dưới (bàn cờ của người chơi):
+    // Trên Ziga, người chơi trực tiếp luôn luôn được xếp ngồi ở nửa dưới màn hình.
+    let bottomKingColor = null;
+    let redKingSprite = null;
+    let blackKingSprite = null;
+
+    for (let i = 0; i < gameLayer.V.length; i++) {
+      const p = gameLayer.V[i];
+      if (!p || p.pa) continue;
+      const type = p.Ga !== undefined ? p.Ga : 6;
+      const color = p.ka !== undefined ? p.ka : Math.floor(i / 16);
+      if (type === 0) {
+        if (color === 0) redKingSprite = p;
+        else if (color === 1) blackKingSprite = p;
+      }
+    }
+
+    if (redKingSprite && blackKingSprite) {
+      const redY =
+        typeof redKingSprite.getPositionY === "function"
+          ? redKingSprite.getPositionY()
+          : redKingSprite.y;
+      const blackY =
+        typeof blackKingSprite.getPositionY === "function"
+          ? blackKingSprite.getPositionY()
+          : blackKingSprite.y;
+
+      if (typeof redY === "number" && typeof blackY === "number" && redY !== blackY) {
+        // Tọa độ Cocos2d y nhỏ hơn là ở phía dưới đáy màn hình
+        bottomKingColor = blackY < redY ? 1 : 0;
+      } else if (
+        typeof redKingSprite.rowIndex === "number" &&
+        typeof blackKingSprite.rowIndex === "number"
+      ) {
+        if (blackKingSprite.rowIndex <= 2 && redKingSprite.rowIndex >= 7) {
+          bottomKingColor = 1;
+        } else if (redKingSprite.rowIndex <= 2 && blackKingSprite.rowIndex >= 7) {
+          bottomKingColor = 0;
+        }
+      }
+    }
+
+    // 3. Định vị ghế avatar người chơi: Trên Ziga, avatar người chơi cục bộ luôn ở bên trái bàn cờ
+    let avatarColor = null;
+    if (gameLayer.gc && gameLayer.dc) {
+      const gcx =
+        typeof gameLayer.gc.getPositionX === "function"
+          ? gameLayer.gc.getPositionX()
+          : gameLayer.gc.x;
+      const dcx =
+        typeof gameLayer.dc.getPositionX === "function"
+          ? gameLayer.dc.getPositionX()
+          : gameLayer.dc.x;
+      if (typeof gcx === "number" && typeof dcx === "number" && gcx !== dcx) {
+        avatarColor = dcx < gcx ? 1 : 0;
+      }
+    }
+
+    // 4. Quyết định phe người chơi (0: Đỏ, 1: Đen) với cơ chế nhiều lớp bảo vệ:
+    if (localUserId && blackUserId && localUserId === blackUserId) {
+      myColor = 1;
+    } else if (localUserId && redUserId && localUserId === redUserId) {
+      myColor = 0;
+    } else if (
+      localUserName &&
+      blackUserName &&
+      localUserName === blackUserName &&
+      localUserName !== redUserName
+    ) {
+      myColor = 1;
+    } else if (
+      localUserName &&
+      redUserName &&
+      localUserName === redUserName &&
+      localUserName !== blackUserName
+    ) {
+      myColor = 0;
+    } else if (!isSpectator && bottomKingColor !== null) {
+      // Ưu tiên cực cao: Tướng ở nửa dưới bàn cờ chính là phe của người chơi thực tế
+      myColor = bottomKingColor;
+    } else if (!isSpectator && avatarColor !== null) {
+      // Ưu tiên phụ: Avatar ghế người chơi nằm bên trái
+      myColor = avatarColor;
     } else if (
       !isSpectator &&
       myPlayer &&
       myPlayer.ka !== undefined &&
       (myPlayer.ka === 0 || myPlayer.ka === 1)
     ) {
-      // Ưu tiên 2: Biến ka của myPlayer trong LogicManager
       myColor = myPlayer.ka;
     } else if (
       gameLayer.Nj !== undefined &&
       (gameLayer.Nj === 0 || gameLayer.Nj === 1)
     ) {
-      // Ưu tiên 3: Biến ghế Nj trên Cocos2d gameLayer
       myColor = gameLayer.Nj;
+    } else if (bottomKingColor !== null) {
+      myColor = bottomKingColor;
     }
 
     const oppColor = 1 - myColor;

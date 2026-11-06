@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import manifest from "../../../manifest.json";
 import {
   Settings,
   Palette,
@@ -35,6 +36,11 @@ import { TacticalInspectorCard } from "./TacticalInspectorCard";
 import { MoveHistoryCard } from "./MoveHistoryCard";
 import { ErrorBoundary } from "../common/ErrorBoundary";
 import { cn } from "../../lib/utils";
+
+const currentVersion =
+  (typeof document !== "undefined" &&
+    document.documentElement?.dataset?.zigaVersion) ||
+  manifest.version;
 
 export function HudWidget() {
   const ZigaMod = window.ZigaMod || {};
@@ -153,9 +159,14 @@ export function HudWidget() {
               />
             </svg>
           </span>
-          <span className="text-foreground text-xs font-bold tracking-tight select-none">
-            TOOLS SUPPORT
-          </span>
+          <div className="flex flex-col">
+            <span className="text-foreground text-xs font-bold tracking-tight select-none">
+              TOOLS SUPPORT
+            </span>
+            <span className="text-foreground/60 text-[10px]">
+              v{currentVersion}
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-1">

@@ -135,6 +135,8 @@ import {
         name: def.name,
         char: pieceColor === 0 ? def.redChar : def.blackChar,
         short: def.short,
+        ac: p.ac !== undefined ? p.ac : 1,
+        unopened: p.ac === 0,
       });
     }
     return pieces;
@@ -147,7 +149,9 @@ import {
     for (let i = 0; i < 32; i++) {
       const p = gameLayer.V[i];
       if (!p || p.pa) continue;
-      hash += `${i}:${p.fa},${p.rowIndex};`;
+      const ac = p.ac !== undefined ? p.ac : 1;
+      const ga = p.Ga !== undefined ? p.Ga : 6;
+      hash += `${i}:${p.fa},${p.rowIndex},${ga},${ac};`;
     }
     return hash;
   }
@@ -1490,6 +1494,14 @@ import {
       mentorSetter({ ...cachedAnalysis, isSearching: true });
     }
 
+    const isCoUp = Boolean(
+      window.ZigaMod &&
+      window.ZigaMod.isCoUpGame &&
+      gameData &&
+      gameData.gameLayer &&
+      window.ZigaMod.isCoUpGame(gameData.gameLayer)
+    );
+
     const provider = getEngineProvider(activeProviderId);
     cancelWorkerSearch = provider.analyzeAsync(
       {
@@ -1498,6 +1510,7 @@ import {
         maxDepth: activeProviderId === "pikafish" ? 28 : 12,
         timeMs: activeProviderId === "pikafish" ? 1500 : 800,
         multiPV: 3,
+        isCoUp,
       },
       (err, searchRes) => {
         cancelWorkerSearch = null;
@@ -1706,11 +1719,13 @@ import {
       if (col == null || row == null || isNaN(col) || isNaN(row)) {
         return null;
       }
-      // Trên Ziga, người chơi luôn được hiển thị ở nửa dưới bàn cờ (hàng 0 ở đáy, hàng 9 ở đỉnh).
-      // Trong SVG, tọa độ y = 0% là đỉnh, y = 100% là đáy.
-      // Do đó displayRow luôn là (9 - row) và displayCol luôn là col để mini-board khớp 1-1 với bàn cờ thật.
-      const displayRow = 9 - row;
-      const displayCol = col;
+      // Trên Ziga, người chơi luôn được hiển thị ở nửa dưới bàn cờ.
+      // Khi người chơi là Đỏ (myColor === 0): hàng 0 ở đáy bàn cờ (displayRow = 9), cột 0 bên trái (displayCol = 0).
+      // Khi người chơi là Đen (myColor === 1): trên Ziga bàn cờ đảo góc nhìn để quân Đen ở đáy (hàng 9),
+      // nên displayRow = row và displayCol = 8 - col để mini-board khớp 1-1 với bàn cờ thật trên màn hình.
+      const isBlack = myColor === 1;
+      const displayRow = isBlack ? row : 9 - row;
+      const displayCol = isBlack ? 8 - col : col;
 
       const x = ((25 + displayCol * 43.75) / 400) * 100;
       const y = ((25 + displayRow * 44.44) / 450) * 100;
@@ -3869,16 +3884,24 @@ import {
       gameData.myColor,
       gameData.oppColor,
     );
-    // Chỉ bỏ qua nếu thế trận trùng khớp VÀ đã có kết quả phân tích sâu hoàn chỉnh (không phải quickOnly hoặc rỗng kế sách)
-    if (
-      stateHash === lastAnalysisHash &&
-      cachedAnalysis &&
-      !cachedAnalysis.isQuickOnly &&
-      Array.isArray(cachedAnalysis.plans) &&
-      cachedAnalysis.plans.length > 0 &&
-      !cachedAnalysis.isSearching
-    ) {
-      return;
+    // Nếu thế trận không hề thay đổi:
+    if (stateHash === lastAnalysisHash) {
+      // 1. Đang có debounce hoặc đang tính toán ngầm -> để nguyên cho engine chạy xong, tuyệt đối KHÔNG ngắt!
+      if (
+        analyzeDebounceTimer !== null ||
+        (cachedAnalysis && cachedAnalysis.isSearching)
+      ) {
+        return;
+      }
+      // 2. Đã có kết quả phân tích sâu hoàn chỉnh cho thế trận này -> giữ nguyên
+      if (
+        cachedAnalysis &&
+        !cachedAnalysis.isQuickOnly &&
+        Array.isArray(cachedAnalysis.plans) &&
+        cachedAnalysis.plans.length > 0
+      ) {
+        return;
+      }
     }
     lastAnalysisHash = stateHash;
 

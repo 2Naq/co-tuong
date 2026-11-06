@@ -46629,7 +46629,17 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // src/features/pikafish_provider.js
-  function isCoUpPosition(pieces) {
+  function isCoUpPosition(pieces, isCoUpFlag = false) {
+    if (isCoUpFlag) return true;
+    if (typeof window !== "undefined" && window.ZigaMod && typeof window.ZigaMod.getActiveGameData === "function") {
+      try {
+        const data = window.ZigaMod.getActiveGameData();
+        if (data && data.gameLayer && window.ZigaMod.isCoUpGame && window.ZigaMod.isCoUpGame(data.gameLayer)) {
+          return true;
+        }
+      } catch (e) {
+      }
+    }
     if (!Array.isArray(pieces)) return false;
     if (pieces.some((p) => p && (p.ac === 0 || p.unopened))) return true;
     const counts = { 0: {}, 1: {} };
@@ -46945,7 +46955,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       const maxDepth = input.maxDepth || 28;
       const side2 = input.side === 1 ? 1 : 0;
       const isFlipped = isBoardFlipped(input.pieces);
-      if (isCoUpPosition(input.pieces)) {
+      if (input.isCoUp || isCoUpPosition(input.pieces, input.isCoUp)) {
         if (allowFallback) {
           return getFallback().analyzeAsync(input, (err, res) => {
             if (activeRequestId === currentId && typeof activeCallback === "function") {
@@ -47411,7 +47421,9 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           color: pieceColor,
           name: def.name,
           char: pieceColor === 0 ? def.redChar : def.blackChar,
-          short: def.short
+          short: def.short,
+          ac: p.ac !== void 0 ? p.ac : 1,
+          unopened: p.ac === 0
         });
       }
       return pieces;
@@ -47423,7 +47435,9 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       for (let i = 0; i < 32; i++) {
         const p = gameLayer.V[i];
         if (!p || p.pa) continue;
-        hash += `${i}:${p.fa},${p.rowIndex};`;
+        const ac = p.ac !== void 0 ? p.ac : 1;
+        const ga = p.Ga !== void 0 ? p.Ga : 6;
+        hash += `${i}:${p.fa},${p.rowIndex},${ga},${ac};`;
       }
       return hash;
     }
@@ -48434,6 +48448,9 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       if (cachedAnalysis && mentorSetter) {
         mentorSetter({ ...cachedAnalysis, isSearching: true });
       }
+      const isCoUp = Boolean(
+        window.ZigaMod && window.ZigaMod.isCoUpGame && gameData && gameData.gameLayer && window.ZigaMod.isCoUpGame(gameData.gameLayer)
+      );
       const provider = getEngineProvider(activeProviderId2);
       cancelWorkerSearch = provider.analyzeAsync(
         {
@@ -48442,7 +48459,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           // ALWAYS search for player (myColor) - keeps mentor strictly player-focused
           maxDepth: activeProviderId2 === "pikafish" ? 28 : 12,
           timeMs: activeProviderId2 === "pikafish" ? 1500 : 800,
-          multiPV: 3
+          multiPV: 3,
+          isCoUp
         },
         (err, searchRes) => {
           cancelWorkerSearch = null;
@@ -48611,8 +48629,9 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         if (col == null || row == null || isNaN(col) || isNaN(row)) {
           return null;
         }
-        const displayRow = 9 - row;
-        const displayCol = col;
+        const isBlack = myColor === 1;
+        const displayRow = isBlack ? row : 9 - row;
+        const displayCol = isBlack ? 8 - col : col;
         const x = (25 + displayCol * 43.75) / 400 * 100;
         const y = (25 + displayRow * 44.44) / 450 * 100;
         return { x, y };
@@ -50491,8 +50510,13 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         gameData.myColor,
         gameData.oppColor
       );
-      if (stateHash === lastAnalysisHash && cachedAnalysis && !cachedAnalysis.isQuickOnly && Array.isArray(cachedAnalysis.plans) && cachedAnalysis.plans.length > 0 && !cachedAnalysis.isSearching) {
-        return;
+      if (stateHash === lastAnalysisHash) {
+        if (analyzeDebounceTimer !== null || cachedAnalysis && cachedAnalysis.isSearching) {
+          return;
+        }
+        if (cachedAnalysis && !cachedAnalysis.isQuickOnly && Array.isArray(cachedAnalysis.plans) && cachedAnalysis.plans.length > 0) {
+          return;
+        }
       }
       lastAnalysisHash = stateHash;
       clearMentorPlanArrows();
@@ -50547,6 +50571,48 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
 
   // src/components/HudWidget/HudWidget.jsx
   var import_react23 = __toESM(require_react());
+
+  // manifest.json
+  var manifest_default = {
+    manifest_version: 3,
+    name: "C\xF4ng c\u1EE5 C\u1EDD T\u01B0\u1EDBng",
+    version: "0.0.2",
+    description: "Hi\u1EC3n th\u1ECB qu\xE2n \u0111\xE3 b\u1ECB \u0103n & highlight t\u1EA7m \u0111\xE1nh",
+    icons: {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    permissions: ["storage"],
+    host_permissions: [
+      "*://zigavn.com/*",
+      "*://*.chessdb.cn/*",
+      "https://raw.githubusercontent.com/*",
+      "https://cdn.jsdelivr.net/*"
+    ],
+    content_scripts: [
+      {
+        matches: ["*://zigavn.com/*"],
+        css: ["styles/overlay.css"],
+        js: ["content_loader.js"],
+        run_at: "document_start"
+      }
+    ],
+    web_accessible_resources: [
+      {
+        resources: [
+          "src/**/*",
+          "styles/*",
+          "dist/*",
+          "icons/*",
+          "overlay.css",
+          "injected.js"
+        ],
+        matches: ["*://zigavn.com/*"]
+      }
+    ]
+  };
 
   // src/components/HudWidget/ThreatAlertCard.jsx
   var import_react16 = __toESM(require_react());
@@ -52737,6 +52803,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
 
   // src/components/HudWidget/HudWidget.jsx
   var import_jsx_runtime70 = __toESM(require_jsx_runtime());
+  var currentVersion = typeof document !== "undefined" && document.documentElement?.dataset?.zigaVersion || manifest_default.version;
   function HudWidget() {
     const ZigaMod = window.ZigaMod || {};
     const [isMinimized, setIsMinimized] = (0, import_react23.useState)(false);
@@ -52856,7 +52923,13 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                       ]
                     }
                   ),
-                  /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { className: "text-foreground text-xs font-bold tracking-tight select-none", children: "TOOLS SUPPORT" })
+                  /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)("div", { className: "flex flex-col", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { className: "text-foreground text-xs font-bold tracking-tight select-none", children: "TOOLS SUPPORT" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)("span", { className: "text-foreground/60 text-[10px]", children: [
+                      "v",
+                      currentVersion
+                    ] })
+                  ] })
                 ]
               }
             ),
@@ -53461,19 +53534,66 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       if (!localUserName && window.BkGlobal && window.BkGlobal.Z && window.BkGlobal.Z.userName) {
         localUserName = window.BkGlobal.Z.userName || "";
       }
+      const localUserId = myPlayer && (myPlayer.id || myPlayer.userId) || window.BkGlobal && window.BkGlobal.Z && (window.BkGlobal.Z.id || window.BkGlobal.Z.userId) || "";
       const redUserName = gameLayer.gc && gameLayer.gc.Z ? gameLayer.gc.Z.userName : "";
       const blackUserName = gameLayer.dc && gameLayer.dc.Z ? gameLayer.dc.Z.userName : "";
+      const redUserId = gameLayer.gc && gameLayer.gc.Z ? gameLayer.gc.Z.id || gameLayer.gc.Z.userId : "";
+      const blackUserId = gameLayer.dc && gameLayer.dc.Z ? gameLayer.dc.Z.id || gameLayer.dc.Z.userId : "";
       if (myPlayer) {
         isSpectator = !!myPlayer.Ka;
       }
-      if (localUserName && blackUserName && localUserName === blackUserName) {
+      let bottomKingColor = null;
+      let redKingSprite = null;
+      let blackKingSprite = null;
+      for (let i = 0; i < gameLayer.V.length; i++) {
+        const p = gameLayer.V[i];
+        if (!p || p.pa) continue;
+        const type = p.Ga !== void 0 ? p.Ga : 6;
+        const color = p.ka !== void 0 ? p.ka : Math.floor(i / 16);
+        if (type === 0) {
+          if (color === 0) redKingSprite = p;
+          else if (color === 1) blackKingSprite = p;
+        }
+      }
+      if (redKingSprite && blackKingSprite) {
+        const redY = typeof redKingSprite.getPositionY === "function" ? redKingSprite.getPositionY() : redKingSprite.y;
+        const blackY = typeof blackKingSprite.getPositionY === "function" ? blackKingSprite.getPositionY() : blackKingSprite.y;
+        if (typeof redY === "number" && typeof blackY === "number" && redY !== blackY) {
+          bottomKingColor = blackY < redY ? 1 : 0;
+        } else if (typeof redKingSprite.rowIndex === "number" && typeof blackKingSprite.rowIndex === "number") {
+          if (blackKingSprite.rowIndex <= 2 && redKingSprite.rowIndex >= 7) {
+            bottomKingColor = 1;
+          } else if (redKingSprite.rowIndex <= 2 && blackKingSprite.rowIndex >= 7) {
+            bottomKingColor = 0;
+          }
+        }
+      }
+      let avatarColor = null;
+      if (gameLayer.gc && gameLayer.dc) {
+        const gcx = typeof gameLayer.gc.getPositionX === "function" ? gameLayer.gc.getPositionX() : gameLayer.gc.x;
+        const dcx = typeof gameLayer.dc.getPositionX === "function" ? gameLayer.dc.getPositionX() : gameLayer.dc.x;
+        if (typeof gcx === "number" && typeof dcx === "number" && gcx !== dcx) {
+          avatarColor = dcx < gcx ? 1 : 0;
+        }
+      }
+      if (localUserId && blackUserId && localUserId === blackUserId) {
         myColor = 1;
-      } else if (localUserName && redUserName && localUserName === redUserName) {
+      } else if (localUserId && redUserId && localUserId === redUserId) {
         myColor = 0;
+      } else if (localUserName && blackUserName && localUserName === blackUserName && localUserName !== redUserName) {
+        myColor = 1;
+      } else if (localUserName && redUserName && localUserName === redUserName && localUserName !== blackUserName) {
+        myColor = 0;
+      } else if (!isSpectator && bottomKingColor !== null) {
+        myColor = bottomKingColor;
+      } else if (!isSpectator && avatarColor !== null) {
+        myColor = avatarColor;
       } else if (!isSpectator && myPlayer && myPlayer.ka !== void 0 && (myPlayer.ka === 0 || myPlayer.ka === 1)) {
         myColor = myPlayer.ka;
       } else if (gameLayer.Nj !== void 0 && (gameLayer.Nj === 0 || gameLayer.Nj === 1)) {
         myColor = gameLayer.Nj;
+      } else if (bottomKingColor !== null) {
+        myColor = bottomKingColor;
       }
       const oppColor = 1 - myColor;
       let myName = localUserName || (myColor === 0 ? redUserName || "B\xEAn \u0110\u1ECF" : blackUserName || "B\xEAn \u0110en");

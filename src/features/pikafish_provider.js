@@ -7,7 +7,25 @@ import { createXiangqiWorker } from "./xiangqi_engine.js";
  * Checks if a position is Cờ Úp (has face-down/unopened pieces or non-standard piece quantities).
  * Standard Pikafish UCI strictly expects standard Xiangqi; Cờ Úp must be handled by the specialized JS Engine.
  */
-function isCoUpPosition(pieces) {
+function isCoUpPosition(pieces, isCoUpFlag = false) {
+  if (isCoUpFlag) return true;
+  if (
+    typeof window !== "undefined" &&
+    window.ZigaMod &&
+    typeof window.ZigaMod.getActiveGameData === "function"
+  ) {
+    try {
+      const data = window.ZigaMod.getActiveGameData();
+      if (
+        data &&
+        data.gameLayer &&
+        window.ZigaMod.isCoUpGame &&
+        window.ZigaMod.isCoUpGame(data.gameLayer)
+      ) {
+        return true;
+      }
+    } catch (e) {}
+  }
   if (!Array.isArray(pieces)) return false;
   if (pieces.some((p) => p && (p.ac === 0 || p.unopened))) return true;
   const counts = { 0: {}, 1: {} };
@@ -410,7 +428,7 @@ export function createPikafishProvider(options = {}) {
     // Phát hiện thế cờ Cờ Úp (quân úp hoặc số lượng quân đặc thù như 3 Mã, Tượng qua sông):
     // Model Pikafish tiêu chuẩn UCI chỉ hỗ trợ Cờ Tướng chuẩn. Khi gặp Cờ Úp, tự động định tuyến
     // sang Engine JS Grandmaster chuyên dụng để tránh crash hoặc đứng hình tính toán.
-    if (isCoUpPosition(input.pieces)) {
+    if (input.isCoUp || isCoUpPosition(input.pieces, input.isCoUp)) {
       if (allowFallback) {
         return getFallback().analyzeAsync(input, (err, res) => {
           if (activeRequestId === currentId && typeof activeCallback === "function") {
