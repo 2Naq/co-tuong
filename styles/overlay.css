@@ -2114,9 +2114,6 @@ iframe[id^="google_ads"],
     animation-fill-mode: both !important;
   }
 }
-:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .animate-bounce, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).animate-bounce {
-  animation: var(--animate-bounce) !important;
-}
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .animate-caret-blink, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).animate-caret-blink {
   animation: caret-blink 1.25s ease-out infinite !important;
 }

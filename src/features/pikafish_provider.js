@@ -61,6 +61,22 @@ export function createPikafishProvider(options = {}) {
     return fallbackWorker;
   }
 
+  function checkSideInCheck(pieces, side) {
+    if (!pieces || !Array.isArray(pieces)) return false;
+    try {
+      const fbEngine = getFallback().engine;
+      if (
+        fbEngine &&
+        typeof fbEngine.setup === "function" &&
+        typeof fbEngine.inCheck === "function"
+      ) {
+        fbEngine.setup(pieces);
+        return Boolean(fbEngine.inCheck(side));
+      }
+    } catch (e) {}
+    return false;
+  }
+
   let socket = null;
   let socketReady = false;
   let socketFailedOnce = false;
@@ -315,10 +331,11 @@ export function createPikafishProvider(options = {}) {
         if (!active) return;
         active = false;
         const topScore = formattedLines[0] ? formattedLines[0].score : 0;
+        const isSideInCheck = checkSideInCheck(pieces, side);
         cb(null, {
           side,
           mated: Math.abs(topScore) > 9500,
-          inCheck: false,
+          inCheck: isSideInCheck,
           depth,
           nodes: 50000000,
           engineName: `Pikafish 17 NNUE (Cloud Depth ${depth})`,
@@ -595,10 +612,11 @@ export function createPikafishProvider(options = {}) {
       });
 
       const topScore = formattedLines[0] ? formattedLines[0].score : 0;
+      const isSideInCheck = checkSideInCheck(input.pieces, side);
       const result = {
         side,
         mated: Math.abs(topScore) > 9500,
-        inCheck: false,
+        inCheck: isSideInCheck,
         depth: collectedLines[0]?.depth || maxDepth,
         nodes: collectedLines[0]?.nodes || 0,
         engineName: "Pikafish NNUE (Native WS: 8765)",

@@ -46664,6 +46664,18 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       }
       return fallbackWorker;
     }
+    function checkSideInCheck(pieces, side2) {
+      if (!pieces || !Array.isArray(pieces)) return false;
+      try {
+        const fbEngine = getFallback().engine;
+        if (fbEngine && typeof fbEngine.setup === "function" && typeof fbEngine.inCheck === "function") {
+          fbEngine.setup(pieces);
+          return Boolean(fbEngine.inCheck(side2));
+        }
+      } catch (e) {
+      }
+      return false;
+    }
     let socket = null;
     let socketReady = false;
     let socketFailedOnce = false;
@@ -46876,10 +46888,11 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           if (!active) return;
           active = false;
           const topScore = formattedLines[0] ? formattedLines[0].score : 0;
+          const isSideInCheck = checkSideInCheck(pieces, side2);
           cb(null, {
             side: side2,
             mated: Math.abs(topScore) > 9500,
-            inCheck: false,
+            inCheck: isSideInCheck,
             depth,
             nodes: 5e7,
             engineName: `Pikafish 17 NNUE (Cloud Depth ${depth})`,
@@ -47105,10 +47118,11 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           };
         });
         const topScore = formattedLines[0] ? formattedLines[0].score : 0;
+        const isSideInCheck = checkSideInCheck(input.pieces, side2);
         const result = {
           side: side2,
           mated: Math.abs(topScore) > 9500,
-          inCheck: false,
+          inCheck: isSideInCheck,
           depth: collectedLines[0]?.depth || maxDepth,
           nodes: collectedLines[0]?.nodes || 0,
           engineName: "Pikafish NNUE (Native WS: 8765)",
@@ -47748,7 +47762,14 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       if (totalPieces >= 28) phase = "Khai Cu\u1ED9c";
       else if (totalPieces <= 14) phase = "T\xE0n Cu\u1ED9c";
       const score = quickRes && !quickRes.error ? quickRes.score : 0;
-      const inCheck = quickRes && !quickRes.error ? !!quickRes.inCheck : false;
+      let inCheck = quickRes && !quickRes.error ? !!quickRes.inCheck : false;
+      if (!inCheck) {
+        try {
+          engine.setup(pieces);
+          inCheck = engine.inCheck(myColor);
+        } catch (e) {
+        }
+      }
       const evalPoints = (score / 100).toFixed(1);
       let evalText = "C\xE2n b\u1EB1ng (0.0)";
       if (score >= 50) evalText = `+${evalPoints}\u0111 (B\u1EA1n \u01B0u)`;
@@ -47764,10 +47785,11 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       if (inCheck) {
         commentary = {
           type: "danger",
-          title: "C\u1EA2NH B\xC1O CHI\u1EBEU T\u01AF\u1EDANG",
+          title: "\u{1F6A8} T\u01AF\u1EDANG \u0110ANG B\u1ECA CHI\u1EBEU!",
           move: null,
           shortMove: null,
-          why: "T\u01B0\u1EDBng c\u1EE7a b\u1EA1n \u0111ang b\u1ECB chi\u1EBFu! C\u1EA7n \u01B0u ti\xEAn h\xF3a gi\u1EA3i th\u1EBF chi\u1EBFu an to\xE0n."
+          why: "T\u01B0\u1EDBng c\u1EE7a b\u1EA1n \u0111ang b\u1ECB \u0111\u1ED1i ph\u01B0\u01A1ng chi\u1EBFu! C\u1EA7n \u01B0u ti\xEAn tuy\u1EC7t \u0111\u1ED1i h\xF3a gi\u1EA3i th\u1EBF chi\u1EBFu an to\xE0n.",
+          badge: "C\u1EE8U GI\xC1"
         };
       } else if (discThreat) {
         commentary = {
@@ -47835,6 +47857,14 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       let evalText = "C\xE2n b\u1EB1ng (0.0)";
       if (topScore >= 50) evalText = `+${evalPoints}\u0111 (B\u1EA1n \u01B0u)`;
       else if (topScore <= -50) evalText = `${evalPoints}\u0111 (\u0110\u1ECBch \u01B0u)`;
+      let inCheck = Boolean(searchRes.inCheck);
+      if (!inCheck) {
+        try {
+          engine.setup(pieces);
+          inCheck = Boolean(engine.inCheck(myColor));
+        } catch (e) {
+        }
+      }
       const plans = [];
       const movingColor = myColor;
       const targetColor = oppColor;
@@ -47855,7 +47885,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           movingColor
         );
         const isMate = line.delivermate || line.score >= engine.MATE - 100;
-        const isCheck = searchRes.inCheck;
+        const isCheck = inCheck;
         const desc = getTacticalDescription(
           movingPiece,
           targetPiece,
@@ -48233,13 +48263,28 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         shortMove: plans[0] ? plans[0].shortNotation : null,
         why: plans[0] ? plans[0].why : "H\xE3y tri\u1EC3n khai n\u01B0\u1EDBc c\u1EDD c\u1EA9n tr\u1ECDng."
       };
-      if (searchRes.inCheck) {
+      if (inCheck) {
+        const escapePlan = plans[0];
         commentary = {
           type: "danger",
-          title: "C\u1EA2NH B\xC1O CHI\u1EBEU T\u01AF\u1EDANG",
-          move: null,
-          shortMove: null,
-          why: "T\u01B0\u1EDBng c\u1EE7a b\u1EA1n \u0111ang b\u1ECB \u0111\u1ED1i ph\u01B0\u01A1ng chi\u1EBFu! C\u1EA7n \u01B0u ti\xEAn h\xF3a gi\u1EA3i th\u1EBF chi\u1EBFu an to\xE0n."
+          title: "\u{1F6A8} T\u01AF\u1EDANG \u0110ANG B\u1ECA CHI\u1EBEU! B\u1EAET BU\u1ED8C C\u1EE8U GI\xC1!",
+          move: escapePlan ? escapePlan.fullNotation : null,
+          shortMove: escapePlan ? escapePlan.shortNotation : null,
+          why: escapePlan ? `T\u01B0\u1EDBng \u0111ang b\u1ECB \u0111\u1ED1i ph\u01B0\u01A1ng chi\u1EBFu! H\xE3y \u0111i ngay ${escapePlan.fullNotation} \u0111\u1EC3 h\xF3a gi\u1EA3i th\u1EBF chi\u1EBFu an to\xE0n.` : "T\u01B0\u1EDBng c\u1EE7a b\u1EA1n \u0111ang b\u1ECB \u0111\u1ED1i ph\u01B0\u01A1ng chi\u1EBFu! C\u1EA7n \u01B0u ti\xEAn tuy\u1EC7t \u0111\u1ED1i h\xF3a gi\u1EA3i th\u1EBF chi\u1EBFu.",
+          badge: "C\u1EE8U GI\xC1 C\u1EA4P THI\u1EBET"
+        };
+        plans.forEach((p) => {
+          p.type = "defend";
+          p.badge = "Gi\u1EA3i Chi\u1EBFu";
+        });
+      } else if (topScore <= -9e3) {
+        commentary = {
+          type: "danger",
+          title: "\u{1F6A8} B\xC1O \u0110\u1ED8NG S\xC1T C\u1EE4C! NGUY C\u01A0 B\u1ECA B\u1EE8C T\u1EEC!",
+          move: plans[0] ? plans[0].fullNotation : null,
+          shortMove: plans[0] ? plans[0].shortNotation : null,
+          why: plans[0] ? `\u0110\u1ED1i ph\u01B0\u01A1ng \u0111ang gi\u0103ng b\u1EABy s\xE1t c\u1EE5c nguy hi\u1EC3m! N\u01B0\u1EDBc \u0111i duy nh\u1EA5t k\xE9o d\xE0i: ${plans[0].fullNotation}.` : "\u0110\u1ED1i ph\u01B0\u01A1ng \u0111ang c\xF3 \u0111\xF2n s\xE1t c\u1EE5c quy\u1EBFt \u0111\u1ECBnh! H\xE3y t\u1EADp trung to\xE0n l\u1EF1c ph\xF2ng th\u1EE7.",
+          badge: "B\xC1O \u0110\u1ED8NG \u0110\u1ECE"
         };
       } else if (discThreat) {
         commentary = {
@@ -48364,7 +48409,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         threatInfo,
         mateThreat,
         plans,
-        inCheck: searchRes.inCheck,
+        inCheck,
         depth: searchRes.depth,
         nodes: searchRes.nodes,
         openingName: searchRes.openingName || null,
@@ -48416,8 +48461,13 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
               if (fbRes && !fbRes.error) {
                 const fbDeep = buildTacticalAnalysis(fbRes, gameData, pieces);
                 if (fbDeep) {
+                  fbDeep.isSearching = false;
+                  fbDeep.isQuickOnly = false;
                   cachedAnalysis = fbDeep;
                   updateMentorHudCardText(fbDeep);
+                  if (mentorSetter) {
+                    mentorSetter(fbDeep);
+                  }
                   if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
                     renderMentorFloatingContent(fbDeep);
                   }
@@ -48448,9 +48498,14 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             lastAnalysisHash = "";
             return;
           }
+          deepAnalysis.isSearching = false;
+          deepAnalysis.isQuickOnly = false;
           cachedAnalysis = deepAnalysis;
           ZigaMod.lastEngineAnalysis = deepAnalysis;
           updateMentorHudCardText(deepAnalysis);
+          if (mentorSetter) {
+            mentorSetter(deepAnalysis);
+          }
           if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
             renderMentorFloatingContent(deepAnalysis);
           }
@@ -50307,6 +50362,31 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         mentorSetter(analysis);
       }
     }
+    function clearMentorPlanArrows() {
+      let changed = false;
+      if (ZigaMod.drawnArrows) {
+        for (let i = ZigaMod.drawnArrows.length - 1; i >= 0; i--) {
+          if (ZigaMod.drawnArrows[i].isMentorPlan) {
+            ZigaMod.drawnArrows.splice(i, 1);
+            changed = true;
+          }
+        }
+      }
+      if (ZigaMod.drawnHighlights) {
+        for (let i = ZigaMod.drawnHighlights.length - 1; i >= 0; i--) {
+          if (ZigaMod.drawnHighlights[i].isMentorPlan) {
+            ZigaMod.drawnHighlights.splice(i, 1);
+            changed = true;
+          }
+        }
+      }
+      if (changed && typeof ZigaMod.ensureDrawingCanvas === "function" && typeof ZigaMod.redrawTacticalCanvas === "function") {
+        const c = ZigaMod.ensureDrawingCanvas();
+        if (c) {
+          ZigaMod.redrawTacticalCanvas(c);
+        }
+      }
+    }
     function drawPlanArrowOnBoard(plan, variationIdx = 0) {
       if (!plan || !ZigaMod.drawnArrows) return;
       for (let i = ZigaMod.drawnArrows.length - 1; i >= 0; i--) {
@@ -50416,13 +50496,20 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         return;
       }
       lastAnalysisHash = stateHash;
+      clearMentorPlanArrows();
       const pieces = getBoardState(gameData.gameLayer);
       if (!pieces || pieces.length === 0) return;
       const quickRes = asyncWorker.quickEvaluate(pieces, gameData.myColor);
       const quickAnalysis = buildQuickAnalysis(quickRes, gameData, pieces);
-      if (!cachedAnalysis || cachedAnalysis.isQuickOnly) {
-        cachedAnalysis = quickAnalysis;
-      }
+      const freshTransitionalAnalysis = {
+        ...quickAnalysis,
+        isSearching: true,
+        isQuickOnly: true,
+        plans: [],
+        activeStep: 1,
+        selectedPlanIdx: 0
+      };
+      cachedAnalysis = freshTransitionalAnalysis;
       if (quickAnalysis) {
         updateMentorHudCardText(quickAnalysis);
       }
@@ -50439,7 +50526,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         return;
       }
       if (mentorSetter) {
-        mentorSetter({ ...cachedAnalysis || quickAnalysis, isSearching: true });
+        mentorSetter(freshTransitionalAnalysis);
       }
       if (analyzeDebounceTimer) {
         clearTimeout(analyzeDebounceTimer);
@@ -53368,49 +53455,30 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       const myPlayer = logicMgr && logicMgr.Ba ? logicMgr.Ba() : null;
       let myColor = 0;
       let isSpectator = false;
+      let localUserName = "";
+      if (myPlayer && typeof myPlayer.getName === "function") {
+        localUserName = myPlayer.getName() || "";
+      }
+      if (!localUserName && window.BkGlobal && window.BkGlobal.Z && window.BkGlobal.Z.userName) {
+        localUserName = window.BkGlobal.Z.userName || "";
+      }
+      const redUserName = gameLayer.gc && gameLayer.gc.Z ? gameLayer.gc.Z.userName : "";
+      const blackUserName = gameLayer.dc && gameLayer.dc.Z ? gameLayer.dc.Z.userName : "";
       if (myPlayer) {
         isSpectator = !!myPlayer.Ka;
-        if (!isSpectator && myPlayer.ka !== void 0) {
-          myColor = myPlayer.ka;
-        } else if (gameLayer.Nj !== void 0 && gameLayer.Nj >= 0) {
-          myColor = gameLayer.Nj;
-        }
-      } else if (gameLayer.Nj !== void 0 && gameLayer.Nj >= 0) {
+      }
+      if (localUserName && blackUserName && localUserName === blackUserName) {
+        myColor = 1;
+      } else if (localUserName && redUserName && localUserName === redUserName) {
+        myColor = 0;
+      } else if (!isSpectator && myPlayer && myPlayer.ka !== void 0 && (myPlayer.ka === 0 || myPlayer.ka === 1)) {
+        myColor = myPlayer.ka;
+      } else if (gameLayer.Nj !== void 0 && (gameLayer.Nj === 0 || gameLayer.Nj === 1)) {
         myColor = gameLayer.Nj;
       }
-      if (!isSpectator && gameLayer.V && Array.isArray(gameLayer.V)) {
-        let redKingRow = -1;
-        let blackKingRow = -1;
-        for (let i = 0; i < gameLayer.V.length; i++) {
-          const p = gameLayer.V[i];
-          if (!p || p.pa) continue;
-          const pType = p.Ga !== void 0 ? p.Ga : 6;
-          const pColor = p.ka !== void 0 ? p.ka : Math.floor(i / 16);
-          const pRow = p.rowIndex !== void 0 ? p.rowIndex : p.row !== void 0 ? p.row : -1;
-          if (pType === 0) {
-            if (pColor === 0) redKingRow = pRow;
-            if (pColor === 1) blackKingRow = pRow;
-          }
-        }
-        if (redKingRow >= 0 && blackKingRow >= 0) {
-          if (blackKingRow <= 2 && redKingRow >= 7) {
-            myColor = 1;
-          } else if (redKingRow <= 2 && blackKingRow >= 7) {
-            myColor = 0;
-          }
-        }
-      }
       const oppColor = 1 - myColor;
-      let myName = myPlayer && myPlayer.getName ? myPlayer.getName() : myColor === 0 ? "B\xEAn \u0110\u1ECF" : "B\xEAn \u0110en";
-      let oppName = oppColor === 0 ? "B\xEAn \u0110\u1ECF" : "B\xEAn \u0110en";
-      if (gameLayer.gc && gameLayer.gc.Z) {
-        if (myColor === 0) myName = gameLayer.gc.Z.userName || myName;
-        else oppName = gameLayer.gc.Z.userName || oppName;
-      }
-      if (gameLayer.dc && gameLayer.dc.Z) {
-        if (myColor === 1) myName = gameLayer.dc.Z.userName || myName;
-        else oppName = gameLayer.dc.Z.userName || oppName;
-      }
+      let myName = localUserName || (myColor === 0 ? redUserName || "B\xEAn \u0110\u1ECF" : blackUserName || "B\xEAn \u0110en");
+      let oppName = oppColor === 0 ? redUserName || "B\xEAn \u0110\u1ECF" : blackUserName || "B\xEAn \u0110en";
       const deadMyPieces = [];
       const deadOppPieces = [];
       const aliveMyPieces = [];

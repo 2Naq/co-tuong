@@ -588,7 +588,13 @@ import {
     else if (totalPieces <= 14) phase = "Tàn Cuộc";
 
     const score = quickRes && !quickRes.error ? quickRes.score : 0;
-    const inCheck = quickRes && !quickRes.error ? !!quickRes.inCheck : false;
+    let inCheck = quickRes && !quickRes.error ? !!quickRes.inCheck : false;
+    if (!inCheck) {
+      try {
+        engine.setup(pieces);
+        inCheck = engine.inCheck(myColor);
+      } catch (e) {}
+    }
     const evalPoints = (score / 100).toFixed(1);
     let evalText = "Cân bằng (0.0)";
     if (score >= 50) evalText = `+${evalPoints}đ (Bạn ưu)`;
@@ -607,10 +613,11 @@ import {
     if (inCheck) {
       commentary = {
         type: "danger",
-        title: "CẢNH BÁO CHIẾU TƯỚNG",
+        title: "🚨 TƯỚNG ĐANG BỊ CHIẾU!",
         move: null,
         shortMove: null,
-        why: "Tướng của bạn đang bị chiếu! Cần ưu tiên hóa giải thế chiếu an toàn.",
+        why: "Tướng của bạn đang bị đối phương chiếu! Cần ưu tiên tuyệt đối hóa giải thế chiếu an toàn.",
+        badge: "CỨU GIÁ",
       };
     } else if (discThreat) {
       commentary = {
@@ -703,6 +710,14 @@ import {
     if (topScore >= 50) evalText = `+${evalPoints}đ (Bạn ưu)`;
     else if (topScore <= -50) evalText = `${evalPoints}đ (Địch ưu)`;
 
+    let inCheck = Boolean(searchRes.inCheck);
+    if (!inCheck) {
+      try {
+        engine.setup(pieces);
+        inCheck = Boolean(engine.inCheck(myColor));
+      } catch (e) {}
+    }
+
     // Plans MUST ALWAYS be generated from the player's perspective (myColor)
     // The Mentor is strictly the player's Grandmaster Tactical Advisor.
     const plans = [];
@@ -735,7 +750,7 @@ import {
       );
 
       const isMate = line.delivermate || line.score >= engine.MATE - 100;
-      const isCheck = searchRes.inCheck; // or checks opponent
+      const isCheck = inCheck;
 
       const desc = getTacticalDescription(
         movingPiece,
@@ -1232,13 +1247,32 @@ import {
       why: plans[0] ? plans[0].why : "Hãy triển khai nước cờ cẩn trọng.",
     };
 
-    if (searchRes.inCheck) {
+    if (inCheck) {
+      const escapePlan = plans[0];
       commentary = {
         type: "danger",
-        title: "CẢNH BÁO CHIẾU TƯỚNG",
-        move: null,
-        shortMove: null,
-        why: "Tướng của bạn đang bị đối phương chiếu! Cần ưu tiên hóa giải thế chiếu an toàn.",
+        title: "🚨 TƯỚNG ĐANG BỊ CHIẾU! BẮT BUỘC CỨU GIÁ!",
+        move: escapePlan ? escapePlan.fullNotation : null,
+        shortMove: escapePlan ? escapePlan.shortNotation : null,
+        why: escapePlan
+          ? `Tướng đang bị đối phương chiếu! Hãy đi ngay ${escapePlan.fullNotation} để hóa giải thế chiếu an toàn.`
+          : "Tướng của bạn đang bị đối phương chiếu! Cần ưu tiên tuyệt đối hóa giải thế chiếu.",
+        badge: "CỨU GIÁ CẤP THIẾT",
+      };
+      plans.forEach((p) => {
+        p.type = "defend";
+        p.badge = "Giải Chiếu";
+      });
+    } else if (topScore <= -9000) {
+      commentary = {
+        type: "danger",
+        title: "🚨 BÁO ĐỘNG SÁT CỤC! NGUY CƠ BỊ BỨC TỬ!",
+        move: plans[0] ? plans[0].fullNotation : null,
+        shortMove: plans[0] ? plans[0].shortNotation : null,
+        why: plans[0]
+          ? `Đối phương đang giăng bẫy sát cục nguy hiểm! Nước đi duy nhất kéo dài: ${plans[0].fullNotation}.`
+          : "Đối phương đang có đòn sát cục quyết định! Hãy tập trung toàn lực phòng thủ.",
+        badge: "BÁO ĐỘNG ĐỎ",
       };
     } else if (discThreat) {
       commentary = {
@@ -1416,7 +1450,7 @@ import {
       threatInfo,
       mateThreat,
       plans,
-      inCheck: searchRes.inCheck,
+      inCheck: inCheck,
       depth: searchRes.depth,
       nodes: searchRes.nodes,
       openingName: searchRes.openingName || null,
@@ -1485,8 +1519,13 @@ import {
             if (fbRes && !fbRes.error) {
               const fbDeep = buildTacticalAnalysis(fbRes, gameData, pieces);
               if (fbDeep) {
+                fbDeep.isSearching = false;
+                fbDeep.isQuickOnly = false;
                 cachedAnalysis = fbDeep;
                 updateMentorHudCardText(fbDeep);
+                if (mentorSetter) {
+                  mentorSetter(fbDeep);
+                }
                 if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
                   renderMentorFloatingContent(fbDeep);
                 }
@@ -1520,10 +1559,15 @@ import {
           return;
         }
 
+        deepAnalysis.isSearching = false;
+        deepAnalysis.isQuickOnly = false;
         cachedAnalysis = deepAnalysis;
         ZigaMod.lastEngineAnalysis = deepAnalysis;
         updateMentorHudCardText(deepAnalysis);
 
+        if (mentorSetter) {
+          mentorSetter(deepAnalysis);
+        }
         if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
           renderMentorFloatingContent(deepAnalysis);
         }
@@ -3669,6 +3713,37 @@ import {
     }
   }
 
+  // Clear mentor-drawn arrows and highlights from the real game canvas
+  function clearMentorPlanArrows() {
+    let changed = false;
+    if (ZigaMod.drawnArrows) {
+      for (let i = ZigaMod.drawnArrows.length - 1; i >= 0; i--) {
+        if (ZigaMod.drawnArrows[i].isMentorPlan) {
+          ZigaMod.drawnArrows.splice(i, 1);
+          changed = true;
+        }
+      }
+    }
+    if (ZigaMod.drawnHighlights) {
+      for (let i = ZigaMod.drawnHighlights.length - 1; i >= 0; i--) {
+        if (ZigaMod.drawnHighlights[i].isMentorPlan) {
+          ZigaMod.drawnHighlights.splice(i, 1);
+          changed = true;
+        }
+      }
+    }
+    if (
+      changed &&
+      typeof ZigaMod.ensureDrawingCanvas === "function" &&
+      typeof ZigaMod.redrawTacticalCanvas === "function"
+    ) {
+      const c = ZigaMod.ensureDrawingCanvas();
+      if (c) {
+        ZigaMod.redrawTacticalCanvas(c);
+      }
+    }
+  }
+
   // Draw full tactical roadmap on real game canvas via tactical_drawing
   function drawPlanArrowOnBoard(plan, variationIdx = 0) {
     if (!plan || !ZigaMod.drawnArrows) return;
@@ -3811,6 +3886,9 @@ import {
     }
     lastAnalysisHash = stateHash;
 
+    // Xóa ngay các mũi tên vẽ nước cờ cũ trên bàn cờ khi có nước đi mới
+    clearMentorPlanArrows();
+
     const pieces = getBoardState(gameData.gameLayer);
     if (!pieces || pieces.length === 0) return;
 
@@ -3818,9 +3896,18 @@ import {
     const quickRes = asyncWorker.quickEvaluate(pieces, gameData.myColor);
     const quickAnalysis = buildQuickAnalysis(quickRes, gameData, pieces);
 
-    if (!cachedAnalysis || cachedAnalysis.isQuickOnly) {
-      cachedAnalysis = quickAnalysis;
-    }
+    // BẮT BUỘC: Khi thế cờ thay đổi (quân vừa di chuyển), hủy ngay plans cũ của lượt trước
+    // để tránh bị "treo bước" hoặc hiển thị gợi ý sai của lượt cũ!
+    const freshTransitionalAnalysis = {
+      ...quickAnalysis,
+      isSearching: true,
+      isQuickOnly: true,
+      plans: [],
+      activeStep: 1,
+      selectedPlanIdx: 0,
+    };
+    cachedAnalysis = freshTransitionalAnalysis;
+
     if (quickAnalysis) {
       updateMentorHudCardText(quickAnalysis);
     }
@@ -3840,9 +3927,9 @@ import {
       return;
     }
 
-    // If modal IS open, debounce by 140ms (let piece move animations finish), then compute in Web Worker
+    // Modal is OPEN: cập nhật ngay UI sang trạng thái tính toán sạch của thế cờ mới
     if (mentorSetter) {
-      mentorSetter({ ...(cachedAnalysis || quickAnalysis), isSearching: true });
+      mentorSetter(freshTransitionalAnalysis);
     }
 
     if (analyzeDebounceTimer) {

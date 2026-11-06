@@ -29,61 +29,53 @@
     let myColor = 0;
     let isSpectator = false;
 
-    if (myPlayer) {
-      isSpectator = !!myPlayer.Ka;
-      if (!isSpectator && myPlayer.ka !== undefined) {
-        myColor = myPlayer.ka;
-      } else if (gameLayer.Nj !== undefined && gameLayer.Nj >= 0) {
-        myColor = gameLayer.Nj;
-      }
-    } else if (gameLayer.Nj !== undefined && gameLayer.Nj >= 0) {
-      myColor = gameLayer.Nj;
+    // 1. Lấy tên người chơi cục bộ để so khớp với 2 ghế bàn cờ (gc: Đỏ, dc: Đen)
+    let localUserName = "";
+    if (myPlayer && typeof myPlayer.getName === "function") {
+      localUserName = myPlayer.getName() || "";
+    }
+    if (!localUserName && window.BkGlobal && window.BkGlobal.Z && window.BkGlobal.Z.userName) {
+      localUserName = window.BkGlobal.Z.userName || "";
     }
 
-    // Xác thực góc nhìn qua vị trí thực tế của Tướng trên bàn cờ:
-    // Trên nền tảng Ziga, người chơi trực tiếp LUÔN được xếp ở nửa dưới bàn cờ (hàng 0..2).
-    if (!isSpectator && gameLayer.V && Array.isArray(gameLayer.V)) {
-      let redKingRow = -1;
-      let blackKingRow = -1;
-      for (let i = 0; i < gameLayer.V.length; i++) {
-        const p = gameLayer.V[i];
-        if (!p || p.pa) continue;
-        const pType = p.Ga !== undefined ? p.Ga : 6;
-        const pColor = p.ka !== undefined ? p.ka : Math.floor(i / 16);
-        const pRow = p.rowIndex !== undefined ? p.rowIndex : (p.row !== undefined ? p.row : -1);
-        if (pType === 0) {
-          if (pColor === 0) redKingRow = pRow;
-          if (pColor === 1) blackKingRow = pRow;
-        }
-      }
-      if (redKingRow >= 0 && blackKingRow >= 0) {
-        // Tướng nào nằm ở hàng 0..2 (đáy màn hình) chính là phe của bạn
-        if (blackKingRow <= 2 && redKingRow >= 7) {
-          myColor = 1; // Phe Đen
-        } else if (redKingRow <= 2 && blackKingRow >= 7) {
-          myColor = 0; // Phe Đỏ
-        }
-      }
+    const redUserName =
+      gameLayer.gc && gameLayer.gc.Z ? gameLayer.gc.Z.userName : "";
+    const blackUserName =
+      gameLayer.dc && gameLayer.dc.Z ? gameLayer.dc.Z.userName : "";
+
+    if (myPlayer) {
+      isSpectator = !!myPlayer.Ka;
+    }
+
+    // Xác thực phe người chơi (0: Đỏ, 1: Đen):
+    // Ưu tiên 1: So khớp username của người dùng với ghế dc (Đen) hoặc gc (Đỏ)
+    if (localUserName && blackUserName && localUserName === blackUserName) {
+      myColor = 1; // Phe Đen
+    } else if (localUserName && redUserName && localUserName === redUserName) {
+      myColor = 0; // Phe Đỏ
+    } else if (
+      !isSpectator &&
+      myPlayer &&
+      myPlayer.ka !== undefined &&
+      (myPlayer.ka === 0 || myPlayer.ka === 1)
+    ) {
+      // Ưu tiên 2: Biến ka của myPlayer trong LogicManager
+      myColor = myPlayer.ka;
+    } else if (
+      gameLayer.Nj !== undefined &&
+      (gameLayer.Nj === 0 || gameLayer.Nj === 1)
+    ) {
+      // Ưu tiên 3: Biến ghế Nj trên Cocos2d gameLayer
+      myColor = gameLayer.Nj;
     }
 
     const oppColor = 1 - myColor;
 
     let myName =
-      myPlayer && myPlayer.getName
-        ? myPlayer.getName()
-        : myColor === 0
-          ? "Bên Đỏ"
-          : "Bên Đen";
-    let oppName = oppColor === 0 ? "Bên Đỏ" : "Bên Đen";
-
-    if (gameLayer.gc && gameLayer.gc.Z) {
-      if (myColor === 0) myName = gameLayer.gc.Z.userName || myName;
-      else oppName = gameLayer.gc.Z.userName || oppName;
-    }
-    if (gameLayer.dc && gameLayer.dc.Z) {
-      if (myColor === 1) myName = gameLayer.dc.Z.userName || myName;
-      else oppName = gameLayer.dc.Z.userName || oppName;
-    }
+      localUserName ||
+      (myColor === 0 ? redUserName || "Bên Đỏ" : blackUserName || "Bên Đen");
+    let oppName =
+      oppColor === 0 ? redUserName || "Bên Đỏ" : blackUserName || "Bên Đen";
 
     const deadMyPieces = [];
     const deadOppPieces = [];
