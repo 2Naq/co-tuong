@@ -47093,13 +47093,16 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         if (activeRequestId !== currentId || typeof activeCallback !== "function") return;
         const cb = activeCallback;
         activeCallback = null;
-        const formattedLines = collectedLines.filter(Boolean).map((cl) => {
+        const formattedLines = [];
+        for (const cl of collectedLines) {
+          if (!cl || !cl.pv || !cl.pv[0]) continue;
           const moveCoord = uciToMove(cl.pv[0], isFlipped);
-          return {
-            fromCol: moveCoord ? moveCoord.fromCol : 0,
-            fromRow: moveCoord ? moveCoord.fromRow : 0,
-            toCol: moveCoord ? moveCoord.toCol : 0,
-            toRow: moveCoord ? moveCoord.toRow : 0,
+          if (!moveCoord) continue;
+          formattedLines.push({
+            fromCol: moveCoord.fromCol,
+            fromRow: moveCoord.fromRow,
+            toCol: moveCoord.toCol,
+            toRow: moveCoord.toRow,
             score: cl.score,
             isMate: Boolean(cl.isMate || Math.abs(cl.score) >= 9500),
             delivermate: Boolean(cl.isMate || Math.abs(cl.score) >= 9500),
@@ -47115,8 +47118,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                 step5: cl.pv[4] ? { ...uciToMove(cl.pv[4], isFlipped), score: cl.score } : null
               }
             ] : []
-          };
-        });
+          });
+        }
         const topScore = formattedLines[0] ? formattedLines[0].score : 0;
         const isSideInCheck = checkSideInCheck(input.pieces, side2);
         const result = {
@@ -48203,7 +48206,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                 (p) => p.col === line.fromCol && p.row === line.fromRow && p.color === movingColor
               );
               if (!movingPiece) return;
-              const fullNotation = getXiangqiNotation(
+              const notation = getXiangqiNotation(
                 movingPiece,
                 line.fromCol,
                 line.fromRow,
@@ -48211,12 +48214,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                 line.toRow,
                 movingColor
               );
-              const shortNotation = formatShortNotation(
-                movingPiece,
-                line.toCol,
-                line.toRow,
-                movingColor
-              );
+              const fullNotation = notation ? notation.full : "";
+              const shortNotation = notation ? notation.short : "";
               plans.push({
                 id: `fallback-${line.fromCol}-${line.fromRow}-${line.toCol}-${line.toRow}`,
                 name: `Tri\u1EC3n khai ${movingPiece.name}`,
@@ -48242,7 +48241,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                     toCol: line.toCol,
                     toRow: line.toRow,
                     piece: movingPiece,
-                    notation: fullNotation,
+                    notation: { short: shortNotation, full: fullNotation },
                     shortNotation,
                     explanation: `Tri\u1EC3n khai ${movingPiece.name} ki\u1EC3m so\xE1t v\u1ECB tr\xED tr\u1ECDng y\u1EBFu.`,
                     badge: "N\u01B0\u1EDBc \u0110i Khuy\xEAn D\xF9ng"

@@ -584,13 +584,16 @@ export function createPikafishProvider(options = {}) {
       activeCallback = null;
 
       // Transform collected UCI lines into mentor analysis shape
-      const formattedLines = collectedLines.filter(Boolean).map((cl) => {
+      const formattedLines = [];
+      for (const cl of collectedLines) {
+        if (!cl || !cl.pv || !cl.pv[0]) continue;
         const moveCoord = uciToMove(cl.pv[0], isFlipped);
-        return {
-          fromCol: moveCoord ? moveCoord.fromCol : 0,
-          fromRow: moveCoord ? moveCoord.fromRow : 0,
-          toCol: moveCoord ? moveCoord.toCol : 0,
-          toRow: moveCoord ? moveCoord.toRow : 0,
+        if (!moveCoord) continue;
+        formattedLines.push({
+          fromCol: moveCoord.fromCol,
+          fromRow: moveCoord.fromRow,
+          toCol: moveCoord.toCol,
+          toRow: moveCoord.toRow,
           score: cl.score,
           isMate: Boolean(cl.isMate || Math.abs(cl.score) >= 9500),
           delivermate: Boolean(cl.isMate || Math.abs(cl.score) >= 9500),
@@ -602,14 +605,20 @@ export function createPikafishProvider(options = {}) {
                 {
                   ...uciToMove(cl.pv[1], isFlipped),
                   score: -cl.score,
-                  answer: cl.pv[2] ? { ...uciToMove(cl.pv[2], isFlipped), score: cl.score } : null,
-                  step4: cl.pv[3] ? { ...uciToMove(cl.pv[3], isFlipped), score: -cl.score } : null,
-                  step5: cl.pv[4] ? { ...uciToMove(cl.pv[4], isFlipped), score: cl.score } : null,
+                  answer: cl.pv[2]
+                    ? { ...uciToMove(cl.pv[2], isFlipped), score: cl.score }
+                    : null,
+                  step4: cl.pv[3]
+                    ? { ...uciToMove(cl.pv[3], isFlipped), score: -cl.score }
+                    : null,
+                  step5: cl.pv[4]
+                    ? { ...uciToMove(cl.pv[4], isFlipped), score: cl.score }
+                    : null,
                 },
               ]
             : [],
-        };
-      });
+        });
+      }
 
       const topScore = formattedLines[0] ? formattedLines[0].score : 0;
       const isSideInCheck = checkSideInCheck(input.pieces, side);

@@ -1183,7 +1183,7 @@ import {
                 p.color === movingColor,
             );
             if (!movingPiece) return;
-            const fullNotation = getXiangqiNotation(
+            const notation = getXiangqiNotation(
               movingPiece,
               line.fromCol,
               line.fromRow,
@@ -1191,12 +1191,8 @@ import {
               line.toRow,
               movingColor,
             );
-            const shortNotation = formatShortNotation(
-              movingPiece,
-              line.toCol,
-              line.toRow,
-              movingColor,
-            );
+            const fullNotation = notation ? notation.full : "";
+            const shortNotation = notation ? notation.short : "";
             plans.push({
               id: `fallback-${line.fromCol}-${line.fromRow}-${line.toCol}-${line.toRow}`,
               name: `Triển khai ${movingPiece.name}`,
@@ -1222,7 +1218,7 @@ import {
                   toCol: line.toCol,
                   toRow: line.toRow,
                   piece: movingPiece,
-                  notation: fullNotation,
+                  notation: { short: shortNotation, full: fullNotation },
                   shortNotation,
                   explanation: `Triển khai ${movingPiece.name} kiểm soát vị trí trọng yếu.`,
                   badge: "Nước Đi Khuyên Dùng",
