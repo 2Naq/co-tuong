@@ -28,9 +28,18 @@
 
         if (p.ac === 0) {
           unopenedCount++;
-        } else if (p.ac === 1 && p.Ga !== 0) {
-          // revealed non-king piece
-          revealed[p.Ga] = (revealed[p.Ga] || 0) + 1;
+        } else if (p.ac === 1) {
+          const pType =
+            typeof ZigaMod.resolvePieceType === "function"
+              ? ZigaMod.resolvePieceType(p, i)
+              : p.Ha !== undefined
+                ? p.Ha
+                : p.Ga !== undefined
+                  ? p.Ga
+                  : p.type;
+          if (pType !== 0 && revealed[pType] !== undefined) {
+            revealed[pType] = (revealed[pType] || 0) + 1;
+          }
         }
       }
 

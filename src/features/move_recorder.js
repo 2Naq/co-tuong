@@ -42,7 +42,16 @@
       const col = p.fa;
       const row = p.rowIndex;
       const color = p.ka !== undefined ? p.ka : Math.floor(i / 16);
-      const type = p.Ga !== undefined ? p.Ga : 6;
+      const type =
+        typeof ZigaMod.resolvePieceType === "function"
+          ? ZigaMod.resolvePieceType(p, i)
+          : p.Ha !== undefined
+            ? p.Ha
+            : p.Ga !== undefined
+              ? p.Ga
+              : i === 0 || i === 16
+                ? 0
+                : 6;
 
       if (col >= 0 && col < 9 && row >= 0 && row < 10) {
         const char =
@@ -192,7 +201,16 @@
         row: p.rowIndex,
         dead: isDead,
         color: p.ka !== undefined ? p.ka : Math.floor(i / 16),
-        type: p.Ga !== undefined ? p.Ga : 6,
+        type:
+          typeof ZigaMod.resolvePieceType === "function"
+            ? ZigaMod.resolvePieceType(p, i)
+            : p.Ha !== undefined
+              ? p.Ha
+              : p.Ga !== undefined
+                ? p.Ga
+                : i === 0 || i === 16
+                  ? 0
+                  : 6,
       };
     }
 

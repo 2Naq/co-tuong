@@ -19,10 +19,16 @@ export function TacticalInspectorCard({ tactical, visible }) {
 
   if (!visible || !piece) return null;
 
+  const pType =
+    typeof ZigaMod.resolvePieceType === "function"
+      ? ZigaMod.resolvePieceType(piece)
+      : piece.Ha !== undefined
+        ? piece.Ha
+        : piece.Ga;
   const pChar = ZigaMod.getPieceChar
-    ? ZigaMod.getPieceChar(piece.Ga, piece.ka)
+    ? ZigaMod.getPieceChar(pType, piece.ka)
     : "?";
-  const pName = ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(piece.Ga) : "";
+  const pName = ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(pType) : "";
   const colorName = piece.ka === 0 ? "Đỏ" : "Đen";
 
   return (
@@ -60,7 +66,12 @@ export function TacticalInspectorCard({ tactical, visible }) {
               </span>
             ) : (
               targets.map((t, idx) => {
-                const tType = t?.type !== undefined ? t.type : t?.Ga;
+                const tType =
+                  t?.type !== undefined
+                    ? t.type
+                    : t?.Ha !== undefined
+                      ? t.Ha
+                      : t?.Ga;
                 const tColor = t?.color !== undefined ? t.color : t?.ka;
                 const tCol = t?.col !== undefined ? t.col : t?.fa;
                 const tRow = t?.row !== undefined ? t.row : t?.rowIndex;
@@ -107,7 +118,12 @@ export function TacticalInspectorCard({ tactical, visible }) {
               </span>
             ) : (
               defended.map((d, idx) => {
-                const dType = d?.type !== undefined ? d.type : d?.Ga;
+                const dType =
+                  d?.type !== undefined
+                    ? d.type
+                    : d?.Ha !== undefined
+                      ? d.Ha
+                      : d?.Ga;
                 const dColor = d?.color !== undefined ? d.color : d?.ka;
                 const dChar =
                   d?.char ||

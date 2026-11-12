@@ -30,9 +30,11 @@ export function ThreatAlertCard({ threats = [], visible }) {
             const targetType =
               t.targetType !== undefined
                 ? t.targetType
-                : targetPiece.Ga !== undefined
-                  ? targetPiece.Ga
-                  : targetPiece.type;
+                : targetPiece.Ha !== undefined
+                  ? targetPiece.Ha
+                  : targetPiece.Ga !== undefined
+                    ? targetPiece.Ga
+                    : targetPiece.type;
             const targetColor =
               t.targetColor !== undefined
                 ? t.targetColor
@@ -71,7 +73,12 @@ export function ThreatAlertCard({ threats = [], visible }) {
                 attackerNames = t.attackers
                   .filter(Boolean)
                   .map((a) => {
-                    const aType = a.Ga !== undefined ? a.Ga : a.type;
+                    const aType =
+                      a.Ha !== undefined
+                        ? a.Ha
+                        : a.Ga !== undefined
+                          ? a.Ga
+                          : a.type;
                     return (
                       ZigaMod.PIECE_DEFS?.[aType]?.name ||
                       (ZigaMod.getPieceVnName
@@ -84,9 +91,11 @@ export function ThreatAlertCard({ threats = [], visible }) {
                 const aType =
                   t.attackerType !== undefined
                     ? t.attackerType
-                    : t.attacker.Ga !== undefined
-                      ? t.attacker.Ga
-                      : t.attacker.type;
+                    : t.attacker.Ha !== undefined
+                      ? t.attacker.Ha
+                      : t.attacker.Ga !== undefined
+                        ? t.attacker.Ga
+                        : t.attacker.type;
                 attackerNames =
                   ZigaMod.PIECE_DEFS?.[aType]?.name ||
                   (ZigaMod.getPieceVnName

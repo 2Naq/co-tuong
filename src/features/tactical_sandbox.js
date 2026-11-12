@@ -358,7 +358,16 @@
     for (let i = 0; i < 32; i++) {
       const p = data.gameLayer.V[i];
       if (p) {
-        const pType = p.Ga !== undefined ? p.Ga : 6;
+        const pType =
+          typeof ZigaMod.resolvePieceType === "function"
+            ? ZigaMod.resolvePieceType(p, i)
+            : p.Ha !== undefined
+              ? p.Ha
+              : p.Ga !== undefined
+                ? p.Ga
+                : i === 0 || i === 16
+                  ? 0
+                  : 6;
         const pColor = p.ka !== undefined ? p.ka : i < 16 ? 0 : 1;
         const pCol = p.fa !== undefined ? p.fa : 0;
         const pRow = p.rowIndex !== undefined ? p.rowIndex : 0;

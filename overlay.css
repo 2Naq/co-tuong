@@ -919,6 +919,7 @@ iframe[id^="google_ads"],
   --color-red-600: oklch(57.7% 0.245 27.325);
   --color-red-700: oklch(50.5% 0.213 27.518);
   --color-red-950: oklch(25.8% 0.092 26.042);
+  --color-orange-300: oklch(83.7% 0.128 66.29);
   --color-orange-400: oklch(75% 0.183 55.934);
   --color-orange-500: oklch(70.5% 0.213 47.604);
   --color-amber-200: oklch(92.4% 0.12 95.746);
@@ -927,6 +928,7 @@ iframe[id^="google_ads"],
   --color-amber-500: oklch(76.9% 0.188 70.08);
   --color-amber-600: oklch(66.6% 0.179 58.318);
   --color-amber-700: oklch(55.5% 0.163 48.998);
+  --color-amber-950: oklch(27.9% 0.077 45.635);
   --color-yellow-300: oklch(90.5% 0.182 98.111);
   --color-yellow-500: oklch(79.5% 0.184 86.047);
   --color-green-300: oklch(87.1% 0.15 154.449);
@@ -962,6 +964,7 @@ iframe[id^="google_ads"],
   --color-zinc-950: oklch(14.1% 0.005 285.823);
   --color-neutral-900: oklch(20.5% 0 none);
   --color-stone-100: oklch(97% 0.001 106.424);
+  --color-stone-900: oklch(21.6% 0.006 56.043);
   --color-black: #000;
   --color-white: #fff;
   --spacing: 0.25rem;
@@ -983,6 +986,7 @@ iframe[id^="google_ads"],
   --font-weight-bold: 700;
   --font-weight-extrabold: 800;
   --font-weight-black: 900;
+  --tracking-tighter: -0.05em;
   --tracking-tight: -0.025em;
   --tracking-wide: 0.025em;
   --tracking-wider: 0.05em;
@@ -2134,6 +2138,9 @@ iframe[id^="google_ads"],
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .cursor-move, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).cursor-move {
   cursor: move !important;
 }
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .cursor-not-allowed, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).cursor-not-allowed {
+  cursor: not-allowed !important;
+}
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .cursor-ns-resize, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).cursor-ns-resize {
   cursor: ns-resize !important;
 }
@@ -2618,6 +2625,12 @@ iframe[id^="google_ads"],
     border-color: color-mix(in oklab, var(--color-amber-400) 50%, transparent) !important;
   }
 }
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-amber-400\/60, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-amber-400\/60 {}
+@supports (color: color-mix(in lab, red, red)) {
+  :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-amber-400\/60, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-amber-400\/60 {
+    border-color: color-mix(in oklab, var(--color-amber-400) 60%, transparent) !important;
+  }
+}
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-amber-500\/30, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-amber-500\/30 {}
 @supports (color: color-mix(in lab, red, red)) {
   :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-amber-500\/30, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-amber-500\/30 {
@@ -2638,6 +2651,12 @@ iframe[id^="google_ads"],
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-amber-600, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-amber-600 {
   border-color: var(--color-amber-600) !important;
+}
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-amber-600\/70, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-amber-600\/70 {}
+@supports (color: color-mix(in lab, red, red)) {
+  :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-amber-600\/70, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-amber-600\/70 {
+    border-color: color-mix(in oklab, var(--color-amber-600) 70%, transparent) !important;
+  }
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-blue-500\/40, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-blue-500\/40 {}
 @supports (color: color-mix(in lab, red, red)) {
@@ -2714,6 +2733,12 @@ iframe[id^="google_ads"],
     border-color: color-mix(in oklab, var(--color-cyan-400) 50%, transparent) !important;
   }
 }
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-cyan-400\/60, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-cyan-400\/60 {}
+@supports (color: color-mix(in lab, red, red)) {
+  :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-cyan-400\/60, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-cyan-400\/60 {
+    border-color: color-mix(in oklab, var(--color-cyan-400) 60%, transparent) !important;
+  }
+}
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-cyan-500\/30, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-cyan-500\/30 {}
 @supports (color: color-mix(in lab, red, red)) {
   :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-cyan-500\/30, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-cyan-500\/30 {
@@ -2730,6 +2755,12 @@ iframe[id^="google_ads"],
 @supports (color: color-mix(in lab, red, red)) {
   :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-destructive\/30, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-destructive\/30 {
     border-color: color-mix(in oklab, var(--destructive) 30%, transparent) !important;
+  }
+}
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-emerald-400\/60, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-emerald-400\/60 {}
+@supports (color: color-mix(in lab, red, red)) {
+  :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-emerald-400\/60, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-emerald-400\/60 {
+    border-color: color-mix(in oklab, var(--color-emerald-400) 60%, transparent) !important;
   }
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-emerald-500\/30, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-emerald-500\/30 {}
@@ -2769,6 +2800,12 @@ iframe[id^="google_ads"],
 @supports (color: color-mix(in lab, red, red)) {
   :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-input\/60, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-input\/60 {
     border-color: color-mix(in oklab, var(--input) 60%, transparent) !important;
+  }
+}
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-orange-400\/60, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-orange-400\/60 {}
+@supports (color: color-mix(in lab, red, red)) {
+  :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-orange-400\/60, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-orange-400\/60 {
+    border-color: color-mix(in oklab, var(--color-orange-400) 60%, transparent) !important;
   }
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-pink-500\/40, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-pink-500\/40 {}
@@ -2827,6 +2864,12 @@ iframe[id^="google_ads"],
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-red-600, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-red-600 {
   border-color: var(--color-red-600) !important;
+}
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-rose-400\/60, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-rose-400\/60 {}
+@supports (color: color-mix(in lab, red, red)) {
+  :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-rose-400\/60, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-rose-400\/60 {
+    border-color: color-mix(in oklab, var(--color-rose-400) 60%, transparent) !important;
+  }
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .border-rose-500\/30, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).border-rose-500\/30 {}
 @supports (color: color-mix(in lab, red, red)) {
@@ -3062,6 +3105,12 @@ iframe[id^="google_ads"],
     background-color: color-mix(in oklab, var(--color-emerald-500) 15%, transparent) !important;
   }
 }
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .bg-emerald-500\/20, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).bg-emerald-500\/20 {}
+@supports (color: color-mix(in lab, red, red)) {
+  :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .bg-emerald-500\/20, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).bg-emerald-500\/20 {
+    background-color: color-mix(in oklab, var(--color-emerald-500) 20%, transparent) !important;
+  }
+}
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .bg-foreground, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).bg-foreground {
   background-color: var(--foreground) !important;
 }
@@ -3144,6 +3193,12 @@ iframe[id^="google_ads"],
 @supports (color: color-mix(in lab, red, red)) {
   :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .bg-neutral-900\/95, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).bg-neutral-900\/95 {
     background-color: color-mix(in oklab, var(--color-neutral-900) 95%, transparent) !important;
+  }
+}
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .bg-orange-500\/20, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).bg-orange-500\/20 {}
+@supports (color: color-mix(in lab, red, red)) {
+  :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .bg-orange-500\/20, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).bg-orange-500\/20 {
+    background-color: color-mix(in oklab, var(--color-orange-500) 20%, transparent) !important;
   }
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .bg-pink-500\/15, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).bg-pink-500\/15 {}
@@ -3311,6 +3366,10 @@ iframe[id^="google_ads"],
     background-color: color-mix(in oklab, var(--color-zinc-950) 95%, transparent) !important;
   }
 }
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .bg-gradient-to-br, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).bg-gradient-to-br {
+  --tw-gradient-position: to bottom right in oklab;
+  background-image: linear-gradient(var(--tw-gradient-stops)) !important;
+}
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .bg-gradient-to-r, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).bg-gradient-to-r {
   --tw-gradient-position: to right in oklab;
   background-image: linear-gradient(var(--tw-gradient-stops)) !important;
@@ -3321,6 +3380,10 @@ iframe[id^="google_ads"],
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .bg-\[radial-gradient\(circle_at_35\%_35\%\,\#fff7eb_0\%\,\#e8cfa1_60\%\,\#bd9f67_100\%\)\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).bg-\[radial-gradient\(circle_at_35\%_35\%\,\#fff7eb_0\%\,\#e8cfa1_60\%\,\#bd9f67_100\%\)\] {
   background-image: radial-gradient(circle at 35% 35%,#fff7eb 0%,#e8cfa1 60%,#bd9f67 100%) !important;
 }
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .from-amber-950, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).from-amber-950 {
+  --tw-gradient-from: var(--color-amber-950);
+  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+}
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .from-red-600, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).from-red-600 {
   --tw-gradient-from: var(--color-red-600);
   --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
@@ -3330,8 +3393,17 @@ iframe[id^="google_ads"],
   --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
   --tw-gradient-stops: var(--tw-gradient-via-stops);
 }
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .via-stone-900, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).via-stone-900 {
+  --tw-gradient-via: var(--color-stone-900);
+  --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-via-stops);
+}
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .to-amber-400, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).to-amber-400 {
   --tw-gradient-to: var(--color-amber-400);
+  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+}
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .to-amber-950, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).to-amber-950 {
+  --tw-gradient-to: var(--color-amber-950);
   --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .bg-clip-padding, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).bg-clip-padding {
@@ -3604,9 +3676,6 @@ iframe[id^="google_ads"],
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .text-\[8\.5px\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).text-\[8\.5px\] {
   font-size: 8.5px !important;
 }
-:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .text-\[8px\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).text-\[8px\] {
-  font-size: 8px !important;
-}
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .text-\[9\.5px\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).text-\[9\.5px\] {
   font-size: 9.5px !important;
 }
@@ -3687,6 +3756,10 @@ iframe[id^="google_ads"],
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .tracking-tight, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).tracking-tight {
   --tw-tracking: var(--tracking-tight);
   letter-spacing: var(--tracking-tight) !important;
+}
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .tracking-tighter, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).tracking-tighter {
+  --tw-tracking: var(--tracking-tighter);
+  letter-spacing: var(--tracking-tighter) !important;
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .tracking-wide, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).tracking-wide {
   --tw-tracking: var(--tracking-wide);
@@ -3825,6 +3898,9 @@ iframe[id^="google_ads"],
   :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .text-muted-foreground\/90, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).text-muted-foreground\/90 {
     color: color-mix(in oklab, var(--muted-foreground) 90%, transparent) !important;
   }
+}
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .text-orange-300, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).text-orange-300 {
+  color: var(--color-orange-300) !important;
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .text-orange-400, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).text-orange-400 {
   color: var(--color-orange-400) !important;

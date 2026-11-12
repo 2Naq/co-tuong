@@ -21,8 +21,15 @@
       const oppPiece = gameLayer.V[i];
       if (!oppPiece || oppPiece.pa || oppPiece.ka !== oppColor) continue;
 
-      const pieceHelper = gameLayer.hq ? gameLayer.hq(i) : null;
-      if (!pieceHelper || !gameLayer.IM) continue;
+      const pieceHelper =
+        typeof ZigaMod.getPieceHelper === "function"
+          ? ZigaMod.getPieceHelper(gameLayer, i)
+          : gameLayer.fq
+            ? gameLayer.fq(i)
+            : gameLayer.hq
+              ? gameLayer.hq(i)
+              : null;
+      if (!pieceHelper) continue;
 
       for (let sq = 0; sq < 90; sq++) {
         const c = sq % 9;
@@ -33,11 +40,22 @@
           const myPiece = gameLayer.V[targetIdx];
           if (myPiece && !myPiece.pa && myPiece.ka === myColor) {
             try {
-              if (gameLayer.IM(pieceHelper, i, sq, grid)) {
-                if (
-                  !gameLayer.BM ||
-                  !gameLayer.BM(pieceHelper, i, c, r, grid)
-                ) {
+              const canMove =
+                typeof ZigaMod.isMovePatternValid === "function"
+                  ? ZigaMod.isMovePatternValid(gameLayer, pieceHelper, i, sq, grid)
+                  : typeof gameLayer.PM === "function"
+                    ? gameLayer.PM(pieceHelper, i, sq, grid)
+                    : typeof gameLayer.IM === "function"
+                      ? gameLayer.IM(pieceHelper, i, sq, grid)
+                      : false;
+
+              if (canMove) {
+                const isKingFaceKing =
+                  typeof ZigaMod.isKingFacingKing === "function"
+                    ? ZigaMod.isKingFacingKing(gameLayer, pieceHelper, i, c, r, grid)
+                    : false;
+
+                if (!isKingFaceKing) {
                   const coord = ZigaMod.formatXiangqiCoord
                     ? ZigaMod.formatXiangqiCoord(c, r, myPiece.ka)
                     : {
@@ -47,8 +65,22 @@
                         fullText: `Cột ${myPiece.ka === 0 ? 9 - c : c + 1}, Hàng ${myPiece.ka === 0 ? r + 1 : 10 - r}`,
                       };
 
-                  const targetType = myPiece.Ga;
-                  const attackerType = oppPiece.Ga;
+                  const targetType =
+                    typeof ZigaMod.resolvePieceType === "function"
+                      ? ZigaMod.resolvePieceType(myPiece, targetIdx)
+                      : myPiece.Ha !== undefined
+                        ? myPiece.Ha
+                        : myPiece.Ga !== undefined
+                          ? myPiece.Ga
+                          : 6;
+                  const attackerType =
+                    typeof ZigaMod.resolvePieceType === "function"
+                      ? ZigaMod.resolvePieceType(oppPiece, i)
+                      : oppPiece.Ha !== undefined
+                        ? oppPiece.Ha
+                        : oppPiece.Ga !== undefined
+                          ? oppPiece.Ga
+                          : 6;
                   const targetDef = ZigaMod.PIECE_DEFS[targetType] || {
                     name: "Quân",
                     value: 0,

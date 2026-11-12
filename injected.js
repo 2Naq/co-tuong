@@ -14782,6 +14782,51 @@
       short: "B"
     }
   };
+  var DEFAULT_INITIAL_PIECE_TYPES = [
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4,
+    5,
+    5,
+    6,
+    6,
+    6,
+    6,
+    6
+  ];
+  function resolvePieceType(p, index4) {
+    if (!p && index4 === void 0) return 6;
+    const idx = p && p.index !== void 0 ? p.index : index4 !== void 0 ? index4 : -1;
+    const isKingIndex = idx === 0 || idx === 16;
+    const isKingPos = p && p.fa === 4 && (p.rowIndex === 0 || p.rowIndex === 9);
+    if (p && p.ed !== void 0 && p.ed !== null) {
+      if ((isKingIndex || isKingPos) && p.ed === 6) return 0;
+      return p.ed;
+    }
+    if (p && p.Ha !== void 0 && p.Ha !== null) {
+      if ((isKingIndex || isKingPos) && p.Ha === 6) return 0;
+      return p.Ha;
+    }
+    if (p && p.Ga !== void 0 && p.Ga !== null) {
+      if ((isKingIndex || isKingPos) && p.Ga === 6) return 0;
+      return p.Ga;
+    }
+    if (p && p.type !== void 0 && p.type !== null) {
+      if ((isKingIndex || isKingPos) && p.type === 6) return 0;
+      return p.type;
+    }
+    if (isKingIndex || isKingPos) return 0;
+    if (idx >= 0 && idx < 32) {
+      return DEFAULT_INITIAL_PIECE_TYPES[idx % 16];
+    }
+    return 6;
+  }
   var DISPLAY_ORDER = [3, 4, 5, 6, 1, 2, 0];
   var DEFAULT_SETTINGS = {
     showLostPieces: true,
@@ -15044,6 +15089,8 @@
     ZigaMod.AURA_THEMES = AURA_THEMES;
     ZigaMod.AURA_ANIMATIONS = AURA_ANIMATIONS;
     ZigaMod.formatXiangqiCoord = formatXiangqiCoord;
+    ZigaMod.DEFAULT_INITIAL_PIECE_TYPES = DEFAULT_INITIAL_PIECE_TYPES;
+    ZigaMod.resolvePieceType = resolvePieceType;
   }
 
   // src/core/storage.js
@@ -15197,6 +15244,513 @@
     });
   })(window.ZigaMod = window.ZigaMod || {});
 
+  // src/core/engine_hook.js
+  (function(ZigaMod) {
+    "use strict";
+    function generateBoardMatrix(gl, b) {
+      if (!gl) return;
+      if (typeof gl.fD === "function") {
+        gl.fD(b);
+      } else if (typeof gl.ZC === "function") {
+        gl.ZC(b);
+      } else {
+        for (let c = 0; 9 > c; c++) {
+          if (!b[c]) b[c] = Array(10);
+          for (let d = 0; 10 > d; d++) b[c][d] = -1;
+        }
+        if (gl.V && Array.isArray(gl.V)) {
+          for (let c = 0; 32 > c; c++) {
+            if (gl.V[c] && !gl.V[c].pa && gl.V[c].fa !== void 0 && gl.V[c].rowIndex !== void 0) {
+              b[gl.V[c].fa][gl.V[c].rowIndex] = c;
+            }
+          }
+        }
+      }
+    }
+    function getPieceHelper(gl, pieceIndex) {
+      if (!gl) return null;
+      if (typeof gl.fq === "function") return gl.fq(pieceIndex);
+      if (typeof gl.hq === "function") return gl.hq(pieceIndex);
+      if (gl.V && gl.V[pieceIndex]) {
+        const p = gl.V[pieceIndex];
+        if (typeof window !== "undefined" && typeof window.BkChessPiece === "function") {
+          try {
+            const b = new window.BkChessPiece(pieceIndex);
+            b.Ha = p.Ha !== void 0 ? p.Ha : p.Ga !== void 0 ? p.Ga : 0;
+            b.ka = p.ka;
+            b.fa = p.fa;
+            b.rowIndex = p.rowIndex;
+            return b;
+          } catch (e) {
+          }
+        }
+        return p;
+      }
+      return null;
+    }
+    function isMovePatternValid(gl, helper, pieceIndex, destSquare, matrix) {
+      if (!gl || !helper) return false;
+      if (typeof gl.PM === "function") {
+        return !!gl.PM(helper, pieceIndex, destSquare, matrix);
+      }
+      if (typeof gl.IM === "function") {
+        return !!gl.IM(helper, pieceIndex, destSquare, matrix);
+      }
+      return false;
+    }
+    function isKingFacingKing(gl, helper, pieceIndex, col, row, matrix) {
+      if (!gl || !helper) return false;
+      if (typeof gl.PM === "function" && typeof gl.IM === "function") {
+        return !!gl.IM(helper, pieceIndex, col, row, matrix);
+      }
+      if (typeof gl.BM === "function") {
+        return !!gl.BM(helper, pieceIndex, col, row, matrix);
+      }
+      return false;
+    }
+    function isKingCheckedAfterMove(gl, helper, pieceIndex, col, row, matrix) {
+      if (!gl || !helper) return false;
+      if (typeof gl.KM === "function") {
+        return !!gl.KM(0, helper, pieceIndex, col, row, matrix);
+      }
+      if (typeof gl.DM === "function") {
+        return !!gl.DM(0, helper, pieceIndex, col, row, matrix);
+      }
+      return false;
+    }
+    function findPieceAt(gl, col, row) {
+      if (!gl) return -1;
+      if (typeof gl.WK === "function") return gl.WK(col, row);
+      if (typeof gl.QK === "function") return gl.QK(col, row);
+      if (gl.V && Array.isArray(gl.V)) {
+        for (let c = 0; 32 > c; c++) {
+          if (gl.V[c] && !gl.V[c].pa && gl.V[c].fa === col && gl.V[c].rowIndex === row) {
+            return c;
+          }
+        }
+      }
+      return -1;
+    }
+    function isDestValid(gl, col, row) {
+      if (!gl) return false;
+      if (typeof gl.OM === "function") return gl.OM(col, row);
+      if (typeof gl.HM === "function") return gl.HM(col, row);
+      if (gl.tc && Array.isArray(gl.tc)) {
+        for (let c = 0; c < gl.tc.length; c++) {
+          const marker = gl.tc[c];
+          if (marker && marker.x > 0) {
+            const mCol = marker.aq !== void 0 ? marker.aq : marker.cq;
+            const mRow = marker.Kr !== void 0 ? marker.Kr : marker.Ir;
+            if (mCol === col && mRow === row) return true;
+          }
+        }
+      }
+      const list = gl.Tp || gl.Vp || [];
+      for (let c = 0; c < list.length; c++) {
+        if (list[c] && list[c][0] === col && list[c][1] === row) return true;
+      }
+      return false;
+    }
+    function enhancePieceSprite(piece) {
+      if (!piece || piece.__zigaEnhancedKj) return;
+      piece.__zigaEnhancedKj = true;
+      piece.kj = function(show) {
+        if (!this.rd) return;
+        const isHighlightEnabled = !ZigaMod.userSettings || ZigaMod.userSettings.highlightTactics !== false;
+        if (!isHighlightEnabled) {
+          this.rd.setVisible(false);
+          this.rd.stopAllActions();
+          if (this.rd.WT) this.rd.WT.stopAllActions();
+          if (this.rd.dU) this.rd.dU.stopAllActions();
+          return;
+        }
+        this.rd.setVisible(!!show);
+        if (show) {
+          this.rd.stopAllActions();
+          if (this.rd.WT) this.rd.WT.stopAllActions();
+          if (this.rd.dU) this.rd.dU.stopAllActions();
+          this.rd.setScale(0.95);
+          if (typeof cc !== "undefined" && typeof cc.fadeTo === "function" && typeof cc.sequence === "function") {
+            var fadeOut = cc.fadeTo(0.35, 60);
+            var fadeIn = cc.fadeTo(0.35, 255);
+            var pulse = cc.sequence(fadeOut, fadeIn).repeatForever();
+            this.rd.runAction(pulse);
+            var inner = this.rd.dU || this.rd.WT;
+            if (inner) {
+              inner.stopAllActions();
+              var targetH = this.rd.getContentSize().height;
+              var innerH = inner.getContentSize().height;
+              if (innerH > 0) {
+                inner.setScale(targetH / innerH);
+              }
+              inner.runAction(pulse.clone());
+            }
+          }
+        } else {
+          this.rd.stopAllActions();
+          if (this.rd.WT) this.rd.WT.stopAllActions();
+          if (this.rd.dU) this.rd.dU.stopAllActions();
+          this.rd.setScale(0.5);
+        }
+      };
+    }
+    function customHighlightMoves(gl, pieceIndex) {
+      if (pieceIndex < 0 || pieceIndex >= 32 || !gl.V || !gl.V[pieceIndex]) return;
+      var b = Array(9);
+      for (var c = 0; 10 > c; c++) b[c] = Array(10);
+      generateBoardMatrix(gl, b);
+      var pieceHelper = getPieceHelper(gl, pieceIndex);
+      if (!pieceHelper) return;
+      gl.Tp = [];
+      gl.Vp = [];
+      var attacker = gl.V[pieceIndex];
+      var attackerColor = attacker.ka;
+      var capturableList = [];
+      for (var d = 0, e = 0; 90 > e; e++) {
+        if (isMovePatternValid(gl, pieceHelper, pieceIndex, e, b)) {
+          var f = e % 9, g = Math.floor(e / 9);
+          var isBlockedOrChecked = isKingFacingKing(gl, pieceHelper, pieceIndex, f, g, b) || isKingCheckedAfterMove(gl, pieceHelper, pieceIndex, f, g, b);
+          if (isBlockedOrChecked) {
+            if (gl.tc && gl.tc[d]) {
+              gl.tc[d].setPosition(gl.Pb(f), gl.Qb(g));
+              gl.tc[d].Kr = g;
+              gl.tc[d].Ir = g;
+              gl.tc[d].aq = f;
+              gl.tc[d].cq = f;
+              gl.tc[d].setVisible(false);
+            }
+          } else {
+            var isEnemyCapture = false;
+            for (var k = 0; k < 32; k++) {
+              var targetPiece = gl.V[k];
+              if (targetPiece && !targetPiece.pa && targetPiece.ka !== attackerColor && targetPiece.fa === f && targetPiece.rowIndex === g) {
+                isEnemyCapture = true;
+                enhancePieceSprite(targetPiece);
+                if (!ZigaMod.userSettings || ZigaMod.userSettings.highlightTactics !== false) {
+                  targetPiece.kj(true);
+                }
+                gl.Tp.push([f, g]);
+                gl.Vp.push([f, g]);
+                const pType = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(targetPiece, k) : targetPiece.Ha !== void 0 ? targetPiece.Ha : targetPiece.Ga !== void 0 ? targetPiece.Ga : 6;
+                capturableList.push({
+                  piece: targetPiece,
+                  type: pType,
+                  color: targetPiece.ka,
+                  col: f,
+                  row: g,
+                  name: ZigaMod.PIECE_DEFS && ZigaMod.PIECE_DEFS[pType] ? ZigaMod.PIECE_DEFS[pType].name : "Qu\xE2n",
+                  char: typeof ZigaMod.getPieceChar === "function" ? ZigaMod.getPieceChar(pType, targetPiece.ka) : "",
+                  value: ZigaMod.PIECE_DEFS && ZigaMod.PIECE_DEFS[pType] ? ZigaMod.PIECE_DEFS[pType].value : 0
+                });
+                break;
+              }
+            }
+            if (!isEnemyCapture && gl.tc && gl.tc[d]) {
+              gl.tc[d].setPosition(gl.Pb(f), gl.Qb(g));
+              gl.tc[d].Kr = g;
+              gl.tc[d].Ir = g;
+              gl.tc[d].aq = f;
+              gl.tc[d].cq = f;
+              gl.tc[d].setVisible(true);
+            }
+          }
+          d++;
+        }
+      }
+      ZigaMod.selectedAttackerIndex = pieceIndex;
+      if (typeof ZigaMod.updateTacticalHud === "function") {
+        ZigaMod.updateTacticalHud(attacker, capturableList);
+      }
+    }
+    function clearHighlights(gl) {
+      if (!gl) return;
+      if (gl.tc && Array.isArray(gl.tc)) {
+        for (var a = 0; a < gl.tc.length; a++) {
+          if (gl.tc[a]) {
+            gl.tc[a].setPosition(-100, -100);
+            gl.tc[a].Kr = -1;
+            gl.tc[a].Ir = -1;
+            gl.tc[a].aq = -1;
+            gl.tc[a].cq = -1;
+          }
+        }
+      }
+      if (gl.V && Array.isArray(gl.V)) {
+        for (var a = 0; a < 32; a++) {
+          if (gl.V[a] && typeof gl.V[a].kj === "function") {
+            gl.V[a].kj(false);
+          }
+        }
+      }
+      if (gl.Tp) gl.Tp = [];
+      if (gl.Vp) gl.Vp = [];
+      ZigaMod.selectedAttackerIndex = -1;
+      if (typeof ZigaMod.clearTacticalHud === "function") {
+        ZigaMod.clearTacticalHud();
+      }
+    }
+    function hookGameLayer(gameLayer) {
+      if (!gameLayer || gameLayer.__zigaInEngineHooked) return;
+      gameLayer.__zigaInEngineHooked = true;
+      console.log(
+        "[AN Mod] In-engine hooks active (vT/nT, zA/pA, cp/fp, nU/fU)."
+      );
+      if (typeof window !== "undefined" && window.BkChessPieceSprite && window.BkChessPieceSprite.prototype) {
+        enhancePieceSprite(window.BkChessPieceSprite.prototype);
+      }
+      if (gameLayer.V && Array.isArray(gameLayer.V)) {
+        for (let i = 0; i < gameLayer.V.length; i++) {
+          enhancePieceSprite(gameLayer.V[i]);
+        }
+      }
+      setupRowNumbers(gameLayer);
+      gameLayer.vT = function(pieceIndex) {
+        customHighlightMoves(this, pieceIndex);
+      };
+      gameLayer.nT = function(pieceIndex) {
+        customHighlightMoves(this, pieceIndex);
+      };
+      gameLayer.zA = function() {
+        clearHighlights(this);
+      };
+      gameLayer.pA = function() {
+        clearHighlights(this);
+      };
+      const unselectHandler = function() {
+        const selected = this.me !== void 0 && this.me >= 0 ? this.me : this.le !== void 0 && this.le >= 0 ? this.le : -1;
+        if (selected >= 0 && this.ij) {
+          this.ij.setPosition(-100, -100);
+          if (this.Hr) this.ij.stopAction(this.Hr);
+          if (this.Fr) this.ij.stopAction(this.Fr);
+          this.ij.stopAllActions();
+          this.Hr = null;
+          this.Fr = null;
+          this.ij.setVisible(false);
+        }
+        clearHighlights(this);
+        this.me = -1;
+        this.le = -1;
+      };
+      gameLayer.cp = unselectHandler;
+      gameLayer.fp = unselectHandler;
+      const origNU = typeof gameLayer.nU === "function" ? gameLayer.nU : null;
+      const origFU = typeof gameLayer.fU === "function" ? gameLayer.fU : null;
+      const touchHandler = function(touchX, touchY) {
+        const col = typeof this.xq === "function" ? this.xq(touchX) : -1;
+        const row = typeof this.Cq === "function" ? this.Cq(touchY) : -1;
+        const clickedIdx = findPieceAt(this, col, row);
+        if (clickedIdx >= 0 && this.V && this.V[clickedIdx]) {
+          const clickedPiece = this.V[clickedIdx];
+          const myColor = this.Nj !== void 0 && this.Nj >= 0 ? this.Nj : 0;
+          const isMyTurn = this.T && typeof this.T === "function" && this.T().Fb === 2 && this.Yc === this.Nj;
+          const currentSelected2 = this.me !== void 0 && this.me >= 0 ? this.me : this.le !== void 0 && this.le >= 0 ? this.le : -1;
+          if (currentSelected2 >= 0 && isMyTurn && isDestValid(this, col, row)) {
+            if (origNU) origNU.call(this, touchX, touchY);
+            else if (origFU) origFU.call(this, touchX, touchY);
+            return;
+          }
+          if (clickedPiece.ka !== myColor || !isMyTurn) {
+            if (currentSelected2 === clickedIdx) {
+              this.cp();
+            } else {
+              this.cp();
+              this.me = clickedIdx;
+              this.le = clickedIdx;
+              if (this.ij) {
+                this.ij.setPosition(
+                  this.Pb(clickedPiece.fa),
+                  this.Qb(clickedPiece.rowIndex) + 1
+                );
+                this.ij.stopAllActions();
+                if (typeof cc !== "undefined" && typeof cc.rotateBy === "function") {
+                  const rot = cc.rotateBy(2, 360).repeatForever();
+                  this.Hr = rot;
+                  this.Fr = rot;
+                  this.ij.runAction(rot);
+                }
+                this.ij.setVisible(true);
+              }
+              customHighlightMoves(this, clickedIdx);
+            }
+            return;
+          }
+          if (origNU) origNU.call(this, touchX, touchY);
+          else if (origFU) origFU.call(this, touchX, touchY);
+          return;
+        }
+        const currentSelected = this.me !== void 0 && this.me >= 0 ? this.me : this.le !== void 0 && this.le >= 0 ? this.le : -1;
+        if (currentSelected >= 0) {
+          const selectedPiece = this.V ? this.V[currentSelected] : null;
+          const myColor = this.Nj !== void 0 && this.Nj >= 0 ? this.Nj : 0;
+          const isMyTurn = this.T && typeof this.T === "function" && this.T().Fb === 2 && this.Yc === this.Nj;
+          if (selectedPiece && (selectedPiece.ka !== myColor || !isMyTurn)) {
+            this.cp();
+            return;
+          }
+        }
+        if (origNU) origNU.call(this, touchX, touchY);
+        else if (origFU) origFU.call(this, touchX, touchY);
+      };
+      if (origNU) gameLayer.nU = touchHandler;
+      if (origFU) gameLayer.fU = touchHandler;
+    }
+    function setupRowNumbers(gameLayer) {
+      if (!gameLayer || typeof gameLayer.Pb !== "function" || typeof gameLayer.Qb !== "function")
+        return;
+      const ROW_FONT_SIZE = 16;
+      if (gameLayer.__zigaRowLabels && gameLayer.__zigaRowLabels.length > 0 && gameLayer.__zigaRowLabelsFontSize === ROW_FONT_SIZE) {
+        updateRowLabelsVisibility(gameLayer);
+        return;
+      }
+      if (gameLayer.__zigaRowLabels && Array.isArray(gameLayer.__zigaRowLabels)) {
+        for (let i = 0; i < gameLayer.__zigaRowLabels.length; i++) {
+          const lbl = gameLayer.__zigaRowLabels[i];
+          if (lbl && typeof lbl.removeFromParent === "function") {
+            lbl.removeFromParent(true);
+          }
+        }
+        gameLayer.__zigaRowLabels = [];
+      }
+      gameLayer.__zigaRowLabelsFontSize = ROW_FONT_SIZE;
+      gameLayer.__zigaRowLabelsAdded = true;
+      const p0 = gameLayer.Pb(0);
+      const p1 = gameLayer.Pb(1);
+      const p8 = gameLayer.Pb(8);
+      const dx = Math.abs(p1 - p0) || 57;
+      const leftX = p0 - dx * 0.44;
+      const rightX = p8 + dx * 0.44;
+      const labels = [];
+      let cocosSuccess = false;
+      if (window.cc) {
+        try {
+          for (let r2 = 0; r2 < 10; r2++) {
+            const y = gameLayer.Qb(r2);
+            const numText = (10 - r2).toString();
+            const numTextRight = (r2 + 1).toString();
+            let lblL = null;
+            let lblR = null;
+            if (typeof cc.LabelTTF === "function") {
+              try {
+                lblL = new cc.LabelTTF(numText, "Arial", ROW_FONT_SIZE);
+                lblR = new cc.LabelTTF(numTextRight, "Arial", ROW_FONT_SIZE);
+              } catch (e) {
+                if (cc.LabelTTF.create) {
+                  lblL = cc.LabelTTF.create(numText, "Arial", ROW_FONT_SIZE);
+                  lblR = cc.LabelTTF.create(numTextRight, "Arial", ROW_FONT_SIZE);
+                }
+              }
+            }
+            if (lblL && lblR) {
+              const textColor = cc.color ? cc.color(114, 51, 20) : null;
+              if (textColor) {
+                if (lblL.setColor) {
+                  lblL.setColor(textColor);
+                  lblR.setColor(textColor);
+                }
+              }
+              if (lblL.setOpacity) {
+                lblL.setOpacity(220);
+                lblR.setOpacity(220);
+              }
+              lblL.setPosition(leftX, y);
+              lblR.setPosition(rightX, y);
+              if (lblL.setAnchorPoint) {
+                lblL.setAnchorPoint(0.5, 0.5);
+                lblR.setAnchorPoint(0.5, 0.5);
+              }
+              gameLayer.addChild(lblL, 5);
+              gameLayer.addChild(lblR, 5);
+              labels.push(lblL);
+              labels.push(lblR);
+              cocosSuccess = true;
+            }
+          }
+        } catch (err) {
+          console.warn("[AN Mod] Cocos2d LabelTTF init failed:", err);
+        }
+      }
+      gameLayer.__zigaRowLabels = labels;
+      if (!cocosSuccess) {
+        setupDomRowNumbers(gameLayer);
+      }
+      updateRowLabelsVisibility(gameLayer);
+    }
+    function setupDomRowNumbers(gameLayer) {
+      let overlay = document.getElementById("ziga-dom-row-numbers");
+      const canvas = document.getElementById("gameCanvas");
+      if (!canvas) return;
+      if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "ziga-dom-row-numbers";
+        overlay.style.position = "absolute";
+        overlay.style.pointerEvents = "none";
+        overlay.style.zIndex = "50";
+        const parent = canvas.parentElement || document.body;
+        if (window.getComputedStyle(parent).position === "static") {
+          parent.style.position = "relative";
+        }
+        parent.appendChild(overlay);
+      }
+      const rect = canvas.getBoundingClientRect();
+      const parentRect = overlay.parentElement.getBoundingClientRect();
+      const scaleX = rect.width / (canvas.width || 1);
+      const scaleY = rect.height / (canvas.height || 1);
+      const dx = Math.abs(gameLayer.Pb(1) - gameLayer.Pb(0)) || 57;
+      const leftX = gameLayer.Pb(0) - dx * 0.44;
+      const rightX = gameLayer.Pb(8) + dx * 0.44;
+      overlay.innerHTML = "";
+      for (let r2 = 0; r2 < 10; r2++) {
+        const cocosY = gameLayer.Qb(r2);
+        const domY = (canvas.height - cocosY) * scaleY + (rect.top - parentRect.top);
+        const domLeftX = leftX * scaleX + (rect.left - parentRect.left);
+        const domRightX = rightX * scaleX + (rect.left - parentRect.left);
+        const numText = (r2 + 1).toString();
+        const spanL = document.createElement("span");
+        spanL.className = "ziga-board-row-num";
+        spanL.textContent = numText;
+        spanL.style.position = "absolute";
+        spanL.style.left = domLeftX + "px";
+        spanL.style.top = domY + "px";
+        spanL.style.transform = "translate(-50%, -50%)";
+        overlay.appendChild(spanL);
+        const spanR = document.createElement("span");
+        spanR.className = "ziga-board-row-num";
+        spanR.textContent = numText;
+        spanR.style.position = "absolute";
+        spanR.style.left = domRightX + "px";
+        spanR.style.top = domY + "px";
+        spanR.style.transform = "translate(-50%, -50%)";
+        overlay.appendChild(spanR);
+      }
+    }
+    function updateRowLabelsVisibility(gameLayer) {
+      const show = !!ZigaMod.userSettings.showRowNumbers;
+      if (gameLayer && gameLayer.__zigaRowLabels) {
+        for (let i = 0; i < gameLayer.__zigaRowLabels.length; i++) {
+          const lbl = gameLayer.__zigaRowLabels[i];
+          if (lbl && typeof lbl.setVisible === "function") {
+            lbl.setVisible(show);
+          }
+        }
+      }
+      const domOverlay = document.getElementById("ziga-dom-row-numbers");
+      if (domOverlay) {
+        domOverlay.style.display = show ? "block" : "none";
+      }
+    }
+    ZigaMod.generateBoardMatrix = generateBoardMatrix;
+    ZigaMod.getPieceHelper = getPieceHelper;
+    ZigaMod.isMovePatternValid = isMovePatternValid;
+    ZigaMod.isKingFacingKing = isKingFacingKing;
+    ZigaMod.isKingCheckedAfterMove = isKingCheckedAfterMove;
+    ZigaMod.findPieceAt = findPieceAt;
+    ZigaMod.isDestValid = isDestValid;
+    ZigaMod.enhancePieceSprite = enhancePieceSprite;
+    ZigaMod.hookGameLayer = hookGameLayer;
+    ZigaMod.setupRowNumbers = setupRowNumbers;
+    ZigaMod.updateRowLabelsVisibility = updateRowLabelsVisibility;
+  })(window.ZigaMod = window.ZigaMod || {});
+
   // src/lib/scroll_lock.js
   var lockCount = 0;
   var prevBodyOverflow = "";
@@ -15251,8 +15805,8 @@
       for (let i = 0; i < 32; i++) {
         const oppPiece = gameLayer.V[i];
         if (!oppPiece || oppPiece.pa || oppPiece.ka !== oppColor) continue;
-        const pieceHelper = gameLayer.hq ? gameLayer.hq(i) : null;
-        if (!pieceHelper || !gameLayer.IM) continue;
+        const pieceHelper = typeof ZigaMod.getPieceHelper === "function" ? ZigaMod.getPieceHelper(gameLayer, i) : gameLayer.fq ? gameLayer.fq(i) : gameLayer.hq ? gameLayer.hq(i) : null;
+        if (!pieceHelper) continue;
         for (let sq = 0; sq < 90; sq++) {
           const c = sq % 9;
           const r2 = Math.floor(sq / 9);
@@ -15261,16 +15815,18 @@
             const myPiece = gameLayer.V[targetIdx];
             if (myPiece && !myPiece.pa && myPiece.ka === myColor) {
               try {
-                if (gameLayer.IM(pieceHelper, i, sq, grid)) {
-                  if (!gameLayer.BM || !gameLayer.BM(pieceHelper, i, c, r2, grid)) {
+                const canMove = typeof ZigaMod.isMovePatternValid === "function" ? ZigaMod.isMovePatternValid(gameLayer, pieceHelper, i, sq, grid) : typeof gameLayer.PM === "function" ? gameLayer.PM(pieceHelper, i, sq, grid) : typeof gameLayer.IM === "function" ? gameLayer.IM(pieceHelper, i, sq, grid) : false;
+                if (canMove) {
+                  const isKingFaceKing = typeof ZigaMod.isKingFacingKing === "function" ? ZigaMod.isKingFacingKing(gameLayer, pieceHelper, i, c, r2, grid) : false;
+                  if (!isKingFaceKing) {
                     const coord = ZigaMod.formatXiangqiCoord ? ZigaMod.formatXiangqiCoord(c, r2, myPiece.ka) : {
                       col: myPiece.ka === 0 ? 9 - c : c + 1,
                       row: myPiece.ka === 0 ? r2 + 1 : 10 - r2,
                       text: `C${myPiece.ka === 0 ? 9 - c : c + 1}\xB7H${myPiece.ka === 0 ? r2 + 1 : 10 - r2}`,
                       fullText: `C\u1ED9t ${myPiece.ka === 0 ? 9 - c : c + 1}, H\xE0ng ${myPiece.ka === 0 ? r2 + 1 : 10 - r2}`
                     };
-                    const targetType = myPiece.Ga;
-                    const attackerType = oppPiece.Ga;
+                    const targetType = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(myPiece, targetIdx) : myPiece.Ha !== void 0 ? myPiece.Ha : myPiece.Ga !== void 0 ? myPiece.Ga : 6;
+                    const attackerType = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(oppPiece, i) : oppPiece.Ha !== void 0 ? oppPiece.Ha : oppPiece.Ga !== void 0 ? oppPiece.Ga : 6;
                     const targetDef = ZigaMod.PIECE_DEFS[targetType] || {
                       name: "Qu\xE2n",
                       value: 0
@@ -15378,8 +15934,11 @@
           if (pColor !== color) continue;
           if (p.ac === 0) {
             unopenedCount++;
-          } else if (p.ac === 1 && p.Ga !== 0) {
-            revealed[p.Ga] = (revealed[p.Ga] || 0) + 1;
+          } else if (p.ac === 1) {
+            const pType = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(p, i) : p.Ha !== void 0 ? p.Ha : p.Ga !== void 0 ? p.Ga : p.type;
+            if (pType !== 0 && revealed[pType] !== void 0) {
+              revealed[pType] = (revealed[pType] || 0) + 1;
+            }
           }
         }
         const hiddenXe = Math.max(0, 2 - (revealed[3] || 0));
@@ -15732,7 +16291,7 @@
       for (let i = 0; i < 32; i++) {
         const p = data.gameLayer.V[i];
         if (p) {
-          const pType = p.Ga !== void 0 ? p.Ga : 6;
+          const pType = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(p, i) : p.Ha !== void 0 ? p.Ha : p.Ga !== void 0 ? p.Ga : i === 0 || i === 16 ? 0 : 6;
           const pColor = p.ka !== void 0 ? p.ka : i < 16 ? 0 : 1;
           const pCol = p.fa !== void 0 ? p.fa : 0;
           const pRow = p.rowIndex !== void 0 ? p.rowIndex : 0;
@@ -16771,314 +17330,6 @@
     };
   })(window.ZigaMod = window.ZigaMod || {});
 
-  // src/core/engine_hook.js
-  (function(ZigaMod) {
-    "use strict";
-    function enhancePieceSprite(piece) {
-      if (!piece || piece.__zigaEnhancedKj) return;
-      piece.__zigaEnhancedKj = true;
-      piece.kj = function(show) {
-        if (!this.rd) return;
-        if (!ZigaMod.userSettings.highlightTactics) {
-          this.rd.setVisible(false);
-          this.rd.stopAllActions();
-          return;
-        }
-        this.rd.setVisible(!!show);
-        if (show) {
-          this.rd.stopAllActions();
-          if (this.rd.WT) this.rd.WT.stopAllActions();
-          this.rd.setScale(0.95);
-          var fadeOut = cc.fadeTo(0.35, 60);
-          var fadeIn = cc.fadeTo(0.35, 255);
-          var pulse = cc.sequence(fadeOut, fadeIn).repeatForever();
-          this.rd.runAction(pulse);
-          if (this.rd.WT) {
-            var targetH = this.rd.getContentSize().height;
-            var wtH = this.rd.WT.getContentSize().height;
-            if (wtH > 0) {
-              this.rd.WT.setScale(targetH / wtH);
-            }
-            this.rd.WT.runAction(pulse.clone());
-          }
-        } else {
-          this.rd.stopAllActions();
-          if (this.rd.WT) this.rd.WT.stopAllActions();
-          this.rd.setScale(0.5);
-        }
-      };
-    }
-    function hookGameLayer(gameLayer) {
-      if (!gameLayer || gameLayer.__zigaInEngineHooked) return;
-      gameLayer.__zigaInEngineHooked = true;
-      console.log("[AN Mod] In-engine hooks active (nT, pA, fU).");
-      if (gameLayer.V && Array.isArray(gameLayer.V)) {
-        for (let i = 0; i < gameLayer.V.length; i++) {
-          enhancePieceSprite(gameLayer.V[i]);
-        }
-      }
-      setupRowNumbers(gameLayer);
-      gameLayer.nT = function(pieceIndex) {
-        if (pieceIndex < 0 || pieceIndex >= 32 || !this.V[pieceIndex]) return;
-        var b = Array(9);
-        for (var c = 0; 10 > c; c++) b[c] = Array(10);
-        this.ZC(b);
-        var pieceHelper = this.hq(pieceIndex);
-        this.Vp = [];
-        var attacker = this.V[pieceIndex];
-        var attackerColor = attacker.ka;
-        var capturableList = [];
-        for (var d = 0, e = 0; 90 > e; e++) {
-          if (this.IM(pieceHelper, pieceIndex, e, b)) {
-            var f = e % 9, g = Math.floor(e / 9);
-            if (this.BM(pieceHelper, pieceIndex, f, g, b) || this.DM(0, pieceHelper, pieceIndex, f, g, b)) {
-              if (this.tc[d]) {
-                this.tc[d].setPosition(this.Pb(f), this.Qb(g));
-                this.tc[d].Ir = g;
-                this.tc[d].cq = f;
-                this.tc[d].setVisible(false);
-              }
-            } else {
-              var isEnemyCapture = false;
-              for (var k = 0; k < 32; k++) {
-                var targetPiece = this.V[k];
-                if (targetPiece && !targetPiece.pa && targetPiece.ka !== attackerColor && targetPiece.fa === f && targetPiece.rowIndex === g) {
-                  isEnemyCapture = true;
-                  if (ZigaMod.userSettings.highlightTactics) {
-                    targetPiece.kj(true);
-                  }
-                  this.Vp.push([f, g]);
-                  capturableList.push({
-                    piece: targetPiece,
-                    type: targetPiece.Ga,
-                    color: targetPiece.ka,
-                    col: f,
-                    row: g,
-                    name: ZigaMod.PIECE_DEFS[targetPiece.Ga] ? ZigaMod.PIECE_DEFS[targetPiece.Ga].name : "Qu\xE2n",
-                    char: ZigaMod.getPieceChar(targetPiece.Ga, targetPiece.ka),
-                    value: ZigaMod.PIECE_DEFS[targetPiece.Ga] ? ZigaMod.PIECE_DEFS[targetPiece.Ga].value : 0
-                  });
-                  break;
-                }
-              }
-              if (!isEnemyCapture && this.tc[d]) {
-                this.tc[d].setPosition(this.Pb(f), this.Qb(g));
-                this.tc[d].Ir = g;
-                this.tc[d].cq = f;
-                this.tc[d].setVisible(true);
-              }
-            }
-            d++;
-          }
-        }
-        ZigaMod.selectedAttackerIndex = pieceIndex;
-        if (ZigaMod.userSettings.showTacticalHud) {
-          ZigaMod.updateTacticalHud(attacker, capturableList);
-        }
-      };
-      gameLayer.pA = function() {
-        for (var a = 0; a < 20; a++) {
-          if (this.tc[a]) {
-            this.tc[a].setPosition(-100, -100);
-            this.tc[a].Ir = -1;
-            this.tc[a].cq = -1;
-          }
-        }
-        for (var a = 0; a < 32; a++) {
-          if (this.V[a] && typeof this.V[a].kj === "function") {
-            this.V[a].kj(false);
-          }
-        }
-        ZigaMod.selectedAttackerIndex = -1;
-        ZigaMod.clearTacticalHud();
-      };
-      const origFU = gameLayer.fU;
-      gameLayer.fU = function(touchX, touchY) {
-        const col = this.xq(touchX);
-        const row = this.Cq(touchY);
-        const clickedIdx = this.QK(col, row);
-        if (clickedIdx >= 0) {
-          const clickedPiece = this.V[clickedIdx];
-          const myColor = this.Nj !== void 0 && this.Nj >= 0 ? this.Nj : 0;
-          const isMyTurn = this.T && this.T().Fb === 2 && this.Yc === this.Nj;
-          if (this.le >= 0 && isMyTurn && this.HM && this.HM(col, row)) {
-            origFU.call(this, touchX, touchY);
-            return;
-          }
-          if (clickedPiece && (clickedPiece.ka !== myColor || !isMyTurn)) {
-            if (this.le === clickedIdx) {
-              this.fp();
-            } else {
-              this.pA();
-              this.le = clickedIdx;
-              this.ij.setPosition(
-                this.Pb(clickedPiece.fa),
-                this.Qb(clickedPiece.rowIndex) + 1
-              );
-              if (!this.Fr) {
-                this.Fr = cc.rotateBy(2, 360).repeatForever();
-              }
-              this.ij.stopAllActions();
-              this.ij.runAction(this.Fr);
-              this.ij.setVisible(true);
-              this.nT(clickedIdx);
-            }
-            return;
-          }
-        }
-        origFU.call(this, touchX, touchY);
-      };
-    }
-    function setupRowNumbers(gameLayer) {
-      if (!gameLayer || typeof gameLayer.Pb !== "function" || typeof gameLayer.Qb !== "function")
-        return;
-      const ROW_FONT_SIZE = 16;
-      if (gameLayer.__zigaRowLabels && gameLayer.__zigaRowLabels.length > 0 && gameLayer.__zigaRowLabelsFontSize === ROW_FONT_SIZE) {
-        updateRowLabelsVisibility(gameLayer);
-        return;
-      }
-      if (gameLayer.__zigaRowLabels && Array.isArray(gameLayer.__zigaRowLabels)) {
-        for (let i = 0; i < gameLayer.__zigaRowLabels.length; i++) {
-          const lbl = gameLayer.__zigaRowLabels[i];
-          if (lbl && typeof lbl.removeFromParent === "function") {
-            lbl.removeFromParent(true);
-          }
-        }
-        gameLayer.__zigaRowLabels = [];
-      }
-      gameLayer.__zigaRowLabelsFontSize = ROW_FONT_SIZE;
-      gameLayer.__zigaRowLabelsAdded = true;
-      const p0 = gameLayer.Pb(0);
-      const p1 = gameLayer.Pb(1);
-      const p8 = gameLayer.Pb(8);
-      const dx = Math.abs(p1 - p0) || 57;
-      const leftX = p0 - dx * 0.44;
-      const rightX = p8 + dx * 0.44;
-      const labels = [];
-      let cocosSuccess = false;
-      if (window.cc) {
-        try {
-          for (let r2 = 0; r2 < 10; r2++) {
-            const y = gameLayer.Qb(r2);
-            const numText = (10 - r2).toString();
-            const numTextRight = (r2 + 1).toString();
-            let lblL = null;
-            let lblR = null;
-            if (typeof cc.LabelTTF === "function") {
-              try {
-                lblL = new cc.LabelTTF(numText, "Arial", ROW_FONT_SIZE);
-                lblR = new cc.LabelTTF(numTextRight, "Arial", ROW_FONT_SIZE);
-              } catch (e) {
-                if (cc.LabelTTF.create) {
-                  lblL = cc.LabelTTF.create(numText, "Arial", ROW_FONT_SIZE);
-                  lblR = cc.LabelTTF.create(numTextRight, "Arial", ROW_FONT_SIZE);
-                }
-              }
-            }
-            if (lblL && lblR) {
-              const textColor = cc.color ? cc.color(114, 51, 20) : null;
-              if (textColor) {
-                if (lblL.setColor) {
-                  lblL.setColor(textColor);
-                  lblR.setColor(textColor);
-                }
-              }
-              if (lblL.setOpacity) {
-                lblL.setOpacity(220);
-                lblR.setOpacity(220);
-              }
-              lblL.setPosition(leftX, y);
-              lblR.setPosition(rightX, y);
-              if (lblL.setAnchorPoint) {
-                lblL.setAnchorPoint(0.5, 0.5);
-                lblR.setAnchorPoint(0.5, 0.5);
-              }
-              gameLayer.addChild(lblL, 5);
-              gameLayer.addChild(lblR, 5);
-              labels.push(lblL);
-              labels.push(lblR);
-              cocosSuccess = true;
-            }
-          }
-        } catch (err) {
-          console.warn("[AN Mod] Cocos2d LabelTTF init failed:", err);
-        }
-      }
-      gameLayer.__zigaRowLabels = labels;
-      if (!cocosSuccess) {
-        setupDomRowNumbers(gameLayer);
-      }
-      updateRowLabelsVisibility(gameLayer);
-    }
-    function setupDomRowNumbers(gameLayer) {
-      let overlay = document.getElementById("ziga-dom-row-numbers");
-      const canvas = document.getElementById("gameCanvas");
-      if (!canvas) return;
-      if (!overlay) {
-        overlay = document.createElement("div");
-        overlay.id = "ziga-dom-row-numbers";
-        overlay.style.position = "absolute";
-        overlay.style.pointerEvents = "none";
-        overlay.style.zIndex = "50";
-        const parent = canvas.parentElement || document.body;
-        if (window.getComputedStyle(parent).position === "static") {
-          parent.style.position = "relative";
-        }
-        parent.appendChild(overlay);
-      }
-      const rect = canvas.getBoundingClientRect();
-      const parentRect = overlay.parentElement.getBoundingClientRect();
-      const scaleX = rect.width / (canvas.width || 1);
-      const scaleY = rect.height / (canvas.height || 1);
-      const dx = Math.abs(gameLayer.Pb(1) - gameLayer.Pb(0)) || 57;
-      const leftX = gameLayer.Pb(0) - dx * 0.44;
-      const rightX = gameLayer.Pb(8) + dx * 0.44;
-      overlay.innerHTML = "";
-      for (let r2 = 0; r2 < 10; r2++) {
-        const cocosY = gameLayer.Qb(r2);
-        const domY = (canvas.height - cocosY) * scaleY + (rect.top - parentRect.top);
-        const domLeftX = leftX * scaleX + (rect.left - parentRect.left);
-        const domRightX = rightX * scaleX + (rect.left - parentRect.left);
-        const numText = (r2 + 1).toString();
-        const spanL = document.createElement("span");
-        spanL.className = "ziga-board-row-num";
-        spanL.textContent = numText;
-        spanL.style.position = "absolute";
-        spanL.style.left = domLeftX + "px";
-        spanL.style.top = domY + "px";
-        spanL.style.transform = "translate(-50%, -50%)";
-        overlay.appendChild(spanL);
-        const spanR = document.createElement("span");
-        spanR.className = "ziga-board-row-num";
-        spanR.textContent = numText;
-        spanR.style.position = "absolute";
-        spanR.style.left = domRightX + "px";
-        spanR.style.top = domY + "px";
-        spanR.style.transform = "translate(-50%, -50%)";
-        overlay.appendChild(spanR);
-      }
-    }
-    function updateRowLabelsVisibility(gameLayer) {
-      const show = !!ZigaMod.userSettings.showRowNumbers;
-      if (gameLayer && gameLayer.__zigaRowLabels) {
-        for (let i = 0; i < gameLayer.__zigaRowLabels.length; i++) {
-          const lbl = gameLayer.__zigaRowLabels[i];
-          if (lbl && typeof lbl.setVisible === "function") {
-            lbl.setVisible(show);
-          }
-        }
-      }
-      const domOverlay = document.getElementById("ziga-dom-row-numbers");
-      if (domOverlay) {
-        domOverlay.style.display = show ? "block" : "none";
-      }
-    }
-    ZigaMod.enhancePieceSprite = enhancePieceSprite;
-    ZigaMod.hookGameLayer = hookGameLayer;
-    ZigaMod.setupRowNumbers = setupRowNumbers;
-    ZigaMod.updateRowLabelsVisibility = updateRowLabelsVisibility;
-  })(window.ZigaMod = window.ZigaMod || {});
-
   // src/aura/aura_presets.js
   var PRESET_AURAS = [
     {
@@ -17796,7 +18047,7 @@
             index: i,
             col: p.fa,
             row: p.rowIndex,
-            type: p.Ga !== void 0 ? p.Ga : 6,
+            type: typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(p, i) : p.Ha !== void 0 ? p.Ha : p.Ga !== void 0 ? p.Ga : i === 0 || i === 16 ? 0 : 6,
             color: p.ka !== void 0 ? p.ka : Math.floor(i / 16),
             sprite: p
           });
@@ -41695,7 +41946,7 @@ button.bg-primary,
         const col = p.fa;
         const row = p.rowIndex;
         const color = p.ka !== void 0 ? p.ka : Math.floor(i / 16);
-        const type = p.Ga !== void 0 ? p.Ga : 6;
+        const type = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(p, i) : p.Ha !== void 0 ? p.Ha : p.Ga !== void 0 ? p.Ga : i === 0 || i === 16 ? 0 : 6;
         if (col >= 0 && col < 9 && row >= 0 && row < 10) {
           const char = color === 0 ? FEN_PIECES.red[type] : FEN_PIECES.black[type];
           grid[row][col] = char || (color === 0 ? "P" : "p");
@@ -41790,7 +42041,7 @@ button.bg-primary,
           row: p.rowIndex,
           dead: isDead,
           color: p.ka !== void 0 ? p.ka : Math.floor(i / 16),
-          type: p.Ga !== void 0 ? p.Ga : 6
+          type: typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(p, i) : p.Ha !== void 0 ? p.Ha : p.Ga !== void 0 ? p.Ga : i === 0 || i === 16 ? 0 : 6
         };
       }
       if (!lastBoardSnapshot) {
@@ -44285,28 +44536,37 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         const p = pieces[i];
         if (!p || p.pa || p.ka !== activeColor) continue;
         const attackerIdx = i;
-        const pieceHelper = gameLayer.hq ? gameLayer.hq(attackerIdx) : null;
+        const pieceHelper = typeof ZigaMod.getPieceHelper === "function" ? ZigaMod.getPieceHelper(gameLayer, attackerIdx) : gameLayer.fq ? gameLayer.fq(attackerIdx) : gameLayer.hq ? gameLayer.hq(attackerIdx) : null;
         if (!pieceHelper) continue;
         const boardGrid = Array(9);
         for (let c = 0; 10 > c; c++) boardGrid[c] = Array(10);
-        if (gameLayer.ZC) gameLayer.ZC(boardGrid);
+        if (typeof ZigaMod.generateBoardMatrix === "function") {
+          ZigaMod.generateBoardMatrix(gameLayer, boardGrid);
+        } else if (gameLayer.fD) {
+          gameLayer.fD(boardGrid);
+        } else if (gameLayer.ZC) {
+          gameLayer.ZC(boardGrid);
+        }
         for (let e = 0; 90 > e; e++) {
-          if (gameLayer.IM && gameLayer.IM(pieceHelper, attackerIdx, e, boardGrid)) {
+          const canMove = typeof ZigaMod.isMovePatternValid === "function" ? ZigaMod.isMovePatternValid(gameLayer, pieceHelper, attackerIdx, e, boardGrid) : typeof gameLayer.PM === "function" ? gameLayer.PM(pieceHelper, attackerIdx, e, boardGrid) : typeof gameLayer.IM === "function" ? gameLayer.IM(pieceHelper, attackerIdx, e, boardGrid) : false;
+          if (canMove) {
             const tc = e % 9;
             const tr = Math.floor(e / 9);
-            const isBlocked = gameLayer.BM && gameLayer.BM(pieceHelper, attackerIdx, tc, tr, boardGrid) || gameLayer.DM && gameLayer.DM(0, pieceHelper, attackerIdx, tc, tr, boardGrid);
+            const isBlocked = typeof ZigaMod.isKingFacingKing === "function" ? ZigaMod.isKingFacingKing(gameLayer, pieceHelper, attackerIdx, tc, tr, boardGrid) || ZigaMod.isKingCheckedAfterMove(gameLayer, pieceHelper, attackerIdx, tc, tr, boardGrid) : gameLayer.BM && gameLayer.BM(pieceHelper, attackerIdx, tc, tr, boardGrid) || gameLayer.DM && gameLayer.DM(0, pieceHelper, attackerIdx, tc, tr, boardGrid);
             if (!isBlocked) {
               let capturedVal = 0;
               let capturedType = null;
               for (let k = 0; k < 32; k++) {
                 const tp = pieces[k];
                 if (tp && !tp.pa && tp.ka !== activeColor && tp.fa === tc && tp.rowIndex === tr) {
-                  capturedVal = PIECE_BASE_VALUES[tp.Ga] || 0;
-                  capturedType = tp.Ga;
+                  const cType = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(tp, k) : tp.Ha !== void 0 ? tp.Ha : tp.Ga !== void 0 ? tp.Ga : 6;
+                  capturedVal = PIECE_BASE_VALUES[cType] || 0;
+                  capturedType = cType;
                   break;
                 }
               }
-              const attackerVal = PIECE_BASE_VALUES[p.Ga] || 0;
+              const aType = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(p, attackerIdx) : p.Ha !== void 0 ? p.Ha : p.Ga !== void 0 ? p.Ga : 6;
+              const attackerVal = PIECE_BASE_VALUES[aType] || 0;
               const moveScore = capturedVal > 0 ? capturedVal * 10 - attackerVal : 0;
               candidateMoves.push({
                 pieceIndex: attackerIdx,
@@ -44401,10 +44661,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         return;
       }
       lastEvalHash = currentHash;
-      const pieces = gameData.gameLayer.V.map((p) => ({
+      const pieces = gameData.gameLayer.V.map((p, idx) => ({
         col: p.fa,
         row: p.rowIndex,
-        type: p.Ga,
+        type: typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(p, idx) : p.Ha !== void 0 ? p.Ha : p.Ga !== void 0 ? p.Ga : idx === 0 || idx === 16 ? 0 : 6,
         color: p.ka,
         dead: !!p.pa
       }));
@@ -47497,8 +47757,9 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       for (let i = 0; i < 32; i++) {
         const p = gameLayer.V[i];
         if (!p || p.pa) continue;
-        const pieceType = p.Ga !== void 0 ? p.Ga : 6;
+        const pieceType = resolvePieceType(p, i);
         const pieceColor = p.ka !== void 0 ? p.ka : Math.floor(i / 16);
+        const isUnopened = p.ac === 0;
         const def = PIECE_DEFS[pieceType] || {
           name: "Qu\xE2n",
           value: 1,
@@ -47512,11 +47773,11 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           row: p.rowIndex,
           type: pieceType,
           color: pieceColor,
-          name: def.name,
-          char: pieceColor === 0 ? def.redChar : def.blackChar,
-          short: def.short,
+          name: isUnopened ? "Qu\xE2n \xDAp" : def.name,
+          char: isUnopened ? "\xDAp" : pieceColor === 0 ? def.redChar : def.blackChar,
+          short: isUnopened ? "\xDA" : def.short,
           ac: p.ac !== void 0 ? p.ac : 1,
-          unopened: p.ac === 0
+          unopened: isUnopened
         });
       }
       return pieces;
@@ -47529,7 +47790,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         const p = gameLayer.V[i];
         if (!p || p.pa) continue;
         const ac = p.ac !== void 0 ? p.ac : 1;
-        const ga = p.Ga !== void 0 ? p.Ga : 6;
+        const ga = resolvePieceType(p, i);
         hash += `${i}:${p.fa},${p.rowIndex},${ga},${ac};`;
       }
       return hash;
@@ -47915,7 +48176,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           title: "L\u01AF\u1EE2T \u0110\u1ED0I TH\u1EE6 \u0110ANG SUY NGH\u0128",
           move: null,
           shortMove: null,
-          why: "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc c\u1EDD. H\xE3y quan s\xE1t tr\u1EADn th\u1EBF v\xE0 gi\u1EEF v\u1EEFng s\u1EF1 t\u1EADp trung!"
+          why: "\u0110\u1ED1i th\u1EE7 \u0111ang suy ngh\u0129 n\u01B0\u1EDBc c\u1EDD. L\xE0m ch\xE9n tr\xE0 ch\u1EE9!"
         };
       }
       const coachCommentary = commentary.move ? `Khuy\xEAn d\xF9ng ${commentary.move}! ${commentary.why}` : commentary.why;
@@ -49153,8 +49414,17 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
               ),
               displayPieces.map((p) => {
                 const pos = getSquarePos(p.col, p.row);
+                if (!pos) return null;
                 const isRed = p.color === 0;
-                let borderStyle = isRed ? "border border-red-500/80 bg-stone-100 text-red-600" : "border border-zinc-700 bg-zinc-900 text-zinc-100";
+                const isUnopened = p.unopened || p.ac === 0;
+                let borderStyle = "";
+                if (isUnopened) {
+                  borderStyle = "border border-amber-600/70 bg-gradient-to-br from-amber-950 via-stone-900 to-amber-950 text-amber-300 shadow-md";
+                } else if (isRed) {
+                  borderStyle = "border border-red-500/80 bg-stone-100 text-red-600 font-serif";
+                } else {
+                  borderStyle = "border border-zinc-700 bg-zinc-900 text-zinc-100 font-serif";
+                }
                 if (p.isMyMove) borderStyle += " ring-2 ring-cyan-400 z-20";
                 else if (p.isOppMove) borderStyle += " ring-2 ring-rose-500 z-20";
                 else if (p.isFollowUpMove)
@@ -49172,7 +49442,13 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                       top: `${pos.y}%`,
                       boxShadow: "0 2px 4px rgba(0,0,0,0.5)"
                     },
-                    children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "font-serif text-[11px] leading-none select-none", children: p.char })
+                    children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                      "span",
+                      {
+                        className: `leading-none select-none ${isUnopened ? "font-sans text-[9px] font-black tracking-tighter text-amber-300" : "font-serif text-[11px]"}`,
+                        children: isUnopened ? "\xDAP" : p.char
+                      }
+                    )
                   },
                   `${p.index}-${p.col}-${p.row}`
                 );
@@ -49180,17 +49456,20 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             ]
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "grid grid-cols-6 gap-0.5 pt-0.5", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "grid grid-cols-6 gap-1 pt-0.5", children: [
           /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
             Button3,
             {
-              variant: activeStep === 0 ? "secondary" : "ghost",
+              variant: "ghost",
               size: "xs",
-              className: "h-5.5 px-0.5 text-[8px] font-semibold",
+              className: cn(
+                "flex h-6 items-center justify-center gap-0.5 rounded-md border px-1 text-[9px] font-medium transition-all",
+                activeStep === 0 ? "border-cyan-400/60 bg-cyan-500/20 font-bold text-cyan-300 shadow-xs" : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white"
+              ),
               onClick: () => setActiveStep(0),
               title: "Xem th\u1EBF c\u1EDD th\u1EF1c t\u1EBF hi\u1EC7n t\u1EA1i",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(RotateCcw, { className: "size-2" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(RotateCcw, { className: "size-2.5 shrink-0" }),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "V\xE1n th\u1EADt" })
               ]
             }
@@ -49198,14 +49477,18 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
             Button3,
             {
-              variant: activeStep === 1 ? "secondary" : "ghost",
+              variant: "ghost",
               size: "xs",
               disabled: !activePlan,
-              className: "h-5.5 px-0.5 text-[8px] font-semibold",
+              className: cn(
+                "flex h-6 items-center justify-center gap-0.5 rounded-md border px-1 text-[9px] font-medium transition-all",
+                activeStep === 1 ? "border-cyan-400/60 bg-cyan-500/20 font-bold text-cyan-300 shadow-xs" : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white",
+                !activePlan && "cursor-not-allowed border-white/5 bg-transparent opacity-30"
+              ),
               onClick: () => setActiveStep(1),
               title: "1. Ta \u0111i: N\u01B0\u1EDBc c\u1EDD t\u1ED1i \u01B0u \u0111\u1EC1 xu\u1EA5t",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Play, { className: "size-2 text-cyan-400" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Play, { className: "size-2.5 shrink-0 text-cyan-400" }),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "1. Ta" })
               ]
             }
@@ -49213,14 +49496,18 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
             Button3,
             {
-              variant: activeStep === 2 ? "secondary" : "ghost",
+              variant: "ghost",
               size: "xs",
               disabled: !activeVariation || activeVariation.fromCol == null,
-              className: "h-5.5 px-0.5 text-[8px] font-semibold",
+              className: cn(
+                "flex h-6 items-center justify-center gap-0.5 rounded-md border px-1 text-[9px] font-medium transition-all",
+                activeStep === 2 ? "border-rose-400/60 bg-rose-500/20 font-bold text-rose-300 shadow-xs" : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white",
+                (!activeVariation || activeVariation.fromCol == null) && "cursor-not-allowed border-white/5 bg-transparent opacity-30"
+              ),
               onClick: () => setActiveStep(2),
               title: "2. \u0110\u1ECBch: N\u01B0\u1EDBc ph\u1EA3n \u1EE9ng d\u1EF1 ki\u1EBFn c\u1EE7a \u0111\u1ED1i ph\u01B0\u01A1ng",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Swords, { className: "size-2 text-rose-400" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Swords, { className: "size-2.5 shrink-0 text-rose-400" }),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "2. \u0110\u1ECBch" })
               ]
             }
@@ -49228,14 +49515,18 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
             Button3,
             {
-              variant: activeStep === 3 ? "secondary" : "ghost",
+              variant: "ghost",
               size: "xs",
               disabled: !activeVariation?.answer || activeVariation.answer.fromCol == null,
-              className: "h-5.5 px-0.5 text-[8px] font-semibold",
+              className: cn(
+                "flex h-6 items-center justify-center gap-0.5 rounded-md border px-1 text-[9px] font-medium transition-all",
+                activeStep === 3 ? "border-amber-400/60 bg-amber-500/20 font-bold text-amber-300 shadow-xs" : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white",
+                (!activeVariation?.answer || activeVariation.answer.fromCol == null) && "cursor-not-allowed border-white/5 bg-transparent opacity-30"
+              ),
               onClick: () => setActiveStep(3),
               title: "3. Ta b\u1ED3i: N\u01B0\u1EDBc b\u1ED3i \u0111\xF2n khai th\xE1c s\u01A1 h\u1EDF",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-2 text-amber-400" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-2.5 shrink-0 text-amber-400" }),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "3. B\u1ED3i" })
               ]
             }
@@ -49243,14 +49534,18 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
             Button3,
             {
-              variant: activeStep === 4 ? "secondary" : "ghost",
+              variant: "ghost",
               size: "xs",
               disabled: !activeVariation?.step4 && !activePlan?.roadmap?.[3],
-              className: "h-5.5 px-0.5 text-[8px] font-semibold",
+              className: cn(
+                "flex h-6 items-center justify-center gap-0.5 rounded-md border px-1 text-[9px] font-medium transition-all",
+                activeStep === 4 ? "border-orange-400/60 bg-orange-500/20 font-bold text-orange-300 shadow-xs" : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white",
+                !activeVariation?.step4 && !activePlan?.roadmap?.[3] && "cursor-not-allowed border-white/5 bg-transparent opacity-30"
+              ),
               onClick: () => setActiveStep(4),
               title: "4. \u0110\u1ECBch \u0111\u1EE1: \u0110\u1ED1i ph\u01B0\u01A1ng xoay s\u1EDF ch\u1ED1ng \u0111\u1EE1",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Shield, { className: "size-2 text-orange-400" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Shield, { className: "size-2.5 shrink-0 text-orange-400" }),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "4. \u0110\u1EE1" })
               ]
             }
@@ -49258,14 +49553,18 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
             Button3,
             {
-              variant: activeStep === 5 ? "secondary" : "ghost",
+              variant: "ghost",
               size: "xs",
               disabled: !activeVariation?.step5 && !activePlan?.roadmap?.[4],
-              className: "h-5.5 px-0.5 text-[8px] font-semibold",
+              className: cn(
+                "flex h-6 items-center justify-center gap-0.5 rounded-md border px-1 text-[9px] font-medium transition-all",
+                activeStep === 5 ? "border-emerald-400/60 bg-emerald-500/20 font-bold text-emerald-300 shadow-xs" : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white",
+                !activeVariation?.step5 && !activePlan?.roadmap?.[4] && "cursor-not-allowed border-white/5 bg-transparent opacity-30"
+              ),
               onClick: () => setActiveStep(5),
               title: "5. D\u1EE9t \u0111i\u1EC3m: N\u01B0\u1EDBc \u0111o\u1EA1t \u01B0u th\u1EBF ho\u1EB7c s\xE1t c\u1EE5c",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Trophy, { className: "size-2 text-emerald-400" }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Trophy, { className: "size-2.5 shrink-0 text-emerald-400" }),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "5. S\xE1t" })
               ]
             }
@@ -50753,7 +51052,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
   var manifest_default = {
     manifest_version: 3,
     name: "C\xF4ng c\u1EE5 C\u1EDD T\u01B0\u1EDBng",
-    version: "0.0.2",
+    version: "0.0.3.203",
+    version_name: "0.0.3.202611130323",
     description: "Hi\u1EC3n th\u1ECB qu\xE2n \u0111\xE3 b\u1ECB \u0103n & highlight t\u1EA7m \u0111\xE1nh",
     icons: {
       "16": "icons/icon16.png",
@@ -50761,7 +51061,9 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    permissions: ["storage"],
+    permissions: [
+      "storage"
+    ],
     host_permissions: [
       "*://zigavn.com/*",
       "*://*.chessdb.cn/*",
@@ -50770,9 +51072,15 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
     ],
     content_scripts: [
       {
-        matches: ["*://zigavn.com/*"],
-        css: ["styles/overlay.css"],
-        js: ["content_loader.js"],
+        matches: [
+          "*://zigavn.com/*"
+        ],
+        css: [
+          "styles/overlay.css"
+        ],
+        js: [
+          "content_loader.js"
+        ],
         run_at: "document_start"
       }
     ],
@@ -50782,11 +51090,14 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           "src/**/*",
           "styles/*",
           "dist/*",
+          "dist/injected.js",
           "icons/*",
           "overlay.css",
           "injected.js"
         ],
-        matches: ["*://zigavn.com/*"]
+        matches: [
+          "*://zigavn.com/*"
+        ]
       }
     ]
   };
@@ -50806,7 +51117,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(AlertDescription, { children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)("div", { id: "ziga-threat-list", className: "mt-2 flex flex-col gap-1.5", children: threats.slice(0, 4).map((t, idx) => {
         if (!t) return null;
         const targetPiece = t.target || t.victim || {};
-        const targetType = t.targetType !== void 0 ? t.targetType : targetPiece.Ga !== void 0 ? targetPiece.Ga : targetPiece.type;
+        const targetType = t.targetType !== void 0 ? t.targetType : targetPiece.Ha !== void 0 ? targetPiece.Ha : targetPiece.Ga !== void 0 ? targetPiece.Ga : targetPiece.type;
         const targetColor = t.targetColor !== void 0 ? t.targetColor : targetPiece.ka !== void 0 ? targetPiece.ka : targetPiece.color;
         const victimChar = t.targetChar || (ZigaMod.getPieceChar && targetType !== void 0 ? ZigaMod.getPieceChar(targetType, targetColor) : "?");
         const victimName = t.targetName || (ZigaMod.PIECE_DEFS?.[targetType]?.name ?? (ZigaMod.getPieceVnName && targetType !== void 0 ? ZigaMod.getPieceVnName(targetType) : "Qu\xE2n"));
@@ -50817,11 +51128,11 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         if (!attackerNames) {
           if (Array.isArray(t.attackers) && t.attackers.length > 0) {
             attackerNames = t.attackers.filter(Boolean).map((a) => {
-              const aType = a.Ga !== void 0 ? a.Ga : a.type;
+              const aType = a.Ha !== void 0 ? a.Ha : a.Ga !== void 0 ? a.Ga : a.type;
               return ZigaMod.PIECE_DEFS?.[aType]?.name || (ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(aType) : "Qu\xE2n");
             }).join(", ");
           } else if (t.attacker) {
-            const aType = t.attackerType !== void 0 ? t.attackerType : t.attacker.Ga !== void 0 ? t.attacker.Ga : t.attacker.type;
+            const aType = t.attackerType !== void 0 ? t.attackerType : t.attacker.Ha !== void 0 ? t.attacker.Ha : t.attacker.Ga !== void 0 ? t.attacker.Ga : t.attacker.type;
             attackerNames = ZigaMod.PIECE_DEFS?.[aType]?.name || (ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(aType) : "\u0110\u1ED1i ph\u01B0\u01A1ng");
           } else {
             attackerNames = "\u0110\u1ED1i ph\u01B0\u01A1ng";
@@ -52741,8 +53052,9 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
     const targets = tactical?.targets || [];
     const defended = tactical?.defended || [];
     if (!visible || !piece) return null;
-    const pChar = ZigaMod.getPieceChar ? ZigaMod.getPieceChar(piece.Ga, piece.ka) : "?";
-    const pName = ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(piece.Ga) : "";
+    const pType = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(piece) : piece.Ha !== void 0 ? piece.Ha : piece.Ga;
+    const pChar = ZigaMod.getPieceChar ? ZigaMod.getPieceChar(pType, piece.ka) : "?";
+    const pName = ZigaMod.getPieceVnName ? ZigaMod.getPieceVnName(pType) : "";
     const colorName = piece.ka === 0 ? "\u0110\u1ECF" : "\u0110en";
     return /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(Card, { size: "sm", id: "ziga-section-tactical", children: [
       /* @__PURE__ */ (0, import_jsx_runtime68.jsxs)(CardHeader, { children: [
@@ -52777,7 +53089,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(Badge, { variant: "default", children: targets.length })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("div", { className: "flex flex-wrap gap-1.5", children: targets.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("span", { className: "text-muted-foreground text-xs", children: "Kh\xF4ng c\xF3 qu\xE2n \u0111\u1ED1i ph\u01B0\u01A1ng trong t\u1EA7m \u0103n" }) : targets.map((t, idx) => {
-            const tType = t?.type !== void 0 ? t.type : t?.Ga;
+            const tType = t?.type !== void 0 ? t.type : t?.Ha !== void 0 ? t.Ha : t?.Ga;
             const tColor = t?.color !== void 0 ? t.color : t?.ka;
             const tCol = t?.col !== void 0 ? t.col : t?.fa;
             const tRow = t?.row !== void 0 ? t.row : t?.rowIndex;
@@ -52804,7 +53116,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(Badge, { variant: "secondary", children: defended.length })
           ] }),
           /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("div", { className: "flex flex-wrap gap-1.5", children: defended.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime68.jsx)("span", { className: "text-muted-foreground text-xs", children: "Kh\xF4ng b\u1EA3o v\u1EC7 qu\xE2n n\xE0o" }) : defended.map((d, idx) => {
-            const dType = d?.type !== void 0 ? d.type : d?.Ga;
+            const dType = d?.type !== void 0 ? d.type : d?.Ha !== void 0 ? d.Ha : d?.Ga;
             const dColor = d?.color !== void 0 ? d.color : d?.ka;
             const dChar = d?.char || (ZigaMod.getPieceChar && dType !== void 0 ? ZigaMod.getPieceChar(dType, dColor) : "?");
             const dName = d?.name || (ZigaMod.getPieceVnName && dType !== void 0 ? ZigaMod.getPieceVnName(dType) : "Qu\xE2n");
@@ -53736,7 +54048,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       for (let i = 0; i < gameLayer.V.length; i++) {
         const p = gameLayer.V[i];
         if (!p || p.pa) continue;
-        const type = p.Ga !== void 0 ? p.Ga : 6;
+        const type = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(p, i) : p.Ha !== void 0 ? p.Ha : p.Ga !== void 0 ? p.Ga : i === 0 || i === 16 ? 0 : 6;
         const color = p.ka !== void 0 ? p.ka : Math.floor(i / 16);
         if (type === 0) {
           if (color === 0) redKingSprite = p;
@@ -53756,12 +54068,12 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           }
         }
       }
-      if (!isSpectator && gameLayer.Nj !== void 0 && (gameLayer.Nj === 0 || gameLayer.Nj === 1)) {
-        myColor = gameLayer.Nj;
+      if (!isSpectator && myPlayer && myPlayer.ka !== void 0 && (myPlayer.ka === 0 || myPlayer.ka === 1)) {
+        myColor = myPlayer.ka;
       } else if (!isSpectator && bottomKingColor !== null) {
         myColor = bottomKingColor;
-      } else if (!isSpectator && myPlayer && myPlayer.ka !== void 0 && (myPlayer.ka === 0 || myPlayer.ka === 1)) {
-        myColor = myPlayer.ka;
+      } else if (!isSpectator && gameLayer.hc !== void 0) {
+        myColor = gameLayer.hc ? 1 : 0;
       } else if (bottomKingColor !== null) {
         myColor = bottomKingColor;
       }
@@ -53781,7 +54093,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         if (!p) continue;
         const isDead = !!p.pa;
         const color = p.ka !== void 0 ? p.ka : Math.floor(i / 16);
-        const type = p.Ga !== void 0 ? p.Ga : 6;
+        const type = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(p, i) : p.Ha !== void 0 ? p.Ha : p.Ga !== void 0 ? p.Ga : i === 0 || i === 16 ? 0 : 6;
         const item = {
           index: i,
           type,

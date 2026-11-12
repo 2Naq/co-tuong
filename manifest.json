@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Công cụ Cờ Tướng",
-  "version": "0.0.2",
+  "version": "0.0.3.203",
+  "version_name": "0.0.3.202611130323",
   "description": "Hiển thị quân đã bị ăn & highlight tầm đánh",
   "icons": {
     "16": "icons/icon16.png",
@@ -9,7 +10,9 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["storage"],
+  "permissions": [
+    "storage"
+  ],
   "host_permissions": [
     "*://zigavn.com/*",
     "*://*.chessdb.cn/*",
@@ -18,9 +21,15 @@
   ],
   "content_scripts": [
     {
-      "matches": ["*://zigavn.com/*"],
-      "css": ["styles/overlay.css"],
-      "js": ["content_loader.js"],
+      "matches": [
+        "*://zigavn.com/*"
+      ],
+      "css": [
+        "styles/overlay.css"
+      ],
+      "js": [
+        "content_loader.js"
+      ],
       "run_at": "document_start"
     }
   ],
@@ -30,11 +39,14 @@
         "src/**/*",
         "styles/*",
         "dist/*",
+        "dist/injected.js",
         "icons/*",
         "overlay.css",
         "injected.js"
       ],
-      "matches": ["*://zigavn.com/*"]
+      "matches": [
+        "*://zigavn.com/*"
+      ]
     }
   ]
 }

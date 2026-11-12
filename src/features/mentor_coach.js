@@ -43,7 +43,12 @@ import {
   Cpu,
   Fish,
 } from "lucide-react";
-import { PIECE_DEFS } from "../core/constants";
+import {
+  PIECE_DEFS,
+  resolvePieceType,
+  DEFAULT_INITIAL_PIECE_TYPES,
+} from "../core/constants";
+import { cn } from "../lib/utils";
 import { createXiangqiWorker } from "./xiangqi_engine";
 import {
   getEngineProvider,
@@ -116,8 +121,9 @@ import {
     for (let i = 0; i < 32; i++) {
       const p = gameLayer.V[i];
       if (!p || p.pa) continue;
-      const pieceType = p.Ga !== undefined ? p.Ga : 6;
+      const pieceType = resolvePieceType(p, i);
       const pieceColor = p.ka !== undefined ? p.ka : Math.floor(i / 16);
+      const isUnopened = p.ac === 0;
       const def = PIECE_DEFS[pieceType] || {
         name: "Quân",
         value: 1,
@@ -132,11 +138,15 @@ import {
         row: p.rowIndex,
         type: pieceType,
         color: pieceColor,
-        name: def.name,
-        char: pieceColor === 0 ? def.redChar : def.blackChar,
-        short: def.short,
+        name: isUnopened ? "Quân Úp" : def.name,
+        char: isUnopened
+          ? "Úp"
+          : pieceColor === 0
+            ? def.redChar
+            : def.blackChar,
+        short: isUnopened ? "Ú" : def.short,
         ac: p.ac !== undefined ? p.ac : 1,
-        unopened: p.ac === 0,
+        unopened: isUnopened,
       });
     }
     return pieces;
@@ -150,7 +160,7 @@ import {
       const p = gameLayer.V[i];
       if (!p || p.pa) continue;
       const ac = p.ac !== undefined ? p.ac : 1;
-      const ga = p.Ga !== undefined ? p.Ga : 6;
+      const ga = resolvePieceType(p, i);
       hash += `${i}:${p.fa},${p.rowIndex},${ga},${ac};`;
     }
     return hash;
@@ -554,9 +564,11 @@ import {
         if (rayPieces.length >= 3) {
           const p3 = rayPieces[2];
           if (p3.color === oppColor && p3.type === 4) {
-            const enemyBlocker = p1.color === oppColor ? p1 : (p2.color === oppColor ? p2 : null);
+            const enemyBlocker =
+              p1.color === oppColor ? p1 : p2.color === oppColor ? p2 : null;
             if (enemyBlocker) {
-              const colName = myColor === 0 ? 9 - enemyBlocker.col : enemyBlocker.col + 1;
+              const colName =
+                myColor === 0 ? 9 - enemyBlocker.col : enemyBlocker.col + 1;
               return {
                 type: "discovered_check",
                 attacker: p3,
@@ -637,7 +649,7 @@ import {
         title: "LƯỢT ĐỐI THỦ ĐANG SUY NGHĨ",
         move: null,
         shortMove: null,
-        why: "Đối thủ đang suy nghĩ nước cờ. Hãy quan sát trận thế và giữ vững sự tập trung!",
+        why: "Đối thủ đang suy nghĩ nước cờ. Làm chén trà chứ!",
       };
     }
 
@@ -733,738 +745,743 @@ import {
 
       const plans = [];
 
-    (searchRes.lines || []).forEach((line, idx) => {
-      const movingPiece = pieces.find(
-        (p) =>
-          p.col === line.fromCol &&
-          p.row === line.fromRow &&
-          p.color === movingColor,
-      );
-      if (!movingPiece) return;
-
-      const targetPiece = pieces.find(
-        (p) =>
-          p.col === line.toCol &&
-          p.row === line.toRow &&
-          p.color === targetColor,
-      );
-
-      const notation = getXiangqiNotation(
-        movingPiece,
-        line.fromCol,
-        line.fromRow,
-        line.toCol,
-        line.toRow,
-        movingColor,
-      );
-
-      const isMate = line.delivermate || line.score >= engine.MATE - 100;
-      const isCheck = inCheck;
-
-      const desc = getTacticalDescription(
-        movingPiece,
-        targetPiece,
-        notation,
-        line.toCol,
-        line.toRow,
-        movingColor,
-        isCheck,
-        isMate,
-        line.replies,
-        pieces,
-        evalPoints,
-      );
-
-      // Process 2-3 Opponent Variations with Deep Tactical Explanations
-      let rawReplies = (line.replies || []).filter(
-        (r) => r && r.fromCol != null && r.toCol != null,
-      );
-
-      // If no opponent replies provided by engine/cloud, dynamically compute 1-3 REAL legal opponent responses!
-      if (rawReplies.length === 0) {
-        try {
-          const afterOurMove = pieces
-            .filter(
-              (p) =>
-                !(
-                  p.col === line.toCol &&
-                  p.row === line.toRow &&
-                  p.color === oppColor
-                ),
-            )
-            .map((p) =>
-              p.col === line.fromCol &&
-              p.row === line.fromRow &&
-              p.color === movingColor
-                ? { ...p, col: line.toCol, row: line.toRow }
-                : { ...p },
-            );
-
-          const oppSearch = engine.analyze({
-            pieces: afterOurMove,
-            side: oppColor,
-            maxDepth: 3,
-            timeMs: 40,
-            multiPV: 3,
-          });
-
-          if (oppSearch && oppSearch.lines && oppSearch.lines.length > 0) {
-            rawReplies = oppSearch.lines.map((ol) => ({
-              fromCol: ol.fromCol,
-              fromRow: ol.fromRow,
-              toCol: ol.toCol,
-              toRow: ol.toRow,
-              score: ol.score,
-              answer:
-                ol.pv && ol.pv[1] ? { ...ol.pv[1], score: -ol.score } : null,
-              step4:
-                ol.pv && ol.pv[2] ? { ...ol.pv[2], score: ol.score } : null,
-              step5:
-                ol.pv && ol.pv[3] ? { ...ol.pv[3], score: -ol.score } : null,
-            }));
-          }
-        } catch (e) {
-          console.warn(
-            "[AN Mod] Dynamic opponent reply generation fallback:",
-            e,
-          );
-        }
-      }
-
-      const variations = rawReplies.map((rep, rIdx) => {
-        const oppPiece = pieces.find(
+      (searchRes.lines || []).forEach((line, idx) => {
+        const movingPiece = pieces.find(
           (p) =>
-            p.col === rep.fromCol &&
-            p.row === rep.fromRow &&
-            p.color === oppColor,
-        ) || {
-          col: rep.fromCol,
-          row: rep.fromRow,
-          type: 6,
-          color: oppColor,
-          name: "Quân địch",
-          short: "Q",
-        };
+            p.col === line.fromCol &&
+            p.row === line.fromRow &&
+            p.color === movingColor,
+        );
+        if (!movingPiece) return;
 
-        const oppTarget =
-          rep.toCol === line.toCol && rep.toRow === line.toRow
-            ? movingPiece
-            : pieces.find(
-                (p) =>
-                  p.col === rep.toCol &&
-                  p.row === rep.toRow &&
-                  p.color === myColor,
-              );
-
-        const oppNot = getXiangqiNotation(
-          oppPiece,
-          rep.fromCol,
-          rep.fromRow,
-          rep.toCol,
-          rep.toRow,
-          oppColor,
+        const targetPiece = pieces.find(
+          (p) =>
+            p.col === line.toCol &&
+            p.row === line.toRow &&
+            p.color === targetColor,
         );
 
-        let oppWhy = "";
-        const oppTCol = oppColor === 0 ? 9 - rep.toCol : rep.toCol + 1;
-        if (oppTarget) {
-          oppWhy = `Phản pháo chém ${oppTarget.name} tại Lộ ${oppTCol} nhằm giải tỏa sức ép.`;
-        } else if (oppPiece && (oppPiece.type === 1 || oppPiece.type === 2)) {
-          oppWhy = `Bổ ${oppPiece.name} củng cố phòng tuyến trước thế công dồn dập của ta.`;
-        } else if (oppPiece && oppPiece.type === 3) {
-          oppWhy = `Xuất Xe kiểm soát Lộ ${oppTCol} hòng ngăn chặn mũi đột phá của ta.`;
-        } else if (oppPiece && oppPiece.type === 5) {
-          oppWhy = `Nhảy Mã lên Lộ ${oppTCol} hòng tìm kiếm cơ hội phản kích.`;
-        } else {
-          oppWhy = `Điều quân phản ứng củng cố trận địa.`;
-        }
+        const notation = getXiangqiNotation(
+          movingPiece,
+          line.fromCol,
+          line.fromRow,
+          line.toCol,
+          line.toRow,
+          movingColor,
+        );
 
-        // Follow-up answer from friendly side
-        let ansNot = null;
-        let ansWhy = "";
-        if (rep.answer) {
-          const ansPiece = pieces.find(
-            (p) =>
-              p.col === rep.answer.fromCol &&
-              p.row === rep.answer.fromRow &&
-              p.color === myColor,
-          );
-          if (ansPiece) {
-            ansNot = getXiangqiNotation(
-              ansPiece,
-              rep.answer.fromCol,
-              rep.answer.fromRow,
-              rep.answer.toCol,
-              rep.answer.toRow,
-              myColor,
-            );
-            const ansTarget = pieces.find(
-              (p) =>
-                p.col === rep.answer.toCol &&
-                p.row === rep.answer.toRow &&
-                p.color === oppColor,
-            );
-            const ansTCol =
-              myColor === 0 ? 9 - rep.answer.toCol : rep.answer.toCol + 1;
-            if (ansTarget) {
-              ansWhy = `Lập tức chém ${ansTarget.name} Lộ ${ansTCol}, đoạt ưu thế quyết định.`;
-            } else if (rep.answer.score && rep.answer.score > 9000) {
-              ansWhy = `Giáng đòn sát cục kết liễu trận đấu!`;
-            } else if (ansPiece.type === 3) {
-              ansWhy = `Xe bồi đòn khống chế Lộ ${ansTCol}, siết chặt vòng vây ép địch vào thế bí.`;
-            } else if (ansPiece.type === 4) {
-              ansWhy = `Pháo bồi thêm đòn công kích sườn/trung lộ, khóa chặt đường tẩu thoát.`;
-            } else {
-              ansWhy = `Bồi thêm đòn ${ansNot.short} giữ vững ưu thế áp đảo.`;
-            }
-          }
-        }
+        const isMate = line.delivermate || line.score >= engine.MATE - 100;
+        const isCheck = inCheck;
 
-        const varLabel =
-          rIdx === 0
-            ? `Biến 1 (Phổ biến): ${oppNot.short}`
-            : rIdx === 1
-              ? `Biến 2 (Phòng thủ): ${oppNot.short}`
-              : `Biến 3 (Phản công): ${oppNot.short}`;
-
-        return {
-          idx: rIdx,
-          label: varLabel,
-          shortLabel: `Biến ${rIdx + 1}: ${oppNot.short}`,
-          oppNotation: oppNot,
-          oppWhy,
-          fromCol: rep.fromCol,
-          fromRow: rep.fromRow,
-          toCol: rep.toCol,
-          toRow: rep.toRow,
-          oppPiece,
-          answer: rep.answer
-            ? {
-                fromCol: rep.answer.fromCol,
-                fromRow: rep.answer.fromRow,
-                toCol: rep.answer.toCol,
-                toRow: rep.answer.toRow,
-                notation: ansNot,
-                why: ansWhy,
-              }
-            : null,
-          step4: rep.step4 || null,
-          step5: rep.step5 || null,
-        };
-      });
-
-      // Default if completely empty (e.g. checkmate)
-      if (variations.length === 0) {
-        variations.push({
-          idx: 0,
-          label: "Biến 1: Địch cùng đường",
-          shortLabel: "Hết cờ",
-          oppNotation: {
-            short: "Hết nước",
-            full: "Đối thủ không còn nước đi hợp lệ",
-          },
-          oppWhy: "Đối thủ lâm vào thế sát cục hoặc hết nước đi.",
-          fromCol: null,
-          fromRow: null,
-          toCol: null,
-          toRow: null,
-          oppPiece: null,
-          answer: null,
-          step4: null,
-          step5: null,
-        });
-      }
-
-      // Check classical Xiangqi mating motif
-      const isForcedMate = line.delivermate || line.score >= 9000;
-      const mateMotif = isForcedMate
-        ? classifyXiangqiMateMotif(
-            pieces,
-            line,
-            movingColor,
-            targetColor,
-            line.score,
-          )
-        : null;
-
-      // Build 5-step interactive tactical roadmap from PV / responses
-      const roadmap = [];
-      // 1. Ta đi
-      roadmap.push({
-        step: 1,
-        side: movingColor,
-        label: "1. Ta đi",
-        piece: movingPiece,
-        fromCol: line.fromCol,
-        fromRow: line.fromRow,
-        toCol: line.toCol,
-        toRow: line.toRow,
-        notation: notation,
-        why: desc.why,
-      });
-
-      // 2. Địch đáp
-      const rep0 = variations[0];
-      if (rep0 && rep0.fromCol != null && rep0.toCol != null) {
-        roadmap.push({
-          step: 2,
-          side: oppColor,
-          label: "2. Địch đáp",
-          piece: rep0.oppPiece,
-          fromCol: rep0.fromCol,
-          fromRow: rep0.fromRow,
-          toCol: rep0.toCol,
-          toRow: rep0.toRow,
-          notation: rep0.oppNotation,
-          why: rep0.oppWhy,
-        });
-
-        // 3. Ta bồi
-        if (
-          rep0.answer &&
-          rep0.answer.fromCol != null &&
-          rep0.answer.toCol != null
-        ) {
-          const ansPiece = pieces.find(
-            (p) =>
-              p.col === rep0.answer.fromCol &&
-              p.row === rep0.answer.fromRow &&
-              p.color === myColor,
-          );
-          roadmap.push({
-            step: 3,
-            side: myColor,
-            label: "3. Ta bồi",
-            piece: ansPiece,
-            fromCol: rep0.answer.fromCol,
-            fromRow: rep0.answer.fromRow,
-            toCol: rep0.answer.toCol,
-            toRow: rep0.answer.toRow,
-            notation: rep0.answer.notation,
-            why: rep0.answer.why,
-          });
-
-          // 4. Địch đỡ
-          const st4 = rep0.step4;
-          if (st4 && st4.fromCol != null && st4.toCol != null) {
-            const p4 = pieces.find(
-              (p) =>
-                p.col === st4.fromCol &&
-                p.row === st4.fromRow &&
-                p.color === oppColor,
-            );
-            const not4 = p4
-              ? getXiangqiNotation(
-                  p4,
-                  st4.fromCol,
-                  st4.fromRow,
-                  st4.toCol,
-                  st4.toRow,
-                  oppColor,
-                )
-              : { short: "Địch đi", full: "Nước phòng thủ của địch" };
-            roadmap.push({
-              step: 4,
-              side: oppColor,
-              label: "4. Địch đỡ",
-              piece: p4,
-              fromCol: st4.fromCol,
-              fromRow: st4.fromRow,
-              toCol: st4.toCol,
-              toRow: st4.toRow,
-              notation: not4,
-              why: "Địch gắng gượng xoay sở chống đỡ trước vòng vây.",
-            });
-
-            // 5. Ta dứt điểm / đoạt thế
-            const st5 = rep0.step5;
-            if (st5 && st5.fromCol != null && st5.toCol != null) {
-              const p5 = pieces.find(
-                (p) =>
-                  p.col === st5.fromCol &&
-                  p.row === st5.fromRow &&
-                  p.color === myColor,
-              );
-              const not5 = p5
-                ? getXiangqiNotation(
-                    p5,
-                    st5.fromCol,
-                    st5.fromRow,
-                    st5.toCol,
-                    st5.toRow,
-                    myColor,
-                  )
-                : { short: "Dứt điểm", full: "Nước đoạt thế quyết định" };
-              roadmap.push({
-                step: 5,
-                side: myColor,
-                label: "5. Dứt điểm",
-                piece: p5,
-                fromCol: st5.fromCol,
-                fromRow: st5.fromRow,
-                toCol: st5.toCol,
-                toRow: st5.toRow,
-                notation: not5,
-                why: "Giáng đòn dứt điểm đoạt thắng lợi quyết định trận đấu!",
-              });
-            }
-          }
-        }
-      }
-
-      // Dynamic strategic preparation linking Step 1 to Step 2 and Step 3
-      let prepText = "";
-      const firstRep = rep0 || variations[0];
-      if (
-        firstRep &&
-        firstRep.oppNotation?.short &&
-        firstRep.oppNotation?.short !== "Địch đi"
-      ) {
-        if (firstRep.answer && firstRep.answer.notation?.short) {
-          prepText = `Kế sách: Đón đầu nước ${firstRep.oppNotation.short} của địch để lập tức bồi đòn ${firstRep.answer.notation.short}, làm chủ thế trận.`;
-        } else {
-          prepText = `Kế sách: Khống chế biến phản ứng ${firstRep.oppNotation.short} của đối phương, đoạt tiên cơ áp đảo.`;
-        }
-      }
-
-      const planWhy = prepText ? `${desc.why} (${prepText})` : desc.why;
-
-      const planType = idx === 0 ? "attack" : idx === 1 ? "defend" : "maneuver";
-      const planBadge = mateMotif
-        ? "Tuyệt Sát"
-        : idx === 0
-          ? "Tối Ưu"
-          : idx === 1
-            ? "Chắc Chắn"
-            : "Đột Phá";
-
-      const planTags =
-        line.tags && line.tags.length > 0
-          ? [...line.tags]
-          : desc.tag
-            ? [desc.tag]
-            : [];
-      if (mateMotif && !planTags.includes(mateMotif.tag)) {
-        planTags.unshift(mateMotif.tag);
-      }
-
-      plans.push({
-        id: `plan_${idx}`,
-        idx,
-        name: mateMotif
-          ? `${notation.short} · ${mateMotif.name}`
-          : `${notation.short} · ${desc.tacticName}`,
-        shortNotation: notation.short,
-        fullNotation: notation.full,
-        type: planType,
-        badge: planBadge,
-        tag: mateMotif ? mateMotif.tag : desc.tag,
-        tags: planTags,
-        why: planWhy,
-        score: line.score,
-        piece: movingPiece,
-        fromCol: line.fromCol,
-        fromRow: line.fromRow,
-        toCol: line.toCol,
-        toRow: line.toRow,
-        variations,
-        roadmap,
-      });
-    });
-
-    // Dự phòng an toàn: nếu không có dòng tính toán hoặc bị lọc hết (Kế Sách (0)),
-    // tự động chạy phân tích nhanh từ engine JS nội bộ để người chơi luôn có kế sách tối ưu.
-    if (plans.length === 0) {
-      try {
-        const fallbackRes = engine.analyze({
+        const desc = getTacticalDescription(
+          movingPiece,
+          targetPiece,
+          notation,
+          line.toCol,
+          line.toRow,
+          movingColor,
+          isCheck,
+          isMate,
+          line.replies,
           pieces,
-          side: movingColor,
-          maxDepth: 4,
-          timeMs: 120,
-          multiPV: 3,
-        });
-        if (fallbackRes && fallbackRes.lines && fallbackRes.lines.length > 0) {
-          fallbackRes.lines.forEach((line) => {
-            const movingPiece = pieces.find(
-              (p) =>
+          evalPoints,
+        );
+
+        // Process 2-3 Opponent Variations with Deep Tactical Explanations
+        let rawReplies = (line.replies || []).filter(
+          (r) => r && r.fromCol != null && r.toCol != null,
+        );
+
+        // If no opponent replies provided by engine/cloud, dynamically compute 1-3 REAL legal opponent responses!
+        if (rawReplies.length === 0) {
+          try {
+            const afterOurMove = pieces
+              .filter(
+                (p) =>
+                  !(
+                    p.col === line.toCol &&
+                    p.row === line.toRow &&
+                    p.color === oppColor
+                  ),
+              )
+              .map((p) =>
                 p.col === line.fromCol &&
                 p.row === line.fromRow &&
-                p.color === movingColor,
-            );
-            if (!movingPiece) return;
-            const notation = getXiangqiNotation(
-              movingPiece,
-              line.fromCol,
-              line.fromRow,
-              line.toCol,
-              line.toRow,
-              movingColor,
-            );
-            const fullNotation = notation ? notation.full : "";
-            const shortNotation = notation ? notation.short : "";
-            plans.push({
-              id: `fallback-${line.fromCol}-${line.fromRow}-${line.toCol}-${line.toRow}`,
-              name: `Triển khai ${movingPiece.name}`,
-              badge: "An Toàn",
-              fullNotation,
-              shortNotation,
-              tag: "reposition",
-              tags: ["reposition"],
-              why: `Chủ động điều động ${movingPiece.name} ổn định thế trận, củng cố phòng thủ và đón bắt thời cơ phản công.`,
-              score: line.score || 0,
-              piece: movingPiece,
-              fromCol: line.fromCol,
-              fromRow: line.fromRow,
-              toCol: line.toCol,
-              toRow: line.toRow,
-              variations: [],
-              roadmap: [
-                {
-                  step: 1,
-                  type: "my",
-                  fromCol: line.fromCol,
-                  fromRow: line.fromRow,
-                  toCol: line.toCol,
-                  toRow: line.toRow,
-                  piece: movingPiece,
-                  notation: { short: shortNotation, full: fullNotation },
-                  shortNotation,
-                  explanation: `Triển khai ${movingPiece.name} kiểm soát vị trí trọng yếu.`,
-                  badge: "Nước Đi Khuyên Dùng",
-                },
-              ],
+                p.color === movingColor
+                  ? { ...p, col: line.toCol, row: line.toRow }
+                  : { ...p },
+              );
+
+            const oppSearch = engine.analyze({
+              pieces: afterOurMove,
+              side: oppColor,
+              maxDepth: 3,
+              timeMs: 40,
+              multiPV: 3,
             });
+
+            if (oppSearch && oppSearch.lines && oppSearch.lines.length > 0) {
+              rawReplies = oppSearch.lines.map((ol) => ({
+                fromCol: ol.fromCol,
+                fromRow: ol.fromRow,
+                toCol: ol.toCol,
+                toRow: ol.toRow,
+                score: ol.score,
+                answer:
+                  ol.pv && ol.pv[1] ? { ...ol.pv[1], score: -ol.score } : null,
+                step4:
+                  ol.pv && ol.pv[2] ? { ...ol.pv[2], score: ol.score } : null,
+                step5:
+                  ol.pv && ol.pv[3] ? { ...ol.pv[3], score: -ol.score } : null,
+              }));
+            }
+          } catch (e) {
+            console.warn(
+              "[AN Mod] Dynamic opponent reply generation fallback:",
+              e,
+            );
+          }
+        }
+
+        const variations = rawReplies.map((rep, rIdx) => {
+          const oppPiece = pieces.find(
+            (p) =>
+              p.col === rep.fromCol &&
+              p.row === rep.fromRow &&
+              p.color === oppColor,
+          ) || {
+            col: rep.fromCol,
+            row: rep.fromRow,
+            type: 6,
+            color: oppColor,
+            name: "Quân địch",
+            short: "Q",
+          };
+
+          const oppTarget =
+            rep.toCol === line.toCol && rep.toRow === line.toRow
+              ? movingPiece
+              : pieces.find(
+                  (p) =>
+                    p.col === rep.toCol &&
+                    p.row === rep.toRow &&
+                    p.color === myColor,
+                );
+
+          const oppNot = getXiangqiNotation(
+            oppPiece,
+            rep.fromCol,
+            rep.fromRow,
+            rep.toCol,
+            rep.toRow,
+            oppColor,
+          );
+
+          let oppWhy = "";
+          const oppTCol = oppColor === 0 ? 9 - rep.toCol : rep.toCol + 1;
+          if (oppTarget) {
+            oppWhy = `Phản pháo chém ${oppTarget.name} tại Lộ ${oppTCol} nhằm giải tỏa sức ép.`;
+          } else if (oppPiece && (oppPiece.type === 1 || oppPiece.type === 2)) {
+            oppWhy = `Bổ ${oppPiece.name} củng cố phòng tuyến trước thế công dồn dập của ta.`;
+          } else if (oppPiece && oppPiece.type === 3) {
+            oppWhy = `Xuất Xe kiểm soát Lộ ${oppTCol} hòng ngăn chặn mũi đột phá của ta.`;
+          } else if (oppPiece && oppPiece.type === 5) {
+            oppWhy = `Nhảy Mã lên Lộ ${oppTCol} hòng tìm kiếm cơ hội phản kích.`;
+          } else {
+            oppWhy = `Điều quân phản ứng củng cố trận địa.`;
+          }
+
+          // Follow-up answer from friendly side
+          let ansNot = null;
+          let ansWhy = "";
+          if (rep.answer) {
+            const ansPiece = pieces.find(
+              (p) =>
+                p.col === rep.answer.fromCol &&
+                p.row === rep.answer.fromRow &&
+                p.color === myColor,
+            );
+            if (ansPiece) {
+              ansNot = getXiangqiNotation(
+                ansPiece,
+                rep.answer.fromCol,
+                rep.answer.fromRow,
+                rep.answer.toCol,
+                rep.answer.toRow,
+                myColor,
+              );
+              const ansTarget = pieces.find(
+                (p) =>
+                  p.col === rep.answer.toCol &&
+                  p.row === rep.answer.toRow &&
+                  p.color === oppColor,
+              );
+              const ansTCol =
+                myColor === 0 ? 9 - rep.answer.toCol : rep.answer.toCol + 1;
+              if (ansTarget) {
+                ansWhy = `Lập tức chém ${ansTarget.name} Lộ ${ansTCol}, đoạt ưu thế quyết định.`;
+              } else if (rep.answer.score && rep.answer.score > 9000) {
+                ansWhy = `Giáng đòn sát cục kết liễu trận đấu!`;
+              } else if (ansPiece.type === 3) {
+                ansWhy = `Xe bồi đòn khống chế Lộ ${ansTCol}, siết chặt vòng vây ép địch vào thế bí.`;
+              } else if (ansPiece.type === 4) {
+                ansWhy = `Pháo bồi thêm đòn công kích sườn/trung lộ, khóa chặt đường tẩu thoát.`;
+              } else {
+                ansWhy = `Bồi thêm đòn ${ansNot.short} giữ vững ưu thế áp đảo.`;
+              }
+            }
+          }
+
+          const varLabel =
+            rIdx === 0
+              ? `Biến 1 (Phổ biến): ${oppNot.short}`
+              : rIdx === 1
+                ? `Biến 2 (Phòng thủ): ${oppNot.short}`
+                : `Biến 3 (Phản công): ${oppNot.short}`;
+
+          return {
+            idx: rIdx,
+            label: varLabel,
+            shortLabel: `Biến ${rIdx + 1}: ${oppNot.short}`,
+            oppNotation: oppNot,
+            oppWhy,
+            fromCol: rep.fromCol,
+            fromRow: rep.fromRow,
+            toCol: rep.toCol,
+            toRow: rep.toRow,
+            oppPiece,
+            answer: rep.answer
+              ? {
+                  fromCol: rep.answer.fromCol,
+                  fromRow: rep.answer.fromRow,
+                  toCol: rep.answer.toCol,
+                  toRow: rep.answer.toRow,
+                  notation: ansNot,
+                  why: ansWhy,
+                }
+              : null,
+            step4: rep.step4 || null,
+            step5: rep.step5 || null,
+          };
+        });
+
+        // Default if completely empty (e.g. checkmate)
+        if (variations.length === 0) {
+          variations.push({
+            idx: 0,
+            label: "Biến 1: Địch cùng đường",
+            shortLabel: "Hết cờ",
+            oppNotation: {
+              short: "Hết nước",
+              full: "Đối thủ không còn nước đi hợp lệ",
+            },
+            oppWhy: "Đối thủ lâm vào thế sát cục hoặc hết nước đi.",
+            fromCol: null,
+            fromRow: null,
+            toCol: null,
+            toRow: null,
+            oppPiece: null,
+            answer: null,
+            step4: null,
+            step5: null,
           });
         }
-      } catch (e) {
-        console.warn("[AN Mod] Fallback plan generation error:", e);
-      }
-    }
 
-    const discThreat = detectDiscoveredCheckThreat(pieces, myColor, oppColor);
-
-    // Coach Dynamic Commentary - Structured & Pure Text (No raw emojis)
-    let commentary = {
-      type: "optimal",
-      title: "GỢI Ý TỐI ƯU",
-      move: plans[0] ? plans[0].fullNotation : null,
-      shortMove: plans[0] ? plans[0].shortNotation : null,
-      why: plans[0] ? plans[0].why : "Hãy triển khai nước cờ cẩn trọng.",
-    };
-
-    if (inCheck) {
-      const escapePlan = plans[0];
-      commentary = {
-        type: "danger",
-        title: "🚨 TƯỚNG ĐANG BỊ CHIẾU! BẮT BUỘC CỨU GIÁ!",
-        move: escapePlan ? escapePlan.fullNotation : null,
-        shortMove: escapePlan ? escapePlan.shortNotation : null,
-        why: escapePlan
-          ? `Tướng đang bị đối phương chiếu! Hãy đi ngay ${escapePlan.fullNotation} để hóa giải thế chiếu an toàn.`
-          : "Tướng của bạn đang bị đối phương chiếu! Cần ưu tiên tuyệt đối hóa giải thế chiếu.",
-        badge: "CỨU GIÁ CẤP THIẾT",
-      };
-      plans.forEach((p) => {
-        p.type = "defend";
-        p.badge = "Giải Chiếu";
-      });
-    } else if (topScore <= -9000) {
-      commentary = {
-        type: "danger",
-        title: "🚨 BÁO ĐỘNG SÁT CỤC! NGUY CƠ BỊ BỨC TỬ!",
-        move: plans[0] ? plans[0].fullNotation : null,
-        shortMove: plans[0] ? plans[0].shortNotation : null,
-        why: plans[0]
-          ? `Đối phương đang giăng bẫy sát cục nguy hiểm! Nước đi duy nhất kéo dài: ${plans[0].fullNotation}.`
-          : "Đối phương đang có đòn sát cục quyết định! Hãy tập trung toàn lực phòng thủ.",
-        badge: "BÁO ĐỘNG ĐỎ",
-      };
-    } else if (discThreat) {
-      commentary = {
-        type: "danger",
-        title: "CẢNH BÁO CHIẾU RÚT",
-        move: plans[0] ? plans[0].fullNotation : null,
-        shortMove: plans[0] ? plans[0].shortNotation : null,
-        why: discThreat.desc,
-      };
-    } else if (plans[0]?.tag?.includes("Sát Cục")) {
-      commentary = {
-        type: "mate",
-        title: "ĐÒN SÁT CỤC TUYỆT KỸ",
-        move: plans[0].fullNotation,
-        shortMove: plans[0].shortNotation,
-        why: plans[0].why,
-      };
-    } else if (!isMyTurn) {
-      commentary = {
-        type: "waiting",
-        title: "LƯỢT ĐỐI THỦ ĐANG SUY NGHĨ",
-        move: null,
-        shortMove: null,
-        why: "Đối thủ đang suy nghĩ nước cờ. Hãy quan sát trận thế và giữ vững sự tập trung!",
-      };
-    } else if (plans[0]) {
-      commentary = {
-        type: "optimal",
-        title: "GỢI Ý TỐI ƯU",
-        move: plans[0].fullNotation,
-        shortMove: plans[0].shortNotation,
-        why: plans[0].why,
-      };
-    } else {
-      commentary = {
-        type: "turn",
-        title: "LƯỢT ĐI CỦA BẠN",
-        move: null,
-        shortMove: null,
-        why: "Đến lượt bạn đi. Hãy triển khai nước cờ cẩn trọng.",
-      };
-    }
-
-    const coachCommentary = commentary.move
-      ? `Khuyên dùng ${commentary.move}! ${commentary.why}`
-      : commentary.why;
-
-    // Threat description if opponent threatens material
-    let threatInfo = discThreat ? { desc: discThreat.desc } : null;
-    if (!threatInfo && searchRes.threat && searchRes.threat.gain >= 150) {
-      const thPiece = pieces.find(
-        (p) =>
-          p.col === searchRes.threat.fromCol &&
-          p.row === searchRes.threat.fromRow &&
-          p.color === oppColor,
-      );
-      const thTarget = pieces.find(
-        (p) =>
-          p.col === searchRes.threat.toCol &&
-          p.row === searchRes.threat.toRow &&
-          p.color === myColor,
-      );
-      if (thPiece && thTarget) {
-        threatInfo = {
-          desc: `${thPiece.name} địch đang dòm ngó ${thTarget.name} của bạn tại Lộ ${myColor === 0 ? 9 - thTarget.col : thTarget.col + 1}!`,
-        };
-      }
-    }
-
-    // Mate & Pre-Mate Threat Analysis (Offensive Climax & Defensive Danger)
-    let mateThreat = null;
-    if (
-      topScore >= 9000 ||
-      (plans[0] &&
-        plans[0].tags.some(
-          (t) =>
-            t === "iron-gate" ||
-            t === "resting-horse" ||
-            t === "horse-cannon-mate" ||
-            t === "face-king" ||
-            t === "fishing-horse" ||
-            t === "double-rook" ||
-            t === "mate-threat" ||
-            t === "Kẹp Cổ" ||
-            t === "clamp-neck",
-        )) ||
-      (plans[0] && plans[0].name && plans[0].name.includes("Khóa Tướng"))
-    ) {
-      const mateSteps = Math.max(
-        1,
-        Math.ceil((10000 - Math.min(Math.max(topScore, 9000), 9999)) / 2),
-      );
-      const motifName =
-        plans[0]?.name.split("·")[1]?.trim() ||
-        plans[0]?.name ||
-        "Sát Cục Tuyệt Kỹ";
-      mateThreat = {
-        type: "attack",
-        motif: motifName,
-        steps: mateSteps,
-        title: `THẾ TRẬN TUYỆT SÁT [${motifName}]`,
-        explanation: `Bạn đang nắm giữ thế sát [trong ${mateSteps} nước đi]! Tướng của bạn hoàn toàn an toàn, hãy đi chính xác theo gợi ý để kết liễu trận đấu!`,
-      };
-    } else if (topScore <= -300 || topScore <= -9000) {
-      const oppMateSteps =
-        topScore <= -9000
-          ? Math.max(
-              1,
-              Math.ceil((10000 - Math.min(Math.abs(topScore), 9999)) / 2),
+        // Check classical Xiangqi mating motif
+        const isForcedMate = line.delivermate || line.score >= 9000;
+        const mateMotif = isForcedMate
+          ? classifyXiangqiMateMotif(
+              pieces,
+              line,
+              movingColor,
+              targetColor,
+              line.score,
             )
           : null;
-      mateThreat = {
-        type: "defense",
-        motif: "Hiểm Họa Tử Huyệt",
-        steps: oppMateSteps,
-        title: oppMateSteps
-          ? `🚨 CẢNH BÁO TỬ HUYỆT: NGUY CƠ BỊ SÁT CỤC (${oppMateSteps} NƯỚC)!`
-          : `🚨 CẢNH BÁO TỬ HUYỆT: NGUY CƠ BỊ SÁT CỤC!`,
-        explanation: `Đối thủ đang dồn dập vây hãm cửu cung. Bắt buộc phải triển khai nước cờ phòng ngự ${
-          plans[0]?.shortNotation || "cứu giá"
-        } để hóa giải đòn sát của địch!`,
-      };
-      if (plans[0]) {
-        plans[0].badge = "Cứu Mạng";
-        if (!plans[0].tags.includes("emergency-defend")) {
-          plans[0].tags.unshift("emergency-defend");
+
+        // Build 5-step interactive tactical roadmap from PV / responses
+        const roadmap = [];
+        // 1. Ta đi
+        roadmap.push({
+          step: 1,
+          side: movingColor,
+          label: "1. Ta đi",
+          piece: movingPiece,
+          fromCol: line.fromCol,
+          fromRow: line.fromRow,
+          toCol: line.toCol,
+          toRow: line.toRow,
+          notation: notation,
+          why: desc.why,
+        });
+
+        // 2. Địch đáp
+        const rep0 = variations[0];
+        if (rep0 && rep0.fromCol != null && rep0.toCol != null) {
+          roadmap.push({
+            step: 2,
+            side: oppColor,
+            label: "2. Địch đáp",
+            piece: rep0.oppPiece,
+            fromCol: rep0.fromCol,
+            fromRow: rep0.fromRow,
+            toCol: rep0.toCol,
+            toRow: rep0.toRow,
+            notation: rep0.oppNotation,
+            why: rep0.oppWhy,
+          });
+
+          // 3. Ta bồi
+          if (
+            rep0.answer &&
+            rep0.answer.fromCol != null &&
+            rep0.answer.toCol != null
+          ) {
+            const ansPiece = pieces.find(
+              (p) =>
+                p.col === rep0.answer.fromCol &&
+                p.row === rep0.answer.fromRow &&
+                p.color === myColor,
+            );
+            roadmap.push({
+              step: 3,
+              side: myColor,
+              label: "3. Ta bồi",
+              piece: ansPiece,
+              fromCol: rep0.answer.fromCol,
+              fromRow: rep0.answer.fromRow,
+              toCol: rep0.answer.toCol,
+              toRow: rep0.answer.toRow,
+              notation: rep0.answer.notation,
+              why: rep0.answer.why,
+            });
+
+            // 4. Địch đỡ
+            const st4 = rep0.step4;
+            if (st4 && st4.fromCol != null && st4.toCol != null) {
+              const p4 = pieces.find(
+                (p) =>
+                  p.col === st4.fromCol &&
+                  p.row === st4.fromRow &&
+                  p.color === oppColor,
+              );
+              const not4 = p4
+                ? getXiangqiNotation(
+                    p4,
+                    st4.fromCol,
+                    st4.fromRow,
+                    st4.toCol,
+                    st4.toRow,
+                    oppColor,
+                  )
+                : { short: "Địch đi", full: "Nước phòng thủ của địch" };
+              roadmap.push({
+                step: 4,
+                side: oppColor,
+                label: "4. Địch đỡ",
+                piece: p4,
+                fromCol: st4.fromCol,
+                fromRow: st4.fromRow,
+                toCol: st4.toCol,
+                toRow: st4.toRow,
+                notation: not4,
+                why: "Địch gắng gượng xoay sở chống đỡ trước vòng vây.",
+              });
+
+              // 5. Ta dứt điểm / đoạt thế
+              const st5 = rep0.step5;
+              if (st5 && st5.fromCol != null && st5.toCol != null) {
+                const p5 = pieces.find(
+                  (p) =>
+                    p.col === st5.fromCol &&
+                    p.row === st5.fromRow &&
+                    p.color === myColor,
+                );
+                const not5 = p5
+                  ? getXiangqiNotation(
+                      p5,
+                      st5.fromCol,
+                      st5.fromRow,
+                      st5.toCol,
+                      st5.toRow,
+                      myColor,
+                    )
+                  : { short: "Dứt điểm", full: "Nước đoạt thế quyết định" };
+                roadmap.push({
+                  step: 5,
+                  side: myColor,
+                  label: "5. Dứt điểm",
+                  piece: p5,
+                  fromCol: st5.fromCol,
+                  fromRow: st5.fromRow,
+                  toCol: st5.toCol,
+                  toRow: st5.toRow,
+                  notation: not5,
+                  why: "Giáng đòn dứt điểm đoạt thắng lợi quyết định trận đấu!",
+                });
+              }
+            }
+          }
+        }
+
+        // Dynamic strategic preparation linking Step 1 to Step 2 and Step 3
+        let prepText = "";
+        const firstRep = rep0 || variations[0];
+        if (
+          firstRep &&
+          firstRep.oppNotation?.short &&
+          firstRep.oppNotation?.short !== "Địch đi"
+        ) {
+          if (firstRep.answer && firstRep.answer.notation?.short) {
+            prepText = `Kế sách: Đón đầu nước ${firstRep.oppNotation.short} của địch để lập tức bồi đòn ${firstRep.answer.notation.short}, làm chủ thế trận.`;
+          } else {
+            prepText = `Kế sách: Khống chế biến phản ứng ${firstRep.oppNotation.short} của đối phương, đoạt tiên cơ áp đảo.`;
+          }
+        }
+
+        const planWhy = prepText ? `${desc.why} (${prepText})` : desc.why;
+
+        const planType =
+          idx === 0 ? "attack" : idx === 1 ? "defend" : "maneuver";
+        const planBadge = mateMotif
+          ? "Tuyệt Sát"
+          : idx === 0
+            ? "Tối Ưu"
+            : idx === 1
+              ? "Chắc Chắn"
+              : "Đột Phá";
+
+        const planTags =
+          line.tags && line.tags.length > 0
+            ? [...line.tags]
+            : desc.tag
+              ? [desc.tag]
+              : [];
+        if (mateMotif && !planTags.includes(mateMotif.tag)) {
+          planTags.unshift(mateMotif.tag);
+        }
+
+        plans.push({
+          id: `plan_${idx}`,
+          idx,
+          name: mateMotif
+            ? `${notation.short} · ${mateMotif.name}`
+            : `${notation.short} · ${desc.tacticName}`,
+          shortNotation: notation.short,
+          fullNotation: notation.full,
+          type: planType,
+          badge: planBadge,
+          tag: mateMotif ? mateMotif.tag : desc.tag,
+          tags: planTags,
+          why: planWhy,
+          score: line.score,
+          piece: movingPiece,
+          fromCol: line.fromCol,
+          fromRow: line.fromRow,
+          toCol: line.toCol,
+          toRow: line.toRow,
+          variations,
+          roadmap,
+        });
+      });
+
+      // Dự phòng an toàn: nếu không có dòng tính toán hoặc bị lọc hết (Kế Sách (0)),
+      // tự động chạy phân tích nhanh từ engine JS nội bộ để người chơi luôn có kế sách tối ưu.
+      if (plans.length === 0) {
+        try {
+          const fallbackRes = engine.analyze({
+            pieces,
+            side: movingColor,
+            maxDepth: 4,
+            timeMs: 120,
+            multiPV: 3,
+          });
+          if (
+            fallbackRes &&
+            fallbackRes.lines &&
+            fallbackRes.lines.length > 0
+          ) {
+            fallbackRes.lines.forEach((line) => {
+              const movingPiece = pieces.find(
+                (p) =>
+                  p.col === line.fromCol &&
+                  p.row === line.fromRow &&
+                  p.color === movingColor,
+              );
+              if (!movingPiece) return;
+              const notation = getXiangqiNotation(
+                movingPiece,
+                line.fromCol,
+                line.fromRow,
+                line.toCol,
+                line.toRow,
+                movingColor,
+              );
+              const fullNotation = notation ? notation.full : "";
+              const shortNotation = notation ? notation.short : "";
+              plans.push({
+                id: `fallback-${line.fromCol}-${line.fromRow}-${line.toCol}-${line.toRow}`,
+                name: `Triển khai ${movingPiece.name}`,
+                badge: "An Toàn",
+                fullNotation,
+                shortNotation,
+                tag: "reposition",
+                tags: ["reposition"],
+                why: `Chủ động điều động ${movingPiece.name} ổn định thế trận, củng cố phòng thủ và đón bắt thời cơ phản công.`,
+                score: line.score || 0,
+                piece: movingPiece,
+                fromCol: line.fromCol,
+                fromRow: line.fromRow,
+                toCol: line.toCol,
+                toRow: line.toRow,
+                variations: [],
+                roadmap: [
+                  {
+                    step: 1,
+                    type: "my",
+                    fromCol: line.fromCol,
+                    fromRow: line.fromRow,
+                    toCol: line.toCol,
+                    toRow: line.toRow,
+                    piece: movingPiece,
+                    notation: { short: shortNotation, full: fullNotation },
+                    shortNotation,
+                    explanation: `Triển khai ${movingPiece.name} kiểm soát vị trí trọng yếu.`,
+                    badge: "Nước Đi Khuyên Dùng",
+                  },
+                ],
+              });
+            });
+          }
+        } catch (e) {
+          console.warn("[AN Mod] Fallback plan generation error:", e);
         }
       }
-    } else if (discThreat) {
-      mateThreat = {
-        type: "defense",
-        motif: "Chiếu Rút Nguy Hiểm",
-        steps: 1,
-        title: "🚨 CẢNH BÁO ĐÒN CHIẾU RÚT!",
-        explanation: discThreat.desc,
+
+      const discThreat = detectDiscoveredCheckThreat(pieces, myColor, oppColor);
+
+      // Coach Dynamic Commentary - Structured & Pure Text (No raw emojis)
+      let commentary = {
+        type: "optimal",
+        title: "GỢI Ý TỐI ƯU",
+        move: plans[0] ? plans[0].fullNotation : null,
+        shortMove: plans[0] ? plans[0].shortNotation : null,
+        why: plans[0] ? plans[0].why : "Hãy triển khai nước cờ cẩn trọng.",
       };
-      if (plans[0]) {
-        plans[0].badge = "Hóa Giải Chiếu Rút";
-        if (!plans[0].tags.includes("emergency-defend")) {
-          plans[0].tags.unshift("emergency-defend");
+
+      if (inCheck) {
+        const escapePlan = plans[0];
+        commentary = {
+          type: "danger",
+          title: "🚨 TƯỚNG ĐANG BỊ CHIẾU! BẮT BUỘC CỨU GIÁ!",
+          move: escapePlan ? escapePlan.fullNotation : null,
+          shortMove: escapePlan ? escapePlan.shortNotation : null,
+          why: escapePlan
+            ? `Tướng đang bị đối phương chiếu! Hãy đi ngay ${escapePlan.fullNotation} để hóa giải thế chiếu an toàn.`
+            : "Tướng của bạn đang bị đối phương chiếu! Cần ưu tiên tuyệt đối hóa giải thế chiếu.",
+          badge: "CỨU GIÁ CẤP THIẾT",
+        };
+        plans.forEach((p) => {
+          p.type = "defend";
+          p.badge = "Giải Chiếu";
+        });
+      } else if (topScore <= -9000) {
+        commentary = {
+          type: "danger",
+          title: "🚨 BÁO ĐỘNG SÁT CỤC! NGUY CƠ BỊ BỨC TỬ!",
+          move: plans[0] ? plans[0].fullNotation : null,
+          shortMove: plans[0] ? plans[0].shortNotation : null,
+          why: plans[0]
+            ? `Đối phương đang giăng bẫy sát cục nguy hiểm! Nước đi duy nhất kéo dài: ${plans[0].fullNotation}.`
+            : "Đối phương đang có đòn sát cục quyết định! Hãy tập trung toàn lực phòng thủ.",
+          badge: "BÁO ĐỘNG ĐỎ",
+        };
+      } else if (discThreat) {
+        commentary = {
+          type: "danger",
+          title: "CẢNH BÁO CHIẾU RÚT",
+          move: plans[0] ? plans[0].fullNotation : null,
+          shortMove: plans[0] ? plans[0].shortNotation : null,
+          why: discThreat.desc,
+        };
+      } else if (plans[0]?.tag?.includes("Sát Cục")) {
+        commentary = {
+          type: "mate",
+          title: "ĐÒN SÁT CỤC TUYỆT KỸ",
+          move: plans[0].fullNotation,
+          shortMove: plans[0].shortNotation,
+          why: plans[0].why,
+        };
+      } else if (!isMyTurn) {
+        commentary = {
+          type: "waiting",
+          title: "LƯỢT ĐỐI THỦ ĐANG SUY NGHĨ",
+          move: null,
+          shortMove: null,
+          why: "Đối thủ đang suy nghĩ nước cờ. Hãy quan sát trận thế và giữ vững sự tập trung!",
+        };
+      } else if (plans[0]) {
+        commentary = {
+          type: "optimal",
+          title: "GỢI Ý TỐI ƯU",
+          move: plans[0].fullNotation,
+          shortMove: plans[0].shortNotation,
+          why: plans[0].why,
+        };
+      } else {
+        commentary = {
+          type: "turn",
+          title: "LƯỢT ĐI CỦA BẠN",
+          move: null,
+          shortMove: null,
+          why: "Đến lượt bạn đi. Hãy triển khai nước cờ cẩn trọng.",
+        };
+      }
+
+      const coachCommentary = commentary.move
+        ? `Khuyên dùng ${commentary.move}! ${commentary.why}`
+        : commentary.why;
+
+      // Threat description if opponent threatens material
+      let threatInfo = discThreat ? { desc: discThreat.desc } : null;
+      if (!threatInfo && searchRes.threat && searchRes.threat.gain >= 150) {
+        const thPiece = pieces.find(
+          (p) =>
+            p.col === searchRes.threat.fromCol &&
+            p.row === searchRes.threat.fromRow &&
+            p.color === oppColor,
+        );
+        const thTarget = pieces.find(
+          (p) =>
+            p.col === searchRes.threat.toCol &&
+            p.row === searchRes.threat.toRow &&
+            p.color === myColor,
+        );
+        if (thPiece && thTarget) {
+          threatInfo = {
+            desc: `${thPiece.name} địch đang dòm ngó ${thTarget.name} của bạn tại Lộ ${myColor === 0 ? 9 - thTarget.col : thTarget.col + 1}!`,
+          };
         }
       }
+
+      // Mate & Pre-Mate Threat Analysis (Offensive Climax & Defensive Danger)
+      let mateThreat = null;
+      if (
+        topScore >= 9000 ||
+        (plans[0] &&
+          plans[0].tags.some(
+            (t) =>
+              t === "iron-gate" ||
+              t === "resting-horse" ||
+              t === "horse-cannon-mate" ||
+              t === "face-king" ||
+              t === "fishing-horse" ||
+              t === "double-rook" ||
+              t === "mate-threat" ||
+              t === "Kẹp Cổ" ||
+              t === "clamp-neck",
+          )) ||
+        (plans[0] && plans[0].name && plans[0].name.includes("Khóa Tướng"))
+      ) {
+        const mateSteps = Math.max(
+          1,
+          Math.ceil((10000 - Math.min(Math.max(topScore, 9000), 9999)) / 2),
+        );
+        const motifName =
+          plans[0]?.name.split("·")[1]?.trim() ||
+          plans[0]?.name ||
+          "Sát Cục Tuyệt Kỹ";
+        mateThreat = {
+          type: "attack",
+          motif: motifName,
+          steps: mateSteps,
+          title: `THẾ TRẬN TUYỆT SÁT [${motifName}]`,
+          explanation: `Bạn đang nắm giữ thế sát [trong ${mateSteps} nước đi]! Tướng của bạn hoàn toàn an toàn, hãy đi chính xác theo gợi ý để kết liễu trận đấu!`,
+        };
+      } else if (topScore <= -300 || topScore <= -9000) {
+        const oppMateSteps =
+          topScore <= -9000
+            ? Math.max(
+                1,
+                Math.ceil((10000 - Math.min(Math.abs(topScore), 9999)) / 2),
+              )
+            : null;
+        mateThreat = {
+          type: "defense",
+          motif: "Hiểm Họa Tử Huyệt",
+          steps: oppMateSteps,
+          title: oppMateSteps
+            ? `🚨 CẢNH BÁO TỬ HUYỆT: NGUY CƠ BỊ SÁT CỤC (${oppMateSteps} NƯỚC)!`
+            : `🚨 CẢNH BÁO TỬ HUYỆT: NGUY CƠ BỊ SÁT CỤC!`,
+          explanation: `Đối thủ đang dồn dập vây hãm cửu cung. Bắt buộc phải triển khai nước cờ phòng ngự ${
+            plans[0]?.shortNotation || "cứu giá"
+          } để hóa giải đòn sát của địch!`,
+        };
+        if (plans[0]) {
+          plans[0].badge = "Cứu Mạng";
+          if (!plans[0].tags.includes("emergency-defend")) {
+            plans[0].tags.unshift("emergency-defend");
+          }
+        }
+      } else if (discThreat) {
+        mateThreat = {
+          type: "defense",
+          motif: "Chiếu Rút Nguy Hiểm",
+          steps: 1,
+          title: "🚨 CẢNH BÁO ĐÒN CHIẾU RÚT!",
+          explanation: discThreat.desc,
+        };
+        if (plans[0]) {
+          plans[0].badge = "Hóa Giải Chiếu Rút";
+          if (!plans[0].tags.includes("emergency-defend")) {
+            plans[0].tags.unshift("emergency-defend");
+          }
+        }
+      }
+
+      const currentMaxim = XIANGQI_MAXIMS[phase === "Khai Cuộc" ? 4 : 0];
+
+      return {
+        phase,
+        isMyTurn,
+        myColor,
+        oppColor,
+        pieces,
+        evalScore: searchRes.score,
+        evalPoints,
+        evalText,
+        coachCommentary,
+        commentary,
+        threatInfo,
+        mateThreat,
+        plans,
+        inCheck: inCheck,
+        depth: searchRes.depth,
+        nodes: searchRes.nodes,
+        openingName: searchRes.openingName || null,
+        evalBreakdown: searchRes.evalBreakdown || null,
+        engineName:
+          searchRes.engineName ||
+          (activeProviderId === "pikafish"
+            ? getEngineTransportStatus().type === "native-ws"
+              ? "Pikafish NNUE (Native WS: 8765)"
+              : "Pikafish 17 NNUE (Cloud)"
+            : "AN Grandmaster JS"),
+        pikafishStatus:
+          searchRes.pikafishStatus ||
+          (activeProviderId === "pikafish"
+            ? getEngineTransportStatus().type
+            : "js-engine"),
+        ttHits: searchRes.ttHits || 0,
+        maxim: currentMaxim,
+        allMaxims: XIANGQI_MAXIMS,
+        isQuickOnly: false,
+      };
+    } catch (err) {
+      console.error("[AN Mod] Fatal error in buildTacticalAnalysis:", err);
+      return null;
     }
-
-    const currentMaxim = XIANGQI_MAXIMS[phase === "Khai Cuộc" ? 4 : 0];
-
-    return {
-      phase,
-      isMyTurn,
-      myColor,
-      oppColor,
-      pieces,
-      evalScore: searchRes.score,
-      evalPoints,
-      evalText,
-      coachCommentary,
-      commentary,
-      threatInfo,
-      mateThreat,
-      plans,
-      inCheck: inCheck,
-      depth: searchRes.depth,
-      nodes: searchRes.nodes,
-      openingName: searchRes.openingName || null,
-      evalBreakdown: searchRes.evalBreakdown || null,
-      engineName:
-        searchRes.engineName ||
-        (activeProviderId === "pikafish"
-          ? getEngineTransportStatus().type === "native-ws"
-            ? "Pikafish NNUE (Native WS: 8765)"
-            : "Pikafish 17 NNUE (Cloud)"
-          : "AN Grandmaster JS"),
-      pikafishStatus:
-        searchRes.pikafishStatus ||
-        (activeProviderId === "pikafish"
-          ? getEngineTransportStatus().type
-          : "js-engine"),
-      ttHits: searchRes.ttHits || 0,
-      maxim: currentMaxim,
-      allMaxims: XIANGQI_MAXIMS,
-      isQuickOnly: false,
-    };
-  } catch (err) {
-    console.error("[AN Mod] Fatal error in buildTacticalAnalysis:", err);
-    return null;
   }
-}
 
   // Asynchronous Deep Engine Search via Dedicated Background Web Worker (Zero UI Lag)
   function triggerDeepAnalysis(gameData, pieces) {
@@ -1505,7 +1522,7 @@ import {
       window.ZigaMod.isCoUpGame &&
       gameData &&
       gameData.gameLayer &&
-      window.ZigaMod.isCoUpGame(gameData.gameLayer)
+      window.ZigaMod.isCoUpGame(gameData.gameLayer),
     );
 
     // Luôn tính toán biến cờ cho Người Chơi (myColor)
@@ -2141,11 +2158,22 @@ import {
           {/* Living Pieces */}
           {displayPieces.map((p) => {
             const pos = getSquarePos(p.col, p.row);
+            if (!pos) return null;
             const isRed = p.color === 0;
+            const isUnopened = p.unopened || p.ac === 0;
 
-            let borderStyle = isRed
-              ? "border border-red-500/80 bg-stone-100 text-red-600"
-              : "border border-zinc-700 bg-zinc-900 text-zinc-100";
+            let borderStyle = "";
+            if (isUnopened) {
+              borderStyle =
+                "border border-amber-600/70 bg-gradient-to-br from-amber-950 via-stone-900 to-amber-950 text-amber-300 shadow-md";
+            } else if (isRed) {
+              borderStyle =
+                "border border-red-500/80 bg-stone-100 text-red-600 font-serif";
+            } else {
+              borderStyle =
+                "border border-zinc-700 bg-zinc-900 text-zinc-100 font-serif";
+            }
+
             if (p.isMyMove) borderStyle += " ring-2 ring-cyan-400 z-20";
             else if (p.isOppMove) borderStyle += " ring-2 ring-rose-500 z-20";
             else if (p.isFollowUpMove)
@@ -2165,8 +2193,10 @@ import {
                   boxShadow: "0 2px 4px rgba(0,0,0,0.5)",
                 }}
               >
-                <span className="font-serif text-[11px] leading-none select-none">
-                  {p.char}
+                <span
+                  className={`leading-none select-none ${isUnopened ? "font-sans text-[9px] font-black tracking-tighter text-amber-300" : "font-serif text-[11px]"}`}
+                >
+                  {isUnopened ? "ÚP" : p.char}
                 </span>
               </div>
             );
@@ -2174,72 +2204,115 @@ import {
         </div>
 
         {/* Stepper Buttons (6 buttons to walk through the active 5-step line) */}
-        <div className="grid grid-cols-6 gap-0.5 pt-0.5">
+        <div className="grid grid-cols-6 gap-1 pt-0.5">
           <Button
-            variant={activeStep === 0 ? "secondary" : "ghost"}
+            variant="ghost"
             size="xs"
-            className="h-5.5 px-0.5 text-[8px] font-semibold"
+            className={cn(
+              "flex h-6 items-center justify-center gap-0.5 rounded-md border px-1 text-[9px] font-medium transition-all",
+              activeStep === 0
+                ? "border-cyan-400/60 bg-cyan-500/20 font-bold text-cyan-300 shadow-xs"
+                : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white",
+            )}
             onClick={() => setActiveStep(0)}
             title="Xem thế cờ thực tế hiện tại"
           >
-            <RotateCcw className="size-2" />
+            <RotateCcw className="size-2.5 shrink-0" />
             <span>Ván thật</span>
           </Button>
           <Button
-            variant={activeStep === 1 ? "secondary" : "ghost"}
+            variant="ghost"
             size="xs"
             disabled={!activePlan}
-            className="h-5.5 px-0.5 text-[8px] font-semibold"
+            className={cn(
+              "flex h-6 items-center justify-center gap-0.5 rounded-md border px-1 text-[9px] font-medium transition-all",
+              activeStep === 1
+                ? "border-cyan-400/60 bg-cyan-500/20 font-bold text-cyan-300 shadow-xs"
+                : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white",
+              !activePlan &&
+                "cursor-not-allowed border-white/5 bg-transparent opacity-30",
+            )}
             onClick={() => setActiveStep(1)}
             title="1. Ta đi: Nước cờ tối ưu đề xuất"
           >
-            <Play className="size-2 text-cyan-400" />
+            <Play className="size-2.5 shrink-0 text-cyan-400" />
             <span>1. Ta</span>
           </Button>
           <Button
-            variant={activeStep === 2 ? "secondary" : "ghost"}
+            variant="ghost"
             size="xs"
             disabled={!activeVariation || activeVariation.fromCol == null}
-            className="h-5.5 px-0.5 text-[8px] font-semibold"
+            className={cn(
+              "flex h-6 items-center justify-center gap-0.5 rounded-md border px-1 text-[9px] font-medium transition-all",
+              activeStep === 2
+                ? "border-rose-400/60 bg-rose-500/20 font-bold text-rose-300 shadow-xs"
+                : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white",
+              (!activeVariation || activeVariation.fromCol == null) &&
+                "cursor-not-allowed border-white/5 bg-transparent opacity-30",
+            )}
             onClick={() => setActiveStep(2)}
             title="2. Địch: Nước phản ứng dự kiến của đối phương"
           >
-            <Swords className="size-2 text-rose-400" />
+            <Swords className="size-2.5 shrink-0 text-rose-400" />
             <span>2. Địch</span>
           </Button>
           <Button
-            variant={activeStep === 3 ? "secondary" : "ghost"}
+            variant="ghost"
             size="xs"
             disabled={
               !activeVariation?.answer || activeVariation.answer.fromCol == null
             }
-            className="h-5.5 px-0.5 text-[8px] font-semibold"
+            className={cn(
+              "flex h-6 items-center justify-center gap-0.5 rounded-md border px-1 text-[9px] font-medium transition-all",
+              activeStep === 3
+                ? "border-amber-400/60 bg-amber-500/20 font-bold text-amber-300 shadow-xs"
+                : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white",
+              (!activeVariation?.answer ||
+                activeVariation.answer.fromCol == null) &&
+                "cursor-not-allowed border-white/5 bg-transparent opacity-30",
+            )}
             onClick={() => setActiveStep(3)}
             title="3. Ta bồi: Nước bồi đòn khai thác sơ hở"
           >
-            <Sparkles className="size-2 text-amber-400" />
+            <Sparkles className="size-2.5 shrink-0 text-amber-400" />
             <span>3. Bồi</span>
           </Button>
           <Button
-            variant={activeStep === 4 ? "secondary" : "ghost"}
+            variant="ghost"
             size="xs"
             disabled={!activeVariation?.step4 && !activePlan?.roadmap?.[3]}
-            className="h-5.5 px-0.5 text-[8px] font-semibold"
+            className={cn(
+              "flex h-6 items-center justify-center gap-0.5 rounded-md border px-1 text-[9px] font-medium transition-all",
+              activeStep === 4
+                ? "border-orange-400/60 bg-orange-500/20 font-bold text-orange-300 shadow-xs"
+                : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white",
+              !activeVariation?.step4 &&
+                !activePlan?.roadmap?.[3] &&
+                "cursor-not-allowed border-white/5 bg-transparent opacity-30",
+            )}
             onClick={() => setActiveStep(4)}
             title="4. Địch đỡ: Đối phương xoay sở chống đỡ"
           >
-            <Shield className="size-2 text-orange-400" />
+            <Shield className="size-2.5 shrink-0 text-orange-400" />
             <span>4. Đỡ</span>
           </Button>
           <Button
-            variant={activeStep === 5 ? "secondary" : "ghost"}
+            variant="ghost"
             size="xs"
             disabled={!activeVariation?.step5 && !activePlan?.roadmap?.[4]}
-            className="h-5.5 px-0.5 text-[8px] font-semibold"
+            className={cn(
+              "flex h-6 items-center justify-center gap-0.5 rounded-md border px-1 text-[9px] font-medium transition-all",
+              activeStep === 5
+                ? "border-emerald-400/60 bg-emerald-500/20 font-bold text-emerald-300 shadow-xs"
+                : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white",
+              !activeVariation?.step5 &&
+                !activePlan?.roadmap?.[4] &&
+                "cursor-not-allowed border-white/5 bg-transparent opacity-30",
+            )}
             onClick={() => setActiveStep(5)}
             title="5. Dứt điểm: Nước đoạt ưu thế hoặc sát cục"
           >
-            <Trophy className="size-2 text-emerald-400" />
+            <Trophy className="size-2.5 shrink-0 text-emerald-400" />
             <span>5. Sát</span>
           </Button>
         </div>

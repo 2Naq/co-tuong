@@ -284,7 +284,39 @@ async function buildCss() {
   );
 }
 
+function updateManifestVersion() {
+  const manifestPath = path.join(rootDir, 'manifest.json');
+  if (!fs.existsSync(manifestPath)) return null;
+
+  try {
+    const raw = fs.readFileSync(manifestPath, 'utf8');
+    const manifest = JSON.parse(raw);
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const yyyy = now.getFullYear();
+    const MM = pad(now.getMonth() + 1);
+    const dd = pad(now.getDate());
+    const hh = pad(now.getHours());
+    const mm = pad(now.getMinutes());
+    const timestampStr = `${yyyy}${MM}${dd}${hh}${mm}`;
+
+    const baseVer = '0.0.3';
+    const fullVersionName = `${baseVer}.${timestampStr}`;
+    const minuteOfDay = now.getHours() * 60 + now.getMinutes();
+    manifest.version = `${baseVer}.${minuteOfDay}`;
+    manifest.version_name = fullVersionName;
+
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
+    console.log(`[Build Version] 🔖 Auto-generated version: ${fullVersionName} (manifest: ${manifest.version})`);
+    return fullVersionName;
+  } catch (err) {
+    console.warn('[Build Version] Could not update manifest.json version:', err.message);
+    return null;
+  }
+}
+
 async function buildJs() {
+  updateManifestVersion();
   if (!fs.existsSync(distDir)) {
     fs.mkdirSync(distDir, { recursive: true });
   }
@@ -364,14 +396,6 @@ async function main() {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(triggerRebuild, 150);
     });
-
-    const manifestPath = path.join(rootDir, 'manifest.json');
-    if (fs.existsSync(manifestPath)) {
-      fs.watch(manifestPath, () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(triggerRebuild, 150);
-      });
-    }
   }
 }
 

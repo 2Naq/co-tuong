@@ -75,7 +75,16 @@
     for (let i = 0; i < gameLayer.V.length; i++) {
       const p = gameLayer.V[i];
       if (!p || p.pa) continue;
-      const type = p.Ga !== undefined ? p.Ga : 6;
+      const type =
+        typeof ZigaMod.resolvePieceType === "function"
+          ? ZigaMod.resolvePieceType(p, i)
+          : p.Ha !== undefined
+            ? p.Ha
+            : p.Ga !== undefined
+              ? p.Ga
+              : i === 0 || i === 16
+                ? 0
+                : 6;
       const color = p.ka !== undefined ? p.ka : Math.floor(i / 16);
       if (type === 0) {
         if (color === 0) redKingSprite = p;
@@ -109,22 +118,22 @@
     }
 
     // 3. Quyết định phe người chơi (0: Đỏ, 1: Đen) với trật tự ưu tiên chuẩn xác tuyệt đối:
-    // Ưu tiên 1: gameLayer.Nj - biến chính thức của Cocos2d engine chỉ định màu quân của người chơi cục bộ (0: Đỏ, 1: Đen).
-    if (!isSpectator && gameLayer.Nj !== undefined && (gameLayer.Nj === 0 || gameLayer.Nj === 1)) {
-      myColor = gameLayer.Nj;
-    }
-    // Ưu tiên 2: Vị trí thực tế của Tướng ở nửa dưới màn hình (người chơi trên Ziga luôn có Tướng ở nửa dưới bàn cờ)
-    else if (!isSpectator && bottomKingColor !== null) {
-      myColor = bottomKingColor;
-    }
-    // Ưu tiên 3: myPlayer.ka từ BkLogicManager
-    else if (
+    // Ưu tiên 1: myPlayer.ka từ BkLogicManager - màu quân chính thức server cấp cho người chơi (0: Đỏ, 1: Đen).
+    if (
       !isSpectator &&
       myPlayer &&
       myPlayer.ka !== undefined &&
       (myPlayer.ka === 0 || myPlayer.ka === 1)
     ) {
       myColor = myPlayer.ka;
+    }
+    // Ưu tiên 2: Vị trí thực tế của Tướng ở nửa dưới màn hình (người chơi trên Ziga luôn có Tướng ở nửa dưới bàn cờ)
+    else if (!isSpectator && bottomKingColor !== null) {
+      myColor = bottomKingColor;
+    }
+    // Ưu tiên 3: gameLayer.hc (cờ đảo): trên Ziga nếu hc == true thì người chơi cầm Đen (1), ngược lại là Đỏ (0)
+    else if (!isSpectator && gameLayer.hc !== undefined) {
+      myColor = gameLayer.hc ? 1 : 0;
     }
     // Ưu tiên 4: Dành cho chế độ khán giả (Spectator)
     else if (bottomKingColor !== null) {
@@ -154,7 +163,16 @@
 
       const isDead = !!p.pa;
       const color = p.ka !== undefined ? p.ka : Math.floor(i / 16);
-      const type = p.Ga !== undefined ? p.Ga : 6;
+      const type =
+        typeof ZigaMod.resolvePieceType === "function"
+          ? ZigaMod.resolvePieceType(p, i)
+          : p.Ha !== undefined
+            ? p.Ha
+            : p.Ga !== undefined
+              ? p.Ga
+              : i === 0 || i === 16
+                ? 0
+                : 6;
 
       const item = {
         index: i,

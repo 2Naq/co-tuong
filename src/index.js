@@ -1,11 +1,11 @@
 // src/index.js - Unified React + Tailwind + shadcn/ui Entry Point for Ziga Xiangqi Mod
 import "./core/constants.js";
 import "./core/storage.js";
+import "./core/engine_hook.js";
 import "./lib/scroll_lock.js";
 import "./features/threat_scanner.js";
 import "./features/coup_tracker.js";
 import "./features/tactical_sandbox.js";
-import "./core/engine_hook.js";
 import "./aura/aura_presets.js";
 import "./aura/board_aura.js";
 import "./ui/settings_modal.js";

@@ -742,7 +742,16 @@
           index: i,
           col: p.fa,
           row: p.rowIndex,
-          type: p.Ga !== undefined ? p.Ga : 6,
+          type:
+            typeof ZigaMod.resolvePieceType === "function"
+              ? ZigaMod.resolvePieceType(p, i)
+              : p.Ha !== undefined
+                ? p.Ha
+                : p.Ga !== undefined
+                  ? p.Ga
+                  : i === 0 || i === 16
+                    ? 0
+                    : 6,
           color: p.ka !== undefined ? p.ka : Math.floor(i / 16),
           sprite: p,
         });

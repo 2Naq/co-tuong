@@ -61,6 +61,60 @@ export const PIECE_DEFS = {
   },
 };
 
+// Canonical Ziga initial piece layout (from Ziga TYPE_VALUE in gamelogic.min.js):
+// Index 0: Tướng (0), 1..2: Sĩ (1), 3..4: Tượng (2), 5..6: Xe (3), 7..8: Pháo (4), 9..10: Mã (5), 11..15: Tốt (6)
+// Index 16: Tướng (0), 17..18: Sĩ (1), 19..20: Tượng (2), 21..22: Xe (3), 23..24: Pháo (4), 25..26: Mã (5), 27..31: Tốt (6)
+export const DEFAULT_INITIAL_PIECE_TYPES = [
+  0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6, 6,
+];
+
+/**
+ * Bulletproof piece type resolver.
+ * Handles Ziga ver=141 (p.Ha), legacy Ziga (p.Ga), Cờ Úp (unopened pieces or masked types),
+ * and guarantees Kings (Tướng) at index 0/16 or col 4, row 0/9 are NEVER lost as Pawns.
+ */
+export function resolvePieceType(p, index) {
+  if (!p && index === undefined) return 6;
+  const idx =
+    p && p.index !== undefined ? p.index : index !== undefined ? index : -1;
+  const isKingIndex = idx === 0 || idx === 16;
+  const isKingPos = p && p.fa === 4 && (p.rowIndex === 0 || p.rowIndex === 9);
+
+  // 1. In Cờ Úp / Replay, .ed is the real piece type!
+  if (p && p.ed !== undefined && p.ed !== null) {
+    if ((isKingIndex || isKingPos) && p.ed === 6) return 0;
+    return p.ed;
+  }
+
+  // 2. Ziga ver=141 official obfuscated property for piece type is .Ha!
+  if (p && p.Ha !== undefined && p.Ha !== null) {
+    if ((isKingIndex || isKingPos) && p.Ha === 6) return 0;
+    return p.Ha;
+  }
+
+  // 3. Legacy Ziga obfuscated property was .Ga
+  if (p && p.Ga !== undefined && p.Ga !== null) {
+    if ((isKingIndex || isKingPos) && p.Ga === 6) return 0;
+    return p.Ga;
+  }
+
+  // 4. Wrapped / standard object property .type
+  if (p && p.type !== undefined && p.type !== null) {
+    if ((isKingIndex || isKingPos) && p.type === 6) return 0;
+    return p.type;
+  }
+
+  // 4. Guaranteed King position / index
+  if (isKingIndex || isKingPos) return 0;
+
+  // 5. Canonical Ziga initial piece slot type fallback
+  if (idx >= 0 && idx < 32) {
+    return DEFAULT_INITIAL_PIECE_TYPES[idx % 16];
+  }
+
+  return 6;
+}
+
 export const DISPLAY_ORDER = [3, 4, 5, 6, 1, 2, 0];
 
 // Default Settings configuration
@@ -296,4 +350,6 @@ if (typeof window !== "undefined") {
   ZigaMod.AURA_THEMES = AURA_THEMES;
   ZigaMod.AURA_ANIMATIONS = AURA_ANIMATIONS;
   ZigaMod.formatXiangqiCoord = formatXiangqiCoord;
+  ZigaMod.DEFAULT_INITIAL_PIECE_TYPES = DEFAULT_INITIAL_PIECE_TYPES;
+  ZigaMod.resolvePieceType = resolvePieceType;
 }

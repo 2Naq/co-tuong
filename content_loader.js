@@ -13,8 +13,9 @@
       chrome.runtime.getURL("icons/favicon.svg");
     document.documentElement.dataset.zigaExtensionUrl =
       chrome.runtime.getURL("");
+    const manifest = chrome.runtime.getManifest();
     document.documentElement.dataset.zigaVersion =
-      chrome.runtime.getManifest().version;
+      manifest.version_name || manifest.version;
   } catch (e) {}
 
   // Inject CSS (Base Overlay + Compiled Tailwind/shadcn utilities)

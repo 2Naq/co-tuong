@@ -131,27 +131,47 @@
       if (!p || p.pa || p.ka !== activeColor) continue;
 
       const attackerIdx = i;
-      const pieceHelper = gameLayer.hq ? gameLayer.hq(attackerIdx) : null;
+      const pieceHelper =
+        typeof ZigaMod.getPieceHelper === "function"
+          ? ZigaMod.getPieceHelper(gameLayer, attackerIdx)
+          : gameLayer.fq
+            ? gameLayer.fq(attackerIdx)
+            : gameLayer.hq
+              ? gameLayer.hq(attackerIdx)
+              : null;
       if (!pieceHelper) continue;
 
       const boardGrid = Array(9);
       for (let c = 0; 10 > c; c++) boardGrid[c] = Array(10);
-      if (gameLayer.ZC) gameLayer.ZC(boardGrid);
+      if (typeof ZigaMod.generateBoardMatrix === "function") {
+        ZigaMod.generateBoardMatrix(gameLayer, boardGrid);
+      } else if (gameLayer.fD) {
+        gameLayer.fD(boardGrid);
+      } else if (gameLayer.ZC) {
+        gameLayer.ZC(boardGrid);
+      }
 
       for (let e = 0; 90 > e; e++) {
-        if (
-          gameLayer.IM &&
-          gameLayer.IM(pieceHelper, attackerIdx, e, boardGrid)
-        ) {
+        const canMove =
+          typeof ZigaMod.isMovePatternValid === "function"
+            ? ZigaMod.isMovePatternValid(gameLayer, pieceHelper, attackerIdx, e, boardGrid)
+            : typeof gameLayer.PM === "function"
+              ? gameLayer.PM(pieceHelper, attackerIdx, e, boardGrid)
+              : typeof gameLayer.IM === "function"
+                ? gameLayer.IM(pieceHelper, attackerIdx, e, boardGrid)
+                : false;
+
+        if (canMove) {
           const tc = e % 9;
           const tr = Math.floor(e / 9);
 
-          // Check if valid destination
+          // Check if valid destination (not blocked by king-facing-king and not king in check)
           const isBlocked =
-            (gameLayer.BM &&
-              gameLayer.BM(pieceHelper, attackerIdx, tc, tr, boardGrid)) ||
-            (gameLayer.DM &&
-              gameLayer.DM(0, pieceHelper, attackerIdx, tc, tr, boardGrid));
+            typeof ZigaMod.isKingFacingKing === "function"
+              ? ZigaMod.isKingFacingKing(gameLayer, pieceHelper, attackerIdx, tc, tr, boardGrid) ||
+                ZigaMod.isKingCheckedAfterMove(gameLayer, pieceHelper, attackerIdx, tc, tr, boardGrid)
+              : (gameLayer.BM && gameLayer.BM(pieceHelper, attackerIdx, tc, tr, boardGrid)) ||
+                (gameLayer.DM && gameLayer.DM(0, pieceHelper, attackerIdx, tc, tr, boardGrid));
           if (!isBlocked) {
             // Find target piece if any
             let capturedVal = 0;
@@ -165,15 +185,32 @@
                 tp.fa === tc &&
                 tp.rowIndex === tr
               ) {
-                capturedVal = PIECE_BASE_VALUES[tp.Ga] || 0;
-                capturedType = tp.Ga;
+                const cType =
+                  typeof ZigaMod.resolvePieceType === "function"
+                    ? ZigaMod.resolvePieceType(tp, k)
+                    : tp.Ha !== undefined
+                      ? tp.Ha
+                      : tp.Ga !== undefined
+                        ? tp.Ga
+                        : 6;
+                capturedVal = PIECE_BASE_VALUES[cType] || 0;
+                capturedType = cType;
                 break;
               }
             }
 
-            const attackerVal = PIECE_BASE_VALUES[p.Ga] || 0;
+            const aType =
+              typeof ZigaMod.resolvePieceType === "function"
+                ? ZigaMod.resolvePieceType(p, attackerIdx)
+                : p.Ha !== undefined
+                  ? p.Ha
+                  : p.Ga !== undefined
+                    ? p.Ga
+                    : 6;
+            const attackerVal = PIECE_BASE_VALUES[aType] || 0;
             // MVV-LVA: Điểm ăn quân có cân nhắc giá trị quân ăn
-            const moveScore = capturedVal > 0 ? (capturedVal * 10 - attackerVal) : 0;
+            const moveScore =
+              capturedVal > 0 ? capturedVal * 10 - attackerVal : 0;
             candidateMoves.push({
               pieceIndex: attackerIdx,
               fromCol: p.fa,
@@ -302,10 +339,19 @@
     lastEvalHash = currentHash;
 
     // Calculate score
-    const pieces = gameData.gameLayer.V.map((p) => ({
+    const pieces = gameData.gameLayer.V.map((p, idx) => ({
       col: p.fa,
       row: p.rowIndex,
-      type: p.Ga,
+      type:
+        typeof ZigaMod.resolvePieceType === "function"
+          ? ZigaMod.resolvePieceType(p, idx)
+          : p.Ha !== undefined
+            ? p.Ha
+            : p.Ga !== undefined
+              ? p.Ga
+              : idx === 0 || idx === 16
+                ? 0
+                : 6,
       color: p.ka,
       dead: !!p.pa,
     }));
