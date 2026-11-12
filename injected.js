@@ -15917,6 +15917,9 @@
       if (!gameLayer) return false;
       if (window.BkCoUpGameLayer && gameLayer instanceof window.BkCoUpGameLayer)
         return true;
+      if (typeof window !== "undefined" && window.BkGlobal && typeof window.L !== "undefined" && window.BkGlobal.ia === window.L) {
+        return true;
+      }
       if (gameLayer.V && Array.isArray(gameLayer.V)) {
         return gameLayer.V.some((p) => p && p.ac === 0);
       }
@@ -44392,16 +44395,25 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     function announceThreatKing() {
       speakVietnamese("Nguy hi\u1EC3m! C\u1EA3nh b\xE1o s\xE1t cu\u1ED9c!", true);
     }
-    function updateTimerAlerts(gameLayer) {
+    function updateTimerAlerts(gameLayer, myColor) {
       const userSettings = ZigaMod.userSettings || {};
       if (userSettings.timerAlertVoice === false) return;
       if (!gameLayer || !gameLayer.T) return;
       try {
-        const timerObj = gameLayer.T();
-        if (!timerObj || timerObj.Fb !== 2) return;
-        const isMyTurn = gameLayer.Yc === gameLayer.Nj;
+        const table = gameLayer.T();
+        if (!table || table.Fb !== 2) return;
+        const playerColor = myColor !== void 0 ? myColor : gameLayer.hc ? 1 : 0;
+        const isMyTurn = gameLayer.Yc === playerColor;
         if (!isMyTurn) return;
-        const remainSeconds = Math.floor(timerObj.mc || 0);
+        let remainSeconds = 0;
+        if (gameLayer.gc && gameLayer.gc.tb && typeof gameLayer.gc.tb.hC === "number") {
+          remainSeconds = Math.max(
+            0,
+            gameLayer.gc.tb.hC - (gameLayer.gc.tb.zg || 0)
+          );
+        } else if (table.mc) {
+          remainSeconds = Math.floor(table.mc);
+        }
         if (remainSeconds > 5 && remainSeconds <= 15) {
           if (remainSeconds !== lastAnnouncedSecond) {
             lastAnnouncedSecond = remainSeconds;
@@ -51052,8 +51064,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
   var manifest_default = {
     manifest_version: 3,
     name: "C\xF4ng c\u1EE5 C\u1EDD T\u01B0\u1EDBng",
-    version: "0.0.3.203",
-    version_name: "0.0.3.202611130323",
+    version: "0.0.3.360",
+    version_name: "0.0.3.202611130600",
     description: "Hi\u1EC3n th\u1ECB qu\xE2n \u0111\xE3 b\u1ECB \u0103n & highlight t\u1EA7m \u0111\xE1nh",
     icons: {
       "16": "icons/icon16.png",
@@ -54285,7 +54297,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         ZigaMod.updateOpeningUi(ZigaMod.moveHistory);
       }
       if (ZigaMod.updateTimerAlerts) {
-        ZigaMod.updateTimerAlerts(data.gameLayer);
+        ZigaMod.updateTimerAlerts(data.gameLayer, data.myColor);
       }
       if (ZigaMod.updateEvalBar) {
         ZigaMod.updateEvalBar(data);

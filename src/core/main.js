@@ -424,7 +424,7 @@
 
     // Voice Announcer & Match Countdown Alert
     if (ZigaMod.updateTimerAlerts) {
-      ZigaMod.updateTimerAlerts(data.gameLayer);
+      ZigaMod.updateTimerAlerts(data.gameLayer, data.myColor);
     }
 
     // Real-time AI Evaluation Bar & Best Move

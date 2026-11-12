@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Công cụ Cờ Tướng",
-  "version": "0.0.3.203",
-  "version_name": "0.0.3.202611130323",
+  "version": "0.0.3.360",
+  "version_name": "0.0.3.202611130600",
   "description": "Hiển thị quân đã bị ăn & highlight tầm đánh",
   "icons": {
     "16": "icons/icon16.png",

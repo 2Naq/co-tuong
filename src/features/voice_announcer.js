@@ -165,20 +165,34 @@
   }
 
   // Check and run timer countdown alert
-  function updateTimerAlerts(gameLayer) {
+  function updateTimerAlerts(gameLayer, myColor) {
     const userSettings = ZigaMod.userSettings || {};
     if (userSettings.timerAlertVoice === false) return;
 
     if (!gameLayer || !gameLayer.T) return;
 
     try {
-      const timerObj = gameLayer.T();
-      if (!timerObj || timerObj.Fb !== 2) return; // Only active during in-turn state
+      const table = gameLayer.T();
+      if (!table || table.Fb !== 2) return; // Only active during in-turn state
 
-      const isMyTurn = gameLayer.Yc === gameLayer.Nj;
+      const playerColor =
+        myColor !== undefined ? myColor : gameLayer.hc ? 1 : 0;
+      const isMyTurn = gameLayer.Yc === playerColor;
       if (!isMyTurn) return; // Only alert for player's turn
 
-      const remainSeconds = Math.floor(timerObj.mc || 0);
+      let remainSeconds = 0;
+      if (
+        gameLayer.gc &&
+        gameLayer.gc.tb &&
+        typeof gameLayer.gc.tb.hC === "number"
+      ) {
+        remainSeconds = Math.max(
+          0,
+          gameLayer.gc.tb.hC - (gameLayer.gc.tb.zg || 0),
+        );
+      } else if (table.mc) {
+        remainSeconds = Math.floor(table.mc);
+      }
 
       // Heartbeat between 6 and 15 seconds
       if (remainSeconds > 5 && remainSeconds <= 15) {

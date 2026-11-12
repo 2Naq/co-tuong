@@ -7,6 +7,14 @@
     // Check if layer is BkCoUpGameLayer or has face-down pieces (ac === 0)
     if (window.BkCoUpGameLayer && gameLayer instanceof window.BkCoUpGameLayer)
       return true;
+    if (
+      typeof window !== "undefined" &&
+      window.BkGlobal &&
+      typeof window.L !== "undefined" &&
+      window.BkGlobal.ia === window.L
+    ) {
+      return true;
+    }
     if (gameLayer.V && Array.isArray(gameLayer.V)) {
       return gameLayer.V.some((p) => p && p.ac === 0);
     }
