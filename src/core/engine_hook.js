@@ -314,6 +314,30 @@
     if (typeof ZigaMod.updateTacticalHud === "function") {
       ZigaMod.updateTacticalHud(attacker, capturableList);
     }
+
+    // Guarantee rotating selection indicator (this.ij) is ALWAYS visible and actively rotating
+    if (gl && gl.ij && gl.V && gl.V[pieceIndex]) {
+      gl.ij.setVisible(true);
+      if (typeof gl.ij.setLocalZOrder === "function") {
+        gl.ij.setLocalZOrder(34);
+      }
+      gl.ij.setPosition(
+        gl.Pb(gl.V[pieceIndex].fa),
+        gl.Qb(gl.V[pieceIndex].rowIndex) + 1,
+      );
+      if (typeof cc !== "undefined" && typeof cc.rotateBy === "function") {
+        if (
+          !gl.ij.getNumberOfRunningActions ||
+          gl.ij.getNumberOfRunningActions() === 0
+        ) {
+          const rot = cc.rotateBy(2, 360).repeatForever();
+          gl.Hr = rot;
+          gl.Fr = rot;
+          gl.ij.stopAllActions();
+          gl.ij.runAction(rot);
+        }
+      }
+    }
   }
 
   // =========================================================================
@@ -382,6 +406,38 @@
     // Initialize board row numbers (1-10 on left and right wooden rims)
     setupRowNumbers(gameLayer);
 
+    // 0. HOOK XR (v141 selection indicator placement & rotation)
+    const origXR = typeof gameLayer.XR === "function" ? gameLayer.XR : null;
+    gameLayer.XR = function (pieceIndex) {
+      if (origXR) {
+        origXR.call(this, pieceIndex);
+      }
+      this.me = pieceIndex;
+      this.le = pieceIndex;
+      if (this.ij && this.V && this.V[pieceIndex]) {
+        this.ij.setVisible(true);
+        if (typeof this.ij.setLocalZOrder === "function") {
+          this.ij.setLocalZOrder(34);
+        }
+        this.ij.setPosition(
+          this.Pb(this.V[pieceIndex].fa),
+          this.Qb(this.V[pieceIndex].rowIndex) + 1,
+        );
+        if (typeof cc !== "undefined" && typeof cc.rotateBy === "function") {
+          if (
+            !this.ij.getNumberOfRunningActions ||
+            this.ij.getNumberOfRunningActions() === 0
+          ) {
+            const rot = cc.rotateBy(2, 360).repeatForever();
+            this.Hr = rot;
+            this.Fr = rot;
+            this.ij.stopAllActions();
+            this.ij.runAction(rot);
+          }
+        }
+      }
+    };
+
     // 1. OVERRIDE vT (v141) and nT (legacy)
     gameLayer.vT = function (pieceIndex) {
       customHighlightMoves(this, pieceIndex);
@@ -400,14 +456,7 @@
 
     // 3. OVERRIDE cp (v141) and fp (legacy)
     const unselectHandler = function () {
-      const selected =
-        this.me !== undefined && this.me >= 0
-          ? this.me
-          : this.le !== undefined && this.le >= 0
-            ? this.le
-            : -1;
-
-      if (selected >= 0 && this.ij) {
+      if (this.ij) {
         this.ij.setPosition(-100, -100);
         if (this.Hr) this.ij.stopAction(this.Hr);
         if (this.Fr) this.ij.stopAction(this.Fr);
@@ -468,6 +517,10 @@
             this.le = clickedIdx;
 
             if (this.ij) {
+              this.ij.setVisible(true);
+              if (typeof this.ij.setLocalZOrder === "function") {
+                this.ij.setLocalZOrder(34);
+              }
               this.ij.setPosition(
                 this.Pb(clickedPiece.fa),
                 this.Qb(clickedPiece.rowIndex) + 1,
@@ -482,7 +535,6 @@
                 this.Fr = rot;
                 this.ij.runAction(rot);
               }
-              this.ij.setVisible(true);
             }
 
             customHighlightMoves(this, clickedIdx);
@@ -493,6 +545,36 @@
         // C. Clicked own piece on my turn -> default selection behavior (calls XR -> vT/nT)
         if (origNU) origNU.call(this, touchX, touchY);
         else if (origFU) origFU.call(this, touchX, touchY);
+
+        // After calling native touch handler, verify selection ring is visible if a piece was selected
+        const newSelected =
+          this.me !== undefined && this.me >= 0
+            ? this.me
+            : this.le !== undefined && this.le >= 0
+              ? this.le
+              : -1;
+        if (newSelected >= 0 && this.ij && this.V && this.V[newSelected]) {
+          this.ij.setVisible(true);
+          if (typeof this.ij.setLocalZOrder === "function") {
+            this.ij.setLocalZOrder(34);
+          }
+          this.ij.setPosition(
+            this.Pb(this.V[newSelected].fa),
+            this.Qb(this.V[newSelected].rowIndex) + 1,
+          );
+          if (typeof cc !== "undefined" && typeof cc.rotateBy === "function") {
+            if (
+              !this.ij.getNumberOfRunningActions ||
+              this.ij.getNumberOfRunningActions() === 0
+            ) {
+              const rot = cc.rotateBy(2, 360).repeatForever();
+              this.Hr = rot;
+              this.Fr = rot;
+              this.ij.stopAllActions();
+              this.ij.runAction(rot);
+            }
+          }
+        }
         return;
       }
 

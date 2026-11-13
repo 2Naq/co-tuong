@@ -15461,6 +15461,25 @@
       if (typeof ZigaMod.updateTacticalHud === "function") {
         ZigaMod.updateTacticalHud(attacker, capturableList);
       }
+      if (gl && gl.ij && gl.V && gl.V[pieceIndex]) {
+        gl.ij.setVisible(true);
+        if (typeof gl.ij.setLocalZOrder === "function") {
+          gl.ij.setLocalZOrder(34);
+        }
+        gl.ij.setPosition(
+          gl.Pb(gl.V[pieceIndex].fa),
+          gl.Qb(gl.V[pieceIndex].rowIndex) + 1
+        );
+        if (typeof cc !== "undefined" && typeof cc.rotateBy === "function") {
+          if (!gl.ij.getNumberOfRunningActions || gl.ij.getNumberOfRunningActions() === 0) {
+            const rot = cc.rotateBy(2, 360).repeatForever();
+            gl.Hr = rot;
+            gl.Fr = rot;
+            gl.ij.stopAllActions();
+            gl.ij.runAction(rot);
+          }
+        }
+      }
     }
     function clearHighlights(gl) {
       if (!gl) return;
@@ -15504,6 +15523,33 @@
         }
       }
       setupRowNumbers(gameLayer);
+      const origXR = typeof gameLayer.XR === "function" ? gameLayer.XR : null;
+      gameLayer.XR = function(pieceIndex) {
+        if (origXR) {
+          origXR.call(this, pieceIndex);
+        }
+        this.me = pieceIndex;
+        this.le = pieceIndex;
+        if (this.ij && this.V && this.V[pieceIndex]) {
+          this.ij.setVisible(true);
+          if (typeof this.ij.setLocalZOrder === "function") {
+            this.ij.setLocalZOrder(34);
+          }
+          this.ij.setPosition(
+            this.Pb(this.V[pieceIndex].fa),
+            this.Qb(this.V[pieceIndex].rowIndex) + 1
+          );
+          if (typeof cc !== "undefined" && typeof cc.rotateBy === "function") {
+            if (!this.ij.getNumberOfRunningActions || this.ij.getNumberOfRunningActions() === 0) {
+              const rot = cc.rotateBy(2, 360).repeatForever();
+              this.Hr = rot;
+              this.Fr = rot;
+              this.ij.stopAllActions();
+              this.ij.runAction(rot);
+            }
+          }
+        }
+      };
       gameLayer.vT = function(pieceIndex) {
         customHighlightMoves(this, pieceIndex);
       };
@@ -15517,8 +15563,7 @@
         clearHighlights(this);
       };
       const unselectHandler = function() {
-        const selected = this.me !== void 0 && this.me >= 0 ? this.me : this.le !== void 0 && this.le >= 0 ? this.le : -1;
-        if (selected >= 0 && this.ij) {
+        if (this.ij) {
           this.ij.setPosition(-100, -100);
           if (this.Hr) this.ij.stopAction(this.Hr);
           if (this.Fr) this.ij.stopAction(this.Fr);
@@ -15557,6 +15602,10 @@
               this.me = clickedIdx;
               this.le = clickedIdx;
               if (this.ij) {
+                this.ij.setVisible(true);
+                if (typeof this.ij.setLocalZOrder === "function") {
+                  this.ij.setLocalZOrder(34);
+                }
                 this.ij.setPosition(
                   this.Pb(clickedPiece.fa),
                   this.Qb(clickedPiece.rowIndex) + 1
@@ -15568,7 +15617,6 @@
                   this.Fr = rot;
                   this.ij.runAction(rot);
                 }
-                this.ij.setVisible(true);
               }
               customHighlightMoves(this, clickedIdx);
             }
@@ -15576,6 +15624,26 @@
           }
           if (origNU) origNU.call(this, touchX, touchY);
           else if (origFU) origFU.call(this, touchX, touchY);
+          const newSelected = this.me !== void 0 && this.me >= 0 ? this.me : this.le !== void 0 && this.le >= 0 ? this.le : -1;
+          if (newSelected >= 0 && this.ij && this.V && this.V[newSelected]) {
+            this.ij.setVisible(true);
+            if (typeof this.ij.setLocalZOrder === "function") {
+              this.ij.setLocalZOrder(34);
+            }
+            this.ij.setPosition(
+              this.Pb(this.V[newSelected].fa),
+              this.Qb(this.V[newSelected].rowIndex) + 1
+            );
+            if (typeof cc !== "undefined" && typeof cc.rotateBy === "function") {
+              if (!this.ij.getNumberOfRunningActions || this.ij.getNumberOfRunningActions() === 0) {
+                const rot = cc.rotateBy(2, 360).repeatForever();
+                this.Hr = rot;
+                this.Fr = rot;
+                this.ij.stopAllActions();
+                this.ij.runAction(rot);
+              }
+            }
+          }
           return;
         }
         const currentSelected = this.me !== void 0 && this.me >= 0 ? this.me : this.le !== void 0 && this.le >= 0 ? this.le : -1;
@@ -51064,8 +51132,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
   var manifest_default = {
     manifest_version: 3,
     name: "C\xF4ng c\u1EE5 C\u1EDD T\u01B0\u1EDBng",
-    version: "0.0.3.360",
-    version_name: "0.0.3.202611130600",
+    version: "0.0.3.1187",
+    version_name: "0.0.3.202611131947",
     description: "Hi\u1EC3n th\u1ECB qu\xE2n \u0111\xE3 b\u1ECB \u0103n & highlight t\u1EA7m \u0111\xE1nh",
     icons: {
       "16": "icons/icon16.png",
