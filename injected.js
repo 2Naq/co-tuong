@@ -51132,8 +51132,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
   var manifest_default = {
     manifest_version: 3,
     name: "C\xF4ng c\u1EE5 C\u1EDD T\u01B0\u1EDBng",
-    version: "0.0.3.1187",
-    version_name: "0.0.3.202611131947",
+    version: "0.0.3.1349",
+    version_name: "0.0.3.202611182229",
     description: "Hi\u1EC3n th\u1ECB qu\xE2n \u0111\xE3 b\u1ECB \u0103n & highlight t\u1EA7m \u0111\xE1nh",
     icons: {
       "16": "icons/icon16.png",
