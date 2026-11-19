@@ -15290,16 +15290,22 @@
     }
     function isMovePatternValid(gl, helper, pieceIndex, destSquare, matrix) {
       if (!gl || !helper) return false;
-      if (typeof gl.PM === "function") {
+      if (typeof gl.QM === "function") {
+        return !!gl.QM(helper, pieceIndex, destSquare, matrix);
+      }
+      if (typeof gl.PM === "function" && gl.PM.length >= 3) {
         return !!gl.PM(helper, pieceIndex, destSquare, matrix);
       }
-      if (typeof gl.IM === "function") {
+      if (typeof gl.IM === "function" && gl.IM.length >= 3) {
         return !!gl.IM(helper, pieceIndex, destSquare, matrix);
       }
       return false;
     }
     function isKingFacingKing(gl, helper, pieceIndex, col, row, matrix) {
       if (!gl || !helper) return false;
+      if (typeof gl.JM === "function") {
+        return !!gl.JM(helper, pieceIndex, col, row, matrix);
+      }
       if (typeof gl.PM === "function" && typeof gl.IM === "function") {
         return !!gl.IM(helper, pieceIndex, col, row, matrix);
       }
@@ -15310,6 +15316,9 @@
     }
     function isKingCheckedAfterMove(gl, helper, pieceIndex, col, row, matrix) {
       if (!gl || !helper) return false;
+      if (typeof gl.LM === "function") {
+        return !!gl.LM(0, helper, pieceIndex, col, row, matrix);
+      }
       if (typeof gl.KM === "function") {
         return !!gl.KM(0, helper, pieceIndex, col, row, matrix);
       }
@@ -15320,6 +15329,7 @@
     }
     function findPieceAt(gl, col, row) {
       if (!gl) return -1;
+      if (typeof gl.XK === "function") return gl.XK(col, row);
       if (typeof gl.WK === "function") return gl.WK(col, row);
       if (typeof gl.QK === "function") return gl.QK(col, row);
       if (gl.V && Array.isArray(gl.V)) {
@@ -15333,6 +15343,9 @@
     }
     function isDestValid(gl, col, row) {
       if (!gl) return false;
+      if (typeof gl.PM === "function" && gl.PM.length === 2) {
+        return !!gl.PM(col, row);
+      }
       if (typeof gl.OM === "function") return gl.OM(col, row);
       if (typeof gl.HM === "function") return gl.HM(col, row);
       if (gl.tc && Array.isArray(gl.tc)) {
@@ -15357,40 +15370,30 @@
       piece.kj = function(show) {
         if (!this.rd) return;
         const isHighlightEnabled = !ZigaMod.userSettings || ZigaMod.userSettings.highlightTactics !== false;
-        if (!isHighlightEnabled) {
+        if (!isHighlightEnabled || !show) {
           this.rd.setVisible(false);
           this.rd.stopAllActions();
-          if (this.rd.WT) this.rd.WT.stopAllActions();
-          if (this.rd.dU) this.rd.dU.stopAllActions();
-          return;
-        }
-        this.rd.setVisible(!!show);
-        if (show) {
-          this.rd.stopAllActions();
-          if (this.rd.WT) this.rd.WT.stopAllActions();
-          if (this.rd.dU) this.rd.dU.stopAllActions();
-          this.rd.setScale(0.95);
-          if (typeof cc !== "undefined" && typeof cc.fadeTo === "function" && typeof cc.sequence === "function") {
-            var fadeOut = cc.fadeTo(0.35, 60);
-            var fadeIn = cc.fadeTo(0.35, 255);
-            var pulse = cc.sequence(fadeOut, fadeIn).repeatForever();
-            this.rd.runAction(pulse);
-            var inner = this.rd.dU || this.rd.WT;
-            if (inner) {
-              inner.stopAllActions();
-              var targetH = this.rd.getContentSize().height;
-              var innerH = inner.getContentSize().height;
-              if (innerH > 0) {
-                inner.setScale(targetH / innerH);
-              }
-              inner.runAction(pulse.clone());
-            }
-          }
-        } else {
-          this.rd.stopAllActions();
+          if (this.rd.eU) this.rd.eU.stopAllActions();
           if (this.rd.WT) this.rd.WT.stopAllActions();
           if (this.rd.dU) this.rd.dU.stopAllActions();
           this.rd.setScale(0.5);
+          return;
+        }
+        this.rd.setVisible(true);
+        this.rd.stopAllActions();
+        if (this.rd.eU) this.rd.eU.stopAllActions();
+        if (this.rd.WT) this.rd.WT.stopAllActions();
+        if (this.rd.dU) this.rd.dU.stopAllActions();
+        this.rd.setScale(0.5);
+        if (typeof cc !== "undefined" && typeof cc.fadeTo === "function" && typeof cc.sequence === "function") {
+          var fadeOut = cc.fadeTo(0.4, 40);
+          var fadeIn = cc.fadeTo(0.4, 255);
+          var pulse = cc.sequence(fadeOut, fadeIn).repeatForever();
+          this.rd.runAction(pulse);
+          var inner = this.rd.eU || this.rd.dU || this.rd.WT;
+          if (inner) {
+            inner.runAction(pulse.clone());
+          }
         }
       };
     }
@@ -15464,7 +15467,7 @@
       if (gl && gl.ij && gl.V && gl.V[pieceIndex]) {
         gl.ij.setVisible(true);
         if (typeof gl.ij.setLocalZOrder === "function") {
-          gl.ij.setLocalZOrder(34);
+          gl.ij.setLocalZOrder(31);
         }
         gl.ij.setPosition(
           gl.Pb(gl.V[pieceIndex].fa),
@@ -15501,6 +15504,19 @@
           }
         }
       }
+      if (gl.ij) {
+        gl.ij.setPosition(-100, -100);
+        if (gl.Hr) {
+          gl.ij.stopAction(gl.Hr);
+          gl.Hr = null;
+        }
+        if (gl.Fr) {
+          gl.ij.stopAction(gl.Fr);
+          gl.Fr = null;
+        }
+        gl.ij.stopAllActions();
+        gl.ij.setVisible(false);
+      }
       if (gl.Tp) gl.Tp = [];
       if (gl.Vp) gl.Vp = [];
       ZigaMod.selectedAttackerIndex = -1;
@@ -15523,9 +15539,12 @@
         }
       }
       setupRowNumbers(gameLayer);
+      const origYR = typeof gameLayer.YR === "function" ? gameLayer.YR : null;
       const origXR = typeof gameLayer.XR === "function" ? gameLayer.XR : null;
-      gameLayer.XR = function(pieceIndex) {
-        if (origXR) {
+      const selectHandler = function(pieceIndex) {
+        if (origYR) {
+          origYR.call(this, pieceIndex);
+        } else if (origXR) {
           origXR.call(this, pieceIndex);
         }
         this.me = pieceIndex;
@@ -15533,7 +15552,7 @@
         if (this.ij && this.V && this.V[pieceIndex]) {
           this.ij.setVisible(true);
           if (typeof this.ij.setLocalZOrder === "function") {
-            this.ij.setLocalZOrder(34);
+            this.ij.setLocalZOrder(31);
           }
           this.ij.setPosition(
             this.Pb(this.V[pieceIndex].fa),
@@ -15549,6 +15568,11 @@
             }
           }
         }
+      };
+      if (origYR) gameLayer.YR = selectHandler;
+      if (origXR) gameLayer.XR = selectHandler;
+      gameLayer.wT = function(pieceIndex) {
+        customHighlightMoves(this, pieceIndex);
       };
       gameLayer.vT = function(pieceIndex) {
         customHighlightMoves(this, pieceIndex);
@@ -15578,8 +15602,14 @@
       };
       gameLayer.cp = unselectHandler;
       gameLayer.fp = unselectHandler;
+      const origOU = typeof gameLayer.oU === "function" ? gameLayer.oU : null;
       const origNU = typeof gameLayer.nU === "function" ? gameLayer.nU : null;
       const origFU = typeof gameLayer.fU === "function" ? gameLayer.fU : null;
+      const invokeOrigTouch = (target, touchX, touchY) => {
+        if (origOU) origOU.call(target, touchX, touchY);
+        else if (origNU) origNU.call(target, touchX, touchY);
+        else if (origFU) origFU.call(target, touchX, touchY);
+      };
       const touchHandler = function(touchX, touchY) {
         const col = typeof this.xq === "function" ? this.xq(touchX) : -1;
         const row = typeof this.Cq === "function" ? this.Cq(touchY) : -1;
@@ -15590,8 +15620,7 @@
           const isMyTurn = this.T && typeof this.T === "function" && this.T().Fb === 2 && this.Yc === this.Nj;
           const currentSelected2 = this.me !== void 0 && this.me >= 0 ? this.me : this.le !== void 0 && this.le >= 0 ? this.le : -1;
           if (currentSelected2 >= 0 && isMyTurn && isDestValid(this, col, row)) {
-            if (origNU) origNU.call(this, touchX, touchY);
-            else if (origFU) origFU.call(this, touchX, touchY);
+            invokeOrigTouch(this, touchX, touchY);
             return;
           }
           if (clickedPiece.ka !== myColor || !isMyTurn) {
@@ -15604,7 +15633,7 @@
               if (this.ij) {
                 this.ij.setVisible(true);
                 if (typeof this.ij.setLocalZOrder === "function") {
-                  this.ij.setLocalZOrder(34);
+                  this.ij.setLocalZOrder(31);
                 }
                 this.ij.setPosition(
                   this.Pb(clickedPiece.fa),
@@ -15622,13 +15651,12 @@
             }
             return;
           }
-          if (origNU) origNU.call(this, touchX, touchY);
-          else if (origFU) origFU.call(this, touchX, touchY);
+          invokeOrigTouch(this, touchX, touchY);
           const newSelected = this.me !== void 0 && this.me >= 0 ? this.me : this.le !== void 0 && this.le >= 0 ? this.le : -1;
           if (newSelected >= 0 && this.ij && this.V && this.V[newSelected]) {
             this.ij.setVisible(true);
             if (typeof this.ij.setLocalZOrder === "function") {
-              this.ij.setLocalZOrder(34);
+              this.ij.setLocalZOrder(31);
             }
             this.ij.setPosition(
               this.Pb(this.V[newSelected].fa),
@@ -15656,9 +15684,9 @@
             return;
           }
         }
-        if (origNU) origNU.call(this, touchX, touchY);
-        else if (origFU) origFU.call(this, touchX, touchY);
+        invokeOrigTouch(this, touchX, touchY);
       };
+      if (origOU) gameLayer.oU = touchHandler;
       if (origNU) gameLayer.nU = touchHandler;
       if (origFU) gameLayer.fU = touchHandler;
     }
@@ -15883,7 +15911,7 @@
             const myPiece = gameLayer.V[targetIdx];
             if (myPiece && !myPiece.pa && myPiece.ka === myColor) {
               try {
-                const canMove = typeof ZigaMod.isMovePatternValid === "function" ? ZigaMod.isMovePatternValid(gameLayer, pieceHelper, i, sq, grid) : typeof gameLayer.PM === "function" ? gameLayer.PM(pieceHelper, i, sq, grid) : typeof gameLayer.IM === "function" ? gameLayer.IM(pieceHelper, i, sq, grid) : false;
+                const canMove = typeof ZigaMod.isMovePatternValid === "function" ? ZigaMod.isMovePatternValid(gameLayer, pieceHelper, i, sq, grid) : typeof gameLayer.QM === "function" ? gameLayer.QM(pieceHelper, i, sq, grid) : typeof gameLayer.PM === "function" && gameLayer.PM.length >= 3 ? gameLayer.PM(pieceHelper, i, sq, grid) : typeof gameLayer.IM === "function" ? gameLayer.IM(pieceHelper, i, sq, grid) : false;
                 if (canMove) {
                   const isKingFaceKing = typeof ZigaMod.isKingFacingKing === "function" ? ZigaMod.isKingFacingKing(gameLayer, pieceHelper, i, c, r2, grid) : false;
                   if (!isKingFaceKing) {
@@ -17941,7 +17969,7 @@
           greenSprite.setVisible(false);
           const greenBaseScale = calculateAuraBaseScale(greenSprite, w, "green");
           applyAuraAnimation(greenSprite, greenBaseScale);
-          piece.addChild(greenSprite, 10);
+          piece.addChild(greenSprite, -1);
           piece.__zigaAuraGreen = greenSprite;
         }
         const redSprite = createAuraSprite("red");
@@ -17951,7 +17979,7 @@
           redSprite.setVisible(false);
           const redBaseScale = calculateAuraBaseScale(redSprite, w, "red");
           applyAuraAnimation(redSprite, redBaseScale);
-          piece.addChild(redSprite, 10);
+          piece.addChild(redSprite, -1);
           piece.__zigaAuraRed = redSprite;
         }
       } catch (err) {
@@ -44628,11 +44656,11 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           gameLayer.ZC(boardGrid);
         }
         for (let e = 0; 90 > e; e++) {
-          const canMove = typeof ZigaMod.isMovePatternValid === "function" ? ZigaMod.isMovePatternValid(gameLayer, pieceHelper, attackerIdx, e, boardGrid) : typeof gameLayer.PM === "function" ? gameLayer.PM(pieceHelper, attackerIdx, e, boardGrid) : typeof gameLayer.IM === "function" ? gameLayer.IM(pieceHelper, attackerIdx, e, boardGrid) : false;
+          const canMove = typeof ZigaMod.isMovePatternValid === "function" ? ZigaMod.isMovePatternValid(gameLayer, pieceHelper, attackerIdx, e, boardGrid) : typeof gameLayer.QM === "function" ? gameLayer.QM(pieceHelper, attackerIdx, e, boardGrid) : typeof gameLayer.PM === "function" && gameLayer.PM.length >= 3 ? gameLayer.PM(pieceHelper, attackerIdx, e, boardGrid) : typeof gameLayer.IM === "function" ? gameLayer.IM(pieceHelper, attackerIdx, e, boardGrid) : false;
           if (canMove) {
             const tc = e % 9;
             const tr = Math.floor(e / 9);
-            const isBlocked = typeof ZigaMod.isKingFacingKing === "function" ? ZigaMod.isKingFacingKing(gameLayer, pieceHelper, attackerIdx, tc, tr, boardGrid) || ZigaMod.isKingCheckedAfterMove(gameLayer, pieceHelper, attackerIdx, tc, tr, boardGrid) : gameLayer.BM && gameLayer.BM(pieceHelper, attackerIdx, tc, tr, boardGrid) || gameLayer.DM && gameLayer.DM(0, pieceHelper, attackerIdx, tc, tr, boardGrid);
+            const isBlocked = typeof ZigaMod.isKingFacingKing === "function" ? ZigaMod.isKingFacingKing(gameLayer, pieceHelper, attackerIdx, tc, tr, boardGrid) || ZigaMod.isKingCheckedAfterMove(gameLayer, pieceHelper, attackerIdx, tc, tr, boardGrid) : gameLayer.JM && gameLayer.JM(pieceHelper, attackerIdx, tc, tr, boardGrid) || gameLayer.BM && gameLayer.BM(pieceHelper, attackerIdx, tc, tr, boardGrid) || gameLayer.LM && gameLayer.LM(0, pieceHelper, attackerIdx, tc, tr, boardGrid) || gameLayer.DM && gameLayer.DM(0, pieceHelper, attackerIdx, tc, tr, boardGrid);
             if (!isBlocked) {
               let capturedVal = 0;
               let capturedType = null;
@@ -47790,40 +47818,667 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
     let activeProvider = getEngineProvider(activeProviderId2);
     const asyncWorker = activeProvider;
     const engine = activeProvider.engine || createXiangqiWorker().engine;
+    const THEORY_CATEGORIES = [
+      "T\u1EA5t C\u1EA3",
+      "Khai Cu\u1ED9c",
+      "Trung Cu\u1ED9c",
+      "T\xE0n Cu\u1ED9c",
+      "S\xE1t C\u1EE5c",
+      "Binh Ph\xE1p"
+    ];
     const XIANGQI_MAXIMS = [
+      // --- KHAI CUỘC (OPENING) ---
       {
-        rule: "Khuy\u1EBFt S\u0129 k\u1EF5 Song Xe, khuy\u1EBFt T\u01B0\u1EE3ng s\u1EE3 Ph\xE1o",
-        desc: "M\u1EA5t S\u0129 h\u1EDF s\u01B0\u1EDDn d\u1EC5 b\u1ECB Xe k\u1EB9p c\u1ED5; m\u1EA5t T\u01B0\u1EE3ng t\u1EA1o ng\xF2i cho Ph\xE1o c\xF4ng ph\xE1."
-      },
-      {
-        rule: "Nh\u1EA5t T\u1ED1t nh\u1EADp cung, v\u1EA1n qu\xE2n kinh h\xE3i",
-        desc: "T\u1ED1t l\u1ECDt v\xE0o cung T\u01B0\u1EDBng \u0111\u1ED1i ph\u01B0\u01A1ng uy l\u1EF1c ngang n\u1EEDa con Xe, kh\xF3a ch\u1EB7t ch\xE2n T\u01B0\u1EDBng."
-      },
-      {
-        rule: "Xe m\u01B0\u1EDDi, Ph\xE1o b\u1EA3y, M\xE3 ba",
-        desc: "Xe c\u01A1 \u0111\u1ED9ng c\xF4ng ph\xE1 m\u1EA1nh nh\u1EA5t; Ph\xE1o b\u1EAFn t\u1EA7m xa; M\xE3 bi\u1EBFn h\xF3a khi c\u1EDD tho\xE1ng."
-      },
-      {
-        rule: "C\u1EDD t\xE0n Ph\xE1o ho\xE0n, M\xE3 nh\u1EA3y xung thi\xEAn",
-        desc: "C\u1EDD t\xE0n \xEDt qu\xE2n Ph\xE1o kh\xF3 t\xECm ng\xF2i; M\xE3 th\xF4ng tho\xE1ng t\u1EF1 do tung ho\xE0nh s\xE1t c\u1EE5c."
-      },
-      {
+        id: "kc_xuat_xe",
+        category: "Khai Cu\u1ED9c",
         rule: "Xu\u1EA5t Xe ch\u1EADm m\u1ED9t n\u01B0\u1EDBc, m\u1EA5t quy\u1EC1n ch\u1EE7 \u0111\u1ED9ng m\u01B0\u1EDDi chi\xEAu",
-        desc: "\u0110\u1EA7u v\xE1n c\u1EA7n xu\u1EA5t Xe s\u1EDBm ki\u1EC3m so\xE1t l\u1ED9 th\xF4ng (2, 4, 6, 8) chi\u1EBFm th\u1EBF th\u01B0\u1EE3ng phong."
+        desc: "\u0110\u1EA7u v\xE1n t\u1ED1i k\u1EF5 ch\u1EADm xu\u1EA5t Xe. Nhanh ch\xF3ng \u0111\u01B0a Xe ra l\u1ED9 th\xF4ng 2, 4, 6, 8 \u0111\u1EC3 ki\u1EC3m so\xE1t c\xE1c tr\u1EE5c huy\u1EBFt m\u1EA1ch chi\u1EBFm th\u1EBF th\u01B0\u1EE3ng phong.",
+        triggerId: "kc_xuat_xe"
       },
       {
-        rule: "M\xE3 \u0111i\u1EC1n \u1EAFt b\u1EA1i, ch\u1EDB ham \u0103n m\u1ED3i qu\xEAn gi\u1EEF th\xE0nh",
-        desc: "Tr\xE1nh \u0111\u1EC3 M\xE3 b\u1ECB c\u1EA3n ch\xE2n; kh\xF4ng tham \u0103n qu\xE2n nh\u1ECF \u0111\u1EC3 \u0111\u1ED1i ph\u01B0\u01A1ng \u0111o\u1EA1t ti\xEAn."
+        id: "kc_phao_dau",
+        category: "Khai Cu\u1ED9c",
+        rule: "Ph\xE1o \u0111\u1EA7u uy ch\u1EA5n trung qu\xE2n, t\u1ECFa \u0111\u1ECBnh tr\u1EE5c l\u1ED9",
+        desc: "Ph\xE1o chi\u1EBFm trung t\xE2m kh\u1ED1ng ch\u1EBF c\u1ED9t 5, k\u1EB9p ch\u1EB7t T\u01B0\u1EDBng S\u0129 \u0111\u1ED1i ph\u01B0\u01A1ng, t\u1EA1o b\u1EC7 ph\xF3ng d\u0169ng m\xE3nh cho c\xE1c \u0111\u1EE3t c\xF4ng k\xEDch ti\u1EBFp theo.",
+        triggerId: "kc_phao_dau"
       },
       {
-        rule: "Ph\xE1o \u0111\u1EA7u uy ch\u1EA5n trung qu\xE2n",
-        desc: "Ph\xE1o chi\u1EBFm trung l\u1ED9 uy hi\u1EBFp th\u1EB3ng T\u01B0\u1EDBng, kh\u1ED1ng ch\u1EBF ho\xE0n to\xE0n tr\u1EE5c d\u1ECDc \u0111\u1ED1i ph\u01B0\u01A1ng."
-      },
-      {
+        id: "kc_lien_hoan",
+        category: "Khai Cu\u1ED9c",
         rule: "Song M\xE3 li\xEAn ho\xE0n, v\u1EEFng nh\u01B0 b\xE0n th\u1EA1ch",
-        desc: "Hai M\xE3 gi\u1EEF nhau \u1EDF trung l\u1ED9 b\u1EA3o v\u1EC7 T\u1ED1t \u0111\u1EA7u v\xE0 tri\u1EC7t ti\xEAu \u0111\xF2n \u0111\u1ED9t k\xEDch c\u1EE7a \u0111\u1ECBch."
+        desc: "Hai M\xE3 \u0111an ch\xE9o gi\u1EEF nhau \u1EDF trung l\u1ED9 b\u1EA3o v\u1EC7 T\u1ED1t \u0111\u1EA7u, tri\u1EC7t ti\xEAu \u0111\xF2n \u0111\u1ED9t k\xEDch c\u1EE7a \u0111\u1ECBch v\xE0 m\u1EDF r\u1ED9ng t\u1EA7m ki\u1EC3m so\xE1t b\xE0n c\u1EDD.",
+        triggerId: "kc_song_ma"
+      },
+      {
+        id: "kc_bat_dich",
+        category: "Khai Cu\u1ED9c",
+        rule: "Khai cu\u1ED9c b\u1EA5t d\u1ECBch li\xEAn h\xE0nh, qu\xFD t\u1EA1i th\xF4ng su\u1ED1t",
+        desc: "Tr\xE1nh \u0111i m\u1ED9t qu\xE2n nhi\u1EC1u l\u1EA7n khi c\xE1c qu\xE2n ch\u1EE7 l\u1EF1c Xe M\xE3 Ph\xE1o kh\xE1c ch\u01B0a k\u1ECBp xu\u1EA5t tr\u1EADn; ph\xE1t tri\u1EC3n l\u1EF1c l\u01B0\u1EE3ng \u0111\u1ED3ng \u0111\u1EC1u v\xE0 h\xE0i h\xF2a.",
+        triggerId: "kc_can_bang"
+      },
+      {
+        id: "kc_tuan_ha",
+        category: "Khai Cu\u1ED9c",
+        rule: "Tu\u1EA7n h\xE0 phong t\u1ECFa, qu\xE1 h\xE0 \u0111o\u1EA1t ti\xEAn",
+        desc: "Xe Ph\xE1o chi\u1EBFm tuy\u1EBFn b\u1EDD s\xF4ng (tu\u1EA7n h\xE0) kh\u1ED1ng ch\u1EBF \u0111\u01B0\u1EDDng ti\u1EBFn tho\xE1i c\u1EE7a T\u1ED1t v\xE0 M\xE3 \u0111\u1ED1i ph\u01B0\u01A1ng; k\u1ECBp th\u1EDDi qu\xE1 h\xE0 \u0111\xE8 b\u1EB9p c\xE1nh y\u1EBFu c\u1EE7a \u0111\u1ECBch.",
+        triggerId: "kc_tuan_ha"
+      },
+      {
+        id: "kc_trung_lo",
+        category: "Khai Cu\u1ED9c",
+        rule: "Ki\xEAn c\u1ED1 trung l\u1ED9, d\u0129 d\u1EADt \u0111\xE3i lao",
+        desc: "C\u1EE7ng c\u1ED1 tuy\u1EBFn gi\u1EEFa b\u1EB1ng S\u0129 T\u01B0\u1EE3ng v\xE0 M\xE3 li\xEAn ho\xE0n, t\u1EA1o b\u1EC7 ph\xF3ng v\u1EEFng ch\u1EAFc tr\u01B0\u1EDBc khi m\u1EDF \u0111\u1EE3t t\u1ED5ng t\u1EA5n c\xF4ng hai s\u01B0\u1EDDn.",
+        triggerId: "kc_trung_lo"
+      },
+      // --- TRUNG CUỘC (MIDDLEGAME) ---
+      {
+        id: "tc_khuyet_si",
+        category: "Trung Cu\u1ED9c",
+        rule: "Khuy\u1EBFt S\u0129 k\u1EF5 Song Xe, n\xE1ch r\xE1ch T\u01B0\u1EDBng kinh",
+        desc: "M\u1EA5t S\u0129 h\u1EDF s\u01B0\u1EDDn d\u1EC5 b\u1ECB Xe k\u1EB9p n\xE1ch ho\u1EB7c Song Xe gi\xE1p c\xF4ng; b\xEAn c\xF4ng h\xE3y d\u1ED3n to\xE0n l\u1EF1c kho\xE9t s\xE2u v\xE0o \u0111i\u1EC3m y\u1EBFu l\u1ED9 4 ho\u1EB7c 6!",
+        triggerId: "tc_khuyet_si"
+      },
+      {
+        id: "tc_khuyet_tuong",
+        category: "Trung Cu\u1ED9c",
+        rule: "Khuy\u1EBFt T\u01B0\u1EE3ng s\u1EE3 Ph\xE1o, \u0111\xE1y cung h\u1EDF ng\xF2i",
+        desc: "M\u1EA5t T\u01B0\u1EE3ng ph\xF2ng th\u1EE7 t\u1EA7m xa r\xE1ch to\xE1c, t\u1EA1o ng\xF2i n\u1ED5 cho Ph\xE1o b\u1EAFn th\u1EB3ng v\xE0o cung T\u01B0\u1EDBng; b\xEAn c\xF4ng khai th\xE1c \u0111i\u1EC3m m\xF9 \u0111\xE1y cung \u0111\u1EC3 d\u1EE9t \u0111i\u1EC3m.",
+        triggerId: "tc_khuyet_tuong"
+      },
+      {
+        id: "tc_phao_trong",
+        category: "Trung Cu\u1ED9c",
+        rule: "Ph\xE1o tr\u1ED1ng v\xF4 gi\xE1, uy ch\u1EA5n trung qu\xE2n",
+        desc: "Ph\xE1o tr\u1ED1ng \u0111\u1ED1i di\u1EC7n T\u01B0\u1EDBng kh\xF4ng c\xF3 qu\xE2n c\u1EA3n s\u1EDF h\u1EEFu s\u1EE9c c\xF4ng ph\xE1 v\xF4 song; \u0111\u1ED1i ph\u01B0\u01A1ng t\xEA li\u1EC7t ho\xE0n to\xE0n, h\xE3y k\u1EBFt h\u1EE3p Xe M\xE3 s\xE1t c\u1EE5c t\u1EE9c th\xEC!",
+        triggerId: "tc_phao_trong"
+      },
+      {
+        id: "tc_tot_nhap_cung",
+        category: "Trung Cu\u1ED9c",
+        rule: "Nh\u1EA5t T\u1ED1t nh\u1EADp cung, v\u1EA1n qu\xE2n kinh h\xE3i",
+        desc: "T\u1ED1t l\u1ECDt v\xE0o cung T\u01B0\u1EDBng \u0111\u1ED1i ph\u01B0\u01A1ng uy l\u1EF1c ngang n\u1EEDa con Xe, kh\xF3a ch\u1EB7t ch\xE2n T\u01B0\u1EDBng v\xE0 m\u1EDF toang c\xE1nh c\u1EEDa cho c\xE1c \u0111\xF2n s\xE1t c\u1EE5c.",
+        triggerId: "tc_tot_nhap_cung"
+      },
+      {
+        id: "tc_ma_oa_tam",
+        category: "Trung Cu\u1ED9c",
+        rule: "M\xE3 nh\u1EADp oa t\xE2m, b\u1EA5t t\u1EED d\xE3 h\xF4n",
+        desc: "M\xE3 nh\u1EA3y v\xE0o t\xE2m cung t\u1EF1 l\xE0m t\u1EAFc \u0111\u01B0\u1EDDng T\u01B0\u1EDBng tho\xE1i lui; d\u1ED3n h\u1ECFa l\u1EF1c v\xE0o trung l\u1ED9 ho\u1EB7c chi\u1EBFu g\xF3c \xE9p T\u01B0\u1EDBng v\xE0o th\u1EBF tuy\u1EC7t s\xE1t.",
+        triggerId: "tc_ma_oa_tam"
+      },
+      {
+        id: "tc_ma_dien",
+        category: "Trung Cu\u1ED9c",
+        rule: "M\xE3 \u0111i\u1EC1n \u1EAFt b\u1EA1i, c\u1EA3n ch\xE2n g\xE3y c\xE1nh",
+        desc: "Tr\xE1nh \u0111\u1EC3 M\xE3 b\u1ECB c\u1EA3n ch\xE2n; \u0111\u1ED3ng th\u1EDDi ch\u1EE7 \u0111\u1ED9ng g\xE0i qu\xE2n c\u1EA3n m\u1EAFt M\xE3 \u0111\u1ED1i ph\u01B0\u01A1ng \u0111\u1EC3 v\xF4 hi\u1EC7u h\xF3a m\u1ED9t m\u0169i t\u1EA5n c\xF4ng ch\u1EE7 l\u1EF1c c\u1EE7a \u0111\u1ECBch.",
+        triggerId: "tc_ma_dien"
+      },
+      {
+        id: "tc_song_xe",
+        category: "Trung Cu\u1ED9c",
+        rule: "Song Xe h\u1EE3p b\xEDch, khai th\xF4ng l\u1ED9 hi\u1EC3m",
+        desc: "Hai Xe li\xEAn k\u1EBFt c\xF9ng m\u1ED9t tr\u1EE5c ho\u1EB7c ki\u1EC3m so\xE1t hai c\xE1nh th\xF4ng tho\xE1ng, d\u1EC5 d\xE0ng th\u1ECDc s\xE2u xu\u1ED1ng \u0111\xE1y cung ho\u1EB7c k\u1EB9p n\xE1ch \xE9p ch\u1EBFt T\u01B0\u1EDBng \u0111\u1ECBch.",
+        triggerId: "tc_song_xe"
+      },
+      {
+        id: "tc_thi_quan",
+        category: "Trung Cu\u1ED9c",
+        rule: "Th\xED qu\xE2n \u0111o\u1EA1t ti\xEAn, b\u1ECF nh\u1ECF \u0103n l\u1EDBn",
+        desc: "S\u1EB5n s\xE0ng hy sinh m\u1ED9t qu\xE2n nh\u1ECF ho\u1EB7c ho\xE1n \u0111\u1ED5i qu\xE2n \u0111\u1EC3 ph\xE1 v\u1EE1 th\u1EBF ph\xF2ng ng\u1EF1 v\u1EEFng ch\u1EAFc c\u1EE7a \u0111\u1ECBch, \u0111o\u1EA1t quy\u1EC1n ch\u1EE7 \u0111\u1ED9ng chi\u1EBFn l\u01B0\u1EE3c s\xE1t v\xE1n.",
+        triggerId: "tc_thi_quan"
+      },
+      {
+        id: "tc_kiem_toa",
+        category: "Trung Cu\u1ED9c",
+        rule: "Ghim qu\xE2n t\u1ECFa tr\u1EADn, tri\u1EC7t ti\xEAu sinh l\u1EF1c",
+        desc: "D\xF9ng Xe Ph\xE1o gh\xECm ch\u1EB7t Xe M\xE3 \u0111\u1ED1i ph\u01B0\u01A1ng \u1EDF m\u1ED9t c\xE1nh, bi\u1EBFn qu\xE2n \u0111\u1ECBch th\xE0nh v\u1EADt c\u1EA3n v\xF4 d\u1EE5ng r\u1ED3i r\u1EA3nh tay t\u1EA5n c\xF4ng c\xE1nh c\xF2n l\u1EA1i.",
+        triggerId: "tc_kiem_toa"
+      },
+      {
+        id: "tc_uu_the",
+        category: "Trung Cu\u1ED9c",
+        rule: "Th\u1EEBa th\u1EAFng truy k\xEDch, c\xF4ng th\xE0nh \u0111o\u1EA1t tr\u1EA1i",
+        desc: "Th\u1EBF c\u1EDD \u0111ang \xE1p \u0111\u1EA3o ho\xE0n to\xE0n, h\xE3y d\u1ED3n d\u1EADp ra \u0111\xF2n kh\xF4ng cho \u0111\u1ED1i ph\u01B0\u01A1ng k\u1ECBp ch\u1EC9nh \u0111\u1ED1n S\u0129 T\u01B0\u1EE3ng hay th\u1EDF ph\xE0o ph\u1EA3n kh\xE1ng.",
+        triggerId: "tc_uu_the"
+      },
+      {
+        id: "tc_nghich_canh",
+        category: "Trung Cu\u1ED9c",
+        rule: "Ngh\u1ECBch c\u1EA3nh ki\xEAn th\u1EE7, ch\u1EDD c\u01A1 h\u1ED3i m\xE3 th\u01B0\u01A1ng",
+        desc: "Th\u1EBF c\u1EDD g\u1EB7p kh\xF3 kh\u0103n c\u1EA7n ch\u1EA5n ch\u1EC9nh S\u0129 T\u01B0\u1EE3ng ki\xEAn c\u1ED1, thu g\u1ECDn ph\xF2ng tuy\u1EBFn tr\xE1nh giao chi\u1EBFn n\xF3ng v\u1ED9i, ch\u1EDD \u0111\u1ED1i ph\u01B0\u01A1ng s\u01A1 h\u1EDF ph\u1EA3n \u0111\xF2n.",
+        triggerId: "tc_nghich_canh"
+      },
+      {
+        id: "tc_xe_phao_ma",
+        category: "Trung Cu\u1ED9c",
+        rule: "Xe m\u01B0\u1EDDi, Ph\xE1o b\u1EA3y, M\xE3 ba",
+        desc: "Xe c\u01A1 \u0111\u1ED9ng c\xF4ng ph\xE1 m\u1EA1nh nh\u1EA5t; Ph\xE1o kh\u1ED1ng ch\u1EBF t\u1EA7m xa; M\xE3 bi\u1EBFn h\xF3a uy\u1EC3n chuy\u1EC3n khi c\u1EDD tho\xE1ng. Ph\u1ED1i h\u1EE3p nh\u1ECBp nh\xE0ng c\xE1c binh ch\u1EE7ng.",
+        triggerId: "tc_xe_phao_ma"
+      },
+      // --- TÀN CUỘC (ENDGAME) ---
+      {
+        id: "tan_phao_hoan_ma",
+        category: "T\xE0n Cu\u1ED9c",
+        rule: "C\u1EDD t\xE0n Ph\xE1o ho\xE0n, M\xE3 nh\u1EA3y xung thi\xEAn",
+        desc: "C\u1EDD t\xE0n th\u01B0a qu\xE2n Ph\xE1o kh\xF3 m\u01B0\u1EE3n ng\xF2i; M\xE3 c\xF3 kho\u1EA3ng kh\xF4ng r\u1ED9ng l\u1EDBn t\u1EF1 do tung ho\xE0nh, g\xF3c nh\u1EA3y hi\u1EC3m h\xF3c quy\u1EBFt \u0111\u1ECBnh th\u1EAFng b\u1EA1i.",
+        triggerId: "tan_phao_hoan_ma"
+      },
+      {
+        id: "tan_tot_cao",
+        category: "T\xE0n Cu\u1ED9c",
+        rule: "T\u1ED1t cao c\xF3 gi\xE1, T\u1ED1t l\u1EE5t v\xF4 c\xF4ng",
+        desc: "T\u1ED1t ch\u01B0a ch\u1EA1m \u0111\xE1y cung c\xF2n c\u01A1 \u0111\u1ED9ng \xE9p T\u01B0\u1EDBng t\u1EEB l\u1ED9 s\u01B0\u1EDDn; tr\xE1nh \u0111\u1EA9y T\u1ED1t l\u1EE5t xu\u1ED1ng \u0111\xE1y s\u1EDBm l\xE0m m\u1EA5t \u0111i kh\u1EA3 n\u0103ng kh\u1ED1ng ch\u1EBF c\u1EEDu cung.",
+        triggerId: "tan_tot_cao"
+      },
+      {
+        id: "tan_don_xe_phao_tuong",
+        category: "T\xE0n Cu\u1ED9c",
+        rule: "\u0110\u01A1n Xe th\u1EAFng \u0110\u01A1n Ph\xE1o T\u01B0\u1EE3ng, h\xF2a Ph\xE1o Song T\u01B0\u1EE3ng",
+        desc: "\u0110\u01A1n Xe g\u1EB7p Ph\xE1o T\u01B0\u1EE3ng b\u1EC1n th\xEC h\xF2a; nh\u01B0ng g\u1EB7p khuy\u1EBFt T\u01B0\u1EE3ng ho\u1EB7c Ph\xE1o m\u1EA5t \u0111i\u1EC3m t\u1EF1a th\xEC Xe ph\u1ED1i h\u1EE3p m\u1EB7t T\u01B0\u1EDBng b\u1EE9c t\u1EED.",
+        triggerId: "tan_don_xe"
+      },
+      {
+        id: "tan_don_ma_si",
+        category: "T\xE0n Cu\u1ED9c",
+        rule: "\u0110\u01A1n M\xE3 kh\xF3 th\u1EAFng \u0110\u01A1n S\u0129, M\xE3 T\u1ED1t ph\xE1 S\u0129 T\u01B0\u1EE3ng",
+        desc: "M\u1ED9t M\xE3 \u0111\u01A1n \u0111\u1ED9c kh\xF4ng th\u1EC3 k\u1EBFt li\u1EC5u \u0110\u01A1n S\u0129 b\u1EC1n; c\u1EA7n c\xF3 th\xEAm T\u1ED1t tr\u1EE3 chi\u1EBFn \u0111\u1EC3 tri\u1EC7t h\u1EA1 ph\xF2ng th\u1EE7 v\xE0 kh\xF3a ch\u1EB7t \u0111\u01B0\u1EDDng ch\u1EA1y c\u1EE7a T\u01B0\u1EDBng.",
+        triggerId: "tan_don_ma"
+      },
+      {
+        id: "tan_tuong_tro_chien",
+        category: "T\xE0n Cu\u1ED9c",
+        rule: "C\u1EDD t\xE0n T\u01B0\u1EDBng xu\u1EA5t cung, uy l\u1EF1c nh\u01B0 d\u0169ng t\u01B0\u1EDBng",
+        desc: "Giai \u0111o\u1EA1n t\xE0n cu\u1ED9c \xEDt qu\xE2n t\u1EA5n c\xF4ng, h\xE3y \u0111\u01B0a T\u01B0\u1EDBng l\xEAn cao chi\u1EBFm l\u1ED9 trung t\xE2m ho\u1EB7c s\u01B0\u1EDDn, d\xF9ng m\u1EB7t T\u01B0\u1EDBng l\xE0m ng\xF2i n\u1ED5 h\u1ED7 tr\u1EE3 d\u1EE9t \u0111i\u1EC3m.",
+        triggerId: "tan_tuong_tro_chien"
+      },
+      // --- SÁT CỤC (MATING MOTIFS & TACTICAL FINISHES) ---
+      {
+        id: "sat_thiet_mon",
+        category: "S\xE1t C\u1EE5c",
+        rule: "Thi\u1EBFt M\xF4n Thuy\xEAn (C\u1EEDa s\u1EAFt kh\xF3a T\u01B0\u1EDBng)",
+        desc: "Ph\xE1o ghim ch\u1EB7t trung l\u1ED9, Xe c\u1EAFm \u0111\xE1y gi\xE1ng \u0111\xF2n tuy\u1EC7t s\xE1t Thi\u1EBFt M\xF4n Thuy\xEAn b\u1EA5t kh\u1EA3 h\xF3a gi\u1EA3i!",
+        triggerId: "sat_thiet_mon"
+      },
+      {
+        id: "sat_trac_dien_ho",
+        category: "S\xE1t C\u1EE5c",
+        rule: "Tr\u1EAFc Di\u1EC7n H\u1ED5 (H\u1ED5 v\u1ED3 b\xEAn s\u01B0\u1EDDn)",
+        desc: "M\xE3 chi\u1EBFm g\xF3c ng\u1ECDa t\xE0o ph\u1ED1i h\u1EE3p c\xF9ng Xe s\u01B0\u1EDDn, kh\xF3a ch\u1EB7t c\u1EEDu cung gi\xE1ng \u0111\xF2n s\xE1t c\u1EE5c s\u1EA5m s\xE9t b\xEAn s\u01B0\u1EDDn!",
+        triggerId: "sat_trac_dien_ho"
+      },
+      {
+        id: "sat_ma_hau_phao",
+        category: "S\xE1t C\u1EE5c",
+        rule: "M\xE3 H\u1EADu Ph\xE1o (Ph\xE1o \u0111i\u1EC3m h\u1ECFa sau l\u01B0ng M\xE3)",
+        desc: "M\xE3 kh\xF3a c\u1EEDa cung c\u1EA3n \u0111\u01B0\u1EDDng T\u01B0\u1EDBng, Ph\xE1o ph\xEDa sau m\u01B0\u1EE3n M\xE3 l\xE0m ng\xF2i n\u1ED5 ph\xE1t h\u1ECFa tuy\u1EC7t s\xE1t!",
+        triggerId: "sat_ma_hau_phao"
+      },
+      {
+        id: "sat_dieu_ngu",
+        category: "S\xE1t C\u1EE5c",
+        rule: "\u0110i\u1EBFu Ng\u01B0 M\xE3 (M\xE3 c\xE2u c\xE1 kh\xF3a c\u1EEDu cung)",
+        desc: "M\xE3 chi\u1EBFm v\u1ECB tr\xED \u0111i\u1EBFu ng\u01B0 l\u1ED9 3 ho\u1EB7c 7, ph\u1ED1i h\u1EE3p Xe th\u1ECDc s\u01B0\u1EDDn si\u1EBFt ch\u1EB7t th\xF2ng l\u1ECDng k\u1EBFt li\u1EC5u tr\u1EADn \u0111\u1EA5u.",
+        triggerId: "sat_dieu_ngu"
+      },
+      {
+        id: "sat_trung_phao",
+        category: "S\xE1t C\u1EE5c",
+        rule: "Song Ph\xE1o Tr\xF9ng (Hai Ph\xE1o ch\u1ED3ng nhau m\u1ED9t l\u1ED9)",
+        desc: "Hai Ph\xE1o li\xEAn ho\xE0n tr\xEAn c\xF9ng m\u1ED9t tr\u1EE5c d\u1ECDc nh\u1EAFm th\u1EB3ng m\u1EB7t T\u01B0\u1EDBng \u0111\u1ECBch, \u0111\xF2n \u0111\xE1nh uy l\u1EF1c nh\u1EA5t trong T\u01B0\u1EE3ng k\u1EF3.",
+        triggerId: "sat_trung_phao"
+      },
+      {
+        id: "sat_hai_day",
+        category: "S\xE1t C\u1EE5c",
+        rule: "H\u1EA3i \u0110\xE1y Lao Nguy\u1EC7t (\u0110\xE1y bi\u1EC3n m\xF2 tr\u0103ng)",
+        desc: "Xe lu\u1ED3n xu\u1ED1ng tuy\u1EBFn \u0111\xE1y sau l\u01B0ng T\u01B0\u1EDBng \u0111\u1ECBch, m\u01B0\u1EE3n m\u1EB7t T\u01B0\u1EDBng l\xE0m \u0111i\u1EC3m t\u1EF1a chi\u1EBFu b\xED khi \u0111\u1ED1i ph\u01B0\u01A1ng co c\u1EE5m.",
+        triggerId: "sat_hai_day"
+      },
+      {
+        id: "sat_bach_kiem",
+        category: "S\xE1t C\u1EE5c",
+        rule: "B\u1EA1ch Ki\u1EC3m T\u01B0\u1EDBng (M\u1EB7t T\u01B0\u1EDBng \u0111\u1ED1i di\u1EC7n tr\u1EF1c ti\u1EBFp)",
+        desc: "Khai th\xE1c tri\u1EC7t \u0111\u1EC3 lu\u1EADt m\u1EB7t T\u01B0\u1EDBng kh\xF4ng th\u1EC3 nh\xECn nhau \u0111\u1EC3 h\u1ED7 tr\u1EE3 Xe Ph\xE1o kh\xF3a c\u1EE9ng v\xE0 k\u1EBFt li\u1EC5u \u0111\u1ED1i th\u1EE7.",
+        triggerId: "sat_bach_kiem"
+      },
+      // --- BINH PHÁP (STRATEGIC WISDOM) ---
+      {
+        id: "bp_tri_bi_tri_ky",
+        category: "Binh Ph\xE1p",
+        rule: "Tri b\u1EC9 tri k\u1EF7, b\xE1ch chi\u1EBFn b\u1EA5t \u0111\xE3i",
+        desc: "Bi\u1EBFt ng\u01B0\u1EDDi bi\u1EBFt ta, tr\u0103m tr\u1EADn kh\xF4ng nguy. N\u1EAFm r\xF5 s\u1EDF tr\u01B0\u1EDDng s\u1EDF \u0111o\u1EA3n c\u1EE7a \u0111\u1ED1i ph\u01B0\u01A1ng v\xE0 ph\xE2n t\xEDch th\u1EA5u \u0111\xE1o th\u1EBF tr\u1EADn tr\u01B0\u1EDBc khi ra \u0111\xF2n.",
+        triggerId: "bp_tri_bi"
+      },
+      {
+        id: "bp_tien_ha_thu",
+        category: "Binh Ph\xE1p",
+        rule: "Ti\xEAn h\u1EA1 th\u1EE7 vi c\u01B0\u1EDDng, h\u1EADu h\u1EA1 th\u1EE7 tao \u01B0\u01A1ng",
+        desc: "Ra tay tr\u01B0\u1EDBc chi\u1EBFm th\u1EBF th\u01B0\u1EE3ng phong, ra tay ch\u1EADm chu\u1ED1c l\u1EA5y hi\u1EC3m nguy. Trong c\u1EDD t\u01B0\u1EDBng, n\u01B0\u1EDBc Ti\xEAn c\xF3 gi\xE1 tr\u1ECB v\xF4 gi\xE1.",
+        triggerId: "bp_tien_ha_thu"
+      },
+      {
+        id: "bp_cong_tam",
+        category: "Binh Ph\xE1p",
+        rule: "C\xF4ng t\xE2m vi th\u01B0\u1EE3ng, c\xF4ng th\xE0nh vi h\u1EA1",
+        desc: "\u0110\xE1nh v\xE0o t\xE2m l\xFD khi\u1EBFn \u0111\u1ED1i ph\u01B0\u01A1ng r\u1ED1i lo\u1EA1n, n\xF4n n\xF3ng \u0111i sai c\xF2n h\u01A1n l\xE0 ch\u1EC9 ch\u0103m ch\u0103m \u0103n qu\xE2n nh\u1ECF m\xE0 b\u1ECF l\u1EE1 th\u1EBF s\xE1t v\xE1n.",
+        triggerId: "bp_cong_tam"
       }
     ];
+    function detectXiangqiOpening(pieces, myColor) {
+      if (!pieces || pieces.length < 22) return null;
+      const redCannons = pieces.filter((p) => p.color === 0 && p.type === 4);
+      const blackCannons = pieces.filter((p) => p.color === 1 && p.type === 4);
+      const redKnights = pieces.filter((p) => p.color === 0 && p.type === 5);
+      const blackKnights = pieces.filter((p) => p.color === 1 && p.type === 5);
+      const redBishops = pieces.filter((p) => p.color === 0 && p.type === 2);
+      const blackBishops = pieces.filter((p) => p.color === 1 && p.type === 2);
+      const redPawns = pieces.filter((p) => p.color === 0 && p.type === 6);
+      const blackPawns = pieces.filter((p) => p.color === 1 && p.type === 6);
+      const hasRedCentralCannon = redCannons.some(
+        (p) => p.col === 4 && (p.row === 2 || p.row === 1 || p.row === 0)
+      );
+      const hasBlackCentralCannon = blackCannons.some(
+        (p) => p.col === 4 && (p.row === 7 || p.row === 8 || p.row === 9)
+      );
+      if (hasRedCentralCannon) {
+        if (hasBlackCentralCannon) {
+          const redMovedFromLeft = !redCannons.some(
+            (p) => p.col === 1 && p.row === 2
+          );
+          const blackMovedFromLeft = !blackCannons.some(
+            (p) => p.col === 1 && p.row === 7
+          );
+          if (redMovedFromLeft && blackMovedFromLeft || !redMovedFromLeft && !blackMovedFromLeft) {
+            return {
+              name: "Thu\u1EADn Th\u1EE7 Ph\xE1o (Thu\u1EADn Ph\xE1o)",
+              category: "C\u01B0\u01A1ng Li\u1EC7t \u0110\u1ED1i C\xF4ng",
+              battleplan: "Hai b\xEAn c\xF9ng c\u1EAFm Ph\xE1o \u0111\u1EA7u \u0111\u1ED1i c\xF4ng r\u1EF1c l\u1EEDa! Xu\u1EA5t Xe t\u1ED1c \u0111\u1ED9 kh\u1ED1ng ch\u1EBF l\u1ED9 th\xF4ng 2, 4, 6, 8, ch\u1EDB v\u1ED9i \u0103n T\u1ED1t \u0111\u1EA7u \u0111\u1EC3 m\u1EA5t ti\xEAn.",
+              counterAdvice: "T\u1EADp trung ra Xe nhanh, d\xF9ng M\xE3 b\u1EA3o v\u1EC7 T\u1ED1t \u0111\u1EA7u, ch\u1EDD c\u01A1 h\u1ED9i Xe tu\u1EA7n h\xE0 k\u1EB9p n\xE1ch."
+            };
+          } else {
+            return {
+              name: "Ngh\u1ECBch Th\u1EE7 Ph\xE1o (Ngh\u1ECBch Ph\xE1o)",
+              category: "Quy\u1EBFt Chi\u1EBFn T\u01B0\u01A1ng T\xE0n",
+              battleplan: "Th\u1EBF tr\u1EADn \u0111\u1ED1i c\xF4ng b\u1EA5t \u0111\u1ED1i x\u1EE9ng c\u1EF1c k\u1EF3 kh\u1ED1c li\u1EC7t! B\xEAn n\xE0o gh\xECm \u0111\u01B0\u1EE3c Xe M\xE3 \u0111\u1ED1i th\u1EE7 tr\u01B0\u1EDBc s\u1EBD chi\u1EBFm th\u1EBF th\u01B0\u1EE3ng phong tuy\u1EC7t \u0111\u1ED1i.",
+              counterAdvice: "Ch\u1EE7 \u0111\u1ED9ng c\u1EA3n ch\xE2n M\xE3 \u0111\u1ED1i ph\u01B0\u01A1ng, xu\u1EA5t Xe \xE1p s\xE1t b\u1EDD s\xF4ng phong t\u1ECFa h\u1ECFa l\u1EF1c Ph\xE1o."
+            };
+          }
+        }
+        const blackBPM = blackKnights.filter(
+          (p) => p.col === 2 && p.row === 7 || p.col === 6 && p.row === 7
+        );
+        if (blackBPM.length >= 2 || blackBPM.length >= 1 && blackKnights.some((p) => p.row === 7)) {
+          const hasTienThatBinh = blackPawns.some(
+            (p) => p.col === 6 && p.row === 5
+          );
+          const hasTienTamBinh = blackPawns.some(
+            (p) => p.col === 2 && p.row === 5
+          );
+          if (hasTienThatBinh && hasTienTamBinh) {
+            return {
+              name: myColor === 0 ? "Trung Ph\xE1o \u0110\u1ED1i B\xECnh Phong M\xE3 L\u01B0\u1EE1ng \u0110\u1EA7u X\xE0" : "B\xECnh Phong M\xE3 L\u01B0\u1EE1ng \u0110\u1EA7u X\xE0 Kh\xE1ng Trung Ph\xE1o",
+              category: "Ch\xEDnh Quy C\xE2n N\xE3o",
+              battleplan: "\u0110\u1EA9y hai T\u1ED1t th\xF4ng \u0111\u01B0\u1EDDng cho Song M\xE3 phi qua s\xF4ng! C\u1EA7n \u0111\u01B0a Xe qu\xE1 h\xE0 gh\xECm ch\u1EB7t T\u1ED1t v\xE0 ch\xE8n \xE9p c\xE1nh M\xE3.",
+              counterAdvice: "T\u1EA5n Xe tu\u1EA7n h\xE0 ho\u1EB7c qu\xE1 h\xE0 k\u1EB9p T\u1ED1t, kh\xF4ng \u0111\u1EC3 Song M\xE3 \u0111\u1ECBch th\xF4ng tho\xE1ng phi ra bi\xEAn."
+            };
+          } else if (hasTienThatBinh) {
+            return {
+              name: myColor === 0 ? "Trung Ph\xE1o \u0110\u1ED1i B\xECnh Phong M\xE3 Ti\u1EBFn Th\u1EA5t Binh" : "B\xECnh Phong M\xE3 Ti\u1EBFn Th\u1EA5t Binh Kh\xE1ng Trung Ph\xE1o",
+              category: "\u0110\u1EC9nh Cao K\u1EF3 Ngh\u1EC7",
+              battleplan: "Th\u1EBF tr\u1EADn kinh \u0111i\u1EC3n b\u1EADc nh\u1EA5t T\u01B0\u1EE3ng k\u1EF3. B\xEAn c\xF4ng d\u1ED3n Xe Ph\xE1o \u0111\xE8 c\xE1nh T\u1ED1t y\u1EBFu; b\xEAn th\u1EE7 d\xF9ng M\xE3 ki\u1EC1m ch\u1EBF trung l\u1ED9 v\xE0 ph\u1EA3n c\xF4ng c\xE1nh h\u1EDF.",
+              counterAdvice: "T\u1EA5n c\xF4ng v\xE0o c\xE1nh M\xE3 ch\u01B0a ph\xE1t tri\u1EC3n c\u1EE7a \u0111\u1ED1i ph\u01B0\u01A1ng, xu\u1EA5t Xe chi\u1EBFm l\u1ED9 2 ho\u1EB7c 4 th\xF4ng tho\xE1ng."
+            };
+          } else if (hasTienTamBinh) {
+            return {
+              name: myColor === 0 ? "Trung Ph\xE1o \u0110\u1ED1i B\xECnh Phong M\xE3 Ti\u1EBFn Tam Binh" : "B\xECnh Phong M\xE3 Ti\u1EBFn Tam Binh Kh\xE1ng Trung Ph\xE1o",
+              category: "Chi\u1EBFn Thu\u1EADt S\xE2u S\u1EAFc",
+              battleplan: "K\xEDch ho\u1EA1t c\xE1nh Binh 3 h\u1ED7 tr\u1EE3 M\xE3 tr\xE1i. H\xE3y linh ho\u1EA1t d\xF9ng Xe qu\xE1 h\xE0 \u0111\xE8 T\u1ED1t ho\u1EB7c chuy\u1EC3n Ph\xE1o bi\xEAn t\u1EA5n c\xF4ng.",
+              counterAdvice: "Ki\u1EC3m so\xE1t ch\u1EB7t ch\u1EBD tuy\u1EBFn h\xE0, ng\u0103n ch\u1EB7n \u0111\u1ED1i ph\u01B0\u01A1ng d\xF9ng M\xE3 \u0111\u1EA1p Binh qua s\xF4ng."
+            };
+          }
+          return {
+            name: myColor === 0 ? "Trung Ph\xE1o \u0110\u1ED1i B\xECnh Phong M\xE3" : "B\xECnh Phong M\xE3 Kh\xE1ng Trung Ph\xE1o",
+            category: "Kinh \u0110i\u1EC3n V\u1EEFng V\xE0ng",
+            battleplan: "Th\u1EBF tr\u1EADn m\u1EABu m\u1EF1c gi\u1EEFa c\xF4ng ph\xE1 d\u0169ng m\xE3nh v\xE0 ph\xF2ng th\u1EE7 ph\u1EA3n c\xF4ng ki\xEAn c\u1ED1. C\u1EA7n ph\xE1t tri\u1EC3n \u0111\u1ED3ng \u0111\u1EC1u Xe M\xE3 Ph\xE1o.",
+            counterAdvice: "Xu\u1EA5t Xe chi\u1EBFm gi\u1EEF l\u1ED9 then ch\u1ED1t, tr\xE1nh \u0111\u1EC3 Ph\xE1o \u0111\u1EA7u b\u1ECB c\xF4 l\u1EADp thi\u1EBFu vi\u1EC7n binh."
+          };
+        }
+        const hasPhanCungCannon = blackCannons.some(
+          (p) => (p.col === 3 || p.col === 5) && p.row === 7
+        );
+        if (hasPhanCungCannon) {
+          return {
+            name: myColor === 0 ? "Trung Ph\xE1o \u0110\u1ED1i Ph\u1EA3n Cung M\xE3 (Gi\xE1p Ph\xE1o)" : "Ph\u1EA3n Cung M\xE3 Kh\xE1ng Trung Ph\xE1o",
+            category: "Bi\u1EBFn \u1EA2o Ph\u1EA3n K\xEDch",
+            battleplan: "Gi\xE1p Ph\xE1o v\xE0o n\xE1ch M\xE3 t\u1EA1o th\u1EBF ph\xF2ng ng\u1EF1 t\u1EA7ng t\u1EA7ng l\u1EDBp l\u1EDBp. H\xE3y t\u1EADp trung \u0111\xE1nh th\u1EB3ng trung l\u1ED9 ho\u1EB7c \u0111\xE8 g\xE3y c\xE1nh M\xE3 bi\xEAn.",
+            counterAdvice: "Khai th\xF4ng l\u1ED9 Xe, khai th\xE1c \u0111i\u1EC3m y\u1EBFu \u1EDF g\xF3c s\u0129 t\u01B0\u1EE3ng khi \u0111\u1ECBch co c\u1EE5m gi\xE1p ph\xE1o."
+          };
+        }
+        const hasCenterKnight = blackKnights.some(
+          (p) => (p.col === 2 || p.col === 6) && p.row === 7
+        );
+        const hasEdgeKnight = blackKnights.some(
+          (p) => (p.col === 0 || p.col === 8) && (p.row === 7 || p.row === 8)
+        );
+        if (hasCenterKnight && hasEdgeKnight) {
+          return {
+            name: myColor === 0 ? "Trung Ph\xE1o \u0110\u1ED1i \u0110\u01A1n \u0110\u1EC1 M\xE3" : "\u0110\u01A1n \u0110\u1EC1 M\xE3 Kh\xE1ng Trung Ph\xE1o",
+            category: "C\xF4ng Th\u1EE7 Ph\xE2n Li\u1EC7t",
+            battleplan: "Chia M\xE3 m\u1ED9t bi\xEAn m\u1ED9t trung, c\xE1nh bi\xEAn linh ho\u1EA1t nh\u01B0ng trung l\u1ED9 m\u1ECFng manh. D\u1ED3n l\u1EF1c c\xF4ng ph\xE1 trung l\u1ED9 v\xE0 c\xE1nh \u0111\u01A1n \u0111\u1ED9c.",
+            counterAdvice: "T\u1EADp trung h\u1ECFa l\u1EF1c v\xE0o c\xE1nh trung l\u1ED9 c\u1EE7a \u0111\u1ECBch n\u01A1i ch\u1EC9 c\xF3 m\u1ED9t M\xE3 b\u1EA3o v\u1EC7 T\u1ED1t \u0111\u1EA7u."
+          };
+        }
+        const hasBlackCenterElephant = blackBishops.some(
+          (p) => p.col === 4 && p.row === 7
+        );
+        if (hasBlackCenterElephant) {
+          return {
+            name: myColor === 0 ? "Trung Ph\xE1o \u0110\u1ED1i Phi T\u01B0\u1EE3ng Cu\u1ED9c" : "Phi T\u01B0\u1EE3ng Cu\u1ED9c Kh\xE1ng Trung Ph\xE1o",
+            category: "T\u0129nh Ch\u1EBF \u0110\u1ED9ng",
+            battleplan: "D\u1EF1ng T\u01B0\u1EE3ng trung t\xE2m gia c\u1ED1 ph\xF2ng ng\u1EF1 tri\u1EC7t ti\xEAu h\u1ECFa l\u1EF1c Ph\xE1o \u0111\u1EA7u. H\xE3y d\u1EA1t Ph\xE1o sang c\xE1nh y\u1EBFu ho\u1EB7c ti\u1EBFn Xe tu\u1EA7n h\xE0 \xE9p giao chi\u1EBFn.",
+            counterAdvice: "Chuy\u1EC3n h\u01B0\u1EDBng t\u1EA5n c\xF4ng sang hai s\u01B0\u1EDDn l\u1ED9 4-6, tr\xE1nh \u0111\xE2m \u0111\u1EA7u v\xE0o ph\xE1o \u0111\xE0i trung l\u1ED9."
+          };
+        }
+        const hasQuyBoi = blackCannons.some((p) => p.row >= 8);
+        if (hasQuyBoi) {
+          return {
+            name: "Trung Ph\xE1o \u0110\u1ED1i Quy B\u1ED1i Ph\xE1o",
+            category: "K\u1EF3 Chi\xEAu B\xED Truy\u1EC1n",
+            battleplan: "Tho\xE1i Ph\xE1o gi\u1EA5u sau l\u01B0ng S\u0129 T\u01B0\u1EE3ng nh\u1EB1m ph\u1EE5c k\xEDch ph\u1EA3n k\xEDch b\u1EA5t ng\u1EDD. C\u1EA7n ti\u1EBFn qu\xE2n ch\u1EADm ch\u1EAFc, gi\u1EEF v\u1EEFng h\xE0ng tuy\u1EBFn.",
+            counterAdvice: "Ki\u1EC3m so\xE1t ch\u1EB7t c\xE1c l\u1ED9 s\u01B0\u1EDDn, c\u1EA3nh gi\xE1c \u0111\xF2n \u0111\xE2m Ph\xE1o \u0111\xE1y ph\u1EA3n chi\u1EBFu c\u1EE7a \u0111\u1ECBch."
+          };
+        }
+        return {
+          name: "Trung Ph\xE1o Khai Cu\u1ED9c (\u0110\u01B0\u01A1ng \u0110\u1EA7u Ph\xE1o)",
+          category: "C\u01B0\u01A1ng M\xE3nh T\u1EA5n C\xF4ng",
+          battleplan: "Ph\xE1o \u0111\u1EA7u kh\u1ED1ng ch\u1EBF th\u1EB3ng tim T\u01B0\u1EDBng \u0111\u1ECBch. Mau ch\xF3ng xu\u1EA5t Xe khai th\xF4ng tr\u1EE5c l\u1ED9, phi M\xE3 tr\u1EE3 chi\u1EBFn trung l\u1ED9.",
+          counterAdvice: "B\u1EA3o v\u1EC7 v\u1EEFng ch\u1EAFc T\u1ED1t \u0111\u1EA7u, kh\xF4ng \u0111\u1EC3 \u0111\u1ED1i ph\u01B0\u01A1ng d\u1EC5 d\xE0ng th\u1ECDc Ph\xE1o ch\xE9m T\u1ED1t."
+        };
+      }
+      if (hasBlackCentralCannon) {
+        const redBPM = redKnights.filter(
+          (p) => p.col === 2 && p.row === 2 || p.col === 6 && p.row === 2
+        );
+        if (redBPM.length >= 2) {
+          return {
+            name: myColor === 1 ? "Trung Ph\xE1o \u0110\u1ED1i B\xECnh Phong M\xE3" : "B\xECnh Phong M\xE3 Kh\xE1ng Trung Ph\xE1o",
+            category: "Ki\xEAn C\u1ED1 Ph\xF2ng Ph\u1EA3n",
+            battleplan: "Song M\xE3 gi\u1EEF v\u1EEFng T\u1ED1t \u0111\u1EA7u nh\u01B0 b\u1EE9c tr\u01B0\u1EDDng th\xE0nh. Ch\u1EDD Xe Ph\xE1o \u0111\u1ED1i ph\u01B0\u01A1ng s\u01A1 h\u1EDF \u0111\u1EC3 ho\xE0nh xa qu\xE1 h\xE0 ph\u1EA3n k\xEDch.",
+            counterAdvice: "Gi\u1EEF v\u1EEFng li\xEAn k\u1EBFt Song M\xE3, s\u1EB5n s\xE0ng \u0111\u1EA9y T\u1ED1t 3 ho\u1EB7c T\u1ED1t 7 khai th\xF4ng m\u1EAFt M\xE3."
+          };
+        }
+        return {
+          name: myColor === 1 ? "\u0110\u01B0\u01A1ng \u0110\u1EA7u Ph\xE1o Khai Cu\u1ED9c" : "H\u1EADu Th\u1EE7 \u0110\u1ED1i \u0110\u01B0\u01A1ng \u0110\u1EA7u Ph\xE1o",
+          category: "Ph\xF2ng Ng\u1EF1 Ph\u1EA3n K\xEDch",
+          battleplan: "\u0110\u1ED1i ph\u01B0\u01A1ng chi\u1EBFm trung l\u1ED9 tr\u01B0\u1EDBc. C\u1EA7n c\u1EE7ng c\u1ED1 S\u0129 T\u01B0\u1EE3ng v\xE0 xu\u1EA5t Xe t\u1ED1c \u0111\u1ED9 \u0111\u1EC3 ki\u1EC1m t\u1ECFa th\u1EBF c\xF4ng c\u1EE7a \u0111\u1ECBch.",
+          counterAdvice: "\u01AFu ti\xEAn gia c\u1ED1 tuy\u1EBFn gi\u1EEFa, tr\xE1nh \u0111\u1EC3 Ph\xE1o tr\u1ED1ng trung l\u1ED9 uy hi\u1EBFp T\u01B0\u1EDBng."
+        };
+      }
+      const hasRedAdvancedPawn = redPawns.some(
+        (p) => (p.col === 2 || p.col === 6) && p.row === 4
+      );
+      if (hasRedAdvancedPawn && !hasRedCentralCannon) {
+        const hasBlackSymmetricPawn = blackPawns.some(
+          (p) => (p.col === 2 || p.col === 6) && p.row === 5
+        );
+        if (hasBlackSymmetricPawn) {
+          return {
+            name: "\u0110\u1ED1i Binh Cu\u1ED9c (Song Binh T\u01B0\u01A1ng Ki\u1EBFn)",
+            category: "C\xE2n B\u1EB1ng Th\xE2m S\xE2u",
+            battleplan: "Hai b\xEAn c\xF9ng ti\u1EBFn Binh tranh \u0111o\u1EA1t \u0111i\u1EC3m t\u1EF1a chi\u1EBFn l\u01B0\u1EE3c. Tr\u1EADn \u0111\u1EA5u \u0111\xF2i h\u1ECFi t\xEDnh to\xE1n trung cu\u1ED9c c\u1EF1c k\u1EF3 s\xE2u s\u1EAFc.",
+            counterAdvice: "Nhanh ch\xF3ng xu\u1EA5t Xe chi\u1EBFm l\u1ED9 2-8 v\xE0 ph\xE1t tri\u1EC3n M\xE3 theo h\u01B0\u1EDBng th\xF4ng tho\xE1ng."
+          };
+        }
+        return {
+          name: "Ti\xEAn Nh\xE2n Ch\u1EC9 L\u1ED9 Cu\u1ED9c (Binh Ph\xE1p Th\u0103m D\xF2)",
+          category: "Uy\u1EC3n Chuy\u1EC3n C\u01A1 \u0110\u1ED9ng",
+          battleplan: "Ti\u1EBFn Binh m\u1EDF \u0111\u01B0\u1EDDng cho M\xE3, v\u1EEBa d\xF2 x\xE9t ph\u1EA3n \u1EE9ng c\u1EE7a \u0111\u1ECBch v\u1EEBa gi\u1EEF k\xEDn \xFD \u0111\u1ED3 chi\u1EBFn l\u01B0\u1EE3c. Bi\u1EBFn h\xF3a v\xF4 c\xF9ng linh ho\u1EA1t.",
+          counterAdvice: "T\xF9y theo n\u01B0\u1EDBc \u0111i ti\u1EBFp theo c\u1EE7a \u0111\u1ED1i ph\u01B0\u01A1ng m\xE0 chuy\u1EC3n h\xF3a th\xE0nh Trung Ph\xE1o, Phi T\u01B0\u1EE3ng ho\u1EB7c Qu\xE1 Cung Ph\xE1o."
+        };
+      }
+      const hasRedCenterElephant = redBishops.some(
+        (p) => p.col === 4 && p.row === 2
+      );
+      if (hasRedCenterElephant && !hasRedCentralCannon) {
+        return {
+          name: "Phi T\u01B0\u1EE3ng Cu\u1ED9c (Ph\xF2ng Ng\u1EF1 Ph\u1EA3n K\xEDch)",
+          category: "Ki\xEAn C\u1ED1 V\u1EEFng V\xE0ng",
+          battleplan: "C\u1EE7ng c\u1ED1 ph\xF2ng tuy\u1EBFn v\u1EEFng nh\u01B0 b\xE0n th\u1EA1ch, h\u1EA1n ch\u1EBF t\u1ED1i \u0111a r\u1EE7i ro, ch\u1EDD \u0111\u1ED1i ph\u01B0\u01A1ng n\xF3ng v\u1ED9i l\u1ED9 s\u01A1 h\u1EDF.",
+          counterAdvice: "Ph\xE1t tri\u1EC3n Song M\xE3 v\xE0 Xe th\xF4ng tho\xE1ng, ki\u1EC3m so\xE1t ch\u1EB7t ch\u1EBD tuy\u1EBFn h\xE0."
+        };
+      }
+      const hasRedActiveKnights = redKnights.some(
+        (p) => (p.col === 2 || p.col === 6) && p.row === 2
+      );
+      const redCannonsUntouched = redCannons.every(
+        (p) => p.row === 2 && (p.col === 1 || p.col === 7)
+      );
+      if (hasRedActiveKnights && redCannonsUntouched) {
+        return {
+          name: "Kh\u1EDFi M\xE3 Cu\u1ED9c (Ch\xEDnh M\xE3 Khai Tr\u1EADn)",
+          category: "\u1ED4n \u0110\u1ECBnh Uy\u1EC3n Chuy\u1EC3n",
+          battleplan: "Ph\xE1t tri\u1EC3n M\xE3 ch\xEDnh quy chi\u1EBFm c\u1EE9 v\u1ECB tr\xED chi\u1EBFn l\u01B0\u1EE3c, b\u1EA3o v\u1EC7 T\u1ED1t \u0111\u1EA7u v\xE0 s\u1EB5n s\xE0ng th\xEDch \u1EE9ng v\u1EDBi m\u1ECDi th\u1EBF tr\u1EADn.",
+          counterAdvice: "\u0110\u1EA9y Binh 3 ho\u1EB7c 7 th\xF4ng \u0111\u01B0\u1EDDng cho M\xE3 nh\u1EA3y ti\u1EBFp, gi\u1EEF Ph\xE1o linh ho\u1EA1t \u1EE9ng bi\u1EBFn."
+        };
+      }
+      const hasRedQuaCung = redCannons.some(
+        (p) => (p.col === 3 || p.col === 5) && p.row === 2
+      );
+      if (hasRedQuaCung) {
+        return {
+          name: "Qu\xE1 Cung Ph\xE1o (Chuy\u1EC3n C\xE1nh T\u1EADp K\xEDch)",
+          category: "K\u1EF3 \u1EA2o B\u1EA5t Ng\u1EDD",
+          battleplan: "\u0110i\u1EC1u Ph\xE1o qua cung t\u1EADp trung h\u1ECFa l\u1EF1c v\xE0o m\u1ED9t c\xE1nh \u0111\u1ED1i ph\u01B0\u01A1ng, chu\u1EA9n b\u1ECB xu\u1EA5t Xe ho\xE0nh xa ph\u1ED1i h\u1EE3p \u0111\xE8 b\u1EB9p c\xE1nh y\u1EBFu.",
+          counterAdvice: "Nhanh ch\xF3ng c\u1EE7ng c\u1ED1 c\xE1nh b\u1ECB uy hi\u1EBFp, khai th\xE1c kho\u1EA3ng tr\u1ED1ng \u1EDF c\xE1nh Ph\xE1o v\u1EEBa d\u1EDDi \u0111i."
+        };
+      }
+      const hasRedSiGiac = redCannons.some(
+        (p) => (p.col === 3 || p.col === 5) && (p.row === 0 || p.row === 1)
+      );
+      if (hasRedSiGiac) {
+        return {
+          name: "S\u0129 Gi\xE1c Ph\xE1o (Ph\xE1o N\xE1ch S\u0129)",
+          category: "Ph\xF2ng Th\u1EE7 Ph\u1EE5c K\xEDch",
+          battleplan: "\u0110\u1EB7t Ph\xE1o t\u1EA1i n\xE1ch S\u0129 v\u1EEBa h\u1ED7 tr\u1EE3 ph\xF2ng th\u1EE7 cung T\u01B0\u1EDBng v\u1EEBa nh\u1EAFm v\xE0o h\xE0ng T\u1ED1t \u0111\u1ED1i ph\u01B0\u01A1ng t\u1EEB c\u1EF1 ly an to\xE0n.",
+          counterAdvice: "Xu\u1EA5t Xe nhanh chi\u1EBFm l\u1ED9 th\xF4ng, ph\xE1t tri\u1EC3n M\xE3 l\xEAn trung t\xE2m ki\u1EC1m t\u1ECFa t\u1EA7m b\u1EAFn c\u1EE7a Ph\xE1o n\xE1ch."
+        };
+      }
+      const redCannonsSameFlank = redCannons.filter((p) => p.col <= 3).length === 2 || redCannons.filter((p) => p.col >= 5).length === 2;
+      if (redCannonsSameFlank) {
+        return {
+          name: "Kim C\xE2u Ph\xE1o (L\u01B0\u1EE1ng Ph\xE1o \u0110\u1ED3ng C\xE1nh)",
+          category: "Hi\u1EC3m \u0110\u1ED9c B\u1EA5t Ng\u1EDD",
+          battleplan: "D\u1ED3n hai Ph\xE1o v\u1EC1 c\xF9ng m\u1ED9t c\xE1nh t\u1EA1o h\u1ECFa l\u1EF1c t\u1EA7m xa d\u1ED3n d\u1EADp, k\xE9o gi\xE3n \u0111\u1ED9i h\xECnh ph\xF2ng th\u1EE7 c\u1EE7a \u0111\u1ED1i ph\u01B0\u01A1ng.",
+          counterAdvice: "Chuy\u1EC3n Xe sang c\xE1nh b\u1ECB t\u1EA5n c\xF4ng ti\u1EBFp \u1EE9ng, \u0111\u1ED3ng th\u1EDDi ph\u1EA3n k\xEDch m\u1EA1nh v\xE0o c\xE1nh tr\u1ED1ng tr\u1EA3i c\u1EE7a \u0111\u1ED1i th\u1EE7."
+        };
+      }
+      return {
+        name: "Khai Cu\u1ED9c Ti\xEAu Chu\u1EA9n",
+        category: "Ch\xEDnh Quy C\u0103n B\u1EA3n",
+        battleplan: "Tri\u1EC3n khai \u0111\u1ED3ng \u0111\u1EC1u c\xE1c binh ch\u1EE7ng Xe, M\xE3, Ph\xE1o. \u01AFu ti\xEAn xu\u1EA5t Xe nhanh, ki\u1EC3m so\xE1t l\u1ED9 th\xF4ng v\xE0 b\u1EDD s\xF4ng.",
+        counterAdvice: "T\u1EADp trung khai th\xF4ng c\xE1c tr\u1EE5c l\u1ED9 ch\xEDnh, gi\u1EEF c\u1EF1 ly \u0111\u1ED9i h\xECnh c\xE2n b\u1EB1ng gi\u1EEFa c\xF4ng v\xE0 th\u1EE7."
+      };
+    }
+    function selectIntelligentMaxim(pieces, myColor, oppColor, phase, evalScore, inCheck, discThreat, plans, mateThreat) {
+      if (!pieces || pieces.length === 0) {
+        return XIANGQI_MAXIMS[0];
+      }
+      if (inCheck) {
+        return {
+          rule: "T\u01B0\u1EDBng nguy b\xE1ch b\u1ED9, t\u1ECB k\u1EF3 phong mang",
+          desc: "T\u01B0\u1EDBng \u0111ang b\u1ECB chi\u1EBFu b\u1EE9c! T\xEDnh m\u1EA1ng ch\u1EE7 t\u01B0\u1EDBng l\xE0 tr\xEAn h\u1EBFt, \u01B0u ti\xEAn d\u1EDDi T\u01B0\u1EDBng ho\u1EB7c \u0111i\u1EC1u qu\xE2n che ch\u1EDF h\xF3a gi\u1EA3i tr\u01B0\u1EDBc.",
+          category: "S\xE1t C\u1EE5c",
+          triggerReason: "T\u01B0\u1EDBng ta \u0111ang b\u1ECB chi\u1EBFu",
+          badge: "C\u1EA5p C\u1EE9u Cung T\u01B0\u1EDBng"
+        };
+      }
+      if (discThreat) {
+        return {
+          rule: "\u0110\u1EC1 ph\xF2ng \xE1m ti\u1EC5n, ph\xE1 th\u1EBF chi\u1EBFu r\xFAt",
+          desc: "\u0110\u1ED1i th\u1EE7 \u0111ang gi\u0103ng \u0111\xF2n chi\u1EBFu r\xFAt/chi\u1EBFu m\u1EDF c\u1EF1c k\u1EF3 nguy hi\u1EC3m! L\u1EADp t\u1EE9c d\u1EDDi T\u01B0\u1EDBng ho\u1EB7c phong t\u1ECFa ng\xF2i chi\u1EBFu.",
+          category: "S\xE1t C\u1EE5c",
+          triggerReason: "Nguy c\u01A1 \u0111\xF2n chi\u1EBFu r\xFAt c\u1EE7a \u0111\u1ECBch",
+          badge: "H\xF3a Gi\u1EA3i \xC1m Ti\u1EC5n"
+        };
+      }
+      if (mateThreat && mateThreat.type === "attack") {
+        return {
+          rule: "Nh\u1EA5t c\u1ED5 t\xE1c kh\xED, d\u0169ng t\u01B0\u1EDBng \u0111o\u1EA1t th\xE0nh",
+          desc: "Tr\u1EADn th\u1EBF s\xE1t c\u1EE5c \u0111\xE3 l\u1ED9 di\u1EC7n! Gi\u1EEF v\u1EEFng s\u1EF1 t\u1EADp trung, gi\xE1ng \u0111\xF2n ch\xEDnh x\xE1c d\u1EE9t \u0111i\u1EC3m kh\xF4ng cho \u0111\u1ED1i ph\u01B0\u01A1ng c\u01A1 h\u1ED9i tr\u1EDF m\xECnh.",
+          category: "S\xE1t C\u1EE5c",
+          triggerReason: "\u0110ang n\u1EAFm gi\u1EEF th\u1EBF s\xE1t",
+          badge: "Tuy\u1EC7t K\u1EF9 S\xE1t C\u1EE5c"
+        };
+      }
+      const oppAdvisors = pieces.filter(
+        (p) => p.color === oppColor && p.type === 1
+      ).length;
+      const oppBishops = pieces.filter(
+        (p) => p.color === oppColor && p.type === 2
+      ).length;
+      const myRooks = pieces.filter(
+        (p) => p.color === myColor && p.type === 3
+      ).length;
+      const myCannons = pieces.filter(
+        (p) => p.color === myColor && p.type === 4
+      ).length;
+      const myKnights = pieces.filter(
+        (p) => p.color === myColor && p.type === 5
+      ).length;
+      if (oppAdvisors < 2 && myRooks >= 1) {
+        return {
+          rule: "Khuy\u1EBFt S\u0129 k\u1EF5 Song Xe, n\xE1ch r\xE1ch T\u01B0\u1EDBng kinh",
+          desc: `\u0110\u1ECBch ch\u1EC9 c\xF2n ${oppAdvisors} S\u0129 che ch\u1EDF, hai s\u01B0\u1EDDn l\u1ED9 4-6 h\u1EDF to\xE1c! H\xE3y d\u1ED3n Xe M\xE3 kho\xE9t s\xE2u v\xE0o s\u01B0\u1EDDn y\u1EBFu \u0111\u1EC3 t\u1EA1o th\u1EBF k\u1EB9p c\u1ED5.`,
+          category: "Trung Cu\u1ED9c",
+          triggerReason: `\u0110\u1ECBch khuy\u1EBFt ${2 - oppAdvisors} S\u0129`,
+          badge: "Kho\xE9t S\u01B0\u1EDDn T\u01B0\u1EDBng"
+        };
+      }
+      if (oppBishops < 2 && myCannons >= 1) {
+        return {
+          rule: "Khuy\u1EBFt T\u01B0\u1EE3ng s\u1EE3 Ph\xE1o, \u0111\xE1y cung h\u1EDF ng\xF2i",
+          desc: `\u0110\u1ECBch ch\u1EC9 c\xF2n ${oppBishops} T\u01B0\u1EE3ng ph\xF2ng th\u1EE7 t\u1EA7m xa! H\xE3y d\xF9ng Ph\xE1o m\u01B0\u1EE3n ng\xF2i \u0111\xE1y cung b\u1EAFn th\u1EB3ng v\xE0o trung qu\xE2n \u0111\u1ECBch.`,
+          category: "Trung Cu\u1ED9c",
+          triggerReason: `\u0110\u1ECBch khuy\u1EBFt ${2 - oppBishops} T\u01B0\u1EE3ng`,
+          badge: "Khai Th\xE1c \u0110i\u1EC3m M\xF9"
+        };
+      }
+      const oppPalaceCenterRow = oppColor === 0 ? 1 : 8;
+      const oppTrappedKnight = pieces.find(
+        (p) => p.color === oppColor && p.type === 5 && p.col === 4 && p.row === oppPalaceCenterRow
+      );
+      if (oppTrappedKnight) {
+        return {
+          rule: "M\xE3 nh\u1EADp oa t\xE2m, b\u1EA5t t\u1EED d\xE3 h\xF4n",
+          desc: "M\xE3 \u0111\u1ECBch nh\u1EA3y v\xE0o t\xE2m cung t\u1EF1 ch\u1EB7n \u0111\u01B0\u1EDDng ch\u1EA1y c\u1EE7a T\u01B0\u1EDBng! Mau ch\xF3ng d\u1ED3n h\u1ECFa l\u1EF1c v\xE0o trung l\u1ED9 \u0111\u1EC3 k\u1EBFt li\u1EC5u tr\u1EADn \u0111\u1EA5u.",
+          category: "Trung Cu\u1ED9c",
+          triggerReason: "M\xE3 \u0111\u1ECBch t\u1EAFc t\u1EA1i t\xE2m cung",
+          badge: "T\u1EADp K\xEDch Oa T\xE2m"
+        };
+      }
+      const oppKing = pieces.find((p) => p.color === oppColor && p.type === 0);
+      if (oppKing) {
+        const centralCannons = pieces.filter(
+          (p) => p.color === myColor && p.type === 4 && p.col === oppKing.col
+        );
+        for (const cannon of centralCannons) {
+          const minR = Math.min(cannon.row, oppKing.row);
+          const maxR = Math.max(cannon.row, oppKing.row);
+          const blockers = pieces.filter(
+            (p) => p.col === oppKing.col && p.row > minR && p.row < maxR
+          );
+          if (blockers.length === 0) {
+            return {
+              rule: "Ph\xE1o tr\u1ED1ng v\xF4 gi\xE1, uy ch\u1EA5n trung qu\xE2n",
+              desc: "Ph\xE1o tr\u1ED1ng \u0111\u1ED1i di\u1EC7n T\u01B0\u1EDBng \u0111\u1ECBch kh\xF4ng c\xF3 qu\xE2n che ch\u1EAFn! S\u1EE9c c\xF4ng ph\xE1 s\u1EA5m s\xE9t, ph\u1ED1i h\u1EE3p Xe M\xE3 d\u1EE9t \u0111i\u1EC3m tr\u1EADn \u0111\u1EA5u.",
+              category: "Trung Cu\u1ED9c",
+              triggerReason: "Ph\xE1o tr\u1ED1ng \u0111\u1ED1i di\u1EC7n T\u01B0\u1EDBng",
+              badge: "H\u1ECFa L\u1EF1c S\u1EA5m S\xE9t"
+            };
+          }
+        }
+      }
+      const enemyPalaceRows = myColor === 0 ? [7, 8, 9] : [0, 1, 2];
+      const pawnInPalace = pieces.find(
+        (p) => p.color === myColor && p.type === 6 && enemyPalaceRows.includes(p.row) && p.col >= 3 && p.col <= 5
+      );
+      if (pawnInPalace) {
+        return {
+          rule: "Nh\u1EA5t T\u1ED1t nh\u1EADp cung, v\u1EA1n qu\xE2n kinh h\xE3i",
+          desc: "T\u1ED1t ta \u0111\xE3 th\xE2m nh\u1EADp s\xE2u v\xE0o c\u1EEDu cung \u0111\u1ECBch! Nh\u01B0 m\u1ED9t con dao g\u0103m k\u1EC1 c\u1ED5 T\u01B0\u1EDBng, kh\xF3a ch\u1EB7t c\u1EEDu cung h\u1ED7 tr\u1EE3 Xe d\u1EE9t \u0111i\u1EC3m.",
+          category: "Trung Cu\u1ED9c",
+          triggerReason: "T\u1ED1t ta \u0111\xE3 nh\u1EADp cung",
+          badge: "Dao G\u0103m C\u1EADn V\u1EC7"
+        };
+      }
+      if (phase === "T\xE0n Cu\u1ED9c") {
+        if (myKnights >= 1) {
+          return {
+            rule: "C\u1EDD t\xE0n Ph\xE1o ho\xE0n, M\xE3 nh\u1EA3y xung thi\xEAn",
+            desc: "Giai \u0111o\u1EA1n t\xE0n cu\u1ED9c \u0111\u1EA5t tr\u1ED1ng m\xEAnh m\xF4ng, Ph\xE1o m\u1EA5t ng\xF2i suy y\u1EBFu nh\u01B0ng M\xE3 t\u1EF1 do tung ho\xE0nh! H\xE3y d\xF9ng g\xF3c nh\u1EA3y hi\u1EC3m c\u1EE7a M\xE3 \u0111\u1EC3 \xE1p \u0111\u1EA3o.",
+            category: "T\xE0n Cu\u1ED9c",
+            triggerReason: "T\xE0n cu\u1ED9c ph\xE1t huy M\xE3",
+            badge: "T\xE0n Cu\u1ED9c M\xE3 Th\u1EAFng"
+          };
+        }
+        return {
+          rule: "T\u1ED1t cao c\xF3 gi\xE1, T\u1ED1t l\u1EE5t v\xF4 c\xF4ng",
+          desc: "Gi\u1EEF T\u1ED1t \u1EDF h\xE0ng tr\xEAn \u0111\u1EC3 kh\u1ED1ng ch\u1EBF l\u1ED9 di chuy\u1EC3n c\u1EE7a T\u01B0\u1EDBng \u0111\u1ECBch, tr\xE1nh \u0111\u1EA9y T\u1ED1t l\u1EE5t xu\u1ED1ng \u0111\xE1y s\u1EDBm l\xE0m m\u1EA5t \u0111i kh\u1EA3 n\u0103ng c\xF4ng ph\xE1.",
+          category: "T\xE0n Cu\u1ED9c",
+          triggerReason: "K\u1EF9 thu\u1EADt t\xE0n cu\u1ED9c c\u0103n b\u1EA3n",
+          badge: "Ngh\u1EC7 Thu\u1EADt Binh T\u1ED1t"
+        };
+      }
+      if (phase === "Khai Cu\u1ED9c") {
+        const redRookInit = myColor === 0 && pieces.some(
+          (p) => p.color === 0 && p.type === 3 && p.row === 0 && (p.col === 0 || p.col === 8)
+        );
+        const blackRookInit = myColor === 1 && pieces.some(
+          (p) => p.color === 1 && p.type === 3 && p.row === 9 && (p.col === 0 || p.col === 8)
+        );
+        if (redRookInit || blackRookInit) {
+          return {
+            rule: "Xu\u1EA5t Xe ch\u1EADm m\u1ED9t n\u01B0\u1EDBc, m\u1EA5t quy\u1EC1n ch\u1EE7 \u0111\u1ED9ng m\u01B0\u1EDDi chi\xEAu",
+            desc: "Khai cu\u1ED9c t\u1ED1i k\u1EF5 ch\u1EADm xu\u1EA5t Xe! Nhanh ch\xF3ng \u0111\u01B0a Xe ra l\u1ED9 th\xF4ng 2, 4, 6, 8 ki\u1EC3m so\xE1t c\xE1c tr\u1EE5c giao chi\u1EBFn huy\u1EBFt m\u1EA1ch.",
+            category: "Khai Cu\u1ED9c",
+            triggerReason: "Xe ch\u01B0a xu\u1EA5t qu\xE2n",
+            badge: "T\u1ED1c \u0110\u1ED9 Xu\u1EA5t Xe"
+          };
+        }
+        return {
+          rule: "Ph\xE1o \u0111\u1EA7u uy ch\u1EA5n trung qu\xE2n, t\u1ECFa \u0111\u1ECBnh tr\u1EE5c l\u1ED9",
+          desc: "Kh\u1ED1ng ch\u1EBF trung t\xE2m t\u1EA1o th\u1EBF g\u1ECDng k\xECm, v\u1EEBa b\u1EA3o v\u1EC7 T\u1ED1t \u0111\u1EA7u v\u1EEBa m\u1EDF toang \u0111\u01B0\u1EDDng ti\u1EBFn cho Song M\xE3 v\xE0 Xe nh\u1EADp cu\u1ED9c.",
+          category: "Khai Cu\u1ED9c",
+          triggerReason: "Ph\xE1t tri\u1EC3n qu\xE2n khai cu\u1ED9c",
+          badge: "Quy C\u1EE7 Tr\u1EADn Ph\xE1p"
+        };
+      }
+      if (evalScore >= 350) {
+        return {
+          rule: "Th\u1EEBa th\u1EAFng truy k\xEDch, c\xF4ng th\xE0nh \u0111o\u1EA1t tr\u1EA1i",
+          desc: "Th\u1EBF tr\u1EADn \u0111ang \xE1p \u0111\u1EA3o to\xE0n di\u1EC7n (+3.5\u0111)! Si\u1EBFt ch\u1EB7t v\xF2ng v\xE2y, d\u1ED3n \xE9p \u0111\u1ED1i th\u1EE7 v\xE0o th\u1EBF b\u1EBF t\u1EAFc kh\xF4ng cho c\u01A1 h\u1ED9i tr\u1EDF m\xECnh.",
+          category: "Trung Cu\u1ED9c",
+          triggerReason: "\u01AFu th\u1EBF \xE1p \u0111\u1EA3o",
+          badge: "T\u1ED5ng L\u1EF1c \xC1p \u0110\u1EA3o"
+        };
+      }
+      if (evalScore <= -350) {
+        return {
+          rule: "Ngh\u1ECBch c\u1EA3nh ki\xEAn th\u1EE7, ch\u1EDD c\u01A1 h\u1ED3i m\xE3 th\u01B0\u01A1ng",
+          desc: "Th\u1EBF c\u1EDD \u0111ang b\u1EA5t l\u1EE3i! C\u1EA7n ch\u1EC9nh \u0111\u1ED1n S\u0129 T\u01B0\u1EE3ng ki\xEAn c\u1ED1, tuy\u1EC7t \u0111\u1ED1i kh\xF4ng n\xF3ng v\u1ED9i xua qu\xE2n li\u1EC1u m\u1EA1ng, ch\u1EDD \u0111\u1ECBch s\u01A1 h\u1EDF ph\u1EA3n \u0111\xF2n.",
+          category: "Trung Cu\u1ED9c",
+          triggerReason: "Th\u1EBF c\u1EDD ngh\u1ECBch c\u1EA3nh",
+          badge: "Ki\xEAn C\u1ED1 Ch\u1EDD Th\u1EDDi"
+        };
+      }
+      return {
+        rule: "Xe m\u01B0\u1EDDi, Ph\xE1o b\u1EA3y, M\xE3 ba",
+        desc: "Xe c\u01A1 \u0111\u1ED9ng c\xF4ng ph\xE1 m\u1EA1nh nh\u1EA5t; Ph\xE1o kh\u1ED1ng ch\u1EBF t\u1EA7m xa; M\xE3 bi\u1EBFn h\xF3a uy\u1EC3n chuy\u1EC3n khi c\u1EDD tho\xE1ng. Ph\u1ED1i h\u1EE3p nh\u1ECBp nh\xE0ng c\xE1c binh ch\u1EE7ng.",
+        category: "Trung Cu\u1ED9c",
+        triggerReason: "Ph\u1ED1i h\u1EE3p binh ch\u1EE7ng",
+        badge: "Binh Th\u01B0 T\u01B0\u1EE3ng K\u1EF3"
+      };
+    }
     let mentorPanelEl = null;
     let cachedAnalysis = null;
     let lastAnalysisHash = "";
@@ -48143,6 +48798,46 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           desc: "H\u1ECFa l\u1EF1c Xe Ph\xE1o gi\xE1p c\xF4ng li\xEAn ho\xE0n, d\u1ED3n \xE9p T\u01B0\u1EDBng \u0111\u1ECBch v\xE0o t\u1EED \u0111\u1ECBa!"
         };
       }
+      const hasHorseFlank = pieces.some(
+        (p) => p.color === myColor && p.type === 5 && (p.col === 1 || p.col === 7 || p.col === 2 || p.col === 6) && enemyPalaceRows.includes(p.row)
+      );
+      if (movingPiece.type === 3 && (toCol === 3 || toCol === 5 || toCol === 1 || toCol === 7) && hasHorseFlank) {
+        return {
+          id: "trac-dien-ho",
+          name: "Tr\u1EAFc Di\u1EC7n H\u1ED5",
+          tag: "trac-dien-ho",
+          desc: "M\xE3 kh\xF3a g\xF3c cung, Xe s\u01B0\u1EDDn \xE1p s\xE1t gi\xE1ng \u0111\xF2n Tr\u1EAFc Di\u1EC7n H\u1ED5 s\u1EA5m s\xE9t \u0111o\u1EA1t m\u1EA1ng T\u01B0\u1EDBng \u0111\u1ECBch!"
+        };
+      }
+      if (movingPiece.type === 4) {
+        const otherCannonSameCol = pieces.some(
+          (p) => p.color === myColor && p.type === 4 && p.col === toCol && !(p.col === move.fromCol && p.row === move.fromRow) && enemyPalaceRows.includes(p.row)
+        );
+        if (otherCannonSameCol && enemyPalaceRows.includes(toRow)) {
+          return {
+            id: "double-cannon",
+            name: "Song Ph\xE1o Tr\xF9ng",
+            tag: "double-cannon",
+            desc: "Song Ph\xE1o tr\xF9ng tr\u1EE5c l\u1ED9 gi\xE1ng h\u1ECFa l\u1EF1c kinh ho\xE0ng, T\u01B0\u1EDBng \u0111\u1ECBch kh\xF4ng c\xF2n \u0111\u01B0\u1EDDng tho\xE1i lui!"
+          };
+        }
+      }
+      if (movingPiece.type === 3 && toRow === enemyBaseline) {
+        return {
+          id: "sea-bottom-moon",
+          name: "H\u1EA3i \u0110\xE1y Lao Nguy\u1EC7t",
+          tag: "sea-bottom-moon",
+          desc: "Xe c\u1EAFm \u0111\xE1y cung lu\u1ED3n sau l\u01B0ng T\u01B0\u1EDBng, gi\xE1ng \u0111\xF2n \u0110\xE1y Bi\u1EC3n M\xF2 Tr\u0103ng \u0111o\u1EA1t th\u1EAFng quy\u1EBFt \u0111\u1ECBnh!"
+        };
+      }
+      if ((movingPiece.type === 3 || movingPiece.type === 6) && toCol === 4 && enemyPalaceRows.includes(toRow)) {
+        return {
+          id: "gouging-heart",
+          name: "\u0110\u1EA1i \u0110ao Oan T\xE2m",
+          tag: "gouging-heart",
+          desc: "Ch\xE9m th\u1EB3ng v\xE0o huy\u1EC7t \u0111\u1EA1o t\xE2m cung \u0111\u1ED1i ph\u01B0\u01A1ng, ph\xE1 n\xE1t tr\u1EADn h\xECnh \u0111o\u1EA1t th\u1EAFng tuy\u1EC7t \u0111\u1ED1i!"
+        };
+      }
       return {
         id: "mate-threat",
         name: "Tuy\u1EC7t S\xE1t Li\xEAn Ho\xE0n",
@@ -48260,7 +48955,18 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         };
       }
       const coachCommentary = commentary.move ? `Khuy\xEAn d\xF9ng ${commentary.move}! ${commentary.why}` : commentary.why;
-      const currentMaxim = XIANGQI_MAXIMS[phase === "Khai Cu\u1ED9c" ? 4 : 0];
+      const openingInfo = detectXiangqiOpening(pieces, myColor);
+      const currentMaxim = selectIntelligentMaxim(
+        pieces,
+        myColor,
+        oppColor,
+        phase,
+        score,
+        inCheck,
+        discThreat,
+        [],
+        null
+      );
       return {
         phase,
         isMyTurn,
@@ -48278,7 +48984,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         depth: 0,
         nodes: 0,
         evalBreakdown: quickRes && quickRes.evalBreakdown ? quickRes.evalBreakdown : null,
-        openingName: null,
+        openingName: openingInfo ? openingInfo.name : null,
+        openingInfo,
         engineName: activeProviderId2 === "pikafish" ? getEngineTransportStatus().type === "native-ws" ? "Pikafish NNUE (Native WS: 8765)" : "Pikafish 17 NNUE (Cloud)" : "AN Grandmaster JS",
         pikafishStatus: activeProviderId2 === "pikafish" ? getEngineTransportStatus().type : "js-engine",
         mateThreat: discThreat ? {
@@ -48289,6 +48996,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           explanation: discThreat.desc
         } : null,
         maxim: currentMaxim,
+        allMaxims: XIANGQI_MAXIMS,
         isQuickOnly: true
       };
     }
@@ -48414,12 +49122,18 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             const oppTCol = oppColor === 0 ? 9 - rep.toCol : rep.toCol + 1;
             if (oppTarget) {
               oppWhy = `Ph\u1EA3n ph\xE1o ch\xE9m ${oppTarget.name} t\u1EA1i L\u1ED9 ${oppTCol} nh\u1EB1m gi\u1EA3i t\u1ECFa s\u1EE9c \xE9p.`;
+            } else if (oppPiece && oppPiece.type === 0) {
+              oppWhy = `T\u01B0\u1EDBng \u0111\u1ECBch d\u1EDDi sang L\u1ED9 ${oppTCol} tho\xE1t kh\u1ECFi t\u1EA7m ng\u1EAFm nguy hi\u1EC3m c\u1EE7a ta.`;
             } else if (oppPiece && (oppPiece.type === 1 || oppPiece.type === 2)) {
               oppWhy = `B\u1ED5 ${oppPiece.name} c\u1EE7ng c\u1ED1 ph\xF2ng tuy\u1EBFn tr\u01B0\u1EDBc th\u1EBF c\xF4ng d\u1ED3n d\u1EADp c\u1EE7a ta.`;
             } else if (oppPiece && oppPiece.type === 3) {
               oppWhy = `Xu\u1EA5t Xe ki\u1EC3m so\xE1t L\u1ED9 ${oppTCol} h\xF2ng ng\u0103n ch\u1EB7n m\u0169i \u0111\u1ED9t ph\xE1 c\u1EE7a ta.`;
+            } else if (oppPiece && oppPiece.type === 4) {
+              oppWhy = `\u0110i\u1EC1u Ph\xE1o t\u1EDBi L\u1ED9 ${oppTCol} t\xECm ki\u1EBFm ng\xF2i n\u1ED5 ph\u1EA3n k\xEDch.`;
             } else if (oppPiece && oppPiece.type === 5) {
-              oppWhy = `Nh\u1EA3y M\xE3 l\xEAn L\u1ED9 ${oppTCol} h\xF2ng t\xECm ki\u1EBFm c\u01A1 h\u1ED9i ph\u1EA3n k\xEDch.`;
+              oppWhy = `Nh\u1EA3y M\xE3 l\xEAn L\u1ED9 ${oppTCol} h\xF2ng khai th\xF4ng th\u1EBF tr\u1EADn v\xE0 ph\u1EA3n k\xEDch.`;
+            } else if (oppPiece && oppPiece.type === 6) {
+              oppWhy = `Ti\u1EBFn Binh L\u1ED9 ${oppTCol} m\u1EDF \u0111\u01B0\u1EDDng cho M\xE3 ho\u1EB7c tranh \u0111o\u1EA1t quy\u1EC1n ki\u1EC3m so\xE1t h\xE0.`;
             } else {
               oppWhy = `\u0110i\u1EC1u qu\xE2n ph\u1EA3n \u1EE9ng c\u1EE7ng c\u1ED1 tr\u1EADn \u0111\u1ECBa.`;
             }
@@ -48446,10 +49160,16 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                   ansWhy = `L\u1EADp t\u1EE9c ch\xE9m ${ansTarget.name} L\u1ED9 ${ansTCol}, \u0111o\u1EA1t \u01B0u th\u1EBF quy\u1EBFt \u0111\u1ECBnh.`;
                 } else if (rep.answer.score && rep.answer.score > 9e3) {
                   ansWhy = `Gi\xE1ng \u0111\xF2n s\xE1t c\u1EE5c k\u1EBFt li\u1EC5u tr\u1EADn \u0111\u1EA5u!`;
+                } else if (ansPiece.type === 0) {
+                  ansWhy = `V\u1EADn \u0111\u1ED9ng T\u01B0\u1EDBng chi\u1EBFm l\u1ED9 kh\u1ED1ng ch\u1EBF tr\u1EE3 chi\u1EBFn kh\xF3a ch\u1EB7t \u0111\u1ED1i ph\u01B0\u01A1ng.`;
                 } else if (ansPiece.type === 3) {
                   ansWhy = `Xe b\u1ED3i \u0111\xF2n kh\u1ED1ng ch\u1EBF L\u1ED9 ${ansTCol}, si\u1EBFt ch\u1EB7t v\xF2ng v\xE2y \xE9p \u0111\u1ECBch v\xE0o th\u1EBF b\xED.`;
                 } else if (ansPiece.type === 4) {
                   ansWhy = `Ph\xE1o b\u1ED3i th\xEAm \u0111\xF2n c\xF4ng k\xEDch s\u01B0\u1EDDn/trung l\u1ED9, kh\xF3a ch\u1EB7t \u0111\u01B0\u1EDDng t\u1EA9u tho\xE1t.`;
+                } else if (ansPiece.type === 5) {
+                  ansWhy = `M\xE3 phi l\xEAn L\u1ED9 ${ansTCol} t\u1EA1o g\u1ECDng k\xECm ph\u1ED1i h\u1EE3p c\xF9ng Xe Ph\xE1o d\u1ED3n \xE9p T\u01B0\u1EDBng \u0111\u1ECBch.`;
+                } else if (ansPiece.type === 6) {
+                  ansWhy = `Ti\u1EC3u T\u1ED1t x\xF4ng l\xEAn \xE1p s\xE1t n\xE1ch cung, gia t\u0103ng \xE1p l\u1EF1c s\xE1t v\xE1n.`;
                 } else {
                   ansWhy = `B\u1ED3i th\xEAm \u0111\xF2n ${ansNot.short} gi\u1EEF v\u1EEFng \u01B0u th\u1EBF \xE1p \u0111\u1EA3o.`;
                 }
@@ -48840,7 +49560,18 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             }
           }
         }
-        const currentMaxim = XIANGQI_MAXIMS[phase === "Khai Cu\u1ED9c" ? 4 : 0];
+        const openingInfo = detectXiangqiOpening(pieces, myColor);
+        const currentMaxim = selectIntelligentMaxim(
+          pieces,
+          myColor,
+          oppColor,
+          phase,
+          searchRes.score,
+          inCheck,
+          discThreat,
+          plans,
+          mateThreat
+        );
         return {
           phase,
           isMyTurn,
@@ -48858,7 +49589,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           inCheck,
           depth: searchRes.depth,
           nodes: searchRes.nodes,
-          openingName: searchRes.openingName || null,
+          openingName: openingInfo ? openingInfo.name : searchRes.openingName || null,
+          openingInfo,
           evalBreakdown: searchRes.evalBreakdown || null,
           engineName: searchRes.engineName || (activeProviderId2 === "pikafish" ? getEngineTransportStatus().type === "native-ws" ? "Pikafish NNUE (Native WS: 8765)" : "Pikafish 17 NNUE (Cloud)" : "AN Grandmaster JS"),
           pikafishStatus: searchRes.pikafishStatus || (activeProviderId2 === "pikafish" ? getEngineTransportStatus().type : "js-engine"),
@@ -50248,22 +50980,28 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                 )
               ] })
             ] }),
-            analysis.openingName && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "px-3 pt-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-[10.5px] text-amber-300", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 items-center gap-1.5", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-3.5 shrink-0 text-amber-400" }),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "truncate", children: [
-                  "Th\u1EBF Tr\u1EADn: ",
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: analysis.openingName })
-                ] })
+            analysis.openingName && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "px-3 pt-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1 rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent px-3 py-2 text-[10.5px] text-amber-300 shadow-xs", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 items-center gap-1.5", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-3.5 shrink-0 text-amber-400" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "truncate", children: [
+                    "Th\u1EBF Tr\u1EADn: ",
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: analysis.openingName })
+                  ] })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  Badge,
+                  {
+                    variant: "outline",
+                    className: "shrink-0 border-amber-400/40 bg-amber-500/20 px-1.5 py-0 text-[9px] font-semibold text-amber-300",
+                    children: analysis.openingInfo?.category || "Khai Cu\u1ED9c Chu\u1EA9n"
+                  }
+                )
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                Badge,
-                {
-                  variant: "outline",
-                  className: "shrink-0 border-amber-400/40 bg-amber-500/20 px-1.5 py-0 text-[9px] font-semibold text-amber-300",
-                  children: "Khai Cu\u1ED9c Chu\u1EA9n"
-                }
-              )
+              analysis.openingInfo?.battleplan && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("p", { className: "text-amber-200/85 text-[9.5px] leading-snug", children: [
+                "\u{1F4A1} ",
+                analysis.openingInfo.battleplan
+              ] })
             ] }) }),
             /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex min-h-0 flex-1 flex-col overflow-hidden p-3 pt-2", children: !isCompact ? (
               /* Studio Mode (Dual Pane) */
@@ -50429,6 +51167,11 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       onDrawPlan
     }) {
       const plans = analysis?.plans || [];
+      const [theoryCategory, setTheoryCategory] = (0, import_react15.useState)("T\u1EA5t C\u1EA3");
+      const filteredMaxims = (0, import_react15.useMemo)(() => {
+        if (theoryCategory === "T\u1EA5t C\u1EA3") return XIANGQI_MAXIMS;
+        return XIANGQI_MAXIMS.filter((m) => m.category === theoryCategory);
+      }, [theoryCategory]);
       return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
         Tabs,
         {
@@ -50681,28 +51424,107 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                 className: "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1",
                 "data-scrollable": "true",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "border-border/40 rounded-xl border bg-white/2 p-2.5", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-primary block text-[10.5px] font-bold", children: [
+                  analysis?.maxim && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "relative overflow-hidden rounded-xl border border-amber-500/35 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent p-2.5 shadow-xs", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "mb-1 flex items-center justify-between gap-1", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center gap-1.5 text-[10px] font-semibold text-amber-400", children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-3.5 shrink-0 text-amber-400" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "Kh\u1EA9u Quy\u1EBFt \u1EE8ng D\u1EE5ng Th\u1EBF Tr\u1EADn" })
+                      ] }),
+                      analysis.maxim.badge && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                        Badge,
+                        {
+                          variant: "outline",
+                          className: "border-amber-400/50 bg-amber-500/20 px-1.5 py-0 text-[8.5px] font-bold text-amber-300",
+                          children: analysis.maxim.badge
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-foreground block text-[10.5px] font-bold leading-snug", children: [
                       '"',
                       analysis.maxim.rule,
                       '"'
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("p", { className: "text-muted-foreground mt-0.5 text-[10px] leading-snug", children: analysis.maxim.desc })
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("p", { className: "text-muted-foreground mt-0.5 text-[9.5px] leading-relaxed", children: analysis.maxim.desc }),
+                    analysis.maxim.triggerReason && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "mt-1.5 flex items-center gap-1 text-[8.5px] text-amber-300/80", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "inline-block size-1.5 rounded-full bg-amber-400" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { children: [
+                        "K\xEDch ho\u1EA1t do: ",
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: analysis.maxim.triggerReason })
+                      ] })
+                    ] })
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex flex-col gap-1", children: XIANGQI_MAXIMS.slice(0, 5).map((m, idx) => /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
-                    "div",
-                    {
-                      className: "border-border/30 bg-muted/10 rounded-lg border p-1.5 text-[9.5px] leading-snug",
-                      children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("strong", { className: "text-primary mr-1", children: [
-                          m.rule,
-                          ":"
-                        ] }),
-                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground", children: m.desc })
-                      ]
-                    },
-                    idx
-                  )) })
+                  analysis?.openingInfo && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-2.5 text-[9.5px]", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "mb-1 flex items-center justify-between", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "flex items-center gap-1 font-bold text-cyan-300", children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Compass, { className: "size-3 text-cyan-400" }),
+                        analysis.openingInfo.name
+                      ] }),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                        Badge,
+                        {
+                          variant: "outline",
+                          className: "border-cyan-400/40 bg-cyan-500/20 px-1 py-0 text-[8px] text-cyan-200",
+                          children: analysis.openingInfo.category
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("p", { className: "text-muted-foreground text-[9px] leading-snug", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { className: "text-cyan-200", children: "K\u1EBF s\xE1ch:" }),
+                      " ",
+                      analysis.openingInfo.battleplan
+                    ] }),
+                    analysis.openingInfo.counterAdvice && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("p", { className: "text-muted-foreground mt-1 text-[9px] leading-snug", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { className: "text-cyan-200", children: "\u1EE8ng bi\u1EBFn:" }),
+                      " ",
+                      analysis.openingInfo.counterAdvice
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1 pt-0.5", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "text-muted-foreground flex items-center justify-between px-0.5 text-[9.5px] font-semibold", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "flex items-center gap-1", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(BrainCircuit, { className: "text-primary size-3" }),
+                      "Kho T\xE0ng T\xE2m Ph\xE1p T\u01B0\u1EE3ng K\u1EF3 (",
+                      filteredMaxims.length,
+                      ")"
+                    ] }) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex flex-wrap gap-1", children: THEORY_CATEGORIES.map((cat) => {
+                      const isSelected = theoryCategory === cat;
+                      return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                        "button",
+                        {
+                          onClick: () => setTheoryCategory(cat),
+                          className: `rounded-lg px-2 py-0.5 text-[8.5px] font-medium transition-all ${isSelected ? "bg-primary text-primary-foreground shadow-xs font-bold" : "bg-muted/30 text-muted-foreground hover:bg-muted/60 hover:text-foreground"}`,
+                          children: cat
+                        },
+                        cat
+                      );
+                    }) })
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex flex-col gap-1 pb-1", children: filteredMaxims.map((m, idx) => {
+                    const isActive = analysis?.maxim && analysis.maxim.rule === m.rule;
+                    return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                      "div",
+                      {
+                        className: `rounded-lg border p-2 text-[9px] leading-snug transition-all ${isActive ? "border-amber-400/50 bg-amber-500/15 ring-1 ring-amber-400/30" : "border-border/30 bg-muted/10 hover:bg-muted/20"}`,
+                        children: [
+                          /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "mb-0.5 flex items-center justify-between gap-1", children: [
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                              "strong",
+                              {
+                                className: isActive ? "font-bold text-amber-300" : "text-primary",
+                                children: m.rule
+                              }
+                            ),
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex shrink-0 items-center gap-1", children: [
+                              isActive && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "rounded bg-amber-500/30 px-1 py-0 text-[7.5px] font-bold text-amber-300", children: "\u1EE8ng D\u1EE5ng" }),
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "bg-muted/40 text-muted-foreground rounded px-1 py-0 text-[7.5px]", children: m.category })
+                            ] })
+                          ] }),
+                          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("p", { className: "text-muted-foreground text-[8.5px] leading-relaxed", children: m.desc })
+                        ]
+                      },
+                      idx
+                    );
+                  }) })
                 ]
               }
             )
@@ -51132,8 +51954,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
   var manifest_default = {
     manifest_version: 3,
     name: "C\xF4ng c\u1EE5 C\u1EDD T\u01B0\u1EDBng",
-    version: "0.0.3.1349",
-    version_name: "0.0.3.202611182229",
+    version: "0.0.3.1257",
+    version_name: "0.0.3.202611192057",
     description: "Hi\u1EC3n th\u1ECB qu\xE2n \u0111\xE3 b\u1ECB \u0103n & highlight t\u1EA7m \u0111\xE1nh",
     icons: {
       "16": "icons/icon16.png",
@@ -54083,12 +54905,58 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
     console.log("[AN Mod] Main module initializing...");
     let lastStateHash = "";
     function getActiveGameLayer() {
-      if (!window.BkGlobal || !window.BkGlobal.Yj) return null;
-      return window.BkGlobal.Yj.ja ? window.BkGlobal.Yj.ja() : null;
+      if (window.BkGlobal && window.BkGlobal.Zj && typeof window.BkGlobal.Zj.ja === "function") {
+        try {
+          const gl = window.BkGlobal.Zj.ja();
+          if (gl && gl.V && Array.isArray(gl.V)) return gl;
+        } catch (e) {
+        }
+      }
+      if (window.BkGlobal && window.BkGlobal.Yj && typeof window.BkGlobal.Yj.ja === "function") {
+        try {
+          const gl = window.BkGlobal.Yj.ja();
+          if (gl && gl.V && Array.isArray(gl.V)) return gl;
+        } catch (e) {
+        }
+      }
+      if (window.BkLogicManager && typeof window.BkLogicManager.na === "function") {
+        try {
+          const lm = window.BkLogicManager.na();
+          if (lm && typeof lm.ja === "function") {
+            const gl = lm.ja();
+            if (gl && gl.V && Array.isArray(gl.V)) return gl;
+          }
+        } catch (e) {
+        }
+      }
+      if (typeof window.getCurrentScene === "function") {
+        try {
+          const scene = window.getCurrentScene();
+          if (scene && typeof scene.ja === "function") {
+            const gl = scene.ja();
+            if (gl && gl.V && Array.isArray(gl.V)) return gl;
+          }
+        } catch (e) {
+        }
+      }
+      if (window.BkGlobal) {
+        for (const k in window.BkGlobal) {
+          const val = window.BkGlobal[k];
+          if (val && typeof val === "object" && typeof val.ja === "function") {
+            try {
+              const gl = val.ja();
+              if (gl && gl.V && Array.isArray(gl.V) && gl.V.length === 32) {
+                return gl;
+              }
+            } catch (e) {
+            }
+          }
+        }
+      }
+      return null;
     }
     function getActiveGameData() {
-      if (!window.BkGlobal || !window.BkGlobal.Yj) return null;
-      const gameLayer = window.BkGlobal.Yj.ja ? window.BkGlobal.Yj.ja() : null;
+      const gameLayer = getActiveGameLayer();
       if (!gameLayer || !gameLayer.V || !Array.isArray(gameLayer.V) || gameLayer.V.length !== 32) {
         return null;
       }
@@ -54115,10 +54983,11 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       if (myPlayer && typeof myPlayer.getName === "function") {
         localUserName = myPlayer.getName() || "";
       }
-      if (!localUserName && window.BkGlobal && window.BkGlobal.Z && window.BkGlobal.Z.userName) {
-        localUserName = window.BkGlobal.Z.userName || "";
+      const userInfo = window.BkGlobal && (window.BkGlobal.UserInfo || window.BkGlobal.P || window.BkGlobal.Z) || null;
+      if (!localUserName && userInfo && userInfo.userName) {
+        localUserName = userInfo.userName || "";
       }
-      const localUserId = myPlayer && (myPlayer.id || myPlayer.userId) || window.BkGlobal && window.BkGlobal.Z && (window.BkGlobal.Z.id || window.BkGlobal.Z.userId) || "";
+      const localUserId = myPlayer && (myPlayer.id || myPlayer.userId) || userInfo && (userInfo.id || userInfo.userId) || "";
       if (myPlayer) {
         isSpectator = !!myPlayer.Ka;
       }

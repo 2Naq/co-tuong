@@ -7,13 +7,72 @@
   let lastStateHash = "";
 
   function getActiveGameLayer() {
-    if (!window.BkGlobal || !window.BkGlobal.Yj) return null;
-    return window.BkGlobal.Yj.ja ? window.BkGlobal.Yj.ja() : null;
+    // 1. Ziga v142+: BkGlobal.Zj is IngameScene
+    if (
+      window.BkGlobal &&
+      window.BkGlobal.Zj &&
+      typeof window.BkGlobal.Zj.ja === "function"
+    ) {
+      try {
+        const gl = window.BkGlobal.Zj.ja();
+        if (gl && gl.V && Array.isArray(gl.V)) return gl;
+      } catch (e) {}
+    }
+
+    // 2. Ziga v141: BkGlobal.Yj is IngameScene
+    if (
+      window.BkGlobal &&
+      window.BkGlobal.Yj &&
+      typeof window.BkGlobal.Yj.ja === "function"
+    ) {
+      try {
+        const gl = window.BkGlobal.Yj.ja();
+        if (gl && gl.V && Array.isArray(gl.V)) return gl;
+      } catch (e) {}
+    }
+
+    // 3. BkLogicManager singleton: BkLogicManager.na().ja() returns GameLayer across versions
+    if (window.BkLogicManager && typeof window.BkLogicManager.na === "function") {
+      try {
+        const lm = window.BkLogicManager.na();
+        if (lm && typeof lm.ja === "function") {
+          const gl = lm.ja();
+          if (gl && gl.V && Array.isArray(gl.V)) return gl;
+        }
+      } catch (e) {}
+    }
+
+    // 4. Cocos2d active scene: getCurrentScene().ja()
+    if (typeof window.getCurrentScene === "function") {
+      try {
+        const scene = window.getCurrentScene();
+        if (scene && typeof scene.ja === "function") {
+          const gl = scene.ja();
+          if (gl && gl.V && Array.isArray(gl.V)) return gl;
+        }
+      } catch (e) {}
+    }
+
+    // 5. Dynamic fallback: Scan BkGlobal for any object with .ja() returning 32-piece game layer
+    if (window.BkGlobal) {
+      for (const k in window.BkGlobal) {
+        const val = window.BkGlobal[k];
+        if (val && typeof val === "object" && typeof val.ja === "function") {
+          try {
+            const gl = val.ja();
+            if (gl && gl.V && Array.isArray(gl.V) && gl.V.length === 32) {
+              return gl;
+            }
+          } catch (e) {}
+        }
+      }
+    }
+
+    return null;
   }
 
   function getActiveGameData() {
-    if (!window.BkGlobal || !window.BkGlobal.Yj) return null;
-    const gameLayer = window.BkGlobal.Yj.ja ? window.BkGlobal.Yj.ja() : null;
+    const gameLayer = getActiveGameLayer();
     if (
       !gameLayer ||
       !gameLayer.V ||
@@ -53,13 +112,18 @@
     if (myPlayer && typeof myPlayer.getName === "function") {
       localUserName = myPlayer.getName() || "";
     }
-    if (!localUserName && window.BkGlobal && window.BkGlobal.Z && window.BkGlobal.Z.userName) {
-      localUserName = window.BkGlobal.Z.userName || "";
+    const userInfo =
+      (window.BkGlobal &&
+        (window.BkGlobal.UserInfo || window.BkGlobal.P || window.BkGlobal.Z)) ||
+      null;
+
+    if (!localUserName && userInfo && userInfo.userName) {
+      localUserName = userInfo.userName || "";
     }
 
     const localUserId =
       (myPlayer && (myPlayer.id || myPlayer.userId)) ||
-      (window.BkGlobal && window.BkGlobal.Z && (window.BkGlobal.Z.id || window.BkGlobal.Z.userId)) ||
+      (userInfo && (userInfo.id || userInfo.userId)) ||
       "";
 
     if (myPlayer) {

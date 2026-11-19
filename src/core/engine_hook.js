@@ -3,7 +3,7 @@
   "use strict";
 
   // =========================================================================
-  // HELPER COMPATIBILITY LAYER: Ziga ver=141 (and newer) vs Legacy Ziga
+  // HELPER COMPATIBILITY LAYER: Ziga ver=142, ver=141 vs Legacy Ziga
   // =========================================================================
 
   function generateBoardMatrix(gl, b) {
@@ -58,12 +58,16 @@
 
   function isMovePatternValid(gl, helper, pieceIndex, destSquare, matrix) {
     if (!gl || !helper) return false;
-    // In v141+: PM is pattern check
-    if (typeof gl.PM === "function") {
+    // In v142+: QM is pattern check: QM(helper, pieceIndex, destSquare, matrix)
+    if (typeof gl.QM === "function") {
+      return !!gl.QM(helper, pieceIndex, destSquare, matrix);
+    }
+    // In v141: PM is pattern check (4 args: helper, pieceIndex, destSquare, matrix)
+    if (typeof gl.PM === "function" && gl.PM.length >= 3) {
       return !!gl.PM(helper, pieceIndex, destSquare, matrix);
     }
     // In legacy: IM is pattern check
-    if (typeof gl.IM === "function") {
+    if (typeof gl.IM === "function" && gl.IM.length >= 3) {
       return !!gl.IM(helper, pieceIndex, destSquare, matrix);
     }
     return false;
@@ -71,7 +75,11 @@
 
   function isKingFacingKing(gl, helper, pieceIndex, col, row, matrix) {
     if (!gl || !helper) return false;
-    // In v141+: IM is king-facing-king check (takes 5 args: helper, pieceIndex, col, row, matrix)
+    // In v142+: JM is king-facing-king check (takes 5 args: helper, pieceIndex, col, row, matrix)
+    if (typeof gl.JM === "function") {
+      return !!gl.JM(helper, pieceIndex, col, row, matrix);
+    }
+    // In v141: IM is king-facing-king check (takes 5 args)
     if (typeof gl.PM === "function" && typeof gl.IM === "function") {
       return !!gl.IM(helper, pieceIndex, col, row, matrix);
     }
@@ -84,7 +92,11 @@
 
   function isKingCheckedAfterMove(gl, helper, pieceIndex, col, row, matrix) {
     if (!gl || !helper) return false;
-    // In v141+: KM is king-checked check (takes 6 args: 0, helper, pieceIndex, col, row, matrix)
+    // In v142+: LM is king-checked check (takes 6 args: 0, helper, pieceIndex, col, row, matrix)
+    if (typeof gl.LM === "function") {
+      return !!gl.LM(0, helper, pieceIndex, col, row, matrix);
+    }
+    // In v141: KM is king-checked check (takes 6 args: 0, helper, pieceIndex, col, row, matrix)
     if (typeof gl.KM === "function") {
       return !!gl.KM(0, helper, pieceIndex, col, row, matrix);
     }
@@ -97,6 +109,9 @@
 
   function findPieceAt(gl, col, row) {
     if (!gl) return -1;
+    // In v142+: XK is findPieceAt(col, row)
+    if (typeof gl.XK === "function") return gl.XK(col, row);
+    // In v141: WK is findPieceAt(col, row)
     if (typeof gl.WK === "function") return gl.WK(col, row);
     if (typeof gl.QK === "function") return gl.QK(col, row);
     if (gl.V && Array.isArray(gl.V)) {
@@ -116,6 +131,10 @@
 
   function isDestValid(gl, col, row) {
     if (!gl) return false;
+    // In v142+: PM is destination valid check: PM(col, row)
+    if (typeof gl.PM === "function" && gl.PM.length === 2) {
+      return !!gl.PM(col, row);
+    }
     if (typeof gl.OM === "function") return gl.OM(col, row);
     if (typeof gl.HM === "function") return gl.HM(col, row);
 
@@ -153,51 +172,38 @@
         !ZigaMod.userSettings ||
         ZigaMod.userSettings.highlightTactics !== false;
 
-      if (!isHighlightEnabled) {
+      if (!isHighlightEnabled || !show) {
         this.rd.setVisible(false);
         this.rd.stopAllActions();
-        if (this.rd.WT) this.rd.WT.stopAllActions();
-        if (this.rd.dU) this.rd.dU.stopAllActions();
-        return;
-      }
-
-      this.rd.setVisible(!!show);
-
-      if (show) {
-        this.rd.stopAllActions();
-        if (this.rd.WT) this.rd.WT.stopAllActions();
-        if (this.rd.dU) this.rd.dU.stopAllActions();
-
-        // Scale to 0.95 to embrace piece diameter perfectly
-        this.rd.setScale(0.95);
-
-        // Pulse animation
-        if (
-          typeof cc !== "undefined" &&
-          typeof cc.fadeTo === "function" &&
-          typeof cc.sequence === "function"
-        ) {
-          var fadeOut = cc.fadeTo(0.35, 60);
-          var fadeIn = cc.fadeTo(0.35, 255);
-          var pulse = cc.sequence(fadeOut, fadeIn).repeatForever();
-          this.rd.runAction(pulse);
-
-          var inner = this.rd.dU || this.rd.WT;
-          if (inner) {
-            inner.stopAllActions();
-            var targetH = this.rd.getContentSize().height;
-            var innerH = inner.getContentSize().height;
-            if (innerH > 0) {
-              inner.setScale(targetH / innerH);
-            }
-            inner.runAction(pulse.clone());
-          }
-        }
-      } else {
-        this.rd.stopAllActions();
+        if (this.rd.eU) this.rd.eU.stopAllActions();
         if (this.rd.WT) this.rd.WT.stopAllActions();
         if (this.rd.dU) this.rd.dU.stopAllActions();
         this.rd.setScale(0.5);
+        return;
+      }
+
+      this.rd.setVisible(true);
+      this.rd.stopAllActions();
+      if (this.rd.eU) this.rd.eU.stopAllActions();
+      if (this.rd.WT) this.rd.WT.stopAllActions();
+      if (this.rd.dU) this.rd.dU.stopAllActions();
+      this.rd.setScale(0.5);
+
+      // Pulse animation matching native Ziga scale & clean sequence
+      if (
+        typeof cc !== "undefined" &&
+        typeof cc.fadeTo === "function" &&
+        typeof cc.sequence === "function"
+      ) {
+        var fadeOut = cc.fadeTo(0.4, 40);
+        var fadeIn = cc.fadeTo(0.4, 255);
+        var pulse = cc.sequence(fadeOut, fadeIn).repeatForever();
+        this.rd.runAction(pulse);
+
+        var inner = this.rd.eU || this.rd.dU || this.rd.WT;
+        if (inner) {
+          inner.runAction(pulse.clone());
+        }
       }
     };
   }
@@ -315,11 +321,12 @@
       ZigaMod.updateTacticalHud(attacker, capturableList);
     }
 
-    // Guarantee rotating selection indicator (this.ij) is ALWAYS visible and actively rotating
+    // Guarantee rotating selection indicator (this.ij) is ALWAYS visible, actively rotating, and BEHIND pieces
     if (gl && gl.ij && gl.V && gl.V[pieceIndex]) {
       gl.ij.setVisible(true);
+      // z-order 31: ABOVE background (0) and BEHIND pieces (32) so chess character is crisp & clean
       if (typeof gl.ij.setLocalZOrder === "function") {
-        gl.ij.setLocalZOrder(34);
+        gl.ij.setLocalZOrder(31);
       }
       gl.ij.setPosition(
         gl.Pb(gl.V[pieceIndex].fa),
@@ -367,6 +374,21 @@
       }
     }
 
+    // Cleanly hide and reset selection swirl (gl.ij)
+    if (gl.ij) {
+      gl.ij.setPosition(-100, -100);
+      if (gl.Hr) {
+        gl.ij.stopAction(gl.Hr);
+        gl.Hr = null;
+      }
+      if (gl.Fr) {
+        gl.ij.stopAction(gl.Fr);
+        gl.Fr = null;
+      }
+      gl.ij.stopAllActions();
+      gl.ij.setVisible(false);
+    }
+
     if (gl.Tp) gl.Tp = [];
     if (gl.Vp) gl.Vp = [];
 
@@ -406,10 +428,13 @@
     // Initialize board row numbers (1-10 on left and right wooden rims)
     setupRowNumbers(gameLayer);
 
-    // 0. HOOK XR (v141 selection indicator placement & rotation)
+    // 0. HOOK YR (v142+) / XR (v141 selection indicator placement & rotation)
+    const origYR = typeof gameLayer.YR === "function" ? gameLayer.YR : null;
     const origXR = typeof gameLayer.XR === "function" ? gameLayer.XR : null;
-    gameLayer.XR = function (pieceIndex) {
-      if (origXR) {
+    const selectHandler = function (pieceIndex) {
+      if (origYR) {
+        origYR.call(this, pieceIndex);
+      } else if (origXR) {
         origXR.call(this, pieceIndex);
       }
       this.me = pieceIndex;
@@ -417,7 +442,7 @@
       if (this.ij && this.V && this.V[pieceIndex]) {
         this.ij.setVisible(true);
         if (typeof this.ij.setLocalZOrder === "function") {
-          this.ij.setLocalZOrder(34);
+          this.ij.setLocalZOrder(31);
         }
         this.ij.setPosition(
           this.Pb(this.V[pieceIndex].fa),
@@ -437,8 +462,13 @@
         }
       }
     };
+    if (origYR) gameLayer.YR = selectHandler;
+    if (origXR) gameLayer.XR = selectHandler;
 
-    // 1. OVERRIDE vT (v141) and nT (legacy)
+    // 1. OVERRIDE wT (v142+), vT (v141) and nT (legacy)
+    gameLayer.wT = function (pieceIndex) {
+      customHighlightMoves(this, pieceIndex);
+    };
     gameLayer.vT = function (pieceIndex) {
       customHighlightMoves(this, pieceIndex);
     };
@@ -446,7 +476,7 @@
       customHighlightMoves(this, pieceIndex);
     };
 
-    // 2. OVERRIDE zA (v141) and pA (legacy)
+    // 2. OVERRIDE zA (v141+) and pA (legacy)
     gameLayer.zA = function () {
       clearHighlights(this);
     };
@@ -454,7 +484,7 @@
       clearHighlights(this);
     };
 
-    // 3. OVERRIDE cp (v141) and fp (legacy)
+    // 3. OVERRIDE cp (v141+) and fp (legacy)
     const unselectHandler = function () {
       if (this.ij) {
         this.ij.setPosition(-100, -100);
@@ -474,9 +504,16 @@
     gameLayer.cp = unselectHandler;
     gameLayer.fp = unselectHandler;
 
-    // 4. HOOK nU (v141) and fU (legacy)
+    // 4. HOOK oU (v142+), nU (v141) and fU (legacy)
+    const origOU = typeof gameLayer.oU === "function" ? gameLayer.oU : null;
     const origNU = typeof gameLayer.nU === "function" ? gameLayer.nU : null;
     const origFU = typeof gameLayer.fU === "function" ? gameLayer.fU : null;
+
+    const invokeOrigTouch = (target, touchX, touchY) => {
+      if (origOU) origOU.call(target, touchX, touchY);
+      else if (origNU) origNU.call(target, touchX, touchY);
+      else if (origFU) origFU.call(target, touchX, touchY);
+    };
 
     const touchHandler = function (touchX, touchY) {
       const col = typeof this.xq === "function" ? this.xq(touchX) : -1;
@@ -500,8 +537,7 @@
 
         // A. If my turn, piece already selected, and clicked on a valid destination/capture move -> make move!
         if (currentSelected >= 0 && isMyTurn && isDestValid(this, col, row)) {
-          if (origNU) origNU.call(this, touchX, touchY);
-          else if (origFU) origFU.call(this, touchX, touchY);
+          invokeOrigTouch(this, touchX, touchY);
           return;
         }
 
@@ -519,7 +555,7 @@
             if (this.ij) {
               this.ij.setVisible(true);
               if (typeof this.ij.setLocalZOrder === "function") {
-                this.ij.setLocalZOrder(34);
+                this.ij.setLocalZOrder(31);
               }
               this.ij.setPosition(
                 this.Pb(clickedPiece.fa),
@@ -542,9 +578,8 @@
           return;
         }
 
-        // C. Clicked own piece on my turn -> default selection behavior (calls XR -> vT/nT)
-        if (origNU) origNU.call(this, touchX, touchY);
-        else if (origFU) origFU.call(this, touchX, touchY);
+        // C. Clicked own piece on my turn -> default selection behavior (calls YR/XR -> wT/vT/nT)
+        invokeOrigTouch(this, touchX, touchY);
 
         // After calling native touch handler, verify selection ring is visible if a piece was selected
         const newSelected =
@@ -556,7 +591,7 @@
         if (newSelected >= 0 && this.ij && this.V && this.V[newSelected]) {
           this.ij.setVisible(true);
           if (typeof this.ij.setLocalZOrder === "function") {
-            this.ij.setLocalZOrder(34);
+            this.ij.setLocalZOrder(31);
           }
           this.ij.setPosition(
             this.Pb(this.V[newSelected].fa),
@@ -601,10 +636,10 @@
         }
       }
 
-      if (origNU) origNU.call(this, touchX, touchY);
-      else if (origFU) origFU.call(this, touchX, touchY);
+      invokeOrigTouch(this, touchX, touchY);
     };
 
+    if (origOU) gameLayer.oU = touchHandler;
     if (origNU) gameLayer.nU = touchHandler;
     if (origFU) gameLayer.fU = touchHandler;
   }

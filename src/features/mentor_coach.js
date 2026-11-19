@@ -70,41 +70,852 @@ import {
   const asyncWorker = activeProvider;
   const engine = activeProvider.engine || createXiangqiWorker().engine;
 
-  // Database of Xiangqi Master Maxims
+  // Theory categories for Grandmaster Knowledge Base
+  const THEORY_CATEGORIES = [
+    "Tất Cả",
+    "Khai Cuộc",
+    "Trung Cuộc",
+    "Tàn Cuộc",
+    "Sát Cục",
+    "Binh Pháp",
+  ];
+
+  // Comprehensive Database of Xiangqi Grandmaster Maxims & Binh Thư Tượng Kỳ
   const XIANGQI_MAXIMS = [
+    // --- KHAI CUỘC (OPENING) ---
     {
-      rule: "Khuyết Sĩ kỵ Song Xe, khuyết Tượng sợ Pháo",
-      desc: "Mất Sĩ hở sườn dễ bị Xe kẹp cổ; mất Tượng tạo ngòi cho Pháo công phá.",
-    },
-    {
-      rule: "Nhất Tốt nhập cung, vạn quân kinh hãi",
-      desc: "Tốt lọt vào cung Tướng đối phương uy lực ngang nửa con Xe, khóa chặt chân Tướng.",
-    },
-    {
-      rule: "Xe mười, Pháo bảy, Mã ba",
-      desc: "Xe cơ động công phá mạnh nhất; Pháo bắn tầm xa; Mã biến hóa khi cờ thoáng.",
-    },
-    {
-      rule: "Cờ tàn Pháo hoàn, Mã nhảy xung thiên",
-      desc: "Cờ tàn ít quân Pháo khó tìm ngòi; Mã thông thoáng tự do tung hoành sát cục.",
-    },
-    {
+      id: "kc_xuat_xe",
+      category: "Khai Cuộc",
       rule: "Xuất Xe chậm một nước, mất quyền chủ động mười chiêu",
-      desc: "Đầu ván cần xuất Xe sớm kiểm soát lộ thông (2, 4, 6, 8) chiếm thế thượng phong.",
+      desc: "Đầu ván tối kỵ chậm xuất Xe. Nhanh chóng đưa Xe ra lộ thông 2, 4, 6, 8 để kiểm soát các trục huyết mạch chiếm thế thượng phong.",
+      triggerId: "kc_xuat_xe",
     },
     {
-      rule: "Mã điền ắt bại, chớ ham ăn mồi quên giữ thành",
-      desc: "Tránh để Mã bị cản chân; không tham ăn quân nhỏ để đối phương đoạt tiên.",
+      id: "kc_phao_dau",
+      category: "Khai Cuộc",
+      rule: "Pháo đầu uy chấn trung quân, tỏa định trục lộ",
+      desc: "Pháo chiếm trung tâm khống chế cột 5, kẹp chặt Tướng Sĩ đối phương, tạo bệ phóng dũng mãnh cho các đợt công kích tiếp theo.",
+      triggerId: "kc_phao_dau",
     },
     {
-      rule: "Pháo đầu uy chấn trung quân",
-      desc: "Pháo chiếm trung lộ uy hiếp thẳng Tướng, khống chế hoàn toàn trục dọc đối phương.",
-    },
-    {
+      id: "kc_lien_hoan",
+      category: "Khai Cuộc",
       rule: "Song Mã liên hoàn, vững như bàn thạch",
-      desc: "Hai Mã giữ nhau ở trung lộ bảo vệ Tốt đầu và triệt tiêu đòn đột kích của địch.",
+      desc: "Hai Mã đan chéo giữ nhau ở trung lộ bảo vệ Tốt đầu, triệt tiêu đòn đột kích của địch và mở rộng tầm kiểm soát bàn cờ.",
+      triggerId: "kc_song_ma",
+    },
+    {
+      id: "kc_bat_dich",
+      category: "Khai Cuộc",
+      rule: "Khai cuộc bất dịch liên hành, quý tại thông suốt",
+      desc: "Tránh đi một quân nhiều lần khi các quân chủ lực Xe Mã Pháo khác chưa kịp xuất trận; phát triển lực lượng đồng đều và hài hòa.",
+      triggerId: "kc_can_bang",
+    },
+    {
+      id: "kc_tuan_ha",
+      category: "Khai Cuộc",
+      rule: "Tuần hà phong tỏa, quá hà đoạt tiên",
+      desc: "Xe Pháo chiếm tuyến bờ sông (tuần hà) khống chế đường tiến thoái của Tốt và Mã đối phương; kịp thời quá hà đè bẹp cánh yếu của địch.",
+      triggerId: "kc_tuan_ha",
+    },
+    {
+      id: "kc_trung_lo",
+      category: "Khai Cuộc",
+      rule: "Kiên cố trung lộ, dĩ dật đãi lao",
+      desc: "Củng cố tuyến giữa bằng Sĩ Tượng và Mã liên hoàn, tạo bệ phóng vững chắc trước khi mở đợt tổng tấn công hai sườn.",
+      triggerId: "kc_trung_lo",
+    },
+
+    // --- TRUNG CUỘC (MIDDLEGAME) ---
+    {
+      id: "tc_khuyet_si",
+      category: "Trung Cuộc",
+      rule: "Khuyết Sĩ kỵ Song Xe, nách rách Tướng kinh",
+      desc: "Mất Sĩ hở sườn dễ bị Xe kẹp nách hoặc Song Xe giáp công; bên công hãy dồn toàn lực khoét sâu vào điểm yếu lộ 4 hoặc 6!",
+      triggerId: "tc_khuyet_si",
+    },
+    {
+      id: "tc_khuyet_tuong",
+      category: "Trung Cuộc",
+      rule: "Khuyết Tượng sợ Pháo, đáy cung hở ngòi",
+      desc: "Mất Tượng phòng thủ tầm xa rách toác, tạo ngòi nổ cho Pháo bắn thẳng vào cung Tướng; bên công khai thác điểm mù đáy cung để dứt điểm.",
+      triggerId: "tc_khuyet_tuong",
+    },
+    {
+      id: "tc_phao_trong",
+      category: "Trung Cuộc",
+      rule: "Pháo trống vô giá, uy chấn trung quân",
+      desc: "Pháo trống đối diện Tướng không có quân cản sở hữu sức công phá vô song; đối phương tê liệt hoàn toàn, hãy kết hợp Xe Mã sát cục tức thì!",
+      triggerId: "tc_phao_trong",
+    },
+    {
+      id: "tc_tot_nhap_cung",
+      category: "Trung Cuộc",
+      rule: "Nhất Tốt nhập cung, vạn quân kinh hãi",
+      desc: "Tốt lọt vào cung Tướng đối phương uy lực ngang nửa con Xe, khóa chặt chân Tướng và mở toang cánh cửa cho các đòn sát cục.",
+      triggerId: "tc_tot_nhap_cung",
+    },
+    {
+      id: "tc_ma_oa_tam",
+      category: "Trung Cuộc",
+      rule: "Mã nhập oa tâm, bất tử dã hôn",
+      desc: "Mã nhảy vào tâm cung tự làm tắc đường Tướng thoái lui; dồn hỏa lực vào trung lộ hoặc chiếu góc ép Tướng vào thế tuyệt sát.",
+      triggerId: "tc_ma_oa_tam",
+    },
+    {
+      id: "tc_ma_dien",
+      category: "Trung Cuộc",
+      rule: "Mã điền ắt bại, cản chân gãy cánh",
+      desc: "Tránh để Mã bị cản chân; đồng thời chủ động gài quân cản mắt Mã đối phương để vô hiệu hóa một mũi tấn công chủ lực của địch.",
+      triggerId: "tc_ma_dien",
+    },
+    {
+      id: "tc_song_xe",
+      category: "Trung Cuộc",
+      rule: "Song Xe hợp bích, khai thông lộ hiểm",
+      desc: "Hai Xe liên kết cùng một trục hoặc kiểm soát hai cánh thông thoáng, dễ dàng thọc sâu xuống đáy cung hoặc kẹp nách ép chết Tướng địch.",
+      triggerId: "tc_song_xe",
+    },
+    {
+      id: "tc_thi_quan",
+      category: "Trung Cuộc",
+      rule: "Thí quân đoạt tiên, bỏ nhỏ ăn lớn",
+      desc: "Sẵn sàng hy sinh một quân nhỏ hoặc hoán đổi quân để phá vỡ thế phòng ngự vững chắc của địch, đoạt quyền chủ động chiến lược sát ván.",
+      triggerId: "tc_thi_quan",
+    },
+    {
+      id: "tc_kiem_toa",
+      category: "Trung Cuộc",
+      rule: "Ghim quân tỏa trận, triệt tiêu sinh lực",
+      desc: "Dùng Xe Pháo ghìm chặt Xe Mã đối phương ở một cánh, biến quân địch thành vật cản vô dụng rồi rảnh tay tấn công cánh còn lại.",
+      triggerId: "tc_kiem_toa",
+    },
+    {
+      id: "tc_uu_the",
+      category: "Trung Cuộc",
+      rule: "Thừa thắng truy kích, công thành đoạt trại",
+      desc: "Thế cờ đang áp đảo hoàn toàn, hãy dồn dập ra đòn không cho đối phương kịp chỉnh đốn Sĩ Tượng hay thở phào phản kháng.",
+      triggerId: "tc_uu_the",
+    },
+    {
+      id: "tc_nghich_canh",
+      category: "Trung Cuộc",
+      rule: "Nghịch cảnh kiên thủ, chờ cơ hồi mã thương",
+      desc: "Thế cờ gặp khó khăn cần chấn chỉnh Sĩ Tượng kiên cố, thu gọn phòng tuyến tránh giao chiến nóng vội, chờ đối phương sơ hở phản đòn.",
+      triggerId: "tc_nghich_canh",
+    },
+    {
+      id: "tc_xe_phao_ma",
+      category: "Trung Cuộc",
+      rule: "Xe mười, Pháo bảy, Mã ba",
+      desc: "Xe cơ động công phá mạnh nhất; Pháo khống chế tầm xa; Mã biến hóa uyển chuyển khi cờ thoáng. Phối hợp nhịp nhàng các binh chủng.",
+      triggerId: "tc_xe_phao_ma",
+    },
+
+    // --- TÀN CUỘC (ENDGAME) ---
+    {
+      id: "tan_phao_hoan_ma",
+      category: "Tàn Cuộc",
+      rule: "Cờ tàn Pháo hoàn, Mã nhảy xung thiên",
+      desc: "Cờ tàn thưa quân Pháo khó mượn ngòi; Mã có khoảng không rộng lớn tự do tung hoành, góc nhảy hiểm hóc quyết định thắng bại.",
+      triggerId: "tan_phao_hoan_ma",
+    },
+    {
+      id: "tan_tot_cao",
+      category: "Tàn Cuộc",
+      rule: "Tốt cao có giá, Tốt lụt vô công",
+      desc: "Tốt chưa chạm đáy cung còn cơ động ép Tướng từ lộ sườn; tránh đẩy Tốt lụt xuống đáy sớm làm mất đi khả năng khống chế cửu cung.",
+      triggerId: "tan_tot_cao",
+    },
+    {
+      id: "tan_don_xe_phao_tuong",
+      category: "Tàn Cuộc",
+      rule: "Đơn Xe thắng Đơn Pháo Tượng, hòa Pháo Song Tượng",
+      desc: "Đơn Xe gặp Pháo Tượng bền thì hòa; nhưng gặp khuyết Tượng hoặc Pháo mất điểm tựa thì Xe phối hợp mặt Tướng bức tử.",
+      triggerId: "tan_don_xe",
+    },
+    {
+      id: "tan_don_ma_si",
+      category: "Tàn Cuộc",
+      rule: "Đơn Mã khó thắng Đơn Sĩ, Mã Tốt phá Sĩ Tượng",
+      desc: "Một Mã đơn độc không thể kết liễu Đơn Sĩ bền; cần có thêm Tốt trợ chiến để triệt hạ phòng thủ và khóa chặt đường chạy của Tướng.",
+      triggerId: "tan_don_ma",
+    },
+    {
+      id: "tan_tuong_tro_chien",
+      category: "Tàn Cuộc",
+      rule: "Cờ tàn Tướng xuất cung, uy lực như dũng tướng",
+      desc: "Giai đoạn tàn cuộc ít quân tấn công, hãy đưa Tướng lên cao chiếm lộ trung tâm hoặc sườn, dùng mặt Tướng làm ngòi nổ hỗ trợ dứt điểm.",
+      triggerId: "tan_tuong_tro_chien",
+    },
+
+    // --- SÁT CỤC (MATING MOTIFS & TACTICAL FINISHES) ---
+    {
+      id: "sat_thiet_mon",
+      category: "Sát Cục",
+      rule: "Thiết Môn Thuyên (Cửa sắt khóa Tướng)",
+      desc: "Pháo ghim chặt trung lộ, Xe cắm đáy giáng đòn tuyệt sát Thiết Môn Thuyên bất khả hóa giải!",
+      triggerId: "sat_thiet_mon",
+    },
+    {
+      id: "sat_trac_dien_ho",
+      category: "Sát Cục",
+      rule: "Trắc Diện Hổ (Hổ vồ bên sườn)",
+      desc: "Mã chiếm góc ngọa tào phối hợp cùng Xe sườn, khóa chặt cửu cung giáng đòn sát cục sấm sét bên sườn!",
+      triggerId: "sat_trac_dien_ho",
+    },
+    {
+      id: "sat_ma_hau_phao",
+      category: "Sát Cục",
+      rule: "Mã Hậu Pháo (Pháo điểm hỏa sau lưng Mã)",
+      desc: "Mã khóa cửa cung cản đường Tướng, Pháo phía sau mượn Mã làm ngòi nổ phát hỏa tuyệt sát!",
+      triggerId: "sat_ma_hau_phao",
+    },
+    {
+      id: "sat_dieu_ngu",
+      category: "Sát Cục",
+      rule: "Điếu Ngư Mã (Mã câu cá khóa cửu cung)",
+      desc: "Mã chiếm vị trí điếu ngư lộ 3 hoặc 7, phối hợp Xe thọc sườn siết chặt thòng lọng kết liễu trận đấu.",
+      triggerId: "sat_dieu_ngu",
+    },
+    {
+      id: "sat_trung_phao",
+      category: "Sát Cục",
+      rule: "Song Pháo Trùng (Hai Pháo chồng nhau một lộ)",
+      desc: "Hai Pháo liên hoàn trên cùng một trục dọc nhắm thẳng mặt Tướng địch, đòn đánh uy lực nhất trong Tượng kỳ.",
+      triggerId: "sat_trung_phao",
+    },
+    {
+      id: "sat_hai_day",
+      category: "Sát Cục",
+      rule: "Hải Đáy Lao Nguyệt (Đáy biển mò trăng)",
+      desc: "Xe luồn xuống tuyến đáy sau lưng Tướng địch, mượn mặt Tướng làm điểm tựa chiếu bí khi đối phương co cụm.",
+      triggerId: "sat_hai_day",
+    },
+    {
+      id: "sat_bach_kiem",
+      category: "Sát Cục",
+      rule: "Bạch Kiểm Tướng (Mặt Tướng đối diện trực tiếp)",
+      desc: "Khai thác triệt để luật mặt Tướng không thể nhìn nhau để hỗ trợ Xe Pháo khóa cứng và kết liễu đối thủ.",
+      triggerId: "sat_bach_kiem",
+    },
+
+    // --- BINH PHÁP (STRATEGIC WISDOM) ---
+    {
+      id: "bp_tri_bi_tri_ky",
+      category: "Binh Pháp",
+      rule: "Tri bỉ tri kỷ, bách chiến bất đãi",
+      desc: "Biết người biết ta, trăm trận không nguy. Nắm rõ sở trường sở đoản của đối phương và phân tích thấu đáo thế trận trước khi ra đòn.",
+      triggerId: "bp_tri_bi",
+    },
+    {
+      id: "bp_tien_ha_thu",
+      category: "Binh Pháp",
+      rule: "Tiên hạ thủ vi cường, hậu hạ thủ tao ương",
+      desc: "Ra tay trước chiếm thế thượng phong, ra tay chậm chuốc lấy hiểm nguy. Trong cờ tướng, nước Tiên có giá trị vô giá.",
+      triggerId: "bp_tien_ha_thu",
+    },
+    {
+      id: "bp_cong_tam",
+      category: "Binh Pháp",
+      rule: "Công tâm vi thượng, công thành vi hạ",
+      desc: "Đánh vào tâm lý khiến đối phương rối loạn, nôn nóng đi sai còn hơn là chỉ chăm chăm ăn quân nhỏ mà bỏ lỡ thế sát ván.",
+      triggerId: "bp_cong_tam",
     },
   ];
+
+  /**
+   * Grandmaster Xiangqi Opening Formation Recognizer
+   * Evaluates piece placement to identify standard Xiangqi opening systems & battleplans.
+   */
+  function detectXiangqiOpening(pieces, myColor) {
+    if (!pieces || pieces.length < 22) return null;
+
+    const redCannons = pieces.filter((p) => p.color === 0 && p.type === 4);
+    const blackCannons = pieces.filter((p) => p.color === 1 && p.type === 4);
+    const redKnights = pieces.filter((p) => p.color === 0 && p.type === 5);
+    const blackKnights = pieces.filter((p) => p.color === 1 && p.type === 5);
+    const redBishops = pieces.filter((p) => p.color === 0 && p.type === 2);
+    const blackBishops = pieces.filter((p) => p.color === 1 && p.type === 2);
+    const redPawns = pieces.filter((p) => p.color === 0 && p.type === 6);
+    const blackPawns = pieces.filter((p) => p.color === 1 && p.type === 6);
+
+    const hasRedCentralCannon = redCannons.some(
+      (p) => p.col === 4 && (p.row === 2 || p.row === 1 || p.row === 0),
+    );
+    const hasBlackCentralCannon = blackCannons.some(
+      (p) => p.col === 4 && (p.row === 7 || p.row === 8 || p.row === 9),
+    );
+
+    // 1. TRUNG PHÁO (RED CENTRAL CANNON)
+    if (hasRedCentralCannon) {
+      if (hasBlackCentralCannon) {
+        const redMovedFromLeft = !redCannons.some(
+          (p) => p.col === 1 && p.row === 2,
+        );
+        const blackMovedFromLeft = !blackCannons.some(
+          (p) => p.col === 1 && p.row === 7,
+        );
+
+        if (
+          (redMovedFromLeft && blackMovedFromLeft) ||
+          (!redMovedFromLeft && !blackMovedFromLeft)
+        ) {
+          return {
+            name: "Thuận Thủ Pháo (Thuận Pháo)",
+            category: "Cương Liệt Đối Công",
+            battleplan:
+              "Hai bên cùng cắm Pháo đầu đối công rực lửa! Xuất Xe tốc độ khống chế lộ thông 2, 4, 6, 8, chớ vội ăn Tốt đầu để mất tiên.",
+            counterAdvice:
+              "Tập trung ra Xe nhanh, dùng Mã bảo vệ Tốt đầu, chờ cơ hội Xe tuần hà kẹp nách.",
+          };
+        } else {
+          return {
+            name: "Nghịch Thủ Pháo (Nghịch Pháo)",
+            category: "Quyết Chiến Tương Tàn",
+            battleplan:
+              "Thế trận đối công bất đối xứng cực kỳ khốc liệt! Bên nào ghìm được Xe Mã đối thủ trước sẽ chiếm thế thượng phong tuyệt đối.",
+            counterAdvice:
+              "Chủ động cản chân Mã đối phương, xuất Xe áp sát bờ sông phong tỏa hỏa lực Pháo.",
+          };
+        }
+      }
+
+      // Check Black's Bình Phong Mã
+      const blackBPM = blackKnights.filter(
+        (p) =>
+          (p.col === 2 && p.row === 7) || (p.col === 6 && p.row === 7),
+      );
+      if (
+        blackBPM.length >= 2 ||
+        (blackBPM.length >= 1 && blackKnights.some((p) => p.row === 7))
+      ) {
+        const hasTienThatBinh = blackPawns.some(
+          (p) => p.col === 6 && p.row === 5,
+        );
+        const hasTienTamBinh = blackPawns.some(
+          (p) => p.col === 2 && p.row === 5,
+        );
+
+        if (hasTienThatBinh && hasTienTamBinh) {
+          return {
+            name:
+              myColor === 0
+                ? "Trung Pháo Đối Bình Phong Mã Lưỡng Đầu Xà"
+                : "Bình Phong Mã Lưỡng Đầu Xà Kháng Trung Pháo",
+            category: "Chính Quy Cân Não",
+            battleplan:
+              "Đẩy hai Tốt thông đường cho Song Mã phi qua sông! Cần đưa Xe quá hà ghìm chặt Tốt và chèn ép cánh Mã.",
+            counterAdvice:
+              "Tấn Xe tuần hà hoặc quá hà kẹp Tốt, không để Song Mã địch thông thoáng phi ra biên.",
+          };
+        } else if (hasTienThatBinh) {
+          return {
+            name:
+              myColor === 0
+                ? "Trung Pháo Đối Bình Phong Mã Tiến Thất Binh"
+                : "Bình Phong Mã Tiến Thất Binh Kháng Trung Pháo",
+            category: "Đỉnh Cao Kỳ Nghệ",
+            battleplan:
+              "Thế trận kinh điển bậc nhất Tượng kỳ. Bên công dồn Xe Pháo đè cánh Tốt yếu; bên thủ dùng Mã kiềm chế trung lộ và phản công cánh hở.",
+            counterAdvice:
+              "Tấn công vào cánh Mã chưa phát triển của đối phương, xuất Xe chiếm lộ 2 hoặc 4 thông thoáng.",
+          };
+        } else if (hasTienTamBinh) {
+          return {
+            name:
+              myColor === 0
+                ? "Trung Pháo Đối Bình Phong Mã Tiến Tam Binh"
+                : "Bình Phong Mã Tiến Tam Binh Kháng Trung Pháo",
+            category: "Chiến Thuật Sâu Sắc",
+            battleplan:
+              "Kích hoạt cánh Binh 3 hỗ trợ Mã trái. Hãy linh hoạt dùng Xe quá hà đè Tốt hoặc chuyển Pháo biên tấn công.",
+            counterAdvice:
+              "Kiểm soát chặt chẽ tuyến hà, ngăn chặn đối phương dùng Mã đạp Binh qua sông.",
+          };
+        }
+        return {
+          name:
+            myColor === 0
+              ? "Trung Pháo Đối Bình Phong Mã"
+              : "Bình Phong Mã Kháng Trung Pháo",
+          category: "Kinh Điển Vững Vàng",
+          battleplan:
+            "Thế trận mẫu mực giữa công phá dũng mãnh và phòng thủ phản công kiên cố. Cần phát triển đồng đều Xe Mã Pháo.",
+          counterAdvice:
+            "Xuất Xe chiếm giữ lộ then chốt, tránh để Pháo đầu bị cô lập thiếu viện binh.",
+        };
+      }
+
+      // Check Phản Cung Mã (Giáp Pháo)
+      const hasPhanCungCannon = blackCannons.some(
+        (p) => (p.col === 3 || p.col === 5) && p.row === 7,
+      );
+      if (hasPhanCungCannon) {
+        return {
+          name:
+            myColor === 0
+              ? "Trung Pháo Đối Phản Cung Mã (Giáp Pháo)"
+              : "Phản Cung Mã Kháng Trung Pháo",
+          category: "Biến Ảo Phản Kích",
+          battleplan:
+            "Giáp Pháo vào nách Mã tạo thế phòng ngự tầng tầng lớp lớp. Hãy tập trung đánh thẳng trung lộ hoặc đè gãy cánh Mã biên.",
+          counterAdvice:
+            "Khai thông lộ Xe, khai thác điểm yếu ở góc sĩ tượng khi địch co cụm giáp pháo.",
+        };
+      }
+
+      // Check Đơn Đề Mã
+      const hasCenterKnight = blackKnights.some(
+        (p) => (p.col === 2 || p.col === 6) && p.row === 7,
+      );
+      const hasEdgeKnight = blackKnights.some(
+        (p) => (p.col === 0 || p.col === 8) && (p.row === 7 || p.row === 8),
+      );
+      if (hasCenterKnight && hasEdgeKnight) {
+        return {
+          name:
+            myColor === 0
+              ? "Trung Pháo Đối Đơn Đề Mã"
+              : "Đơn Đề Mã Kháng Trung Pháo",
+          category: "Công Thủ Phân Liệt",
+          battleplan:
+            "Chia Mã một biên một trung, cánh biên linh hoạt nhưng trung lộ mỏng manh. Dồn lực công phá trung lộ và cánh đơn độc.",
+          counterAdvice:
+            "Tập trung hỏa lực vào cánh trung lộ của địch nơi chỉ có một Mã bảo vệ Tốt đầu.",
+        };
+      }
+
+      // Check Phi Tượng
+      const hasBlackCenterElephant = blackBishops.some(
+        (p) => p.col === 4 && p.row === 7,
+      );
+      if (hasBlackCenterElephant) {
+        return {
+          name:
+            myColor === 0
+              ? "Trung Pháo Đối Phi Tượng Cuộc"
+              : "Phi Tượng Cuộc Kháng Trung Pháo",
+          category: "Tĩnh Chế Động",
+          battleplan:
+            "Dựng Tượng trung tâm gia cố phòng ngự triệt tiêu hỏa lực Pháo đầu. Hãy dạt Pháo sang cánh yếu hoặc tiến Xe tuần hà ép giao chiến.",
+          counterAdvice:
+            "Chuyển hướng tấn công sang hai sườn lộ 4-6, tránh đâm đầu vào pháo đài trung lộ.",
+        };
+      }
+
+      // Check Quy Bối Pháo
+      const hasQuyBoi = blackCannons.some((p) => p.row >= 8);
+      if (hasQuyBoi) {
+        return {
+          name: "Trung Pháo Đối Quy Bối Pháo",
+          category: "Kỳ Chiêu Bí Truyền",
+          battleplan:
+            "Thoái Pháo giấu sau lưng Sĩ Tượng nhằm phục kích phản kích bất ngờ. Cần tiến quân chậm chắc, giữ vững hàng tuyến.",
+          counterAdvice:
+            "Kiểm soát chặt các lộ sườn, cảnh giác đòn đâm Pháo đáy phản chiếu của địch.",
+        };
+      }
+
+      return {
+        name: "Trung Pháo Khai Cuộc (Đương Đầu Pháo)",
+        category: "Cương Mãnh Tấn Công",
+        battleplan:
+          "Pháo đầu khống chế thẳng tim Tướng địch. Mau chóng xuất Xe khai thông trục lộ, phi Mã trợ chiến trung lộ.",
+        counterAdvice:
+          "Bảo vệ vững chắc Tốt đầu, không để đối phương dễ dàng thọc Pháo chém Tốt.",
+      };
+    }
+
+    // 2. BLACK HAS CENTRAL CANNON
+    if (hasBlackCentralCannon) {
+      const redBPM = redKnights.filter(
+        (p) =>
+          (p.col === 2 && p.row === 2) || (p.col === 6 && p.row === 2),
+      );
+      if (redBPM.length >= 2) {
+        return {
+          name:
+            myColor === 1
+              ? "Trung Pháo Đối Bình Phong Mã"
+              : "Bình Phong Mã Kháng Trung Pháo",
+          category: "Kiên Cố Phòng Phản",
+          battleplan:
+            "Song Mã giữ vững Tốt đầu như bức trường thành. Chờ Xe Pháo đối phương sơ hở để hoành xa quá hà phản kích.",
+          counterAdvice:
+            "Giữ vững liên kết Song Mã, sẵn sàng đẩy Tốt 3 hoặc Tốt 7 khai thông mắt Mã.",
+        };
+      }
+      return {
+        name:
+          myColor === 1
+            ? "Đương Đầu Pháo Khai Cuộc"
+            : "Hậu Thủ Đối Đương Đầu Pháo",
+        category: "Phòng Ngự Phản Kích",
+        battleplan:
+          "Đối phương chiếm trung lộ trước. Cần củng cố Sĩ Tượng và xuất Xe tốc độ để kiềm tỏa thế công của địch.",
+        counterAdvice:
+          "Ưu tiên gia cố tuyến giữa, tránh để Pháo trống trung lộ uy hiếp Tướng.",
+      };
+    }
+
+    // 3. TIÊN NHÂN CHỈ LỘ (PUSH PAWN 3 OR 7)
+    const hasRedAdvancedPawn = redPawns.some(
+      (p) => (p.col === 2 || p.col === 6) && p.row === 4,
+    );
+    if (hasRedAdvancedPawn && !hasRedCentralCannon) {
+      const hasBlackSymmetricPawn = blackPawns.some(
+        (p) => (p.col === 2 || p.col === 6) && p.row === 5,
+      );
+      if (hasBlackSymmetricPawn) {
+        return {
+          name: "Đối Binh Cuộc (Song Binh Tương Kiến)",
+          category: "Cân Bằng Thâm Sâu",
+          battleplan:
+            "Hai bên cùng tiến Binh tranh đoạt điểm tựa chiến lược. Trận đấu đòi hỏi tính toán trung cuộc cực kỳ sâu sắc.",
+          counterAdvice:
+            "Nhanh chóng xuất Xe chiếm lộ 2-8 và phát triển Mã theo hướng thông thoáng.",
+        };
+      }
+      return {
+        name: "Tiên Nhân Chỉ Lộ Cuộc (Binh Pháp Thăm Dò)",
+        category: "Uyển Chuyển Cơ Động",
+        battleplan:
+          "Tiến Binh mở đường cho Mã, vừa dò xét phản ứng của địch vừa giữ kín ý đồ chiến lược. Biến hóa vô cùng linh hoạt.",
+        counterAdvice:
+          "Tùy theo nước đi tiếp theo của đối phương mà chuyển hóa thành Trung Pháo, Phi Tượng hoặc Quá Cung Pháo.",
+      };
+    }
+
+    // 4. PHI TƯỢNG CUỘC
+    const hasRedCenterElephant = redBishops.some(
+      (p) => p.col === 4 && p.row === 2,
+    );
+    if (hasRedCenterElephant && !hasRedCentralCannon) {
+      return {
+        name: "Phi Tượng Cuộc (Phòng Ngự Phản Kích)",
+        category: "Kiên Cố Vững Vàng",
+        battleplan:
+          "Củng cố phòng tuyến vững như bàn thạch, hạn chế tối đa rủi ro, chờ đối phương nóng vội lộ sơ hở.",
+        counterAdvice:
+          "Phát triển Song Mã và Xe thông thoáng, kiểm soát chặt chẽ tuyến hà.",
+      };
+    }
+
+    // 5. KHỞI MÃ CUỘC
+    const hasRedActiveKnights = redKnights.some(
+      (p) => (p.col === 2 || p.col === 6) && p.row === 2,
+    );
+    const redCannonsUntouched = redCannons.every(
+      (p) => p.row === 2 && (p.col === 1 || p.col === 7),
+    );
+    if (hasRedActiveKnights && redCannonsUntouched) {
+      return {
+        name: "Khởi Mã Cuộc (Chính Mã Khai Trận)",
+        category: "Ổn Định Uyển Chuyển",
+        battleplan:
+          "Phát triển Mã chính quy chiếm cứ vị trí chiến lược, bảo vệ Tốt đầu và sẵn sàng thích ứng với mọi thế trận.",
+        counterAdvice:
+          "Đẩy Binh 3 hoặc 7 thông đường cho Mã nhảy tiếp, giữ Pháo linh hoạt ứng biến.",
+      };
+    }
+
+    // 6. QUÁ CUNG PHÁO
+    const hasRedQuaCung = redCannons.some(
+      (p) => (p.col === 3 || p.col === 5) && p.row === 2,
+    );
+    if (hasRedQuaCung) {
+      return {
+        name: "Quá Cung Pháo (Chuyển Cánh Tập Kích)",
+        category: "Kỳ Ảo Bất Ngờ",
+        battleplan:
+          "Điều Pháo qua cung tập trung hỏa lực vào một cánh đối phương, chuẩn bị xuất Xe hoành xa phối hợp đè bẹp cánh yếu.",
+        counterAdvice:
+          "Nhanh chóng củng cố cánh bị uy hiếp, khai thác khoảng trống ở cánh Pháo vừa dời đi.",
+      };
+    }
+
+    // 7. SĨ GIÁC PHÁO
+    const hasRedSiGiac = redCannons.some(
+      (p) => (p.col === 3 || p.col === 5) && (p.row === 0 || p.row === 1),
+    );
+    if (hasRedSiGiac) {
+      return {
+        name: "Sĩ Giác Pháo (Pháo Nách Sĩ)",
+        category: "Phòng Thủ Phục Kích",
+        battleplan:
+          "Đặt Pháo tại nách Sĩ vừa hỗ trợ phòng thủ cung Tướng vừa nhắm vào hàng Tốt đối phương từ cự ly an toàn.",
+        counterAdvice:
+          "Xuất Xe nhanh chiếm lộ thông, phát triển Mã lên trung tâm kiềm tỏa tầm bắn của Pháo nách.",
+      };
+    }
+
+    // 8. KIM CÂU PHÁO
+    const redCannonsSameFlank =
+      redCannons.filter((p) => p.col <= 3).length === 2 ||
+      redCannons.filter((p) => p.col >= 5).length === 2;
+    if (redCannonsSameFlank) {
+      return {
+        name: "Kim Câu Pháo (Lưỡng Pháo Đồng Cánh)",
+        category: "Hiểm Độc Bất Ngờ",
+        battleplan:
+          "Dồn hai Pháo về cùng một cánh tạo hỏa lực tầm xa dồn dập, kéo giãn đội hình phòng thủ của đối phương.",
+        counterAdvice:
+          "Chuyển Xe sang cánh bị tấn công tiếp ứng, đồng thời phản kích mạnh vào cánh trống trải của đối thủ.",
+      };
+    }
+
+    return {
+      name: "Khai Cuộc Tiêu Chuẩn",
+      category: "Chính Quy Căn Bản",
+      battleplan:
+        "Triển khai đồng đều các binh chủng Xe, Mã, Pháo. Ưu tiên xuất Xe nhanh, kiểm soát lộ thông và bờ sông.",
+      counterAdvice:
+        "Tập trung khai thông các trục lộ chính, giữ cự ly đội hình cân bằng giữa công và thủ.",
+    };
+  }
+
+  /**
+   * Dynamic Grandmaster Maxim Selector
+   * Evaluates the active board state, opponent weaknesses, king safety, and phase to select
+   * the single most pertinent grandmaster maxim and tactical counsel in real-time.
+   */
+  function selectIntelligentMaxim(
+    pieces,
+    myColor,
+    oppColor,
+    phase,
+    evalScore,
+    inCheck,
+    discThreat,
+    plans,
+    mateThreat,
+  ) {
+    if (!pieces || pieces.length === 0) {
+      return XIANGQI_MAXIMS[0];
+    }
+
+    // 1. King in crisis / Sát Cục
+    if (inCheck) {
+      return {
+        rule: "Tướng nguy bách bộ, tị kỳ phong mang",
+        desc: "Tướng đang bị chiếu bức! Tính mạng chủ tướng là trên hết, ưu tiên dời Tướng hoặc điều quân che chở hóa giải trước.",
+        category: "Sát Cục",
+        triggerReason: "Tướng ta đang bị chiếu",
+        badge: "Cấp Cứu Cung Tướng",
+      };
+    }
+
+    if (discThreat) {
+      return {
+        rule: "Đề phòng ám tiễn, phá thế chiếu rút",
+        desc: "Đối thủ đang giăng đòn chiếu rút/chiếu mở cực kỳ nguy hiểm! Lập tức dời Tướng hoặc phong tỏa ngòi chiếu.",
+        category: "Sát Cục",
+        triggerReason: "Nguy cơ đòn chiếu rút của địch",
+        badge: "Hóa Giải Ám Tiễn",
+      };
+    }
+
+    if (mateThreat && mateThreat.type === "attack") {
+      return {
+        rule: "Nhất cổ tác khí, dũng tướng đoạt thành",
+        desc: "Trận thế sát cục đã lộ diện! Giữ vững sự tập trung, giáng đòn chính xác dứt điểm không cho đối phương cơ hội trở mình.",
+        category: "Sát Cục",
+        triggerReason: "Đang nắm giữ thế sát",
+        badge: "Tuyệt Kỹ Sát Cục",
+      };
+    }
+
+    // 2. Structural Deficiencies of Opponent
+    const oppAdvisors = pieces.filter(
+      (p) => p.color === oppColor && p.type === 1,
+    ).length;
+    const oppBishops = pieces.filter(
+      (p) => p.color === oppColor && p.type === 2,
+    ).length;
+    const myRooks = pieces.filter(
+      (p) => p.color === myColor && p.type === 3,
+    ).length;
+    const myCannons = pieces.filter(
+      (p) => p.color === myColor && p.type === 4,
+    ).length;
+    const myKnights = pieces.filter(
+      (p) => p.color === myColor && p.type === 5,
+    ).length;
+
+    if (oppAdvisors < 2 && myRooks >= 1) {
+      return {
+        rule: "Khuyết Sĩ kỵ Song Xe, nách rách Tướng kinh",
+        desc: `Địch chỉ còn ${oppAdvisors} Sĩ che chở, hai sườn lộ 4-6 hở toác! Hãy dồn Xe Mã khoét sâu vào sườn yếu để tạo thế kẹp cổ.`,
+        category: "Trung Cuộc",
+        triggerReason: `Địch khuyết ${2 - oppAdvisors} Sĩ`,
+        badge: "Khoét Sườn Tướng",
+      };
+    }
+
+    if (oppBishops < 2 && myCannons >= 1) {
+      return {
+        rule: "Khuyết Tượng sợ Pháo, đáy cung hở ngòi",
+        desc: `Địch chỉ còn ${oppBishops} Tượng phòng thủ tầm xa! Hãy dùng Pháo mượn ngòi đáy cung bắn thẳng vào trung quân địch.`,
+        category: "Trung Cuộc",
+        triggerReason: `Địch khuyết ${2 - oppBishops} Tượng`,
+        badge: "Khai Thác Điểm Mù",
+      };
+    }
+
+    // Check Oa tâm mã (Knight trapped at palace center)
+    const oppPalaceCenterRow = oppColor === 0 ? 1 : 8;
+    const oppTrappedKnight = pieces.find(
+      (p) =>
+        p.color === oppColor &&
+        p.type === 5 &&
+        p.col === 4 &&
+        p.row === oppPalaceCenterRow,
+    );
+    if (oppTrappedKnight) {
+      return {
+        rule: "Mã nhập oa tâm, bất tử dã hôn",
+        desc: "Mã địch nhảy vào tâm cung tự chặn đường chạy của Tướng! Mau chóng dồn hỏa lực vào trung lộ để kết liễu trận đấu.",
+        category: "Trung Cuộc",
+        triggerReason: "Mã địch tắc tại tâm cung",
+        badge: "Tập Kích Oa Tâm",
+      };
+    }
+
+    // 3. Special Tactical Formations
+    // Check Hollow Cannon (Pháo trống)
+    const oppKing = pieces.find((p) => p.color === oppColor && p.type === 0);
+    if (oppKing) {
+      const centralCannons = pieces.filter(
+        (p) =>
+          p.color === myColor && p.type === 4 && p.col === oppKing.col,
+      );
+      for (const cannon of centralCannons) {
+        const minR = Math.min(cannon.row, oppKing.row);
+        const maxR = Math.max(cannon.row, oppKing.row);
+        const blockers = pieces.filter(
+          (p) =>
+            p.col === oppKing.col && p.row > minR && p.row < maxR,
+        );
+        if (blockers.length === 0) {
+          return {
+            rule: "Pháo trống vô giá, uy chấn trung quân",
+            desc: "Pháo trống đối diện Tướng địch không có quân che chắn! Sức công phá sấm sét, phối hợp Xe Mã dứt điểm trận đấu.",
+            category: "Trung Cuộc",
+            triggerReason: "Pháo trống đối diện Tướng",
+            badge: "Hỏa Lực Sấm Sét",
+          };
+        }
+      }
+    }
+
+    // Check Advanced Pawn in enemy palace
+    const enemyPalaceRows = myColor === 0 ? [7, 8, 9] : [0, 1, 2];
+    const pawnInPalace = pieces.find(
+      (p) =>
+        p.color === myColor &&
+        p.type === 6 &&
+        enemyPalaceRows.includes(p.row) &&
+        p.col >= 3 &&
+        p.col <= 5,
+    );
+    if (pawnInPalace) {
+      return {
+        rule: "Nhất Tốt nhập cung, vạn quân kinh hãi",
+        desc: "Tốt ta đã thâm nhập sâu vào cửu cung địch! Như một con dao găm kề cổ Tướng, khóa chặt cửu cung hỗ trợ Xe dứt điểm.",
+        category: "Trung Cuộc",
+        triggerReason: "Tốt ta đã nhập cung",
+        badge: "Dao Găm Cận Vệ",
+      };
+    }
+
+    // 4. Phase-Specific Principles
+    if (phase === "Tàn Cuộc") {
+      if (myKnights >= 1) {
+        return {
+          rule: "Cờ tàn Pháo hoàn, Mã nhảy xung thiên",
+          desc: "Giai đoạn tàn cuộc đất trống mênh mông, Pháo mất ngòi suy yếu nhưng Mã tự do tung hoành! Hãy dùng góc nhảy hiểm của Mã để áp đảo.",
+          category: "Tàn Cuộc",
+          triggerReason: "Tàn cuộc phát huy Mã",
+          badge: "Tàn Cuộc Mã Thắng",
+        };
+      }
+      return {
+        rule: "Tốt cao có giá, Tốt lụt vô công",
+        desc: "Giữ Tốt ở hàng trên để khống chế lộ di chuyển của Tướng địch, tránh đẩy Tốt lụt xuống đáy sớm làm mất đi khả năng công phá.",
+        category: "Tàn Cuộc",
+        triggerReason: "Kỹ thuật tàn cuộc căn bản",
+        badge: "Nghệ Thuật Binh Tốt",
+      };
+    }
+
+    if (phase === "Khai Cuộc") {
+      const redRookInit =
+        myColor === 0 &&
+        pieces.some(
+          (p) =>
+            p.color === 0 &&
+            p.type === 3 &&
+            p.row === 0 &&
+            (p.col === 0 || p.col === 8),
+        );
+      const blackRookInit =
+        myColor === 1 &&
+        pieces.some(
+          (p) =>
+            p.color === 1 &&
+            p.type === 3 &&
+            p.row === 9 &&
+            (p.col === 0 || p.col === 8),
+        );
+      if (redRookInit || blackRookInit) {
+        return {
+          rule: "Xuất Xe chậm một nước, mất quyền chủ động mười chiêu",
+          desc: "Khai cuộc tối kỵ chậm xuất Xe! Nhanh chóng đưa Xe ra lộ thông 2, 4, 6, 8 kiểm soát các trục giao chiến huyết mạch.",
+          category: "Khai Cuộc",
+          triggerReason: "Xe chưa xuất quân",
+          badge: "Tốc Độ Xuất Xe",
+        };
+      }
+      return {
+        rule: "Pháo đầu uy chấn trung quân, tỏa định trục lộ",
+        desc: "Khống chế trung tâm tạo thế gọng kìm, vừa bảo vệ Tốt đầu vừa mở toang đường tiến cho Song Mã và Xe nhập cuộc.",
+        category: "Khai Cuộc",
+        triggerReason: "Phát triển quân khai cuộc",
+        badge: "Quy Củ Trận Pháp",
+      };
+    }
+
+    // 5. Score / Morale evaluations
+    if (evalScore >= 350) {
+      return {
+        rule: "Thừa thắng truy kích, công thành đoạt trại",
+        desc: "Thế trận đang áp đảo toàn diện (+3.5đ)! Siết chặt vòng vây, dồn ép đối thủ vào thế bế tắc không cho cơ hội trở mình.",
+        category: "Trung Cuộc",
+        triggerReason: "Ưu thế áp đảo",
+        badge: "Tổng Lực Áp Đảo",
+      };
+    }
+
+    if (evalScore <= -350) {
+      return {
+        rule: "Nghịch cảnh kiên thủ, chờ cơ hồi mã thương",
+        desc: "Thế cờ đang bất lợi! Cần chỉnh đốn Sĩ Tượng kiên cố, tuyệt đối không nóng vội xua quân liều mạng, chờ địch sơ hở phản đòn.",
+        category: "Trung Cuộc",
+        triggerReason: "Thế cờ nghịch cảnh",
+        badge: "Kiên Cố Chờ Thời",
+      };
+    }
+
+    // Default
+    return {
+      rule: "Xe mười, Pháo bảy, Mã ba",
+      desc: "Xe cơ động công phá mạnh nhất; Pháo khống chế tầm xa; Mã biến hóa uyển chuyển khi cờ thoáng. Phối hợp nhịp nhàng các binh chủng.",
+      category: "Trung Cuộc",
+      triggerReason: "Phối hợp binh chủng",
+      badge: "Binh Thư Tượng Kỳ",
+    };
+  }
 
   let mentorPanelEl = null;
   let cachedAnalysis = null;
@@ -506,6 +1317,71 @@ import {
       };
     }
 
+    // 7. Trắc Diện Hổ (Mã ngọa tào + Xe sườn phối hợp tuyệt sát)
+    const hasHorseFlank = pieces.some(
+      (p) =>
+        p.color === myColor &&
+        p.type === 5 &&
+        (p.col === 1 || p.col === 7 || p.col === 2 || p.col === 6) &&
+        enemyPalaceRows.includes(p.row),
+    );
+    if (
+      movingPiece.type === 3 &&
+      (toCol === 3 || toCol === 5 || toCol === 1 || toCol === 7) &&
+      hasHorseFlank
+    ) {
+      return {
+        id: "trac-dien-ho",
+        name: "Trắc Diện Hổ",
+        tag: "trac-dien-ho",
+        desc: "Mã khóa góc cung, Xe sườn áp sát giáng đòn Trắc Diện Hổ sấm sét đoạt mạng Tướng địch!",
+      };
+    }
+
+    // 8. Song Pháo Trùng (Hai Pháo cùng một lộ chiếu bí)
+    if (movingPiece.type === 4) {
+      const otherCannonSameCol = pieces.some(
+        (p) =>
+          p.color === myColor &&
+          p.type === 4 &&
+          p.col === toCol &&
+          !(p.col === move.fromCol && p.row === move.fromRow) &&
+          enemyPalaceRows.includes(p.row),
+      );
+      if (otherCannonSameCol && enemyPalaceRows.includes(toRow)) {
+        return {
+          id: "double-cannon",
+          name: "Song Pháo Trùng",
+          tag: "double-cannon",
+          desc: "Song Pháo trùng trục lộ giáng hỏa lực kinh hoàng, Tướng địch không còn đường thoái lui!",
+        };
+      }
+    }
+
+    // 9. Hải Đáy Lao Nguyệt (Xe luồn đáy mượn ngòi chiếu bí)
+    if (movingPiece.type === 3 && toRow === enemyBaseline) {
+      return {
+        id: "sea-bottom-moon",
+        name: "Hải Đáy Lao Nguyệt",
+        tag: "sea-bottom-moon",
+        desc: "Xe cắm đáy cung luồn sau lưng Tướng, giáng đòn Đáy Biển Mò Trăng đoạt thắng quyết định!",
+      };
+    }
+
+    // 10. Đại Đao Oan Tâm (Xe/Tốt phá thẳng tâm cung)
+    if (
+      (movingPiece.type === 3 || movingPiece.type === 6) &&
+      toCol === 4 &&
+      enemyPalaceRows.includes(toRow)
+    ) {
+      return {
+        id: "gouging-heart",
+        name: "Đại Đao Oan Tâm",
+        tag: "gouging-heart",
+        desc: "Chém thẳng vào huyệt đạo tâm cung đối phương, phá nát trận hình đoạt thắng tuyệt đối!",
+      };
+    }
+
     return {
       id: "mate-threat",
       name: "Tuyệt Sát Liên Hoàn",
@@ -657,7 +1533,18 @@ import {
       ? `Khuyên dùng ${commentary.move}! ${commentary.why}`
       : commentary.why;
 
-    const currentMaxim = XIANGQI_MAXIMS[phase === "Khai Cuộc" ? 4 : 0];
+    const openingInfo = detectXiangqiOpening(pieces, myColor);
+    const currentMaxim = selectIntelligentMaxim(
+      pieces,
+      myColor,
+      oppColor,
+      phase,
+      score,
+      inCheck,
+      discThreat,
+      [],
+      null,
+    );
 
     return {
       phase,
@@ -677,7 +1564,8 @@ import {
       nodes: 0,
       evalBreakdown:
         quickRes && quickRes.evalBreakdown ? quickRes.evalBreakdown : null,
-      openingName: null,
+      openingName: openingInfo ? openingInfo.name : null,
+      openingInfo: openingInfo,
       engineName:
         activeProviderId === "pikafish"
           ? getEngineTransportStatus().type === "native-ws"
@@ -698,6 +1586,7 @@ import {
           }
         : null,
       maxim: currentMaxim,
+      allMaxims: XIANGQI_MAXIMS,
       isQuickOnly: true,
     };
   }
@@ -881,12 +1770,18 @@ import {
           const oppTCol = oppColor === 0 ? 9 - rep.toCol : rep.toCol + 1;
           if (oppTarget) {
             oppWhy = `Phản pháo chém ${oppTarget.name} tại Lộ ${oppTCol} nhằm giải tỏa sức ép.`;
+          } else if (oppPiece && oppPiece.type === 0) {
+            oppWhy = `Tướng địch dời sang Lộ ${oppTCol} thoát khỏi tầm ngắm nguy hiểm của ta.`;
           } else if (oppPiece && (oppPiece.type === 1 || oppPiece.type === 2)) {
             oppWhy = `Bổ ${oppPiece.name} củng cố phòng tuyến trước thế công dồn dập của ta.`;
           } else if (oppPiece && oppPiece.type === 3) {
             oppWhy = `Xuất Xe kiểm soát Lộ ${oppTCol} hòng ngăn chặn mũi đột phá của ta.`;
+          } else if (oppPiece && oppPiece.type === 4) {
+            oppWhy = `Điều Pháo tới Lộ ${oppTCol} tìm kiếm ngòi nổ phản kích.`;
           } else if (oppPiece && oppPiece.type === 5) {
-            oppWhy = `Nhảy Mã lên Lộ ${oppTCol} hòng tìm kiếm cơ hội phản kích.`;
+            oppWhy = `Nhảy Mã lên Lộ ${oppTCol} hòng khai thông thế trận và phản kích.`;
+          } else if (oppPiece && oppPiece.type === 6) {
+            oppWhy = `Tiến Binh Lộ ${oppTCol} mở đường cho Mã hoặc tranh đoạt quyền kiểm soát hà.`;
           } else {
             oppWhy = `Điều quân phản ứng củng cố trận địa.`;
           }
@@ -922,10 +1817,16 @@ import {
                 ansWhy = `Lập tức chém ${ansTarget.name} Lộ ${ansTCol}, đoạt ưu thế quyết định.`;
               } else if (rep.answer.score && rep.answer.score > 9000) {
                 ansWhy = `Giáng đòn sát cục kết liễu trận đấu!`;
+              } else if (ansPiece.type === 0) {
+                ansWhy = `Vận động Tướng chiếm lộ khống chế trợ chiến khóa chặt đối phương.`;
               } else if (ansPiece.type === 3) {
                 ansWhy = `Xe bồi đòn khống chế Lộ ${ansTCol}, siết chặt vòng vây ép địch vào thế bí.`;
               } else if (ansPiece.type === 4) {
                 ansWhy = `Pháo bồi thêm đòn công kích sườn/trung lộ, khóa chặt đường tẩu thoát.`;
+              } else if (ansPiece.type === 5) {
+                ansWhy = `Mã phi lên Lộ ${ansTCol} tạo gọng kìm phối hợp cùng Xe Pháo dồn ép Tướng địch.`;
+              } else if (ansPiece.type === 6) {
+                ansWhy = `Tiểu Tốt xông lên áp sát nách cung, gia tăng áp lực sát ván.`;
               } else {
                 ansWhy = `Bồi thêm đòn ${ansNot.short} giữ vững ưu thế áp đảo.`;
               }
@@ -1439,7 +2340,18 @@ import {
         }
       }
 
-      const currentMaxim = XIANGQI_MAXIMS[phase === "Khai Cuộc" ? 4 : 0];
+      const openingInfo = detectXiangqiOpening(pieces, myColor);
+      const currentMaxim = selectIntelligentMaxim(
+        pieces,
+        myColor,
+        oppColor,
+        phase,
+        searchRes.score,
+        inCheck,
+        discThreat,
+        plans,
+        mateThreat,
+      );
 
       return {
         phase,
@@ -1458,7 +2370,10 @@ import {
         inCheck: inCheck,
         depth: searchRes.depth,
         nodes: searchRes.nodes,
-        openingName: searchRes.openingName || null,
+        openingName: openingInfo
+          ? openingInfo.name
+          : searchRes.openingName || null,
+        openingInfo: openingInfo,
         evalBreakdown: searchRes.evalBreakdown || null,
         engineName:
           searchRes.engineName ||
@@ -3037,19 +3952,26 @@ import {
         {/* TẦNG KHAI CUỘC NẾU CÓ */}
         {analysis.openingName && (
           <div className="px-3 pt-2">
-            <div className="flex items-center justify-between rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-[10.5px] text-amber-300">
-              <div className="flex min-w-0 items-center gap-1.5">
-                <Sparkles className="size-3.5 shrink-0 text-amber-400" />
-                <span className="truncate">
-                  Thế Trận: <strong>{analysis.openingName}</strong>
-                </span>
+            <div className="flex flex-col gap-1 rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent px-3 py-2 text-[10.5px] text-amber-300 shadow-xs">
+              <div className="flex items-center justify-between">
+                <div className="flex min-w-0 items-center gap-1.5">
+                  <Sparkles className="size-3.5 shrink-0 text-amber-400" />
+                  <span className="truncate">
+                    Thế Trận: <strong>{analysis.openingName}</strong>
+                  </span>
+                </div>
+                <Badge
+                  variant="outline"
+                  className="shrink-0 border-amber-400/40 bg-amber-500/20 px-1.5 py-0 text-[9px] font-semibold text-amber-300"
+                >
+                  {analysis.openingInfo?.category || "Khai Cuộc Chuẩn"}
+                </Badge>
               </div>
-              <Badge
-                variant="outline"
-                className="shrink-0 border-amber-400/40 bg-amber-500/20 px-1.5 py-0 text-[9px] font-semibold text-amber-300"
-              >
-                Khai Cuộc Chuẩn
-              </Badge>
+              {analysis.openingInfo?.battleplan && (
+                <p className="text-amber-200/85 text-[9.5px] leading-snug">
+                  💡 {analysis.openingInfo.battleplan}
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -3278,6 +4200,12 @@ import {
     onDrawPlan,
   }) {
     const plans = analysis?.plans || [];
+    const [theoryCategory, setTheoryCategory] = useState("Tất Cả");
+
+    const filteredMaxims = useMemo(() => {
+      if (theoryCategory === "Tất Cả") return XIANGQI_MAXIMS;
+      return XIANGQI_MAXIMS.filter((m) => m.category === theoryCategory);
+    }, [theoryCategory]);
 
     return (
       <Tabs
@@ -3598,25 +4526,136 @@ import {
           className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1"
           data-scrollable="true"
         >
-          <div className="border-border/40 rounded-xl border bg-white/2 p-2.5">
-            <span className="text-primary block text-[10.5px] font-bold">
-              "{analysis.maxim.rule}"
-            </span>
-            <p className="text-muted-foreground mt-0.5 text-[10px] leading-snug">
-              {analysis.maxim.desc}
-            </p>
+          {/* 1. KHẨU QUYẾT ỨNG DỤNG THẾ TRẬN HIỆN TẠI (DYNAMIC CONTEXTUAL MAXIM) */}
+          {analysis?.maxim && (
+            <div className="relative overflow-hidden rounded-xl border border-amber-500/35 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent p-2.5 shadow-xs">
+              <div className="mb-1 flex items-center justify-between gap-1">
+                <div className="flex items-center gap-1.5 text-[10px] font-semibold text-amber-400">
+                  <Sparkles className="size-3.5 shrink-0 text-amber-400" />
+                  <span>Khẩu Quyết Ứng Dụng Thế Trận</span>
+                </div>
+                {analysis.maxim.badge && (
+                  <Badge
+                    variant="outline"
+                    className="border-amber-400/50 bg-amber-500/20 px-1.5 py-0 text-[8.5px] font-bold text-amber-300"
+                  >
+                    {analysis.maxim.badge}
+                  </Badge>
+                )}
+              </div>
+              <span className="text-foreground block text-[10.5px] font-bold leading-snug">
+                "{analysis.maxim.rule}"
+              </span>
+              <p className="text-muted-foreground mt-0.5 text-[9.5px] leading-relaxed">
+                {analysis.maxim.desc}
+              </p>
+              {analysis.maxim.triggerReason && (
+                <div className="mt-1.5 flex items-center gap-1 text-[8.5px] text-amber-300/80">
+                  <span className="inline-block size-1.5 rounded-full bg-amber-400"></span>
+                  <span>
+                    Kích hoạt do: <strong>{analysis.maxim.triggerReason}</strong>
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 2. THẾ TRẬN KHAI CUỘC NẾU CÓ */}
+          {analysis?.openingInfo && (
+            <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-2.5 text-[9.5px]">
+              <div className="mb-1 flex items-center justify-between">
+                <span className="flex items-center gap-1 font-bold text-cyan-300">
+                  <Compass className="size-3 text-cyan-400" />
+                  {analysis.openingInfo.name}
+                </span>
+                <Badge
+                  variant="outline"
+                  className="border-cyan-400/40 bg-cyan-500/20 px-1 py-0 text-[8px] text-cyan-200"
+                >
+                  {analysis.openingInfo.category}
+                </Badge>
+              </div>
+              <p className="text-muted-foreground text-[9px] leading-snug">
+                <strong className="text-cyan-200">Kế sách:</strong>{" "}
+                {analysis.openingInfo.battleplan}
+              </p>
+              {analysis.openingInfo.counterAdvice && (
+                <p className="text-muted-foreground mt-1 text-[9px] leading-snug">
+                  <strong className="text-cyan-200">Ứng biến:</strong>{" "}
+                  {analysis.openingInfo.counterAdvice}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* 3. BỘ LỌC DANH MỤC BINH THƯ */}
+          <div className="flex flex-col gap-1 pt-0.5">
+            <div className="text-muted-foreground flex items-center justify-between px-0.5 text-[9.5px] font-semibold">
+              <span className="flex items-center gap-1">
+                <BrainCircuit className="text-primary size-3" />
+                Kho Tàng Tâm Pháp Tượng Kỳ ({filteredMaxims.length})
+              </span>
+            </div>
+            {/* Category filter pills */}
+            <div className="flex flex-wrap gap-1">
+              {THEORY_CATEGORIES.map((cat) => {
+                const isSelected = theoryCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => setTheoryCategory(cat)}
+                    className={`rounded-lg px-2 py-0.5 text-[8.5px] font-medium transition-all ${
+                      isSelected
+                        ? "bg-primary text-primary-foreground shadow-xs font-bold"
+                        : "bg-muted/30 text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="flex flex-col gap-1">
-            {XIANGQI_MAXIMS.slice(0, 5).map((m, idx) => (
-              <div
-                key={idx}
-                className="border-border/30 bg-muted/10 rounded-lg border p-1.5 text-[9.5px] leading-snug"
-              >
-                <strong className="text-primary mr-1">{m.rule}:</strong>
-                <span className="text-muted-foreground">{m.desc}</span>
-              </div>
-            ))}
+          {/* 4. DANH SÁCH KHẨU QUYẾT THEO DANH MỤC */}
+          <div className="flex flex-col gap-1 pb-1">
+            {filteredMaxims.map((m, idx) => {
+              const isActive =
+                analysis?.maxim && analysis.maxim.rule === m.rule;
+              return (
+                <div
+                  key={idx}
+                  className={`rounded-lg border p-2 text-[9px] leading-snug transition-all ${
+                    isActive
+                      ? "border-amber-400/50 bg-amber-500/15 ring-1 ring-amber-400/30"
+                      : "border-border/30 bg-muted/10 hover:bg-muted/20"
+                  }`}
+                >
+                  <div className="mb-0.5 flex items-center justify-between gap-1">
+                    <strong
+                      className={
+                        isActive ? "font-bold text-amber-300" : "text-primary"
+                      }
+                    >
+                      {m.rule}
+                    </strong>
+                    <div className="flex shrink-0 items-center gap-1">
+                      {isActive && (
+                        <span className="rounded bg-amber-500/30 px-1 py-0 text-[7.5px] font-bold text-amber-300">
+                          Ứng Dụng
+                        </span>
+                      )}
+                      <span className="bg-muted/40 text-muted-foreground rounded px-1 py-0 text-[7.5px]">
+                        {m.category}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-muted-foreground text-[8.5px] leading-relaxed">
+                    {m.desc}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </TabsContent>
       </Tabs>

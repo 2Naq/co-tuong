@@ -43,11 +43,13 @@
               const canMove =
                 typeof ZigaMod.isMovePatternValid === "function"
                   ? ZigaMod.isMovePatternValid(gameLayer, pieceHelper, i, sq, grid)
-                  : typeof gameLayer.PM === "function"
-                    ? gameLayer.PM(pieceHelper, i, sq, grid)
-                    : typeof gameLayer.IM === "function"
-                      ? gameLayer.IM(pieceHelper, i, sq, grid)
-                      : false;
+                  : typeof gameLayer.QM === "function"
+                    ? gameLayer.QM(pieceHelper, i, sq, grid)
+                    : typeof gameLayer.PM === "function" && gameLayer.PM.length >= 3
+                      ? gameLayer.PM(pieceHelper, i, sq, grid)
+                      : typeof gameLayer.IM === "function"
+                        ? gameLayer.IM(pieceHelper, i, sq, grid)
+                        : false;
 
               if (canMove) {
                 const isKingFaceKing =

@@ -502,7 +502,7 @@
         greenSprite.setVisible(false);
         const greenBaseScale = calculateAuraBaseScale(greenSprite, w, "green");
         applyAuraAnimation(greenSprite, greenBaseScale);
-        piece.addChild(greenSprite, 10);
+        piece.addChild(greenSprite, -1);
         piece.__zigaAuraGreen = greenSprite;
       }
 
@@ -514,7 +514,7 @@
         redSprite.setVisible(false);
         const redBaseScale = calculateAuraBaseScale(redSprite, w, "red");
         applyAuraAnimation(redSprite, redBaseScale);
-        piece.addChild(redSprite, 10);
+        piece.addChild(redSprite, -1);
         piece.__zigaAuraRed = redSprite;
       }
     } catch (err) {
