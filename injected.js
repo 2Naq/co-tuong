@@ -15367,7 +15367,7 @@
     function enhancePieceSprite(piece) {
       if (!piece || piece.__zigaEnhancedKj) return;
       piece.__zigaEnhancedKj = true;
-      piece.kj = function(show) {
+      piece.kj = function(show, isDangerous) {
         if (!this.rd) return;
         const isHighlightEnabled = !ZigaMod.userSettings || ZigaMod.userSettings.highlightTactics !== false;
         if (!isHighlightEnabled || !show) {
@@ -15377,6 +15377,13 @@
           if (this.rd.WT) this.rd.WT.stopAllActions();
           if (this.rd.dU) this.rd.dU.stopAllActions();
           this.rd.setScale(0.5);
+          if (this.rd.setColor && typeof cc !== "undefined" && cc.color) {
+            this.rd.setColor(cc.color(255, 255, 255));
+          }
+          var inner = this.rd.eU || this.rd.dU || this.rd.WT;
+          if (inner && inner.setColor && typeof cc !== "undefined" && cc.color) {
+            inner.setColor(cc.color(255, 255, 255));
+          }
           return;
         }
         this.rd.setVisible(true);
@@ -15385,20 +15392,644 @@
         if (this.rd.WT) this.rd.WT.stopAllActions();
         if (this.rd.dU) this.rd.dU.stopAllActions();
         this.rd.setScale(0.5);
+        const isRadarEnabled = !ZigaMod.userSettings || ZigaMod.userSettings.moveSafetyRadar !== false;
+        const auraColor = isRadarEnabled && typeof cc !== "undefined" && cc.color ? isDangerous === false ? cc.color(46, 204, 113) : cc.color(248, 80, 80) : null;
+        if (auraColor && this.rd.setColor) {
+          this.rd.setColor(auraColor);
+        }
+        var inner = this.rd.eU || this.rd.dU || this.rd.WT;
+        if (inner && auraColor && inner.setColor) {
+          inner.setColor(auraColor);
+        }
         if (typeof cc !== "undefined" && typeof cc.fadeTo === "function" && typeof cc.sequence === "function") {
           var fadeOut = cc.fadeTo(0.4, 40);
           var fadeIn = cc.fadeTo(0.4, 255);
           var pulse = cc.sequence(fadeOut, fadeIn).repeatForever();
           this.rd.runAction(pulse);
-          var inner = this.rd.eU || this.rd.dU || this.rd.WT;
           if (inner) {
             inner.runAction(pulse.clone());
           }
         }
       };
     }
+    const RADAR_CONFIG = {
+      // 1. TỶ LỆ KÍCH THƯỚC HIỂN THỊ (To / Nhỏ trên bàn cờ)
+      // Giá trị chuẩn: 0.42 (nhỏ gọn vừa khít ô). Tăng 0.46 - 0.50 nếu muốn to hơn.
+      baseScale: 0.42,
+      // 2. HIỆU ỨNG CHUYỂN ĐỘNG (Animations)
+      animation: {
+        enable: true,
+        // Bật/tắt hiệu ứng nhịp đập & nhịp thở
+        // Ô ĐỎ (Nguy hiểm) - Nhịp tim đập cảnh báo
+        dangerSpeed: 0.35,
+        // Thời gian 1 nhịp đập (giây, càng nhỏ càng nhanh)
+        dangerScaleMax: 0.47,
+        // Độ to cực đại khi đập
+        dangerScaleMin: 0.38,
+        // Độ thu nhỏ khi đập
+        // Ô XANH (An toàn) - Nhịp thở êm ái
+        safeSpeed: 1,
+        // Thời gian 1 nhịp thở (giây)
+        safeScaleMax: 0.44,
+        // Độ to cực đại khi thở
+        safeScaleMin: 0.4,
+        // Độ thu nhỏ khi thở
+        // Tùy chọn hiệu ứng xoay vòng radar (Rotate)
+        enableRotate: false,
+        // Đổi thành true nếu muốn vòng ngắm xoay tròn liên tục
+        rotateSpeed: 4
+        // Thời gian xoay 360 độ (giây)
+      },
+      // 3. KÍCH THƯỚC CÁC CHI TIẾT HÌNH HỌC (Pixels trên canvas 128x128)
+      radius: {
+        outerRing: 36,
+        // Bán kính vành ngắm ngoài (36px)
+        innerRing: 23,
+        // Bán kính vành ngắm phụ bên trong (23px)
+        centerOrb: 13,
+        // Bán kính bóng ngọc 3D ở tâm (13px)
+        discBacking: 36,
+        // Bán kính đĩa nền mờ
+        tickStart: 27,
+        // Tọa độ bắt đầu vạch ngắm chữ thập
+        tickEnd: 43
+        // Tọa độ mũi tên vạch ngắm chữ thập
+      },
+      // 4. ĐỘ DÀY NÉT VẼ (Stroke Width)
+      strokeWidth: {
+        outerRing: 3.5,
+        // Độ dày vành ngoài
+        innerRing: 1.6,
+        // Độ dày vành trong
+        crosshair: 3,
+        // Độ dày vạch chữ thập
+        orbRim: 1.2
+        // Độ dày viền bóng ngọc
+      },
+      // 5. MÀU SẮC & ÁNH SÁNG GLOW
+      colors: {
+        safe: {
+          ring: "#4ade80",
+          // Xanh neon viền ngoài
+          glow: "#22c55e",
+          // Ánh sáng tỏa ra
+          glowBlur: 12,
+          // Độ tỏa sáng
+          innerRing: "rgba(134, 239, 172, 0.65)",
+          discBacking: "rgba(16, 185, 129, 0.18)",
+          crosshair: "#86efac",
+          orbGradient: ["#ffffff", "#bbf7d0", "#22c55e", "#16a34a", "#14532d"]
+        },
+        danger: {
+          ring: "#ff3355",
+          // Đỏ rực viền ngoài
+          glow: "#ef4444",
+          // Ánh sáng tỏa ra
+          glowBlur: 14,
+          // Độ tỏa sáng
+          innerRing: "rgba(254, 202, 202, 0.85)",
+          discBacking: "rgba(239, 68, 68, 0.22)",
+          crosshair: "#fecaca",
+          orbGradient: ["#ffffff", "#fecaca", "#ef4444", "#dc2626", "#7f1d1d"]
+        }
+      }
+    };
+    let radarGreenCanvasCache = null;
+    let radarRedCanvasCache = null;
+    let cachedRadarGreenTex = null;
+    let cachedRadarRedTex = null;
+    function getRadarGreenCanvas() {
+      if (radarGreenCanvasCache) return radarGreenCanvasCache;
+      if (typeof document === "undefined") return null;
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = 128;
+        canvas.height = 128;
+        const ctx = canvas.getContext("2d");
+        const cx2 = 64, cy = 64;
+        const r2 = RADAR_CONFIG.radius;
+        const sw = RADAR_CONFIG.strokeWidth;
+        const col = RADAR_CONFIG.colors.safe;
+        ctx.clearRect(0, 0, 128, 128);
+        const bloom = ctx.createRadialGradient(cx2, cy, 12, cx2, cy, 60);
+        bloom.addColorStop(0, "rgba(34, 197, 94, 0.45)");
+        bloom.addColorStop(0.5, "rgba(34, 197, 94, 0.18)");
+        bloom.addColorStop(1, "rgba(34, 197, 94, 0.0)");
+        ctx.fillStyle = bloom;
+        ctx.beginPath();
+        ctx.arc(cx2, cy, 60, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = col.discBacking;
+        ctx.beginPath();
+        ctx.arc(cx2, cy, r2.discBacking, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.save();
+        ctx.shadowColor = col.glow;
+        ctx.shadowBlur = col.glowBlur;
+        ctx.strokeStyle = col.ring;
+        ctx.lineWidth = sw.outerRing;
+        ctx.beginPath();
+        ctx.arc(cx2, cy, r2.outerRing, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+        ctx.strokeStyle = col.innerRing;
+        ctx.lineWidth = sw.innerRing;
+        ctx.beginPath();
+        ctx.arc(cx2, cy, r2.innerRing, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.save();
+        ctx.shadowColor = col.glow;
+        ctx.shadowBlur = 8;
+        ctx.strokeStyle = col.crosshair;
+        ctx.lineWidth = sw.crosshair;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(cx2, cy - r2.tickEnd);
+        ctx.lineTo(cx2, cy - r2.tickStart);
+        ctx.moveTo(cx2, cy + r2.tickEnd);
+        ctx.lineTo(cx2, cy + r2.tickStart);
+        ctx.moveTo(cx2 - r2.tickEnd, cy);
+        ctx.lineTo(cx2 - r2.tickStart, cy);
+        ctx.moveTo(cx2 + r2.tickEnd, cy);
+        ctx.lineTo(cx2 + r2.tickStart, cy);
+        ctx.stroke();
+        ctx.restore();
+        const orbGrad = ctx.createRadialGradient(
+          cx2 - 3,
+          cy - 3,
+          1,
+          cx2,
+          cy,
+          r2.centerOrb
+        );
+        const stops = col.orbGradient;
+        orbGrad.addColorStop(0, stops[0]);
+        orbGrad.addColorStop(0.2, stops[1]);
+        orbGrad.addColorStop(0.55, stops[2]);
+        orbGrad.addColorStop(0.85, stops[3]);
+        orbGrad.addColorStop(1, stops[4]);
+        ctx.fillStyle = orbGrad;
+        ctx.beginPath();
+        ctx.arc(cx2, cy, r2.centerOrb, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+        ctx.beginPath();
+        ctx.arc(cx2 - 4, cy - 4, 3.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.75)";
+        ctx.lineWidth = sw.orbRim;
+        ctx.beginPath();
+        ctx.arc(cx2, cy, r2.centerOrb, 0, Math.PI * 2);
+        ctx.stroke();
+        radarGreenCanvasCache = canvas;
+        return canvas;
+      } catch (e) {
+        console.warn("[AN Mod] Failed to create green radar canvas:", e);
+        return null;
+      }
+    }
+    function getRadarRedCanvas() {
+      if (radarRedCanvasCache) return radarRedCanvasCache;
+      if (typeof document === "undefined") return null;
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = 128;
+        canvas.height = 128;
+        const ctx = canvas.getContext("2d");
+        const cx2 = 64, cy = 64;
+        const r2 = RADAR_CONFIG.radius;
+        const sw = RADAR_CONFIG.strokeWidth;
+        const col = RADAR_CONFIG.colors.danger;
+        ctx.clearRect(0, 0, 128, 128);
+        const bloom = ctx.createRadialGradient(cx2, cy, 12, cx2, cy, 60);
+        bloom.addColorStop(0, "rgba(239, 68, 68, 0.55)");
+        bloom.addColorStop(0.5, "rgba(239, 68, 68, 0.22)");
+        bloom.addColorStop(1, "rgba(239, 68, 68, 0.0)");
+        ctx.fillStyle = bloom;
+        ctx.beginPath();
+        ctx.arc(cx2, cy, 60, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = col.discBacking;
+        ctx.beginPath();
+        ctx.arc(cx2, cy, r2.discBacking, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.save();
+        ctx.shadowColor = col.glow;
+        ctx.shadowBlur = col.glowBlur;
+        ctx.strokeStyle = col.ring;
+        ctx.lineWidth = sw.outerRing;
+        ctx.beginPath();
+        ctx.arc(cx2, cy, r2.outerRing, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+        ctx.strokeStyle = col.innerRing;
+        ctx.lineWidth = sw.innerRing;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.arc(cx2, cy, r2.innerRing, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.save();
+        ctx.shadowColor = col.glow;
+        ctx.shadowBlur = 8;
+        ctx.strokeStyle = col.crosshair;
+        ctx.lineWidth = sw.crosshair;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(cx2, cy - r2.tickEnd);
+        ctx.lineTo(cx2, cy - r2.tickStart);
+        ctx.moveTo(cx2, cy + r2.tickEnd);
+        ctx.lineTo(cx2, cy + r2.tickStart);
+        ctx.moveTo(cx2 - r2.tickEnd, cy);
+        ctx.lineTo(cx2 - r2.tickStart, cy);
+        ctx.moveTo(cx2 + r2.tickEnd, cy);
+        ctx.lineTo(cx2 + r2.tickStart, cy);
+        ctx.stroke();
+        ctx.restore();
+        const redOrbGrad = ctx.createRadialGradient(
+          cx2 - 3,
+          cy - 3,
+          1,
+          cx2,
+          cy,
+          r2.centerOrb
+        );
+        const stops = col.orbGradient;
+        redOrbGrad.addColorStop(0, stops[0]);
+        redOrbGrad.addColorStop(0.2, stops[1]);
+        redOrbGrad.addColorStop(0.55, stops[2]);
+        redOrbGrad.addColorStop(0.85, stops[3]);
+        redOrbGrad.addColorStop(1, stops[4]);
+        ctx.fillStyle = redOrbGrad;
+        ctx.beginPath();
+        ctx.arc(cx2, cy, r2.centerOrb, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+        ctx.beginPath();
+        ctx.arc(cx2 - 4, cy - 4, 3.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.75)";
+        ctx.lineWidth = sw.orbRim;
+        ctx.beginPath();
+        ctx.arc(cx2, cy, r2.centerOrb, 0, Math.PI * 2);
+        ctx.stroke();
+        radarRedCanvasCache = canvas;
+        return canvas;
+      } catch (e) {
+        console.warn("[AN Mod] Failed to create red radar canvas:", e);
+        return null;
+      }
+    }
+    function getRadarTexture(isDanger) {
+      if (typeof window === "undefined" || !window.cc) return null;
+      if (isDanger && cachedRadarRedTex) return cachedRadarRedTex;
+      if (!isDanger && cachedRadarGreenTex) return cachedRadarGreenTex;
+      const canvas = isDanger ? getRadarRedCanvas() : getRadarGreenCanvas();
+      if (!canvas) return null;
+      try {
+        let tex = null;
+        if (cc.Texture2D) {
+          tex = new cc.Texture2D();
+          if (typeof tex.initWithElement === "function") {
+            tex.initWithElement(canvas);
+            if (typeof tex.handleLoadedTexture === "function") {
+              tex.handleLoadedTexture();
+            }
+          }
+        }
+        const result = tex || canvas;
+        if (isDanger) cachedRadarRedTex = result;
+        else cachedRadarGreenTex = result;
+        return result;
+      } catch (e) {
+        console.warn("[AN Mod] Failed to getRadarTexture:", e);
+        return canvas;
+      }
+    }
+    function createRadarSprite(isDanger) {
+      if (typeof window === "undefined" || !window.cc) return null;
+      const tex = getRadarTexture(isDanger);
+      if (!tex) return null;
+      try {
+        let spr = null;
+        if (typeof cc.Sprite === "function") {
+          spr = new cc.Sprite(tex);
+        } else if (cc.Sprite && typeof cc.Sprite.create === "function") {
+          spr = cc.Sprite.create(tex);
+        }
+        if (spr) {
+          spr.setAnchorPoint(0.5, 0.5);
+        }
+        return spr;
+      } catch (err) {
+        console.warn("[AN Mod] createRadarSprite failed:", err);
+        return null;
+      }
+    }
+    function ensureRadarSprites(marker) {
+      if (!marker) return;
+      const sz = marker.getContentSize ? marker.getContentSize() : null;
+      const w = sz && sz.width > 0 ? sz.width : 32;
+      const h = sz && sz.height > 0 ? sz.height : 32;
+      const baseScale = RADAR_CONFIG.baseScale || 0.42;
+      if (!marker.__radarGreen) {
+        const sprGreen = createRadarSprite(false);
+        if (sprGreen) {
+          sprGreen.setPosition(w / 2, h / 2);
+          sprGreen.setVisible(false);
+          sprGreen.setScale(baseScale);
+          marker.addChild(sprGreen, 20);
+          marker.__radarGreen = sprGreen;
+        }
+      }
+      if (!marker.__radarRed) {
+        const sprRed = createRadarSprite(true);
+        if (sprRed) {
+          sprRed.setPosition(w / 2, h / 2);
+          sprRed.setVisible(false);
+          sprRed.setScale(baseScale);
+          marker.addChild(sprRed, 20);
+          marker.__radarRed = sprRed;
+        }
+      }
+    }
+    function applyRadarStyleToMarker(marker, isDanger) {
+      if (!marker) return;
+      ensureRadarSprites(marker);
+      if (typeof marker.setCascadeOpacityEnabled === "function") {
+        marker.setCascadeOpacityEnabled(false);
+      }
+      if (typeof marker.setOpacity === "function") {
+        marker.setOpacity(0);
+      }
+      if (typeof marker.setColor === "function" && typeof cc !== "undefined" && cc.color) {
+        marker.setColor(cc.color(255, 255, 255));
+      }
+      const baseScale = RADAR_CONFIG.baseScale || 0.42;
+      const anim = RADAR_CONFIG.animation || {};
+      if (isDanger) {
+        if (marker.__radarGreen) {
+          marker.__radarGreen.stopAllActions();
+          marker.__radarGreen.setVisible(false);
+        }
+        if (marker.__radarRed) {
+          marker.__radarRed.setVisible(true);
+          marker.__radarRed.setOpacity(255);
+          marker.__radarRed.stopAllActions();
+          marker.__radarRed.setScale(baseScale);
+          if (anim.enable !== false && typeof cc !== "undefined") {
+            if (typeof cc.sequence === "function" && typeof cc.scaleTo === "function") {
+              const pulse = cc.sequence(
+                cc.scaleTo(anim.dangerSpeed || 0.35, anim.dangerScaleMax || 0.47),
+                cc.scaleTo(anim.dangerSpeed || 0.35, anim.dangerScaleMin || 0.38)
+              ).repeatForever();
+              marker.__radarRed.runAction(pulse);
+            }
+            if (anim.enableRotate && typeof cc.rotateBy === "function") {
+              marker.__radarRed.runAction(
+                cc.rotateBy(anim.rotateSpeed || 4, 360).repeatForever()
+              );
+            }
+          }
+        }
+      } else {
+        if (marker.__radarRed) {
+          marker.__radarRed.stopAllActions();
+          marker.__radarRed.setVisible(false);
+        }
+        if (marker.__radarGreen) {
+          marker.__radarGreen.setVisible(true);
+          marker.__radarGreen.setOpacity(255);
+          marker.__radarGreen.stopAllActions();
+          marker.__radarGreen.setScale(baseScale);
+          if (anim.enable !== false && typeof cc !== "undefined") {
+            if (typeof cc.sequence === "function" && typeof cc.scaleTo === "function") {
+              const breathe = cc.sequence(
+                cc.scaleTo(anim.safeSpeed || 1, anim.safeScaleMax || 0.44),
+                cc.scaleTo(anim.safeSpeed || 1, anim.safeScaleMin || 0.4)
+              ).repeatForever();
+              marker.__radarGreen.runAction(breathe);
+            }
+            if (anim.enableRotate && typeof cc.rotateBy === "function") {
+              marker.__radarGreen.runAction(
+                cc.rotateBy(anim.rotateSpeed || 4, 360).repeatForever()
+              );
+            }
+          }
+        }
+      }
+    }
+    function resetRadarStyleMarker(marker) {
+      if (!marker) return;
+      if (marker.__radarGreen) {
+        marker.__radarGreen.stopAllActions();
+        marker.__radarGreen.setVisible(false);
+      }
+      if (marker.__radarRed) {
+        marker.__radarRed.stopAllActions();
+        marker.__radarRed.setVisible(false);
+      }
+      if (marker.__radarRing) {
+        marker.__radarRing.stopAllActions();
+        marker.__radarRing.setVisible(false);
+      }
+      if (typeof marker.setCascadeOpacityEnabled === "function") {
+        marker.setCascadeOpacityEnabled(true);
+      }
+      if (typeof marker.setOpacity === "function") {
+        marker.setOpacity(255);
+      }
+      if (typeof marker.setScale === "function") {
+        marker.setScale(1);
+      }
+      if (typeof marker.setColor === "function" && typeof cc !== "undefined" && cc.color) {
+        marker.setColor(cc.color(255, 255, 255));
+      }
+    }
+    function buildSimulatedGrid(gl, movingPieceIndex, toCol, toRow) {
+      const grid = Array.from({ length: 9 }, () => Array(10).fill(null));
+      if (!gl || !gl.V || !Array.isArray(gl.V)) return grid;
+      for (let i = 0; i < 32; i++) {
+        const p = gl.V[i];
+        if (!p || p.pa) continue;
+        if (i === movingPieceIndex) continue;
+        if (p.fa === void 0 || p.rowIndex === void 0) continue;
+        if (p.fa < 0 || p.fa > 8 || p.rowIndex < 0 || p.rowIndex > 9) continue;
+        const pType = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(p, i) : p.Ha !== void 0 ? p.Ha : p.Ga !== void 0 ? p.Ga : i === 0 || i === 16 ? 0 : 6;
+        const pColor = p.ka !== void 0 ? p.ka : Math.floor(i / 16);
+        grid[p.fa][p.rowIndex] = {
+          index: i,
+          type: pType,
+          color: pColor,
+          col: p.fa,
+          row: p.rowIndex
+        };
+      }
+      if (movingPieceIndex >= 0 && gl.V[movingPieceIndex]) {
+        const mp = gl.V[movingPieceIndex];
+        const mpType = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(mp, movingPieceIndex) : mp.Ha !== void 0 ? mp.Ha : mp.Ga !== void 0 ? mp.Ga : movingPieceIndex === 0 || movingPieceIndex === 16 ? 0 : 6;
+        const mpColor = mp.ka !== void 0 ? mp.ka : Math.floor(movingPieceIndex / 16);
+        grid[toCol][toRow] = {
+          index: movingPieceIndex,
+          type: mpType,
+          color: mpColor,
+          col: toCol,
+          row: toRow
+        };
+      }
+      return grid;
+    }
+    function canPieceAttackTarget(grid, attacker, toCol, toRow, redKingRow) {
+      if (!attacker) return false;
+      const fromCol = attacker.col;
+      const fromRow = attacker.row;
+      if (fromCol === toCol && fromRow === toRow) return false;
+      const dx = toCol - fromCol;
+      const dy = toRow - fromRow;
+      const absDx = Math.abs(dx);
+      const absDy = Math.abs(dy);
+      const type = attacker.type;
+      const color = attacker.color;
+      if (type === 3) {
+        if (dx !== 0 && dy !== 0) return false;
+        if (dx === 0) {
+          const step = dy > 0 ? 1 : -1;
+          for (let r2 = fromRow + step; r2 !== toRow; r2 += step) {
+            if (grid[fromCol][r2] !== null) return false;
+          }
+          return true;
+        } else {
+          const step = dx > 0 ? 1 : -1;
+          for (let c = fromCol + step; c !== toCol; c += step) {
+            if (grid[c][fromRow] !== null) return false;
+          }
+          return true;
+        }
+      }
+      if (type === 4) {
+        if (dx !== 0 && dy !== 0) return false;
+        let screens = 0;
+        if (dx === 0) {
+          const step = dy > 0 ? 1 : -1;
+          for (let r2 = fromRow + step; r2 !== toRow; r2 += step) {
+            if (grid[fromCol][r2] !== null) screens++;
+          }
+        } else {
+          const step = dx > 0 ? 1 : -1;
+          for (let c = fromCol + step; c !== toCol; c += step) {
+            if (grid[c][fromRow] !== null) screens++;
+          }
+        }
+        return screens === 1;
+      }
+      if (type === 5) {
+        if (absDx === 1 && absDy === 2) {
+          const legRow = fromRow + (dy > 0 ? 1 : -1);
+          if (grid[fromCol][legRow] === null) return true;
+        } else if (absDx === 2 && absDy === 1) {
+          const legCol = fromCol + (dx > 0 ? 1 : -1);
+          if (grid[legCol][fromRow] === null) return true;
+        }
+        return false;
+      }
+      if (type === 6) {
+        const movesDown = color === 0 && redKingRow <= 2 || color === 1 && redKingRow >= 7;
+        const fwdStep = movesDown ? 1 : -1;
+        const crossedRiver = movesDown ? fromRow >= 5 : fromRow <= 4;
+        if (dx === 0 && dy === fwdStep) return true;
+        if (crossedRiver && dy === 0 && absDx === 1) return true;
+        return false;
+      }
+      if (type === 2) {
+        if (absDx === 2 && absDy === 2) {
+          const eyeCol = fromCol + (dx > 0 ? 1 : -1);
+          const eyeRow = fromRow + (dy > 0 ? 1 : -1);
+          if (grid[eyeCol][eyeRow] !== null) return false;
+          const isTopSide = color === 0 && redKingRow <= 2 || color === 1 && redKingRow >= 7;
+          if (isTopSide && toRow > 4) return false;
+          if (!isTopSide && toRow < 5) return false;
+          return true;
+        }
+        return false;
+      }
+      if (type === 1) {
+        if (absDx === 1 && absDy === 1) {
+          if (toCol < 3 || toCol > 5) return false;
+          const isTopSide = color === 0 && redKingRow <= 2 || color === 1 && redKingRow >= 7;
+          if (isTopSide && (toRow < 0 || toRow > 2)) return false;
+          if (!isTopSide && (toRow < 7 || toRow > 9)) return false;
+          return true;
+        }
+        return false;
+      }
+      if (type === 0) {
+        if (absDx + absDy === 1) {
+          if (toCol >= 3 && toCol <= 5) {
+            const isTopSide = color === 0 && redKingRow <= 2 || color === 1 && redKingRow >= 7;
+            if (isTopSide && toRow >= 0 && toRow <= 2) return true;
+            if (!isTopSide && toRow >= 7 && toRow <= 9) return true;
+          }
+        }
+        return false;
+      }
+      return false;
+    }
+    function isSquareAttackedByEnemy(gl, targetCol, targetRow, movingPieceColor, simulatedGrid) {
+      if (!gl || !gl.V || !Array.isArray(gl.V)) return false;
+      const oppColor = movingPieceColor === 0 ? 1 : 0;
+      let redKingRow = 0;
+      if (gl.V[0] && typeof gl.V[0].rowIndex === "number") {
+        redKingRow = gl.V[0].rowIndex;
+      } else if (gl.V) {
+        for (let p = 0; p < 32; p++) {
+          const piece = gl.V[p];
+          if (piece && !piece.pa && (piece.ka === 0 || p < 16)) {
+            const pType = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(piece, p) : 6;
+            if (pType === 0 && typeof piece.rowIndex === "number") {
+              redKingRow = piece.rowIndex;
+              break;
+            }
+          }
+        }
+      }
+      for (let k = 0; k < 32; k++) {
+        const oppPiece = gl.V[k];
+        if (!oppPiece || oppPiece.pa) continue;
+        const pieceColor = oppPiece.ka !== void 0 ? oppPiece.ka : Math.floor(k / 16);
+        if (pieceColor !== oppColor) continue;
+        const oppCol = oppPiece.fa;
+        const oppRow = oppPiece.rowIndex;
+        if (oppCol === void 0 || oppRow === void 0) continue;
+        if (oppCol === targetCol && oppRow === targetRow) continue;
+        const oppType = typeof ZigaMod.resolvePieceType === "function" ? ZigaMod.resolvePieceType(oppPiece, k) : oppPiece.Ha !== void 0 ? oppPiece.Ha : oppPiece.Ga !== void 0 ? oppPiece.Ga : k === 0 || k === 16 ? 0 : 6;
+        const attackerInfo = {
+          index: k,
+          type: oppType,
+          color: pieceColor,
+          col: oppCol,
+          row: oppRow
+        };
+        if (canPieceAttackTarget(
+          simulatedGrid,
+          attackerInfo,
+          targetCol,
+          targetRow,
+          redKingRow
+        )) {
+          return true;
+        }
+      }
+      return false;
+    }
     function customHighlightMoves(gl, pieceIndex) {
       if (pieceIndex < 0 || pieceIndex >= 32 || !gl.V || !gl.V[pieceIndex]) return;
+      if (gl.V && Array.isArray(gl.V)) {
+        for (var p = 0; p < 32; p++) {
+          if (gl.V[p] && typeof gl.V[p].kj === "function") {
+            gl.V[p].kj(false);
+          }
+        }
+      }
       var b = Array(9);
       for (var c = 0; 10 > c; c++) b[c] = Array(10);
       generateBoardMatrix(gl, b);
@@ -15407,7 +16038,7 @@
       gl.Tp = [];
       gl.Vp = [];
       var attacker = gl.V[pieceIndex];
-      var attackerColor = attacker.ka;
+      var attackerColor = attacker.ka !== void 0 ? attacker.ka : Math.floor(pieceIndex / 16);
       var capturableList = [];
       for (var d = 0, e = 0; 90 > e; e++) {
         if (isMovePatternValid(gl, pieceHelper, pieceIndex, e, b)) {
@@ -15421,16 +16052,31 @@
               gl.tc[d].aq = f;
               gl.tc[d].cq = f;
               gl.tc[d].setVisible(false);
+              resetRadarStyleMarker(gl.tc[d]);
             }
           } else {
+            var simGrid = buildSimulatedGrid(gl, pieceIndex, f, g);
             var isEnemyCapture = false;
+            var capturedTargetIndex = -1;
             for (var k = 0; k < 32; k++) {
               var targetPiece = gl.V[k];
-              if (targetPiece && !targetPiece.pa && targetPiece.ka !== attackerColor && targetPiece.fa === f && targetPiece.rowIndex === g) {
+              if (targetPiece && !targetPiece.pa && (targetPiece.ka !== void 0 ? targetPiece.ka : Math.floor(k / 16)) !== attackerColor && targetPiece.fa === f && targetPiece.rowIndex === g) {
                 isEnemyCapture = true;
+                capturedTargetIndex = k;
                 enhancePieceSprite(targetPiece);
+                const isRadarEnabled = !ZigaMod.userSettings || ZigaMod.userSettings.moveSafetyRadar !== false;
+                let isCaptureDangerous = false;
+                if (isRadarEnabled) {
+                  isCaptureDangerous = isSquareAttackedByEnemy(
+                    gl,
+                    f,
+                    g,
+                    attackerColor,
+                    simGrid
+                  );
+                }
                 if (!ZigaMod.userSettings || ZigaMod.userSettings.highlightTactics !== false) {
-                  targetPiece.kj(true);
+                  targetPiece.kj(true, isCaptureDangerous);
                 }
                 gl.Tp.push([f, g]);
                 gl.Vp.push([f, g]);
@@ -15443,7 +16089,8 @@
                   row: g,
                   name: ZigaMod.PIECE_DEFS && ZigaMod.PIECE_DEFS[pType] ? ZigaMod.PIECE_DEFS[pType].name : "Qu\xE2n",
                   char: typeof ZigaMod.getPieceChar === "function" ? ZigaMod.getPieceChar(pType, targetPiece.ka) : "",
-                  value: ZigaMod.PIECE_DEFS && ZigaMod.PIECE_DEFS[pType] ? ZigaMod.PIECE_DEFS[pType].value : 0
+                  value: ZigaMod.PIECE_DEFS && ZigaMod.PIECE_DEFS[pType] ? ZigaMod.PIECE_DEFS[pType].value : 0,
+                  isDangerous: isCaptureDangerous
                 });
                 break;
               }
@@ -15455,9 +16102,35 @@
               gl.tc[d].aq = f;
               gl.tc[d].cq = f;
               gl.tc[d].setVisible(true);
+              const isRadarEnabled = !ZigaMod.userSettings || ZigaMod.userSettings.moveSafetyRadar !== false;
+              if (isRadarEnabled) {
+                const isDanger = isSquareAttackedByEnemy(
+                  gl,
+                  f,
+                  g,
+                  attackerColor,
+                  simGrid
+                );
+                applyRadarStyleToMarker(gl.tc[d], isDanger);
+              } else {
+                resetRadarStyleMarker(gl.tc[d]);
+              }
             }
           }
           d++;
+        }
+      }
+      if (gl.tc && Array.isArray(gl.tc)) {
+        for (var rem = d; rem < gl.tc.length; rem++) {
+          if (gl.tc[rem]) {
+            gl.tc[rem].setPosition(-100, -100);
+            gl.tc[rem].Kr = -1;
+            gl.tc[rem].Ir = -1;
+            gl.tc[rem].aq = -1;
+            gl.tc[rem].cq = -1;
+            gl.tc[rem].setVisible(false);
+            resetRadarStyleMarker(gl.tc[rem]);
+          }
         }
       }
       ZigaMod.selectedAttackerIndex = pieceIndex;
@@ -15494,6 +16167,7 @@
             gl.tc[a].Ir = -1;
             gl.tc[a].aq = -1;
             gl.tc[a].cq = -1;
+            resetRadarStyleMarker(gl.tc[a]);
           }
         }
       }
@@ -51954,8 +52628,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
   var manifest_default = {
     manifest_version: 3,
     name: "C\xF4ng c\u1EE5 C\u1EDD T\u01B0\u1EDBng",
-    version: "0.0.3.1257",
-    version_name: "0.0.3.202611192057",
+    version: "0.0.3.529",
+    version_name: "0.0.3.202611250849",
     description: "Hi\u1EC3n th\u1ECB qu\xE2n \u0111\xE3 b\u1ECB \u0103n & highlight t\u1EA7m \u0111\xE1nh",
     icons: {
       "16": "icons/icon16.png",

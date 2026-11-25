@@ -291,6 +291,14 @@ function updateManifestVersion() {
   try {
     const raw = fs.readFileSync(manifestPath, 'utf8');
     const manifest = JSON.parse(raw);
+
+    // If KEEP_VERSION=1 (e.g. running from clone_and_build.bat), preserve official version from repo
+    if (process.env.KEEP_VERSION === '1') {
+      const verName = manifest.version_name || manifest.version;
+      console.log(`[Build Version] 🔖 Giữ nguyên phiên bản từ repository: ${verName} (manifest: ${manifest.version})`);
+      return verName;
+    }
+
     const now = new Date();
     const pad = (n) => String(n).padStart(2, '0');
     const yyyy = now.getFullYear();

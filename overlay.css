@@ -3482,9 +3482,6 @@ iframe[id^="google_ads"],
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .p-1, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).p-1 {
   padding: var(--spacing) !important;
 }
-:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .p-1\.5, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).p-1\.5 {
-  padding: calc(var(--spacing) * 1.5) !important;
-}
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .p-2, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).p-2 {
   padding: calc(var(--spacing) * 2) !important;
 }
