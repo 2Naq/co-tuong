@@ -7,7 +7,7 @@
     "dev": "node scripts/build.js --watch",
     "watch": "node scripts/build.js --watch",
     "build": "node scripts/build.js",
-    "build:bridge": "npx pkg scripts/pikafish_bridge.js --target node18-win-x64 --output pikafish_bridge.exe",
+    "build:bridge": "npx esbuild scripts/pikafish_bridge.js --bundle --platform=node --target=node22 --outfile=dist/pikafish_bridge.cjs && npx --yes @yao-pkg/pkg dist/pikafish_bridge.cjs --target node22-win-x64 --compress GZip --output pikafish_bridge.exe",
     "pikafish": "node scripts/pikafish_bridge.js",
     "generate:auras": "node scripts/generate_auras.js",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""

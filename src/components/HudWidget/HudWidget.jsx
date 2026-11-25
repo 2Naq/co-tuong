@@ -287,7 +287,7 @@ export function HudWidget() {
           <CardHeader id="ziga-mentor-toggle-btn">
             <CardTitle className="flex items-center gap-1.5">
               <GraduationCap className="text-primary size-4" />
-              <span>Gia Sư Đồng Hành</span>
+              <span>Tà Đạo Sư</span>
             </CardTitle>
             <CardDescription id="ziga-mentor-phase-val">
               Khai Cuộc
@@ -304,7 +304,7 @@ export function HudWidget() {
                 title="Mở bảng cố vấn nổi cạnh bàn cờ"
               >
                 <ExternalLink />
-                Cố Vấn
+                Gọi thầy
               </Button>
             </CardAction>
           </CardHeader>

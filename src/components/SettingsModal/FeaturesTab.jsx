@@ -67,7 +67,7 @@ const FEATURE_CATEGORIES = [
       },
       {
         key: "mentorCoach",
-        title: "Gia Sư Đồng Hành (Mentor Coach)",
+        title: "Tà đạo sư (Mentor Coach)",
         desc: "Phân tích thế trận, gợi ý kế sách dài hạn & chỉ điểm sơ hở",
         badge: "AI",
         badgeVariant: "secondary",
@@ -315,11 +315,13 @@ export function FeaturesTab({ draft, updateDraft }) {
                 variant="secondary"
                 className="border border-amber-400/30 bg-amber-500/15 text-[10.5px] font-semibold text-amber-300"
               >
-                {pikaCfg.multiPV} Lời Giải • {(pikaCfg.thinkTimeMs / 1000).toFixed(1)}s • D{pikaCfg.maxDepth}
+                {pikaCfg.multiPV} Lời Giải •{" "}
+                {(pikaCfg.thinkTimeMs / 1000).toFixed(1)}s • D{pikaCfg.maxDepth}
               </Badge>
             </div>
             <CardDescription className="text-xs">
-              Tinh chỉnh số phương án (MultiPV), thời gian tính, số luồng CPU và bộ nhớ Hash để Pikafish giải nhiều nước biến và sâu hơn.
+              Tinh chỉnh số phương án (MultiPV), thời gian tính, số luồng CPU và
+              bộ nhớ Hash để Pikafish giải nhiều nước biến và sâu hơn.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">

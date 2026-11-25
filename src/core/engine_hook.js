@@ -198,8 +198,7 @@
 
       // Color tint: Red if capture is dangerous (recapturable), Green if capture is free/safe!
       const isRadarEnabled =
-        !ZigaMod.userSettings ||
-        ZigaMod.userSettings.moveSafetyRadar !== false;
+        !ZigaMod.userSettings || ZigaMod.userSettings.moveSafetyRadar !== false;
       const auraColor =
         isRadarEnabled && typeof cc !== "undefined" && cc.color
           ? isDangerous === false
@@ -244,7 +243,7 @@
 
     // 2. HIỆU ỨNG CHUYỂN ĐỘNG (Animations)
     animation: {
-      enable: true, // Bật/tắt hiệu ứng nhịp đập & nhịp thở
+      enable: false, // Bật/tắt hiệu ứng nhịp đập & nhịp thở
 
       // Ô ĐỎ (Nguy hiểm) - Nhịp tim đập cảnh báo
       dangerSpeed: 0.35, // Thời gian 1 nhịp đập (giây, càng nhỏ càng nhanh)
@@ -263,12 +262,12 @@
 
     // 3. KÍCH THƯỚC CÁC CHI TIẾT HÌNH HỌC (Pixels trên canvas 128x128)
     radius: {
-      outerRing: 36, // Bán kính vành ngắm ngoài (36px)
-      innerRing: 23, // Bán kính vành ngắm phụ bên trong (23px)
-      centerOrb: 13, // Bán kính bóng ngọc 3D ở tâm (13px)
-      discBacking: 36, // Bán kính đĩa nền mờ
-      tickStart: 27, // Tọa độ bắt đầu vạch ngắm chữ thập
-      tickEnd: 43, // Tọa độ mũi tên vạch ngắm chữ thập
+      outerRing: 24, // Bán kính vành ngắm ngoài (36px)
+      innerRing: 12, // Bán kính vành ngắm phụ bên trong (23px)
+      centerOrb: 8, // Bán kính bóng ngọc 3D ở tâm (13px)
+      discBacking: 24, // Bán kính đĩa nền mờ
+      tickStart: 4, // Tọa độ bắt đầu vạch ngắm chữ thập
+      tickEnd: 24, // Tọa độ mũi tên vạch ngắm chữ thập
     },
 
     // 4. ĐỘ DÀY NÉT VẼ (Stroke Width)
@@ -658,10 +657,18 @@
             typeof cc.sequence === "function" &&
             typeof cc.scaleTo === "function"
           ) {
-            const pulse = cc.sequence(
-              cc.scaleTo(anim.dangerSpeed || 0.35, anim.dangerScaleMax || 0.47),
-              cc.scaleTo(anim.dangerSpeed || 0.35, anim.dangerScaleMin || 0.38),
-            ).repeatForever();
+            const pulse = cc
+              .sequence(
+                cc.scaleTo(
+                  anim.dangerSpeed || 0.35,
+                  anim.dangerScaleMax || 0.47,
+                ),
+                cc.scaleTo(
+                  anim.dangerSpeed || 0.35,
+                  anim.dangerScaleMin || 0.38,
+                ),
+              )
+              .repeatForever();
             marker.__radarRed.runAction(pulse);
           }
           if (anim.enableRotate && typeof cc.rotateBy === "function") {
@@ -687,10 +694,12 @@
             typeof cc.sequence === "function" &&
             typeof cc.scaleTo === "function"
           ) {
-            const breathe = cc.sequence(
-              cc.scaleTo(anim.safeSpeed || 1.0, anim.safeScaleMax || 0.44),
-              cc.scaleTo(anim.safeSpeed || 1.0, anim.safeScaleMin || 0.4),
-            ).repeatForever();
+            const breathe = cc
+              .sequence(
+                cc.scaleTo(anim.safeSpeed || 1.0, anim.safeScaleMax || 0.44),
+                cc.scaleTo(anim.safeSpeed || 1.0, anim.safeScaleMin || 0.4),
+              )
+              .repeatForever();
             marker.__radarGreen.runAction(breathe);
           }
           if (anim.enableRotate && typeof cc.rotateBy === "function") {
@@ -908,7 +917,8 @@
       if (absDx + absDy === 1) {
         if (toCol >= 3 && toCol <= 5) {
           const isTopSide =
-            (color === 0 && redKingRow <= 2) || (color === 1 && redKingRow >= 7);
+            (color === 0 && redKingRow <= 2) ||
+            (color === 1 && redKingRow >= 7);
           if (isTopSide && toRow >= 0 && toRow <= 2) return true;
           if (!isTopSide && toRow >= 7 && toRow <= 9) return true;
         }
@@ -1008,7 +1018,8 @@
   // =========================================================================
 
   function customHighlightMoves(gl, pieceIndex) {
-    if (pieceIndex < 0 || pieceIndex >= 32 || !gl.V || !gl.V[pieceIndex]) return;
+    if (pieceIndex < 0 || pieceIndex >= 32 || !gl.V || !gl.V[pieceIndex])
+      return;
 
     // Reset previous piece capture rings so no leftover halos remain
     if (gl.V && Array.isArray(gl.V)) {

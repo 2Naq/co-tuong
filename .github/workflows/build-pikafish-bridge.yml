@@ -1,0 +1,115 @@
+name: Build Pikafish Bridge (.exe)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "scripts/pikafish_bridge.js"
+      - "package.json"
+      - "start_pikafish.bat"
+      - ".github/workflows/build-pikafish-bridge.yml"
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag name (default: pikafish-bridge-latest)"
+        required: false
+        default: "pikafish-bridge-latest"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows-exe:
+    name: Build Standalone pikafish_bridge.exe (Windows x64)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Bundle & compile pikafish_bridge.exe
+        run: npm run build:bridge
+
+      - name: Generate SHA256 checksum
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash -Algorithm SHA256 -Path "pikafish_bridge.exe").Hash.ToLower()
+          "$hash  pikafish_bridge.exe" | Out-File -Encoding ascii -NoNewline "pikafish_bridge.exe.sha256"
+          Write-Host "Built pikafish_bridge.exe ($(([math]::Round((Get-Item pikafish_bridge.exe).Length / 1MB, 2))) MB) | SHA256: $hash"
+
+      - name: Smoke test pikafish_bridge.exe
+        shell: pwsh
+        run: |
+          $env:PORT = "8769"
+          $proc = Start-Process -FilePath ".\pikafish_bridge.exe" -PassThru -NoNewWindow
+          try {
+            Start-Sleep -Seconds 3
+            $status = Invoke-RestMethod -Uri "http://127.0.0.1:8769/status" -TimeoutSec 5
+            Write-Host "Bridge /status response:" ($status | ConvertTo-Json -Compress)
+            if ($status.status -ne "ready") {
+              throw "Unexpected bridge status: $($status.status)"
+            }
+          } finally {
+            if ($proc -and !$proc.HasExited) {
+              Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
+            }
+          }
+
+      - name: Upload GitHub Actions Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pikafish_bridge-win-x64
+          path: |
+            pikafish_bridge.exe
+            pikafish_bridge.exe.sha256
+          retention-days: 90
+
+      - name: Determine Release Tag
+        id: tag_info
+        shell: pwsh
+        run: |
+          if ("${{ github.ref_type }}" -eq "tag") {
+            $tag = "${{ github.ref_name }}"
+          } elseif ("${{ github.event.inputs.release_tag }}" -ne "") {
+            $tag = "${{ github.event.inputs.release_tag }}"
+          } else {
+            $tag = "pikafish-bridge-latest"
+          }
+          $ver = (Get-Content "manifest.json" | ConvertFrom-Json).version_name
+          echo "tag=$tag" >> $env:GITHUB_OUTPUT
+          echo "ver=$ver" >> $env:GITHUB_OUTPUT
+
+      - name: Publish pikafish_bridge.exe to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag_info.outputs.tag }}
+          name: "Pikafish NNUE Pro Bridge (.exe Standalone)"
+          make_latest: true
+          files: |
+            pikafish_bridge.exe
+            pikafish_bridge.exe.sha256
+          body: |
+            ## 🦆 Pikafish NNUE Pro Bridge — Bản Chạy Độc Lập (Không cần Node.js / npm)
+
+            * **Build Version**: `${{ steps.tag_info.outputs.ver }}`
+            * **Commit**: `${{ github.sha }}`
+            * **Tính năng**: Tự động tối ưu `Threads` theo CPU & `Hash` theo RAM (256MB–1GB).
+
+            ### 📥 Hướng dẫn sử dụng (Cho máy KHÔNG cài Node.js / npm)
+            1. Tải file **`pikafish_bridge.exe`** bên dưới.
+            2. Chép file `pikafish_bridge.exe` vào **thư mục gốc dự án** (cùng cấp với `start_pikafish.bat` và thư mục `third_party/`).
+            3. Nhấp đúp chạy trực tiếp **`pikafish_bridge.exe`** hoặc **`start_pikafish.bat`**.
+            4. Mở game Cờ Tướng Ziga $\rightarrow$ Extension sẽ tự động kết nối `WS Pro` (cổng `8765`).
+
+            > 💡 **Mẹo**: Nếu chạy `start_pikafish.bat` trên máy chưa có Node.js và chưa có `pikafish_bridge.exe`, script sẽ hỗ trợ tự động tải file này từ Release về cho bạn!

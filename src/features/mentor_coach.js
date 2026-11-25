@@ -384,8 +384,7 @@ import {
 
       // Check Black's Bình Phong Mã
       const blackBPM = blackKnights.filter(
-        (p) =>
-          (p.col === 2 && p.row === 7) || (p.col === 6 && p.row === 7),
+        (p) => (p.col === 2 && p.row === 7) || (p.col === 6 && p.row === 7),
       );
       if (
         blackBPM.length >= 2 ||
@@ -531,8 +530,7 @@ import {
     // 2. BLACK HAS CENTRAL CANNON
     if (hasBlackCentralCannon) {
       const redBPM = redKnights.filter(
-        (p) =>
-          (p.col === 2 && p.row === 2) || (p.col === 6 && p.row === 2),
+        (p) => (p.col === 2 && p.row === 2) || (p.col === 6 && p.row === 2),
       );
       if (redBPM.length >= 2) {
         return {
@@ -788,15 +786,13 @@ import {
     const oppKing = pieces.find((p) => p.color === oppColor && p.type === 0);
     if (oppKing) {
       const centralCannons = pieces.filter(
-        (p) =>
-          p.color === myColor && p.type === 4 && p.col === oppKing.col,
+        (p) => p.color === myColor && p.type === 4 && p.col === oppKing.col,
       );
       for (const cannon of centralCannons) {
         const minR = Math.min(cannon.row, oppKing.row);
         const maxR = Math.max(cannon.row, oppKing.row);
         const blockers = pieces.filter(
-          (p) =>
-            p.col === oppKing.col && p.row > minR && p.row < maxR,
+          (p) => p.col === oppKing.col && p.row > minR && p.row < maxR,
         );
         if (blockers.length === 0) {
           return {
@@ -1636,7 +1632,14 @@ import {
       const plans = [];
 
       // Helper to clone and apply one move on a piece array so deep PV steps (3..8) find moved pieces accurately
-      const applySimMove = (boardArr, fromCol, fromRow, toCol, toRow, sideCol) => {
+      const applySimMove = (
+        boardArr,
+        fromCol,
+        fromRow,
+        toCol,
+        toRow,
+        sideCol,
+      ) => {
         if (
           !Array.isArray(boardArr) ||
           fromCol == null ||
@@ -1796,9 +1799,7 @@ import {
 
           const oppTarget = boardAfterStep1.find(
             (p) =>
-              p.col === rep.toCol &&
-              p.row === rep.toRow &&
-              p.color === myColor,
+              p.col === rep.toCol && p.row === rep.toRow && p.color === myColor,
           );
 
           const oppNot = getXiangqiNotation(
@@ -2015,9 +2016,7 @@ import {
           );
           const stepTarget = simBoard.find(
             (p) =>
-              p.col === mv.toCol &&
-              p.row === mv.toRow &&
-              p.color !== stepSide,
+              p.col === mv.toCol && p.row === mv.toRow && p.color !== stepSide,
           );
 
           let stepNot = null;
@@ -2029,7 +2028,12 @@ import {
           } else if (sIdx === 1 && rep0 && rep0.oppNotation) {
             stepNot = rep0.oppNotation;
             stepWhy = rep0.oppWhy;
-          } else if (sIdx === 2 && rep0 && rep0.answer && rep0.answer.notation) {
+          } else if (
+            sIdx === 2 &&
+            rep0 &&
+            rep0.answer &&
+            rep0.answer.notation
+          ) {
             stepNot = rep0.answer.notation;
             stepWhy = rep0.answer.why;
           } else if (stepPiece) {
@@ -2055,7 +2059,10 @@ import {
             }
           } else {
             stepNot = {
-              short: stepSide === movingColor ? `Ta đi #${stepNum}` : `Địch đi #${stepNum}`,
+              short:
+                stepSide === movingColor
+                  ? `Ta đi #${stepNum}`
+                  : `Địch đi #${stepNum}`,
               full:
                 stepSide === movingColor
                   ? "Nước cờ liên hoàn của ta"
@@ -2070,7 +2077,9 @@ import {
           roadmap.push({
             step: stepNum,
             side: stepSide,
-            label: STEP_LABELS[sIdx] || `${stepNum}. ${stepSide === movingColor ? "Ta" : "Địch"}`,
+            label:
+              STEP_LABELS[sIdx] ||
+              `${stepNum}. ${stepSide === movingColor ? "Ta" : "Địch"}`,
             piece: stepPiece || null,
             fromCol: mv.fromCol,
             fromRow: mv.fromRow,
@@ -2588,14 +2597,22 @@ import {
         onProgress: (partialRes) => {
           try {
             if (lastAnalysisHash !== currentHash) return;
-            if (!partialRes || !partialRes.lines || partialRes.lines.length === 0)
+            if (
+              !partialRes ||
+              !partialRes.lines ||
+              partialRes.lines.length === 0
+            )
               return;
             const progAnalysis = buildTacticalAnalysis(
               partialRes,
               gameData,
               pieces,
             );
-            if (!progAnalysis || !progAnalysis.plans || progAnalysis.plans.length === 0)
+            if (
+              !progAnalysis ||
+              !progAnalysis.plans ||
+              progAnalysis.plans.length === 0
+            )
               return;
             progAnalysis.isSearching = true;
             progAnalysis.isProgressive = true;
@@ -2699,10 +2716,7 @@ import {
           if (cachedAnalysis && cachedAnalysis.isSearching) {
             cachedAnalysis.isSearching = false;
             if (mentorSetter) {
-              mentorSetter(
-                { ...cachedAnalysis },
-                { preserveSelection: true },
-              );
+              mentorSetter({ ...cachedAnalysis }, { preserveSelection: true });
             }
           }
         }
@@ -2840,7 +2854,11 @@ import {
 
       // Steps 6..8+: Extended deep PV moves from Pikafish roadmap
       if (activeStep >= 6 && Array.isArray(activePlan?.roadmap)) {
-        for (let s = 6; s <= Math.min(activeStep, activePlan.roadmap.length); s++) {
+        for (
+          let s = 6;
+          s <= Math.min(activeStep, activePlan.roadmap.length);
+          s++
+        ) {
           const rm = activePlan.roadmap[s - 1];
           if (rm) {
             applyMove(
@@ -3461,7 +3479,8 @@ import {
                   title={`${rm.label}: ${rm.notation?.full || rm.notation?.short || ""}`}
                 >
                   <span>
-                    {rm.step}. {rm.notation?.short || (isMyStep ? "Ta" : "Địch")}
+                    {rm.step}.{" "}
+                    {rm.notation?.short || (isMyStep ? "Ta" : "Địch")}
                   </span>
                 </Button>
               );
@@ -3970,7 +3989,7 @@ import {
                 <GraduationCap className="size-4 text-cyan-400" />
               </div>
               <span className="text-foreground text-xs font-bold tracking-wider whitespace-nowrap uppercase">
-                Kỳ Đạo Sư (AI Mentor)
+                Tà Đạo Sư
               </span>
             </div>
             <Button
@@ -4015,7 +4034,7 @@ import {
             <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
               <div className="flex items-center gap-1.5 overflow-hidden">
                 <span className="text-foreground shrink-0 text-xs font-bold tracking-wider uppercase">
-                  Kỳ Đạo Sư
+                  Tà Đạo Sư
                 </span>
               </div>
               <div className="flex flex-col items-start justify-center gap-1">
@@ -4283,7 +4302,7 @@ import {
                 </Badge>
               </div>
               {analysis.openingInfo?.battleplan && (
-                <p className="text-amber-200/85 text-[9.5px] leading-snug">
+                <p className="text-[9.5px] leading-snug text-amber-200/85">
                   💡 {analysis.openingInfo.battleplan}
                 </p>
               )}
@@ -4873,7 +4892,7 @@ import {
                   </Badge>
                 )}
               </div>
-              <span className="text-foreground block text-[10.5px] font-bold leading-snug">
+              <span className="text-foreground block text-[10.5px] leading-snug font-bold">
                 "{analysis.maxim.rule}"
               </span>
               <p className="text-muted-foreground mt-0.5 text-[9.5px] leading-relaxed">
@@ -4883,7 +4902,8 @@ import {
                 <div className="mt-1.5 flex items-center gap-1 text-[8.5px] text-amber-300/80">
                   <span className="inline-block size-1.5 rounded-full bg-amber-400"></span>
                   <span>
-                    Kích hoạt do: <strong>{analysis.maxim.triggerReason}</strong>
+                    Kích hoạt do:{" "}
+                    <strong>{analysis.maxim.triggerReason}</strong>
                   </span>
                 </div>
               )}
@@ -4936,7 +4956,7 @@ import {
                     onClick={() => setTheoryCategory(cat)}
                     className={`rounded-lg px-2 py-0.5 text-[8.5px] font-medium transition-all ${
                       isSelected
-                        ? "bg-primary text-primary-foreground shadow-xs font-bold"
+                        ? "bg-primary text-primary-foreground font-bold shadow-xs"
                         : "bg-muted/30 text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                     }`}
                   >

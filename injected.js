@@ -15455,7 +15455,7 @@
       baseScale: 0.42,
       // 2. HIỆU ỨNG CHUYỂN ĐỘNG (Animations)
       animation: {
-        enable: true,
+        enable: false,
         // Bật/tắt hiệu ứng nhịp đập & nhịp thở
         // Ô ĐỎ (Nguy hiểm) - Nhịp tim đập cảnh báo
         dangerSpeed: 0.35,
@@ -15479,17 +15479,17 @@
       },
       // 3. KÍCH THƯỚC CÁC CHI TIẾT HÌNH HỌC (Pixels trên canvas 128x128)
       radius: {
-        outerRing: 36,
+        outerRing: 24,
         // Bán kính vành ngắm ngoài (36px)
-        innerRing: 23,
+        innerRing: 12,
         // Bán kính vành ngắm phụ bên trong (23px)
-        centerOrb: 13,
+        centerOrb: 8,
         // Bán kính bóng ngọc 3D ở tâm (13px)
-        discBacking: 36,
+        discBacking: 24,
         // Bán kính đĩa nền mờ
-        tickStart: 27,
+        tickStart: 4,
         // Tọa độ bắt đầu vạch ngắm chữ thập
-        tickEnd: 43
+        tickEnd: 24
         // Tọa độ mũi tên vạch ngắm chữ thập
       },
       // 4. ĐỘ DÀY NÉT VẼ (Stroke Width)
@@ -15817,8 +15817,14 @@
           if (anim.enable !== false && typeof cc !== "undefined") {
             if (typeof cc.sequence === "function" && typeof cc.scaleTo === "function") {
               const pulse = cc.sequence(
-                cc.scaleTo(anim.dangerSpeed || 0.35, anim.dangerScaleMax || 0.47),
-                cc.scaleTo(anim.dangerSpeed || 0.35, anim.dangerScaleMin || 0.38)
+                cc.scaleTo(
+                  anim.dangerSpeed || 0.35,
+                  anim.dangerScaleMax || 0.47
+                ),
+                cc.scaleTo(
+                  anim.dangerSpeed || 0.35,
+                  anim.dangerScaleMin || 0.38
+                )
               ).repeatForever();
               marker.__radarRed.runAction(pulse);
             }
@@ -16059,7 +16065,8 @@
       return false;
     }
     function customHighlightMoves(gl, pieceIndex) {
-      if (pieceIndex < 0 || pieceIndex >= 32 || !gl.V || !gl.V[pieceIndex]) return;
+      if (pieceIndex < 0 || pieceIndex >= 32 || !gl.V || !gl.V[pieceIndex])
+        return;
       if (gl.V && Array.isArray(gl.V)) {
         for (var p = 0; p < 32; p++) {
           if (gl.V[p] && typeof gl.V[p].kj === "function") {
@@ -40160,7 +40167,7 @@
         },
         {
           key: "mentorCoach",
-          title: "Gia S\u01B0 \u0110\u1ED3ng H\xE0nh (Mentor Coach)",
+          title: "T\xE0 \u0111\u1EA1o s\u01B0 (Mentor Coach)",
           desc: "Ph\xE2n t\xEDch th\u1EBF tr\u1EADn, g\u1EE3i \xFD k\u1EBF s\xE1ch d\xE0i h\u1EA1n & ch\u1EC9 \u0111i\u1EC3m s\u01A1 h\u1EDF",
           badge: "AI",
           badgeVariant: "secondary"
@@ -40398,7 +40405,8 @@
                     className: "border border-amber-400/30 bg-amber-500/15 text-[10.5px] font-semibold text-amber-300",
                     children: [
                       pikaCfg.multiPV,
-                      " L\u1EDDi Gi\u1EA3i \u2022 ",
+                      " L\u1EDDi Gi\u1EA3i \u2022",
+                      " ",
                       (pikaCfg.thinkTimeMs / 1e3).toFixed(1),
                       "s \u2022 D",
                       pikaCfg.maxDepth
@@ -51022,10 +51030,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             if (cachedAnalysis && cachedAnalysis.isSearching) {
               cachedAnalysis.isSearching = false;
               if (mentorSetter) {
-                mentorSetter(
-                  { ...cachedAnalysis },
-                  { preserveSelection: true }
-                );
+                mentorSetter({ ...cachedAnalysis }, { preserveSelection: true });
               }
             }
           }
@@ -51745,7 +51750,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               title: `${rm.label}: ${rm.notation?.full || rm.notation?.short || ""}`,
               children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { children: [
                 rm.step,
-                ". ",
+                ".",
+                " ",
                 rm.notation?.short || (isMyStep ? "Ta" : "\u0110\u1ECBch")
               ] })
             },
@@ -52180,7 +52186,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                   children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(GraduationCap, { className: "size-4 text-cyan-400" })
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-xs font-bold tracking-wider whitespace-nowrap uppercase", children: "K\u1EF3 \u0110\u1EA1o S\u01B0 (AI Mentor)" })
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-xs font-bold tracking-wider whitespace-nowrap uppercase", children: "T\xE0 \u0110\u1EA1o S\u01B0" })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
               Button3,
@@ -52220,7 +52226,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                   }
                 ),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-1 flex-col overflow-hidden", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex items-center gap-1.5 overflow-hidden", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground shrink-0 text-xs font-bold tracking-wider uppercase", children: "K\u1EF3 \u0110\u1EA1o S\u01B0" }) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex items-center gap-1.5 overflow-hidden", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground shrink-0 text-xs font-bold tracking-wider uppercase", children: "T\xE0 \u0110\u1EA1o S\u01B0" }) }),
                   /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col items-start justify-center gap-1", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "text-muted-foreground mt-0.5 flex items-center gap-1 truncate overflow-hidden text-[9px] whitespace-nowrap", children: [
                       /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
@@ -52433,7 +52439,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                   }
                 )
               ] }),
-              analysis.openingInfo?.battleplan && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("p", { className: "text-amber-200/85 text-[9.5px] leading-snug", children: [
+              analysis.openingInfo?.battleplan && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("p", { className: "text-[9.5px] leading-snug text-amber-200/85", children: [
                 "\u{1F4A1} ",
                 analysis.openingInfo.battleplan
               ] })
@@ -52883,7 +52889,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                         }
                       )
                     ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-foreground block text-[10.5px] font-bold leading-snug", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-foreground block text-[10.5px] leading-snug font-bold", children: [
                       '"',
                       analysis.maxim.rule,
                       '"'
@@ -52892,7 +52898,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     analysis.maxim.triggerReason && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "mt-1.5 flex items-center gap-1 text-[8.5px] text-amber-300/80", children: [
                       /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "inline-block size-1.5 rounded-full bg-amber-400" }),
                       /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { children: [
-                        "K\xEDch ho\u1EA1t do: ",
+                        "K\xEDch ho\u1EA1t do:",
+                        " ",
                         /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: analysis.maxim.triggerReason })
                       ] })
                     ] })
@@ -52936,7 +52943,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                         "button",
                         {
                           onClick: () => setTheoryCategory(cat),
-                          className: `rounded-lg px-2 py-0.5 text-[8.5px] font-medium transition-all ${isSelected ? "bg-primary text-primary-foreground shadow-xs font-bold" : "bg-muted/30 text-muted-foreground hover:bg-muted/60 hover:text-foreground"}`,
+                          className: `rounded-lg px-2 py-0.5 text-[8.5px] font-medium transition-all ${isSelected ? "bg-primary text-primary-foreground font-bold shadow-xs" : "bg-muted/30 text-muted-foreground hover:bg-muted/60 hover:text-foreground"}`,
                           children: cat
                         },
                         cat
@@ -53398,8 +53405,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   var manifest_default = {
     manifest_version: 3,
     name: "C\xF4ng c\u1EE5 C\u1EDD T\u01B0\u1EDBng",
-    version: "0.0.3.913",
-    version_name: "0.0.3.202611251513",
+    version: "0.0.3.1067",
+    version_name: "0.0.3.202611251747",
     description: "Hi\u1EC3n th\u1ECB qu\xE2n \u0111\xE3 b\u1ECB \u0103n & highlight t\u1EA7m \u0111\xE1nh",
     icons: {
       "16": "icons/icon16.png",
@@ -55884,7 +55891,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                   /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(CardHeader, { id: "ziga-mentor-toggle-btn", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(CardTitle, { className: "flex items-center gap-1.5", children: [
                       /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(GraduationCap, { className: "text-primary size-4" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { children: "Gia S\u01B0 \u0110\u1ED3ng H\xE0nh" })
+                      /* @__PURE__ */ (0, import_jsx_runtime70.jsx)("span", { children: "T\xE0 \u0110\u1EA1o S\u01B0" })
                     ] }),
                     /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(CardDescription, { id: "ziga-mentor-phase-val", children: "Khai Cu\u1ED9c" }),
                     /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(CardAction, { children: /* @__PURE__ */ (0, import_jsx_runtime70.jsxs)(
@@ -55900,7 +55907,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                         title: "M\u1EDF b\u1EA3ng c\u1ED1 v\u1EA5n n\u1ED5i c\u1EA1nh b\xE0n c\u1EDD",
                         children: [
                           /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(ExternalLink, {}),
-                          "C\u1ED1 V\u1EA5n"
+                          "G\u1ECDi th\u1EA7y"
                         ]
                       }
                     ) })
