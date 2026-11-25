@@ -2326,6 +2326,10 @@ iframe[id^="google_ads"],
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) :where(.space-y-reverse > :not(:last-child)), :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]):where(.space-y-reverse > :not(:last-child)) {
   --tw-space-y-reverse: 1;
 }
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .gap-x-1, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).gap-x-1 {
+  -moz-column-gap: var(--spacing) !important;
+       column-gap: var(--spacing) !important;
+}
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) :where(.-space-x-2 > :not(:last-child)), :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]):where(.-space-x-2 > :not(:last-child)) {
   --tw-space-x-reverse: 0;
   margin-inline-start: calc(calc(var(--spacing) * -2) * var(--tw-space-x-reverse)) !important;
@@ -2333,6 +2337,9 @@ iframe[id^="google_ads"],
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) :where(.space-x-reverse > :not(:last-child)), :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]):where(.space-x-reverse > :not(:last-child)) {
   --tw-space-x-reverse: 1;
+}
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .gap-y-0\.5, :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).gap-y-0\.5 {
+  row-gap: calc(var(--spacing) * 0.5) !important;
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) :where(.divide-x > :not(:last-child)), :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]):where(.divide-x > :not(:last-child)) {
   --tw-divide-x-reverse: 0;
@@ -4237,6 +4244,10 @@ iframe[id^="google_ads"],
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .shadow-\[0_0_8px_rgba\(6\,182\,212\,0\.2\)\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).shadow-\[0_0_8px_rgba\(6\,182\,212\,0\.2\)\] {
   --tw-shadow: 0 0 8px var(--tw-shadow-color, rgba(6,182,212,0.2));
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow) !important;
+}
+:is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .shadow-\[0_0_8px_rgba\(16\,185\,129\,0\.2\)\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).shadow-\[0_0_8px_rgba\(16\,185\,129\,0\.2\)\] {
+  --tw-shadow: 0 0 8px var(--tw-shadow-color, rgba(16,185,129,0.2));
   box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow) !important;
 }
 :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]) .shadow-\[0_0_8px_rgba\(16\,185\,129\,0\.25\)\], :is(#ziga-mod-widget, #ziga-mod-settings-modal, .ziga-shadcn-root, [data-slot], [data-base-ui-portal]).shadow-\[0_0_8px_rgba\(16\,185\,129\,0\.25\)\] {

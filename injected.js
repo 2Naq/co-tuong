@@ -16629,9 +16629,22 @@
             const myPiece = gameLayer.V[targetIdx];
             if (myPiece && !myPiece.pa && myPiece.ka === myColor) {
               try {
-                const canMove = typeof ZigaMod.isMovePatternValid === "function" ? ZigaMod.isMovePatternValid(gameLayer, pieceHelper, i, sq, grid) : typeof gameLayer.QM === "function" ? gameLayer.QM(pieceHelper, i, sq, grid) : typeof gameLayer.PM === "function" && gameLayer.PM.length >= 3 ? gameLayer.PM(pieceHelper, i, sq, grid) : typeof gameLayer.IM === "function" ? gameLayer.IM(pieceHelper, i, sq, grid) : false;
+                const canMove = typeof ZigaMod.isMovePatternValid === "function" ? ZigaMod.isMovePatternValid(
+                  gameLayer,
+                  pieceHelper,
+                  i,
+                  sq,
+                  grid
+                ) : typeof gameLayer.QM === "function" ? gameLayer.QM(pieceHelper, i, sq, grid) : typeof gameLayer.PM === "function" && gameLayer.PM.length >= 3 ? gameLayer.PM(pieceHelper, i, sq, grid) : typeof gameLayer.IM === "function" ? gameLayer.IM(pieceHelper, i, sq, grid) : false;
                 if (canMove) {
-                  const isKingFaceKing = typeof ZigaMod.isKingFacingKing === "function" ? ZigaMod.isKingFacingKing(gameLayer, pieceHelper, i, c, r2, grid) : false;
+                  const isKingFaceKing = typeof ZigaMod.isKingFacingKing === "function" ? ZigaMod.isKingFacingKing(
+                    gameLayer,
+                    pieceHelper,
+                    i,
+                    c,
+                    r2,
+                    grid
+                  ) : false;
                   if (!isKingFaceKing) {
                     const coord = ZigaMod.formatXiangqiCoord ? ZigaMod.formatXiangqiCoord(c, r2, myPiece.ka) : {
                       col: myPiece.ka === 0 ? 9 - c : c + 1,
@@ -45617,11 +45630,38 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           gameLayer.ZC(boardGrid);
         }
         for (let e = 0; 90 > e; e++) {
-          const canMove = typeof ZigaMod.isMovePatternValid === "function" ? ZigaMod.isMovePatternValid(gameLayer, pieceHelper, attackerIdx, e, boardGrid) : typeof gameLayer.QM === "function" ? gameLayer.QM(pieceHelper, attackerIdx, e, boardGrid) : typeof gameLayer.PM === "function" && gameLayer.PM.length >= 3 ? gameLayer.PM(pieceHelper, attackerIdx, e, boardGrid) : typeof gameLayer.IM === "function" ? gameLayer.IM(pieceHelper, attackerIdx, e, boardGrid) : false;
+          const canMove = typeof ZigaMod.isMovePatternValid === "function" ? ZigaMod.isMovePatternValid(
+            gameLayer,
+            pieceHelper,
+            attackerIdx,
+            e,
+            boardGrid
+          ) : typeof gameLayer.QM === "function" ? gameLayer.QM(pieceHelper, attackerIdx, e, boardGrid) : typeof gameLayer.PM === "function" && gameLayer.PM.length >= 3 ? gameLayer.PM(pieceHelper, attackerIdx, e, boardGrid) : typeof gameLayer.IM === "function" ? gameLayer.IM(pieceHelper, attackerIdx, e, boardGrid) : false;
           if (canMove) {
             const tc = e % 9;
             const tr = Math.floor(e / 9);
-            const isBlocked = typeof ZigaMod.isKingFacingKing === "function" ? ZigaMod.isKingFacingKing(gameLayer, pieceHelper, attackerIdx, tc, tr, boardGrid) || ZigaMod.isKingCheckedAfterMove(gameLayer, pieceHelper, attackerIdx, tc, tr, boardGrid) : gameLayer.JM && gameLayer.JM(pieceHelper, attackerIdx, tc, tr, boardGrid) || gameLayer.BM && gameLayer.BM(pieceHelper, attackerIdx, tc, tr, boardGrid) || gameLayer.LM && gameLayer.LM(0, pieceHelper, attackerIdx, tc, tr, boardGrid) || gameLayer.DM && gameLayer.DM(0, pieceHelper, attackerIdx, tc, tr, boardGrid);
+            const isBlocked = typeof ZigaMod.isKingFacingKing === "function" ? ZigaMod.isKingFacingKing(
+              gameLayer,
+              pieceHelper,
+              attackerIdx,
+              tc,
+              tr,
+              boardGrid
+            ) || ZigaMod.isKingCheckedAfterMove(
+              gameLayer,
+              pieceHelper,
+              attackerIdx,
+              tc,
+              tr,
+              boardGrid
+            ) : gameLayer.JM && gameLayer.JM(pieceHelper, attackerIdx, tc, tr, boardGrid) || gameLayer.BM && gameLayer.BM(pieceHelper, attackerIdx, tc, tr, boardGrid) || gameLayer.LM && gameLayer.LM(
+              0,
+              pieceHelper,
+              attackerIdx,
+              tc,
+              tr,
+              boardGrid
+            ) || gameLayer.DM && gameLayer.DM(0, pieceHelper, attackerIdx, tc, tr, boardGrid);
             if (!isBlocked) {
               let capturedVal = 0;
               let capturedType = null;
@@ -47047,11 +47087,14 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           if (pawnRow >= 0 && pawnRow <= 9 && board[pawnRow * 9 + c] === enemyPawn) {
             attackedByPawn = true;
           } else if (s === 0 && r2 >= 5 || s === 1 && r2 <= 4) {
-            if (c > 0 && board[r2 * 9 + (c - 1)] === enemyPawn) attackedByPawn = true;
-            if (c < 8 && board[r2 * 9 + (c + 1)] === enemyPawn) attackedByPawn = true;
+            if (c > 0 && board[r2 * 9 + (c - 1)] === enemyPawn)
+              attackedByPawn = true;
+            if (c < 8 && board[r2 * 9 + (c + 1)] === enemyPawn)
+              attackedByPawn = true;
           }
           if (attackedByPawn) {
-            if (code === 4) positional -= sign * 140;
+            if (code === 4)
+              positional -= sign * 140;
             else positional -= sign * 60;
           }
         }
@@ -47656,7 +47699,11 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           }
         }
         if (oppReplyMove) {
-          const reply = { ...decode(oppReplyMove), score: -line.score, answer: null };
+          const reply = {
+            ...decode(oppReplyMove),
+            score: -line.score,
+            answer: null
+          };
           const cap2 = makeMove(oppReplyMove);
           if (!friendlyAnsMove) {
             if (ttProbe(2, -INF, INF, 1) && probeMove) {
@@ -47774,7 +47821,16 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       setup(piecesOrFen || []);
       return perftRec(depth | 0, side2 === 1 ? 1 : 0, 0);
     }
-    return { analyze, quickEvaluate, setup, evaluate: evaluate2, inCheck, toFen, perft, MATE };
+    return {
+      analyze,
+      quickEvaluate,
+      setup,
+      evaluate: evaluate2,
+      inCheck,
+      toFen,
+      perft,
+      MATE
+    };
   }
   function createXiangqiWorker() {
     let worker = null;
@@ -47979,7 +48035,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           ),
           thinkTimeMs: Math.max(
             800,
-            Math.min(15e3, parseInt(cfg.thinkTimeMs, 10) || defaults.thinkTimeMs)
+            Math.min(
+              15e3,
+              parseInt(cfg.thinkTimeMs, 10) || defaults.thinkTimeMs
+            )
           ),
           maxDepth: Math.max(
             12,
@@ -48273,7 +48332,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           });
           wasmWorker.postMessage({ type: "isready" });
         } catch (err) {
-          console.warn("[Pikafish Provider] Failed to initialize WASM worker:", err);
+          console.warn(
+            "[Pikafish Provider] Failed to initialize WASM worker:",
+            err
+          );
         }
       }
     }
@@ -48307,7 +48369,9 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         if (!active) return;
         if (!allText || allText.startsWith("unknown") || allText.startsWith("invalid")) {
           active = false;
-          return cb(new Error("Position not in ChessDB: " + allText.slice(0, 30)));
+          return cb(
+            new Error("Position not in ChessDB: " + allText.slice(0, 30))
+          );
         }
         const items = allText.trim().split("|");
         const candidates = [];
@@ -48515,7 +48579,9 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       if (!fen) {
         if (typeof callback === "function") {
           callback(
-            new Error("Pikafish analyze: Missing position (pieces or fen required)")
+            new Error(
+              "Pikafish analyze: Missing position (pieces or fen required)"
+            )
           );
         }
         return () => {
@@ -48870,8 +48936,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       if (token === "depth") data.depth = parseInt(parts[++i], 10) || 0;
       else if (token === "seldepth")
         data.seldepth = parseInt(parts[++i], 10) || 0;
-      else if (token === "multipv")
-        data.multipv = parseInt(parts[++i], 10) || 1;
+      else if (token === "multipv") data.multipv = parseInt(parts[++i], 10) || 1;
       else if (token === "score") {
         const type = parts[++i];
         const val = parseInt(parts[++i], 10) || 0;
@@ -48965,9 +49030,15 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   function setEngineProvider(providerId) {
     if (providerId === "pikafish" || providerId === "js-engine") {
       activeProviderId = providerId;
-      console.log(`[Engine Provider] Switched active provider to: "${providerId}"`);
+      console.log(
+        `[Engine Provider] Switched active provider to: "${providerId}"`
+      );
       if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
-        window.dispatchEvent(new CustomEvent("ZIGA_PIKAFISH_STATUS_CHANGE", { detail: getEngineTransportStatus() }));
+        window.dispatchEvent(
+          new CustomEvent("ZIGA_PIKAFISH_STATUS_CHANGE", {
+            detail: getEngineTransportStatus()
+          })
+        );
       }
     }
   }
@@ -52215,217 +52286,219 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             borderColor: "rgba(255, 255, 255, 0.12)"
           },
           children: [
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move items-center justify-between border-b bg-white/2 px-3 py-2 select-none", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-1 items-center gap-2", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                  "div",
-                  {
-                    className: "flex size-7 shrink-0 items-center justify-center rounded-lg border border-white/10 shadow-xs",
-                    style: { background: "rgba(255, 255, 255, 0.06)" },
-                    children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(GraduationCap, { className: "size-4 text-cyan-400" })
-                  }
-                ),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-1 flex-col overflow-hidden", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex items-center gap-1.5 overflow-hidden", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground shrink-0 text-xs font-bold tracking-wider uppercase", children: "T\xE0 \u0110\u1EA1o S\u01B0" }) }),
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col items-start justify-center gap-1", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "text-muted-foreground mt-0.5 flex items-center gap-1 truncate overflow-hidden text-[9px] whitespace-nowrap", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "ziga-mentor-drag-handle border-border/30 flex shrink-0 cursor-move flex-col border-b bg-white/2 select-none", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between gap-2 px-3 pt-2 pb-1.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-1 items-center gap-2", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                    "div",
+                    {
+                      className: "flex size-7 shrink-0 items-center justify-center rounded-lg border border-white/10 shadow-xs",
+                      style: { background: "rgba(255, 255, 255, 0.06)" },
+                      children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(GraduationCap, { className: "size-4 text-cyan-400" })
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 flex-1 flex-col", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex items-center gap-1.5", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground truncate text-xs font-bold tracking-wider uppercase", children: "T\xE0 \u0110\u1EA1o S\u01B0" }) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "text-muted-foreground mt-0.5 flex flex-wrap items-center gap-x-1 gap-y-0.5 text-[9.5px] leading-none whitespace-nowrap", children: [
                       /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                         "span",
                         {
-                          className: "py-0.2 text-muted-foreground/90 shrink-0 rounded border border-white/8 px-1 font-medium",
+                          className: "text-muted-foreground/90 shrink-0 rounded border border-white/8 px-1 py-0.5 font-medium",
                           style: { background: "rgba(255, 255, 255, 0.04)" },
                           children: analysis.phase
                         }
                       ),
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "\u2022" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "opacity-50", children: "\u2022" }),
                       /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "inline-flex shrink-0 items-center gap-1 font-medium", children: analysis.isMyTurn ? /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_jsx_runtime56.Fragment, { children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 animate-pulse rounded-full bg-emerald-400" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 shrink-0 animate-pulse rounded-full bg-emerald-400" }),
                         /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "font-semibold text-emerald-400", children: "B\u1EA1n" })
                       ] }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_jsx_runtime56.Fragment, { children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "bg-muted-foreground/50 size-1.5 rounded-full" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "bg-muted-foreground/50 size-1.5 shrink-0 rounded-full" }),
                         /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "\u0110\u1ED1i th\u1EE7" })
                       ] }) }),
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "\u2022" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "opacity-50", children: "\u2022" }),
                       /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "inline-flex shrink-0 items-center gap-1 font-medium", children: [
                         /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                           "span",
                           {
-                            className: `size-2 rounded-full border ${analysis.myColor === 0 ? "border-red-400 bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.5)]" : "border-zinc-500 bg-zinc-800 shadow-[0_0_4px_rgba(0,0,0,0.5)]"}`
+                            className: `size-2 shrink-0 rounded-full border ${analysis.myColor === 0 ? "border-red-400 bg-red-500 shadow-[0_0_4px_rgba(239,68,68,0.5)]" : "border-zinc-500 bg-zinc-800 shadow-[0_0_4px_rgba(0,0,0,0.5)]"}`
                           }
                         ),
-                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: analysis.myColor === 0 ? "Phe \u0110\u1ECF" : "Phe \u0110en" })
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: analysis.myColor === 0 ? "\u0110\u1ECF" : "\u0110en" })
                       ] })
-                    ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-row justify-center gap-0.5", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
-                        "span",
-                        {
-                          className: `py-0.2 inline-flex shrink-0 items-center gap-0.5 rounded border px-1.5 font-mono text-[9px] font-semibold whitespace-nowrap ${analysis.evalScore >= 50 ? "border-emerald-500/30 text-emerald-400" : analysis.evalScore <= -50 ? "border-rose-500/30 text-rose-400" : "border-white/10 text-slate-300"}`,
-                          style: {
-                            background: analysis.evalScore >= 50 ? "rgba(16, 185, 129, 0.1)" : analysis.evalScore <= -50 ? "rgba(244, 63, 94, 0.1)" : "rgba(255, 255, 255, 0.05)"
-                          },
-                          children: [
-                            analysis.evalScore >= 50 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TrendingUp, { className: "size-2.5" }) : analysis.evalScore <= -50 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TrendingDown, { className: "size-2.5" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Equal, { className: "size-2.5" }),
-                            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: analysis.evalText })
-                          ]
-                        }
-                      ),
-                      (() => {
-                        const status = engineId === "pikafish" ? liveTransport.type : "js-engine";
-                        if (engineId === "pikafish") {
-                          if (status === "native-ws") {
-                            return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
-                              "span",
-                              {
-                                className: "inline-flex cursor-pointer items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.25)] select-none",
-                                onClick: () => {
-                                  reconnectPikafish();
-                                  setTimeout(() => {
-                                    setLiveTransport(getEngineTransportStatus());
-                                  }, 150);
-                                },
-                                title: `\u{1F7E2} ${liveTransport.statusText || "Pikafish WS Native Pro"} \u0111ang k\u1EBFt n\u1ED1i tr\u1EF1c ti\u1EBFp. B\u1EA5m \u0111\u1EC3 ping/k\u1EBFt n\u1ED1i l\u1EA1i.`,
-                                children: [
-                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 animate-pulse rounded-full bg-emerald-400 text-nowrap shadow-[0_0_6px_rgba(52,211,153,0.9)]" }),
-                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: liveTransport.label || "WS Pro" })
-                                ]
-                              }
-                            );
-                          } else if (status === "cloud-nnue") {
-                            return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
-                              "span",
-                              {
-                                className: "inline-flex cursor-pointer items-center gap-1 rounded-md border border-cyan-500/40 bg-cyan-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-cyan-300 shadow-[0_0_8px_rgba(6,182,212,0.2)] select-none",
-                                onClick: () => {
-                                  reconnectPikafish();
-                                  setTimeout(() => {
-                                    setLiveTransport(getEngineTransportStatus());
-                                  }, 150);
-                                },
-                                title: "\u{1F310} Pikafish Cloud (Depth 30-62 via ChessDB). B\u1EA5m \u0111\u1EC3 th\u1EED k\u1EBFt n\u1ED1i WS Local 8765.",
-                                children: [
-                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 rounded-full bg-cyan-400 text-nowrap shadow-[0_0_6px_rgba(34,211,238,0.9)]" }),
-                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "Cloud+" })
-                                ]
-                              }
-                            );
-                          } else {
-                            return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
-                              "span",
-                              {
-                                className: "inline-flex cursor-pointer items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300 select-none",
-                                onClick: () => {
-                                  reconnectPikafish();
-                                  setTimeout(() => {
-                                    setLiveTransport(getEngineTransportStatus());
-                                  }, 150);
-                                },
-                                title: "\u26A1 \u0110ang d\xF9ng JS Engine d\u1EF1 ph\xF2ng. H\xE3y ch\u1EA1y start_pikafish.bat v\xE0 b\u1EA5m v\xE0o \u0111\xE2y \u0111\u1EC3 k\u1EBFt n\u1ED1i l\u1EA1i!",
-                                children: [
-                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 rounded-full bg-amber-400 text-nowrap" }),
-                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "JS Offline" })
-                                ]
-                              }
-                            );
-                          }
-                        }
+                    ] })
+                  ] })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex shrink-0 items-center gap-1", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                    Button3,
+                    {
+                      variant: "ghost",
+                      size: "icon-xs",
+                      onClick: handleDeepThink,
+                      title: "\u{1F525} T\xEDnh S\xE2u (Deep Think 8s / Depth 44): D\u1ED3n to\xE0n l\u1EF1c Pikafish t\xECm s\xE1t c\u1EE5c & bi\u1EBFn s\xE2u nh\u1EA5t!",
+                      className: `size-6 rounded-lg border transition-all ${analysis.isSearching && analysis.isDeepThink ? "animate-pulse border-orange-400/70 bg-orange-500/25 text-orange-300 shadow-[0_0_10px_rgba(249,115,22,0.45)]" : "border-orange-500/35 bg-orange-500/10 text-orange-400 hover:border-orange-400/60 hover:bg-orange-500/20"}`,
+                      children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Flame, { className: "size-3.5" })
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                    Button3,
+                    {
+                      variant: "ghost",
+                      size: "icon-xs",
+                      onClick: handleToggleEngine,
+                      title: `\u0110ang d\xF9ng: ${analysis.engineName || "AN Grandmaster JS"}. B\u1EA5m \u0111\u1EC3 chuy\u1EC3n sang ${engineId === "js-engine" ? "Pikafish NNUE" : "AN Grandmaster JS"}`,
+                      className: `size-6 rounded-lg border transition-all ${engineId === "pikafish" ? "border-amber-400/50 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25" : "border-cyan-400/40 bg-cyan-500/15 text-cyan-400 hover:bg-cyan-500/25"}`,
+                      children: engineId === "pikafish" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Fish, { className: "size-3.5" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Cpu, { className: "size-3.5" })
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                    Button3,
+                    {
+                      variant: "ghost",
+                      size: "icon-xs",
+                      onClick: toggleCompactMode,
+                      title: isCompact ? "M\u1EDF r\u1ED9ng 2 c\u1ED9t (Studio)" : "Thu g\u1ECDn 1 c\u1ED9t",
+                      className: "text-muted-foreground hover:text-foreground size-6 rounded-lg border border-transparent transition-colors hover:border-white/10 hover:bg-white/6",
+                      children: isCompact ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Maximize2, { className: "size-3.5" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Minimize2, { className: "size-3.5" })
+                    }
+                  ),
+                  isCompact && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                    Button3,
+                    {
+                      variant: "ghost",
+                      size: "icon-xs",
+                      onClick: () => setShowMiniBoardInCompact((p) => !p),
+                      title: showMiniBoardInCompact ? "\u1EA8n b\xE0n c\u1EDD nh\u1ECF" : "Hi\u1EC7n b\xE0n c\u1EDD nh\u1ECF",
+                      className: `size-6 rounded-lg border transition-colors ${showMiniBoardInCompact ? "border-cyan-400/40 text-cyan-400" : "text-muted-foreground hover:text-foreground border-transparent hover:border-white/10 hover:bg-white/6"}`,
+                      style: {
+                        background: showMiniBoardInCompact ? "rgba(6, 182, 212, 0.12)" : "transparent"
+                      },
+                      children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(LayoutGrid, { className: "size-3.5" })
+                    }
+                  ),
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                    Button3,
+                    {
+                      variant: "ghost",
+                      size: "icon-xs",
+                      onClick: onClose,
+                      title: "\u0110\xF3ng b\u1EA3ng c\u1ED1 v\u1EA5n",
+                      className: "text-muted-foreground hover:text-foreground size-6 rounded-lg transition-colors hover:bg-rose-500/15",
+                      children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(X, { className: "size-3.5" })
+                    }
+                  )
+                ] })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-wrap items-center justify-between gap-1.5 border-t border-white/6 bg-black/20 px-3 py-1.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                  "span",
+                  {
+                    className: `inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-[9.5px] font-semibold whitespace-nowrap ${analysis.evalScore >= 50 ? "border-emerald-500/35 text-emerald-400" : analysis.evalScore <= -50 ? "border-rose-500/35 text-rose-400" : "border-white/10 text-slate-300"}`,
+                    style: {
+                      background: analysis.evalScore >= 50 ? "rgba(16, 185, 129, 0.1)" : analysis.evalScore <= -50 ? "rgba(244, 63, 94, 0.1)" : "rgba(255, 255, 255, 0.05)"
+                    },
+                    children: [
+                      analysis.evalScore >= 50 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TrendingUp, { className: "size-3 shrink-0" }) : analysis.evalScore <= -50 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TrendingDown, { className: "size-3 shrink-0" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Equal, { className: "size-3 shrink-0" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: analysis.evalText })
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-wrap items-center gap-1.5", children: [
+                  (() => {
+                    const status = engineId === "pikafish" ? liveTransport.type : "js-engine";
+                    if (engineId === "pikafish") {
+                      if (status === "native-ws") {
                         return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
                           "span",
                           {
-                            className: "inline-flex items-center gap-1 rounded-md border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-cyan-400 select-none",
-                            title: "\u26A1 \u0110\u1ED9ng c\u01A1 t\xEDch h\u1EE3p s\u1EB5n AN Grandmaster JS",
+                            className: "inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 text-[9.5px] font-semibold whitespace-nowrap text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.2)] select-none",
+                            onClick: () => {
+                              reconnectPikafish();
+                              setTimeout(() => {
+                                setLiveTransport(getEngineTransportStatus());
+                              }, 150);
+                            },
+                            title: `\u{1F7E2} ${liveTransport.statusText || "Pikafish WS Native Pro"} \u0111ang k\u1EBFt n\u1ED1i tr\u1EF1c ti\u1EBFp. B\u1EA5m \u0111\u1EC3 ping/k\u1EBFt n\u1ED1i l\u1EA1i.`,
                             children: [
-                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Cpu, { className: "size-2.5" }),
-                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "JS Worker" })
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 shrink-0 animate-pulse rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]" }),
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: liveTransport.label || "WS Pro" })
                             ]
                           }
                         );
-                      })(),
-                      (analysis.depth > 0 || analysis.isSearching) && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
-                        "span",
-                        {
-                          className: `inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[8.5px] font-semibold whitespace-nowrap ${analysis.isSearching ? "border-amber-400/40 bg-amber-500/15 text-amber-300" : "border-white/10 bg-white/5 text-slate-300"}`,
-                          title: `\u0110\u1ED9 s\xE2u: Depth ${analysis.depth || "?"}${analysis.nps ? ` \u2022 T\u1ED1c \u0111\u1ED9: ${(analysis.nps / 1e6).toFixed(2)}M nodes/s` : ""}${analysis.wdl ? ` \u2022 WDL: ${(analysis.wdl.win / 10).toFixed(0)}% Th\u1EAFng / ${(analysis.wdl.draw / 10).toFixed(0)}% H\xF2a / ${(analysis.wdl.loss / 10).toFixed(0)}% Thua` : ""}`,
-                          children: [
-                            analysis.isSearching && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 animate-ping rounded-full bg-amber-400" }),
-                            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { children: [
-                              "D",
-                              analysis.depth || "...",
-                              analysis.winrate != null && (!window.ZigaMod?.userSettings?.pikafishConfig || window.ZigaMod.userSettings.pikafishConfig.showWdl !== false) ? ` \u2022 ${Math.round(analysis.winrate)}%` : ""
-                            ] })
-                          ]
-                        }
-                      )
-                    ] })
-                  ] })
+                      } else if (status === "cloud-nnue") {
+                        return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                          "span",
+                          {
+                            className: "inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-cyan-500/40 bg-cyan-500/15 px-2 py-0.5 text-[9.5px] font-semibold whitespace-nowrap text-cyan-300 shadow-[0_0_8px_rgba(6,182,212,0.2)] select-none",
+                            onClick: () => {
+                              reconnectPikafish();
+                              setTimeout(() => {
+                                setLiveTransport(getEngineTransportStatus());
+                              }, 150);
+                            },
+                            title: "\u{1F310} Pikafish Cloud (Depth 30-62 via ChessDB). B\u1EA5m \u0111\u1EC3 th\u1EED k\u1EBFt n\u1ED1i WS Local 8765.",
+                            children: [
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 shrink-0 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.9)]" }),
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "Cloud D30+" })
+                            ]
+                          }
+                        );
+                      } else {
+                        return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                          "span",
+                          {
+                            className: "inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md border border-amber-500/40 bg-amber-500/15 px-2 py-0.5 text-[9.5px] font-semibold whitespace-nowrap text-amber-300 select-none",
+                            onClick: () => {
+                              reconnectPikafish();
+                              setTimeout(() => {
+                                setLiveTransport(getEngineTransportStatus());
+                              }, 150);
+                            },
+                            title: "\u26A1 \u0110ang d\xF9ng JS Engine d\u1EF1 ph\xF2ng. H\xE3y ch\u1EA1y start_pikafish.bat v\xE0 b\u1EA5m v\xE0o \u0111\xE2y \u0111\u1EC3 k\u1EBFt n\u1ED1i l\u1EA1i!",
+                            children: [
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 shrink-0 rounded-full bg-amber-400" }),
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "JS Offline" })
+                            ]
+                          }
+                        );
+                      }
+                    }
+                    return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                      "span",
+                      {
+                        className: "inline-flex shrink-0 items-center gap-1 rounded-md border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-[9.5px] font-semibold whitespace-nowrap text-cyan-400 select-none",
+                        title: "\u26A1 \u0110\u1ED9ng c\u01A1 t\xEDch h\u1EE3p s\u1EB5n AN Grandmaster JS",
+                        children: [
+                          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Cpu, { className: "size-2.5 shrink-0" }),
+                          /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "JS Worker" })
+                        ]
+                      }
+                    );
+                  })(),
+                  (analysis.depth > 0 || analysis.isSearching) && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                    "span",
+                    {
+                      className: `inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[9.5px] font-semibold whitespace-nowrap ${analysis.isSearching ? "border-amber-400/40 bg-amber-500/15 text-amber-300" : "border-white/10 bg-white/5 text-slate-300"}`,
+                      title: `\u0110\u1ED9 s\xE2u: Depth ${analysis.depth || "?"}${analysis.nps ? ` \u2022 T\u1ED1c \u0111\u1ED9: ${(analysis.nps / 1e6).toFixed(2)}M nodes/s` : ""}${analysis.wdl ? ` \u2022 WDL: ${(analysis.wdl.win / 10).toFixed(0)}% Th\u1EAFng / ${(analysis.wdl.draw / 10).toFixed(0)}% H\xF2a / ${(analysis.wdl.loss / 10).toFixed(0)}% Thua` : ""}`,
+                      children: [
+                        analysis.isSearching && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 shrink-0 animate-ping rounded-full bg-amber-400" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { children: [
+                          "D",
+                          analysis.depth || "...",
+                          analysis.winrate != null && (!window.ZigaMod?.userSettings?.pikafishConfig || window.ZigaMod.userSettings.pikafishConfig.showWdl !== false) ? ` \u2022 ${Math.round(analysis.winrate)}%` : ""
+                        ] })
+                      ]
+                    }
+                  )
                 ] })
-              ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex shrink-0 items-center gap-1.5 pl-1.5", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                  Button3,
-                  {
-                    variant: "ghost",
-                    size: "icon-xs",
-                    onClick: handleDeepThink,
-                    title: "\u{1F525} T\xEDnh S\xE2u (Deep Think 8s / Depth 44): D\u1ED3n to\xE0n l\u1EF1c Pikafish t\xECm s\xE1t c\u1EE5c & bi\u1EBFn s\xE2u nh\u1EA5t cho th\u1EBF c\u1EDD hi\u1EC7n t\u1EA1i!",
-                    className: `size-6.5 rounded-lg border transition-all ${analysis.isSearching && analysis.isDeepThink ? "animate-pulse border-orange-400/70 bg-orange-500/25 text-orange-300 shadow-[0_0_10px_rgba(249,115,22,0.45)]" : "border-orange-500/35 bg-orange-500/10 text-orange-400 hover:border-orange-400/60 hover:bg-orange-500/20"}`,
-                    children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Flame, { className: "size-3.5" })
-                  }
-                ),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                  Button3,
-                  {
-                    variant: "ghost",
-                    size: "icon-xs",
-                    onClick: handleToggleEngine,
-                    title: `\u0110ang d\xF9ng: ${analysis.engineName || "AN Grandmaster JS"}. B\u1EA5m \u0111\u1EC3 chuy\u1EC3n sang ${engineId === "js-engine" ? "Pikafish NNUE" : "AN Grandmaster JS"}`,
-                    className: `size-6.5 rounded-lg border transition-all ${engineId === "pikafish" ? "border-amber-400/50 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25" : "border-cyan-400/40 bg-cyan-500/15 text-cyan-400 hover:bg-cyan-500/25"}`,
-                    children: engineId === "pikafish" ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Fish, { className: "size-3.5" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Cpu, { className: "size-3.5" })
-                  }
-                ),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                  Button3,
-                  {
-                    variant: "ghost",
-                    size: "icon-xs",
-                    onClick: toggleCompactMode,
-                    title: isCompact ? "M\u1EDF r\u1ED9ng 2 c\u1ED9t (Studio)" : "Thu g\u1ECDn 1 c\u1ED9t",
-                    className: "text-muted-foreground hover:text-foreground size-6.5 rounded-lg border border-transparent transition-colors hover:border-white/10 hover:bg-white/6",
-                    children: isCompact ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Maximize2, { className: "size-3.5" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Minimize2, { className: "size-3.5" })
-                  }
-                ),
-                isCompact && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                  Button3,
-                  {
-                    variant: "ghost",
-                    size: "icon-xs",
-                    onClick: () => setShowMiniBoardInCompact((p) => !p),
-                    title: showMiniBoardInCompact ? "\u1EA8n b\xE0n c\u1EDD nh\u1ECF" : "Hi\u1EC7n b\xE0n c\u1EDD nh\u1ECF",
-                    className: `size-6.5 rounded-lg border transition-colors ${showMiniBoardInCompact ? "border-cyan-400/40 text-cyan-400" : "text-muted-foreground hover:text-foreground border-transparent hover:border-white/10 hover:bg-white/6"}`,
-                    style: {
-                      background: showMiniBoardInCompact ? "rgba(6, 182, 212, 0.12)" : "transparent"
-                    },
-                    children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(LayoutGrid, { className: "size-3.5" })
-                  }
-                ),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                  Button3,
-                  {
-                    variant: "ghost",
-                    size: "icon-xs",
-                    onClick: onClose,
-                    title: "\u0110\xF3ng b\u1EA3ng c\u1ED1 v\u1EA5n",
-                    className: "text-muted-foreground hover:text-foreground size-6.5 rounded-lg transition-colors hover:bg-rose-500/15",
-                    children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(X, { className: "size-3.5" })
-                  }
-                )
               ] })
             ] }),
             analysis.openingName && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "px-3 pt-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1 rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent px-3 py-2 text-[10.5px] text-amber-300 shadow-xs", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex items-center justify-between", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-wrap items-center justify-between gap-1.5", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 items-center gap-1.5", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-3.5 shrink-0 text-amber-400" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "truncate", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "leading-snug", children: [
                     "Th\u1EBF Tr\u1EADn: ",
                     /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: analysis.openingName })
                   ] })
@@ -53405,8 +53478,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   var manifest_default = {
     manifest_version: 3,
     name: "C\xF4ng c\u1EE5 C\u1EDD T\u01B0\u1EDBng",
-    version: "0.0.3.1067",
-    version_name: "0.0.3.202611251747",
+    version: "0.0.3.1087",
+    version_name: "0.0.3.202611251807",
     description: "Hi\u1EC3n th\u1ECB qu\xE2n \u0111\xE3 b\u1ECB \u0103n & highlight t\u1EA7m \u0111\xE1nh",
     icons: {
       "16": "icons/icon16.png",
