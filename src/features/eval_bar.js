@@ -154,7 +154,13 @@
       for (let e = 0; 90 > e; e++) {
         const canMove =
           typeof ZigaMod.isMovePatternValid === "function"
-            ? ZigaMod.isMovePatternValid(gameLayer, pieceHelper, attackerIdx, e, boardGrid)
+            ? ZigaMod.isMovePatternValid(
+                gameLayer,
+                pieceHelper,
+                attackerIdx,
+                e,
+                boardGrid,
+              )
             : typeof gameLayer.QM === "function"
               ? gameLayer.QM(pieceHelper, attackerIdx, e, boardGrid)
               : typeof gameLayer.PM === "function" && gameLayer.PM.length >= 3
@@ -170,12 +176,37 @@
           // Check if valid destination (not blocked by king-facing-king and not king in check)
           const isBlocked =
             typeof ZigaMod.isKingFacingKing === "function"
-              ? ZigaMod.isKingFacingKing(gameLayer, pieceHelper, attackerIdx, tc, tr, boardGrid) ||
-                ZigaMod.isKingCheckedAfterMove(gameLayer, pieceHelper, attackerIdx, tc, tr, boardGrid)
-              : (gameLayer.JM && gameLayer.JM(pieceHelper, attackerIdx, tc, tr, boardGrid)) ||
-                (gameLayer.BM && gameLayer.BM(pieceHelper, attackerIdx, tc, tr, boardGrid)) ||
-                (gameLayer.LM && gameLayer.LM(0, pieceHelper, attackerIdx, tc, tr, boardGrid)) ||
-                (gameLayer.DM && gameLayer.DM(0, pieceHelper, attackerIdx, tc, tr, boardGrid));
+              ? ZigaMod.isKingFacingKing(
+                  gameLayer,
+                  pieceHelper,
+                  attackerIdx,
+                  tc,
+                  tr,
+                  boardGrid,
+                ) ||
+                ZigaMod.isKingCheckedAfterMove(
+                  gameLayer,
+                  pieceHelper,
+                  attackerIdx,
+                  tc,
+                  tr,
+                  boardGrid,
+                )
+              : (gameLayer.JM &&
+                  gameLayer.JM(pieceHelper, attackerIdx, tc, tr, boardGrid)) ||
+                (gameLayer.BM &&
+                  gameLayer.BM(pieceHelper, attackerIdx, tc, tr, boardGrid)) ||
+                (gameLayer.LM &&
+                  gameLayer.LM(
+                    0,
+                    pieceHelper,
+                    attackerIdx,
+                    tc,
+                    tr,
+                    boardGrid,
+                  )) ||
+                (gameLayer.DM &&
+                  gameLayer.DM(0, pieceHelper, attackerIdx, tc, tr, boardGrid));
           if (!isBlocked) {
             // Find target piece if any
             let capturedVal = 0;

@@ -54,9 +54,18 @@ export function getEngineProvider(requestedId) {
 export function setEngineProvider(providerId) {
   if (providerId === "pikafish" || providerId === "js-engine") {
     activeProviderId = providerId;
-    console.log(`[Engine Provider] Switched active provider to: "${providerId}"`);
-    if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
-      window.dispatchEvent(new CustomEvent("ZIGA_PIKAFISH_STATUS_CHANGE", { detail: getEngineTransportStatus() }));
+    console.log(
+      `[Engine Provider] Switched active provider to: "${providerId}"`,
+    );
+    if (
+      typeof window !== "undefined" &&
+      typeof window.dispatchEvent === "function"
+    ) {
+      window.dispatchEvent(
+        new CustomEvent("ZIGA_PIKAFISH_STATUS_CHANGE", {
+          detail: getEngineTransportStatus(),
+        }),
+      );
     }
   }
 }
@@ -115,15 +124,16 @@ export function listEngineProviders() {
       name: js.name,
       isActive: activeProviderId === "js-engine",
       available: true,
-      description: "Động cơ Cờ Tướng JavaScript thuần tích hợp sẵn, độ trễ thấp, Zero GC.",
+      description:
+        "Động cơ Cờ Tướng JavaScript thuần tích hợp sẵn, độ trễ thấp, Zero GC.",
     },
     {
       id: "pikafish",
       name: pika.name,
       isActive: activeProviderId === "pikafish",
       available: pika.isAvailable(),
-      description: "Động cơ đại cao thủ Pikafish NNUE (kết nối qua Native Bridge hoặc WASM).",
+      description:
+        "Động cơ đại cao thủ Pikafish NNUE (kết nối qua Native Bridge hoặc WASM).",
     },
   ];
 }
-

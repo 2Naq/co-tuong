@@ -32,7 +32,10 @@
     }
 
     // 3. BkLogicManager singleton: BkLogicManager.na().ja() returns GameLayer across versions
-    if (window.BkLogicManager && typeof window.BkLogicManager.na === "function") {
+    if (
+      window.BkLogicManager &&
+      typeof window.BkLogicManager.na === "function"
+    ) {
       try {
         const lm = window.BkLogicManager.na();
         if (lm && typeof lm.ja === "function") {
@@ -166,7 +169,11 @@
           ? blackKingSprite.getPositionY()
           : blackKingSprite.y;
 
-      if (typeof redY === "number" && typeof blackY === "number" && redY !== blackY) {
+      if (
+        typeof redY === "number" &&
+        typeof blackY === "number" &&
+        redY !== blackY
+      ) {
         // Tọa độ Cocos2d y nhỏ hơn là ở phía dưới đáy màn hình
         bottomKingColor = blackY < redY ? 1 : 0;
       } else if (
@@ -175,7 +182,10 @@
       ) {
         if (blackKingSprite.rowIndex <= 2 && redKingSprite.rowIndex >= 7) {
           bottomKingColor = 1;
-        } else if (redKingSprite.rowIndex <= 2 && blackKingSprite.rowIndex >= 7) {
+        } else if (
+          redKingSprite.rowIndex <= 2 &&
+          blackKingSprite.rowIndex >= 7
+        ) {
           bottomKingColor = 0;
         }
       }
@@ -207,10 +217,13 @@
     const oppColor = 1 - myColor;
 
     // 4. Lấy thông tin tên người chơi & đối thủ từ ghế avatar (gc: Ghế Trái / Người chơi cục bộ, dc: Ghế Phải / Đối thủ):
-    const seatLeftUser = gameLayer.gc && gameLayer.gc.Z ? gameLayer.gc.Z.userName : "";
-    const seatRightUser = gameLayer.dc && gameLayer.dc.Z ? gameLayer.dc.Z.userName : "";
+    const seatLeftUser =
+      gameLayer.gc && gameLayer.gc.Z ? gameLayer.gc.Z.userName : "";
+    const seatRightUser =
+      gameLayer.dc && gameLayer.dc.Z ? gameLayer.dc.Z.userName : "";
 
-    let myName = localUserName || seatLeftUser || (myColor === 0 ? "Bên Đỏ" : "Bên Đen");
+    let myName =
+      localUserName || seatLeftUser || (myColor === 0 ? "Bên Đỏ" : "Bên Đen");
     let oppName = seatRightUser || (oppColor === 0 ? "Bên Đỏ" : "Bên Đen");
 
     const redUserName = myColor === 0 ? myName : oppName;

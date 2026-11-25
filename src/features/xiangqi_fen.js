@@ -56,7 +56,12 @@ export function isBoardFlipped(pieces) {
  * @param {number} fullmoveNumber
  * @returns {string} FEN string
  */
-export function piecesToFen(pieces, side = 0, halfmoveClock = 0, fullmoveNumber = 1) {
+export function piecesToFen(
+  pieces,
+  side = 0,
+  halfmoveClock = 0,
+  fullmoveNumber = 1,
+) {
   const grid = Array.from({ length: 10 }, () => new Array(9).fill(null));
   const flipped = isBoardFlipped(pieces);
 
@@ -115,7 +120,11 @@ export function fenToPieces(fen) {
 
   const pieces = [];
 
-  for (let fenRowIdx = 0; fenRowIdx < rows.length && fenRowIdx < 10; fenRowIdx++) {
+  for (
+    let fenRowIdx = 0;
+    fenRowIdx < rows.length && fenRowIdx < 10;
+    fenRowIdx++
+  ) {
     const r = 9 - fenRowIdx; // Row 0 of FEN is row 9 on board
     const rowStr = rows[fenRowIdx];
     let c = 0;
@@ -178,7 +187,13 @@ export function uciToMove(uci, isFlipped = false) {
  * @returns {string}
  */
 export function moveToUci(move) {
-  if (!move || move.fromCol == null || move.fromRow == null || move.toCol == null || move.toRow == null) {
+  if (
+    !move ||
+    move.fromCol == null ||
+    move.fromRow == null ||
+    move.toCol == null ||
+    move.toRow == null
+  ) {
     return "";
   }
   const fc = String.fromCharCode(97 + move.fromCol);
@@ -187,4 +202,3 @@ export function moveToUci(move) {
   const tr = move.toRow;
   return `${fc}${fr}${tc}${tr}`;
 }
-

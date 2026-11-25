@@ -42,10 +42,17 @@
             try {
               const canMove =
                 typeof ZigaMod.isMovePatternValid === "function"
-                  ? ZigaMod.isMovePatternValid(gameLayer, pieceHelper, i, sq, grid)
+                  ? ZigaMod.isMovePatternValid(
+                      gameLayer,
+                      pieceHelper,
+                      i,
+                      sq,
+                      grid,
+                    )
                   : typeof gameLayer.QM === "function"
                     ? gameLayer.QM(pieceHelper, i, sq, grid)
-                    : typeof gameLayer.PM === "function" && gameLayer.PM.length >= 3
+                    : typeof gameLayer.PM === "function" &&
+                        gameLayer.PM.length >= 3
                       ? gameLayer.PM(pieceHelper, i, sq, grid)
                       : typeof gameLayer.IM === "function"
                         ? gameLayer.IM(pieceHelper, i, sq, grid)
@@ -54,7 +61,14 @@
               if (canMove) {
                 const isKingFaceKing =
                   typeof ZigaMod.isKingFacingKing === "function"
-                    ? ZigaMod.isKingFacingKing(gameLayer, pieceHelper, i, c, r, grid)
+                    ? ZigaMod.isKingFacingKing(
+                        gameLayer,
+                        pieceHelper,
+                        i,
+                        c,
+                        r,
+                        grid,
+                      )
                     : false;
 
                 if (!isKingFaceKing) {

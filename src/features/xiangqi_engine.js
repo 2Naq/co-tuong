@@ -241,11 +241,7 @@ export function createXiangqiEngine() {
     const idx = hashLo & TT_MASK;
     const expectedKey = (hashHi ^ hashLo) >>> 0;
     const keyChanged = ttKeyHi[idx] !== expectedKey;
-    if (
-      ttFlag[idx] === TT_EMPTY ||
-      depth >= ttDepth[idx] ||
-      keyChanged
-    ) {
+    if (ttFlag[idx] === TT_EMPTY || depth >= ttDepth[idx] || keyChanged) {
       let storedScore = score;
       if (score > MATE - 200) storedScore = score + ply;
       else if (score < -MATE + 200) storedScore = score - ply;
@@ -742,9 +738,9 @@ export function createXiangqiEngine() {
           if (victim > attVal) {
             s = 10000000 + victim * 100 - attVal; // Bắt hơn quân (Tốt ăn Xe, Mã ăn Xe)
           } else if (victim === attVal) {
-            s = 7200000 + victim * 100 - attVal;  // Đổi ngang quân (Xếp sau Killer moves để ưu tiên thế công)
+            s = 7200000 + victim * 100 - attVal; // Đổi ngang quân (Xếp sau Killer moves để ưu tiên thế công)
           } else {
-            s = 3000000 + victim * 100 - attVal;  // Đổi lỗ quân (Chỉ duyệt khi không có nước khác)
+            s = 3000000 + victim * 100 - attVal; // Đổi lỗ quân (Chỉ duyệt khi không có nước khác)
           }
         } else if (m === k[0]) {
           s = 9000000;
@@ -969,15 +965,22 @@ export function createXiangqiEngine() {
         const pawnRow = r + pawnFwd;
         const enemyPawn = s === 0 ? -7 : 7;
         let attackedByPawn = false;
-        if (pawnRow >= 0 && pawnRow <= 9 && board[pawnRow * 9 + c] === enemyPawn) {
+        if (
+          pawnRow >= 0 &&
+          pawnRow <= 9 &&
+          board[pawnRow * 9 + c] === enemyPawn
+        ) {
           attackedByPawn = true;
         } else if ((s === 0 && r >= 5) || (s === 1 && r <= 4)) {
-          if (c > 0 && board[r * 9 + (c - 1)] === enemyPawn) attackedByPawn = true;
-          if (c < 8 && board[r * 9 + (c + 1)] === enemyPawn) attackedByPawn = true;
+          if (c > 0 && board[r * 9 + (c - 1)] === enemyPawn)
+            attackedByPawn = true;
+          if (c < 8 && board[r * 9 + (c + 1)] === enemyPawn)
+            attackedByPawn = true;
         }
         if (attackedByPawn) {
-          if (code === 4) positional -= sign * 140; // Xe bị Tốt dọa
-          else positional -= sign * 60;             // Pháo/Mã bị Tốt dọa
+          if (code === 4)
+            positional -= sign * 140; // Xe bị Tốt dọa
+          else positional -= sign * 60; // Pháo/Mã bị Tốt dọa
         }
       }
     }
@@ -1663,7 +1666,7 @@ export function createXiangqiEngine() {
     const main = searchRoot(
       side,
       input.maxDepth || 12,
-      budget * 0.90,
+      budget * 0.9,
       input.multiPV || 3,
       2,
     );
@@ -1714,7 +1717,11 @@ export function createXiangqiEngine() {
       }
 
       if (oppReplyMove) {
-        const reply = { ...decode(oppReplyMove), score: -line.score, answer: null };
+        const reply = {
+          ...decode(oppReplyMove),
+          score: -line.score,
+          answer: null,
+        };
         const cap2 = makeMove(oppReplyMove);
         if (!friendlyAnsMove) {
           if (ttProbe(2, -INF, INF, 1) && probeMove) {
@@ -1749,7 +1756,9 @@ export function createXiangqiEngine() {
             out.replies.push({
               ...decode(alt),
               score: -line.score - 35,
-              answer: friendlyAnsMove ? { ...decode(friendlyAnsMove), score: line.score } : null,
+              answer: friendlyAnsMove
+                ? { ...decode(friendlyAnsMove), score: line.score }
+                : null,
             });
           }
         }
@@ -1843,7 +1852,16 @@ export function createXiangqiEngine() {
     return perftRec(depth | 0, side === 1 ? 1 : 0, 0);
   }
 
-  return { analyze, quickEvaluate, setup, evaluate, inCheck, toFen, perft, MATE };
+  return {
+    analyze,
+    quickEvaluate,
+    setup,
+    evaluate,
+    inCheck,
+    toFen,
+    perft,
+    MATE,
+  };
 }
 
 // ---------------------------------------------------------------------------

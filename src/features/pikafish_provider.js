@@ -29,7 +29,10 @@ export function getPikafishConfig() {
         ),
         thinkTimeMs: Math.max(
           800,
-          Math.min(15000, parseInt(cfg.thinkTimeMs, 10) || defaults.thinkTimeMs),
+          Math.min(
+            15000,
+            parseInt(cfg.thinkTimeMs, 10) || defaults.thinkTimeMs,
+          ),
         ),
         maxDepth: Math.max(
           12,
@@ -389,7 +392,10 @@ export function createPikafishProvider(options = {}) {
         });
         wasmWorker.postMessage({ type: "isready" });
       } catch (err) {
-        console.warn("[Pikafish Provider] Failed to initialize WASM worker:", err);
+        console.warn(
+          "[Pikafish Provider] Failed to initialize WASM worker:",
+          err,
+        );
       }
     }
   }
@@ -442,7 +448,9 @@ export function createPikafishProvider(options = {}) {
         allText.startsWith("invalid")
       ) {
         active = false;
-        return cb(new Error("Position not in ChessDB: " + allText.slice(0, 30)));
+        return cb(
+          new Error("Position not in ChessDB: " + allText.slice(0, 30)),
+        );
       }
 
       // Parse candidate moves
@@ -705,7 +713,9 @@ export function createPikafishProvider(options = {}) {
     if (!fen) {
       if (typeof callback === "function") {
         callback(
-          new Error("Pikafish analyze: Missing position (pieces or fen required)"),
+          new Error(
+            "Pikafish analyze: Missing position (pieces or fen required)",
+          ),
         );
       }
       return () => {};
@@ -1152,8 +1162,7 @@ export function parseUciInfo(line) {
     if (token === "depth") data.depth = parseInt(parts[++i], 10) || 0;
     else if (token === "seldepth")
       data.seldepth = parseInt(parts[++i], 10) || 0;
-    else if (token === "multipv")
-      data.multipv = parseInt(parts[++i], 10) || 1;
+    else if (token === "multipv") data.multipv = parseInt(parts[++i], 10) || 1;
     else if (token === "score") {
       const type = parts[++i];
       const val = parseInt(parts[++i], 10) || 0;
