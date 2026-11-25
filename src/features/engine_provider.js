@@ -94,6 +94,16 @@ export function reconnectPikafish() {
 }
 
 /**
+ * Applies updated Pikafish UCI configuration (MultiPV, Threads, Hash, WDL) live.
+ */
+export function applyPikafishConfig(cfg) {
+  const pika = getEngineProvider("pikafish");
+  if (pika && typeof pika.applyConfig === "function") {
+    pika.applyConfig(cfg);
+  }
+}
+
+/**
  * Lists available engine providers with their connection status.
  */
 export function listEngineProviders() {

@@ -49,6 +49,21 @@
             parsed.hudStyle,
           );
         }
+        if (parsed.pikafishConfig) {
+          userSettings.pikafishConfig = Object.assign(
+            {},
+            (ZigaMod.DEFAULT_SETTINGS &&
+              ZigaMod.DEFAULT_SETTINGS.pikafishConfig) || {
+              multiPV: 5,
+              thinkTimeMs: 3000,
+              maxDepth: 36,
+              threads: 0,
+              hashMb: 0,
+              showWdl: true,
+            },
+            parsed.pikafishConfig,
+          );
+        }
       }
     } catch (e) {}
   }

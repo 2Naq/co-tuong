@@ -164,6 +164,23 @@ export const DEFAULT_SETTINGS = {
     cardOpacity: "default", // 'default', 'transparent', 'solid'
     hudScale: 1.0, // Tỷ lệ thu phóng HUD (0.85 - 1.15)
   },
+  pikafishConfig: {
+    multiPV: 5, // Số lượng lời giải/kế sách phân tích song song (3, 4, 5, 6, 8)
+    thinkTimeMs: 3000, // Thời gian suy nghĩ tiêu chuẩn (1500, 3000, 5000, 8000 ms)
+    maxDepth: 36, // Độ sâu tối đa (24, 32, 36, 44)
+    threads: 0, // 0 = Tự động tối ưu theo CPU máy (hoặc chỉ định 2, 4, 6, 8, 12)
+    hashMb: 0, // 0 = Tự động tối ưu theo RAM máy (hoặc 128, 256, 512, 1024 MB)
+    showWdl: true, // Hiển thị xác suất Thắng / Hòa / Thua (WDL NNUE)
+  },
+};
+
+export const DEFAULT_PIKAFISH_CONFIG = {
+  multiPV: 5,
+  thinkTimeMs: 3000,
+  maxDepth: 36,
+  threads: 0,
+  hashMb: 0,
+  showWdl: true,
 };
 
 export const DEFAULT_HUD_STYLE = {
@@ -346,6 +363,7 @@ if (typeof window !== "undefined") {
   ZigaMod.DISPLAY_ORDER = DISPLAY_ORDER;
   ZigaMod.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
   ZigaMod.DEFAULT_HUD_STYLE = DEFAULT_HUD_STYLE;
+  ZigaMod.DEFAULT_PIKAFISH_CONFIG = DEFAULT_PIKAFISH_CONFIG;
   ZigaMod.HUD_STYLE_PRESETS = HUD_STYLE_PRESETS;
   ZigaMod.AURA_THEMES = AURA_THEMES;
   ZigaMod.AURA_ANIMATIONS = AURA_ANIMATIONS;

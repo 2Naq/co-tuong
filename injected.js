@@ -14912,7 +14912,29 @@
       // 'default', 'transparent', 'solid'
       hudScale: 1
       // Tỷ lệ thu phóng HUD (0.85 - 1.15)
+    },
+    pikafishConfig: {
+      multiPV: 5,
+      // Số lượng lời giải/kế sách phân tích song song (3, 4, 5, 6, 8)
+      thinkTimeMs: 3e3,
+      // Thời gian suy nghĩ tiêu chuẩn (1500, 3000, 5000, 8000 ms)
+      maxDepth: 36,
+      // Độ sâu tối đa (24, 32, 36, 44)
+      threads: 0,
+      // 0 = Tự động tối ưu theo CPU máy (hoặc chỉ định 2, 4, 6, 8, 12)
+      hashMb: 0,
+      // 0 = Tự động tối ưu theo RAM máy (hoặc 128, 256, 512, 1024 MB)
+      showWdl: true
+      // Hiển thị xác suất Thắng / Hòa / Thua (WDL NNUE)
     }
+  };
+  var DEFAULT_PIKAFISH_CONFIG = {
+    multiPV: 5,
+    thinkTimeMs: 3e3,
+    maxDepth: 36,
+    threads: 0,
+    hashMb: 0,
+    showWdl: true
   };
   var DEFAULT_HUD_STYLE = {
     preset: "default_orange",
@@ -15085,6 +15107,7 @@
     ZigaMod.DISPLAY_ORDER = DISPLAY_ORDER;
     ZigaMod.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
     ZigaMod.DEFAULT_HUD_STYLE = DEFAULT_HUD_STYLE;
+    ZigaMod.DEFAULT_PIKAFISH_CONFIG = DEFAULT_PIKAFISH_CONFIG;
     ZigaMod.HUD_STYLE_PRESETS = HUD_STYLE_PRESETS;
     ZigaMod.AURA_THEMES = AURA_THEMES;
     ZigaMod.AURA_ANIMATIONS = AURA_ANIMATIONS;
@@ -15129,6 +15152,20 @@
               {},
               ZigaMod.DEFAULT_SETTINGS && ZigaMod.DEFAULT_SETTINGS.hudStyle || ZigaMod.DEFAULT_HUD_STYLE,
               parsed.hudStyle
+            );
+          }
+          if (parsed.pikafishConfig) {
+            userSettings.pikafishConfig = Object.assign(
+              {},
+              ZigaMod.DEFAULT_SETTINGS && ZigaMod.DEFAULT_SETTINGS.pikafishConfig || {
+                multiPV: 5,
+                thinkTimeMs: 3e3,
+                maxDepth: 36,
+                threads: 0,
+                hashMb: 0,
+                showWdl: true
+              },
+              parsed.pikafishConfig
             );
           }
         }
@@ -19489,8 +19526,25 @@
   __iconData18.node;
   var Fish = createLucideIcon(__iconData18);
 
-  // node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs
+  // node_modules/lucide-react/dist/esm/icons/flame.mjs
   var __iconData19 = {
+    name: "flame",
+    size: 24,
+    node: [
+      [
+        "path",
+        {
+          d: "M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4",
+          key: "1slcih"
+        }
+      ]
+    ]
+  };
+  __iconData19.node;
+  var Flame = createLucideIcon(__iconData19);
+
+  // node_modules/lucide-react/dist/esm/icons/graduation-cap.mjs
+  var __iconData20 = {
     name: "graduation-cap",
     size: 24,
     node: [
@@ -19505,11 +19559,11 @@
       ["path", { d: "M6 12.5V16a6 3 0 0 0 12 0v-3.5", key: "1r8lef" }]
     ]
   };
-  __iconData19.node;
-  var GraduationCap = createLucideIcon(__iconData19);
+  __iconData20.node;
+  var GraduationCap = createLucideIcon(__iconData20);
 
   // node_modules/lucide-react/dist/esm/icons/image.mjs
-  var __iconData20 = {
+  var __iconData21 = {
     name: "image",
     size: 24,
     node: [
@@ -19518,11 +19572,11 @@
       ["path", { d: "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21", key: "1xmnt7" }]
     ]
   };
-  __iconData20.node;
-  var Image2 = createLucideIcon(__iconData20);
+  __iconData21.node;
+  var Image2 = createLucideIcon(__iconData21);
 
   // node_modules/lucide-react/dist/esm/icons/layers.mjs
-  var __iconData21 = {
+  var __iconData22 = {
     name: "layers",
     size: 24,
     node: [
@@ -19550,11 +19604,11 @@
     ],
     aliases: ["layers-3"]
   };
-  __iconData21.node;
-  var Layers = createLucideIcon(__iconData21);
+  __iconData22.node;
+  var Layers = createLucideIcon(__iconData22);
 
   // node_modules/lucide-react/dist/esm/icons/layout-grid.mjs
-  var __iconData22 = {
+  var __iconData23 = {
     name: "layout-grid",
     size: 24,
     node: [
@@ -19564,11 +19618,11 @@
       ["rect", { width: "7", height: "7", x: "3", y: "14", rx: "1", key: "1bb6yr" }]
     ]
   };
-  __iconData22.node;
-  var LayoutGrid = createLucideIcon(__iconData22);
+  __iconData23.node;
+  var LayoutGrid = createLucideIcon(__iconData23);
 
   // node_modules/lucide-react/dist/esm/icons/lightbulb.mjs
-  var __iconData23 = {
+  var __iconData24 = {
     name: "lightbulb",
     size: 24,
     node: [
@@ -19583,11 +19637,11 @@
       ["path", { d: "M10 22h4", key: "ceow96" }]
     ]
   };
-  __iconData23.node;
-  var Lightbulb = createLucideIcon(__iconData23);
+  __iconData24.node;
+  var Lightbulb = createLucideIcon(__iconData24);
 
   // node_modules/lucide-react/dist/esm/icons/maximize-2.mjs
-  var __iconData24 = {
+  var __iconData25 = {
     name: "maximize-2",
     size: 24,
     node: [
@@ -19597,11 +19651,11 @@
       ["path", { d: "M9 21H3v-6", key: "wtvkvv" }]
     ]
   };
-  __iconData24.node;
-  var Maximize2 = createLucideIcon(__iconData24);
+  __iconData25.node;
+  var Maximize2 = createLucideIcon(__iconData25);
 
   // node_modules/lucide-react/dist/esm/icons/minimize-2.mjs
-  var __iconData25 = {
+  var __iconData26 = {
     name: "minimize-2",
     size: 24,
     node: [
@@ -19611,20 +19665,20 @@
       ["path", { d: "M4 14h6v6", key: "rmj7iw" }]
     ]
   };
-  __iconData25.node;
-  var Minimize2 = createLucideIcon(__iconData25);
+  __iconData26.node;
+  var Minimize2 = createLucideIcon(__iconData26);
 
   // node_modules/lucide-react/dist/esm/icons/minus.mjs
-  var __iconData26 = {
+  var __iconData27 = {
     name: "minus",
     size: 24,
     node: [["path", { d: "M5 12h14", key: "1ays0h" }]]
   };
-  __iconData26.node;
-  var Minus = createLucideIcon(__iconData26);
+  __iconData27.node;
+  var Minus = createLucideIcon(__iconData27);
 
   // node_modules/lucide-react/dist/esm/icons/moon.mjs
-  var __iconData27 = {
+  var __iconData28 = {
     name: "moon",
     size: 24,
     node: [
@@ -19637,11 +19691,11 @@
       ]
     ]
   };
-  __iconData27.node;
-  var Moon = createLucideIcon(__iconData27);
+  __iconData28.node;
+  var Moon = createLucideIcon(__iconData28);
 
   // node_modules/lucide-react/dist/esm/icons/palette.mjs
-  var __iconData28 = {
+  var __iconData29 = {
     name: "palette",
     size: 24,
     node: [
@@ -19658,11 +19712,11 @@
       ["circle", { cx: "8.5", cy: "7.5", r: ".5", fill: "currentColor", key: "fotxhn" }]
     ]
   };
-  __iconData28.node;
-  var Palette = createLucideIcon(__iconData28);
+  __iconData29.node;
+  var Palette = createLucideIcon(__iconData29);
 
   // node_modules/lucide-react/dist/esm/icons/pipette.mjs
-  var __iconData29 = {
+  var __iconData30 = {
     name: "pipette",
     size: 24,
     node: [
@@ -19683,11 +19737,11 @@
       ["path", { d: "m2 22 .414-.414", key: "jhxm08" }]
     ]
   };
-  __iconData29.node;
-  var Pipette = createLucideIcon(__iconData29);
+  __iconData30.node;
+  var Pipette = createLucideIcon(__iconData30);
 
   // node_modules/lucide-react/dist/esm/icons/play.mjs
-  var __iconData30 = {
+  var __iconData31 = {
     name: "play",
     size: 24,
     node: [
@@ -19700,11 +19754,11 @@
       ]
     ]
   };
-  __iconData30.node;
-  var Play = createLucideIcon(__iconData30);
+  __iconData31.node;
+  var Play = createLucideIcon(__iconData31);
 
   // node_modules/lucide-react/dist/esm/icons/plus.mjs
-  var __iconData31 = {
+  var __iconData32 = {
     name: "plus",
     size: 24,
     node: [
@@ -19712,11 +19766,11 @@
       ["path", { d: "M12 5v14", key: "s699le" }]
     ]
   };
-  __iconData31.node;
-  var Plus = createLucideIcon(__iconData31);
+  __iconData32.node;
+  var Plus = createLucideIcon(__iconData32);
 
   // node_modules/lucide-react/dist/esm/icons/rotate-ccw.mjs
-  var __iconData32 = {
+  var __iconData33 = {
     name: "rotate-ccw",
     size: 24,
     node: [
@@ -19724,11 +19778,11 @@
       ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
     ]
   };
-  __iconData32.node;
-  var RotateCcw = createLucideIcon(__iconData32);
+  __iconData33.node;
+  var RotateCcw = createLucideIcon(__iconData33);
 
   // node_modules/lucide-react/dist/esm/icons/save.mjs
-  var __iconData33 = {
+  var __iconData34 = {
     name: "save",
     size: 24,
     node: [
@@ -19743,11 +19797,11 @@
       ["path", { d: "M7 3v4a1 1 0 0 0 1 1h7", key: "t51u73" }]
     ]
   };
-  __iconData33.node;
-  var Save = createLucideIcon(__iconData33);
+  __iconData34.node;
+  var Save = createLucideIcon(__iconData34);
 
   // node_modules/lucide-react/dist/esm/icons/scale.mjs
-  var __iconData34 = {
+  var __iconData35 = {
     name: "scale",
     size: 24,
     node: [
@@ -19758,11 +19812,11 @@
       ["path", { d: "M7 21h10", key: "1b0cd5" }]
     ]
   };
-  __iconData34.node;
-  var Scale = createLucideIcon(__iconData34);
+  __iconData35.node;
+  var Scale = createLucideIcon(__iconData35);
 
   // node_modules/lucide-react/dist/esm/icons/scroll-text.mjs
-  var __iconData35 = {
+  var __iconData36 = {
     name: "scroll-text",
     size: 24,
     node: [
@@ -19778,11 +19832,11 @@
       ]
     ]
   };
-  __iconData35.node;
-  var ScrollText = createLucideIcon(__iconData35);
+  __iconData36.node;
+  var ScrollText = createLucideIcon(__iconData36);
 
   // node_modules/lucide-react/dist/esm/icons/search.mjs
-  var __iconData36 = {
+  var __iconData37 = {
     name: "search",
     size: 24,
     node: [
@@ -19790,11 +19844,11 @@
       ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
     ]
   };
-  __iconData36.node;
-  var Search = createLucideIcon(__iconData36);
+  __iconData37.node;
+  var Search = createLucideIcon(__iconData37);
 
   // node_modules/lucide-react/dist/esm/icons/settings.mjs
-  var __iconData37 = {
+  var __iconData38 = {
     name: "settings",
     size: 24,
     node: [
@@ -19808,11 +19862,11 @@
       ["circle", { cx: "12", cy: "12", r: "3", key: "1v7zrd" }]
     ]
   };
-  __iconData37.node;
-  var Settings = createLucideIcon(__iconData37);
+  __iconData38.node;
+  var Settings = createLucideIcon(__iconData38);
 
   // node_modules/lucide-react/dist/esm/icons/shield-alert.mjs
-  var __iconData38 = {
+  var __iconData39 = {
     name: "shield-alert",
     size: 24,
     node: [
@@ -19827,11 +19881,11 @@
       ["path", { d: "M12 16h.01", key: "1drbdi" }]
     ]
   };
-  __iconData38.node;
-  var ShieldAlert = createLucideIcon(__iconData38);
+  __iconData39.node;
+  var ShieldAlert = createLucideIcon(__iconData39);
 
   // node_modules/lucide-react/dist/esm/icons/shield.mjs
-  var __iconData39 = {
+  var __iconData40 = {
     name: "shield",
     size: 24,
     node: [
@@ -19844,11 +19898,11 @@
       ]
     ]
   };
-  __iconData39.node;
-  var Shield = createLucideIcon(__iconData39);
+  __iconData40.node;
+  var Shield = createLucideIcon(__iconData40);
 
   // node_modules/lucide-react/dist/esm/icons/sliders-vertical.mjs
-  var __iconData40 = {
+  var __iconData41 = {
     name: "sliders-vertical",
     size: 24,
     node: [
@@ -19864,11 +19918,11 @@
     ],
     aliases: ["sliders"]
   };
-  __iconData40.node;
-  var SlidersVertical = createLucideIcon(__iconData40);
+  __iconData41.node;
+  var SlidersVertical = createLucideIcon(__iconData41);
 
   // node_modules/lucide-react/dist/esm/icons/sparkles.mjs
-  var __iconData41 = {
+  var __iconData42 = {
     name: "sparkles",
     size: 24,
     node: [
@@ -19885,11 +19939,11 @@
     ],
     aliases: ["stars"]
   };
-  __iconData41.node;
-  var Sparkles = createLucideIcon(__iconData41);
+  __iconData42.node;
+  var Sparkles = createLucideIcon(__iconData42);
 
   // node_modules/lucide-react/dist/esm/icons/sun.mjs
-  var __iconData42 = {
+  var __iconData43 = {
     name: "sun",
     size: 24,
     node: [
@@ -19904,11 +19958,11 @@
       ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }]
     ]
   };
-  __iconData42.node;
-  var Sun = createLucideIcon(__iconData42);
+  __iconData43.node;
+  var Sun = createLucideIcon(__iconData43);
 
   // node_modules/lucide-react/dist/esm/icons/swords.mjs
-  var __iconData43 = {
+  var __iconData44 = {
     name: "swords",
     size: 24,
     node: [
@@ -19934,11 +19988,11 @@
       ["path", { d: "M7.5 16.5 4 20", key: "14nozp" }]
     ]
   };
-  __iconData43.node;
-  var Swords = createLucideIcon(__iconData43);
+  __iconData44.node;
+  var Swords = createLucideIcon(__iconData44);
 
   // node_modules/lucide-react/dist/esm/icons/trash.mjs
-  var __iconData44 = {
+  var __iconData45 = {
     name: "trash",
     size: 24,
     node: [
@@ -19950,11 +20004,11 @@
     ],
     aliases: ["trash-2"]
   };
-  __iconData44.node;
-  var Trash = createLucideIcon(__iconData44);
+  __iconData45.node;
+  var Trash = createLucideIcon(__iconData45);
 
   // node_modules/lucide-react/dist/esm/icons/trending-down.mjs
-  var __iconData45 = {
+  var __iconData46 = {
     name: "trending-down",
     size: 24,
     node: [
@@ -19962,11 +20016,11 @@
       ["path", { d: "m22 17-8.5-8.5-5 5L2 7", key: "x473p" }]
     ]
   };
-  __iconData45.node;
-  var TrendingDown = createLucideIcon(__iconData45);
+  __iconData46.node;
+  var TrendingDown = createLucideIcon(__iconData46);
 
   // node_modules/lucide-react/dist/esm/icons/trending-up.mjs
-  var __iconData46 = {
+  var __iconData47 = {
     name: "trending-up",
     size: 24,
     node: [
@@ -19974,11 +20028,11 @@
       ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
     ]
   };
-  __iconData46.node;
-  var TrendingUp = createLucideIcon(__iconData46);
+  __iconData47.node;
+  var TrendingUp = createLucideIcon(__iconData47);
 
   // node_modules/lucide-react/dist/esm/icons/triangle-alert.mjs
-  var __iconData47 = {
+  var __iconData48 = {
     name: "triangle-alert",
     size: 24,
     node: [
@@ -19994,11 +20048,11 @@
     ],
     aliases: ["alert-triangle"]
   };
-  __iconData47.node;
-  var TriangleAlert = createLucideIcon(__iconData47);
+  __iconData48.node;
+  var TriangleAlert = createLucideIcon(__iconData48);
 
   // node_modules/lucide-react/dist/esm/icons/trophy.mjs
-  var __iconData48 = {
+  var __iconData49 = {
     name: "trophy",
     size: 24,
     node: [
@@ -20010,11 +20064,11 @@
       ["path", { d: "M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3", key: "i0yafy" }]
     ]
   };
-  __iconData48.node;
-  var Trophy = createLucideIcon(__iconData48);
+  __iconData49.node;
+  var Trophy = createLucideIcon(__iconData49);
 
   // node_modules/lucide-react/dist/esm/icons/upload.mjs
-  var __iconData49 = {
+  var __iconData50 = {
     name: "upload",
     size: 24,
     node: [
@@ -20023,11 +20077,11 @@
       ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }]
     ]
   };
-  __iconData49.node;
-  var Upload = createLucideIcon(__iconData49);
+  __iconData50.node;
+  var Upload = createLucideIcon(__iconData50);
 
   // node_modules/lucide-react/dist/esm/icons/wrench.mjs
-  var __iconData50 = {
+  var __iconData51 = {
     name: "wrench",
     size: 24,
     node: [
@@ -20040,11 +20094,11 @@
       ]
     ]
   };
-  __iconData50.node;
-  var Wrench = createLucideIcon(__iconData50);
+  __iconData51.node;
+  var Wrench = createLucideIcon(__iconData51);
 
   // node_modules/lucide-react/dist/esm/icons/x.mjs
-  var __iconData51 = {
+  var __iconData52 = {
     name: "x",
     size: 24,
     node: [
@@ -20052,11 +20106,11 @@
       ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
     ]
   };
-  __iconData51.node;
-  var X = createLucideIcon(__iconData51);
+  __iconData52.node;
+  var X = createLucideIcon(__iconData52);
 
   // node_modules/lucide-react/dist/esm/icons/zap.mjs
-  var __iconData52 = {
+  var __iconData53 = {
     name: "zap",
     size: 24,
     node: [
@@ -20069,8 +20123,8 @@
       ]
     ]
   };
-  __iconData52.node;
-  var Zap = createLucideIcon(__iconData52);
+  __iconData53.node;
+  var Zap = createLucideIcon(__iconData53);
 
   // src/components/ui/dialog.jsx
   var React50 = __toESM(require_react());
@@ -40279,7 +40333,22 @@
     const handleApplyRecommended = () => {
       updateDraft(RECOMMENDED_SETTINGS);
     };
+    const pikaCfg = {
+      multiPV: 5,
+      thinkTimeMs: 3e3,
+      maxDepth: 36,
+      threads: 0,
+      hashMb: 0,
+      showWdl: true,
+      ...draft.pikafishConfig || {}
+    };
+    const updatePika = (patch) => {
+      updateDraft({ pikafishConfig: { ...pikaCfg, ...patch } });
+    };
     const q = searchQuery.toLowerCase().trim();
+    const showPikaCard = !q || "pikafish nnue ai multi pv depth hash threads wdl l\u1EDDi gi\u1EA3i \u0111\u1ED9ng c\u01A1".includes(
+      q
+    ) || q.includes("pika") || q.includes("ai") || q.includes("cpu") || q.includes("ram");
     return /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "flex flex-col gap-3.5", children: [
       /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "border-border/80 bg-muted/30 flex flex-col items-stretch justify-between gap-2.5 rounded-lg border p-2.5 sm:flex-row sm:items-center", children: [
         /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "relative flex-1", children: [
@@ -40288,7 +40357,7 @@
             "input",
             {
               type: "text",
-              placeholder: "T\xECm ki\u1EBFm t\xEDnh n\u0103ng (t\u1EA7m \u0111\xE1nh, aura, c\u1EDD \xFAp, gi\u1ECDng n\xF3i...)...",
+              placeholder: "T\xECm ki\u1EBFm t\xEDnh n\u0103ng (t\u1EA7m \u0111\xE1nh, aura, pikafish, c\u1EDD \xFAp, gi\u1ECDng n\xF3i...)...",
               value: searchQuery,
               onChange: (e) => setSearchQuery(e.target.value),
               className: "border-input/60 bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary w-full rounded-md border py-1.5 pr-3 pl-8 text-xs focus:ring-1 focus:outline-none"
@@ -40310,6 +40379,188 @@
           }
         )
       ] }),
+      showPikaCard && /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(
+        Card,
+        {
+          size: "sm",
+          className: "border-amber-500/35 bg-gradient-to-br from-amber-500/8 via-transparent to-cyan-500/5",
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(CardHeader, { className: "pb-2.5", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "flex flex-wrap items-center justify-between gap-2", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(CardTitle, { className: "flex items-center gap-2 text-sm", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(Flame, { className: "size-4 text-amber-400" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("span", { children: "\u0110\u1ED9ng C\u01A1 Pikafish NNUE Pro (\u0110a L\u1EDDi Gi\u1EA3i & \u0110\u1ED9 S\xE2u)" })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(
+                  Badge,
+                  {
+                    variant: "secondary",
+                    className: "border border-amber-400/30 bg-amber-500/15 text-[10.5px] font-semibold text-amber-300",
+                    children: [
+                      pikaCfg.multiPV,
+                      " L\u1EDDi Gi\u1EA3i \u2022 ",
+                      (pikaCfg.thinkTimeMs / 1e3).toFixed(1),
+                      "s \u2022 D",
+                      pikaCfg.maxDepth
+                    ]
+                  }
+                )
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(CardDescription, { className: "text-xs", children: "Tinh ch\u1EC9nh s\u1ED1 ph\u01B0\u01A1ng \xE1n (MultiPV), th\u1EDDi gian t\xEDnh, s\u1ED1 lu\u1ED3ng CPU v\xE0 b\u1ED9 nh\u1EDB Hash \u0111\u1EC3 Pikafish gi\u1EA3i nhi\u1EC1u n\u01B0\u1EDBc bi\u1EBFn v\xE0 s\xE2u h\u01A1n." })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(CardContent, { className: "grid grid-cols-1 gap-3 sm:grid-cols-2", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "border-border/60 bg-muted/20 flex flex-col gap-1.5 rounded-lg border p-2.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "flex items-center justify-between", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("span", { className: "text-foreground text-xs font-semibold", children: "S\u1ED1 l\u1EDDi gi\u1EA3i song song (MultiPV)" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("span", { className: "font-mono text-[11px] font-bold text-cyan-400", children: [
+                    pikaCfg.multiPV,
+                    " ph\u01B0\u01A1ng \xE1n"
+                  ] })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("div", { className: "flex flex-wrap gap-1", children: [3, 4, 5, 6, 8].map((val) => /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(
+                  Button3,
+                  {
+                    type: "button",
+                    size: "xs",
+                    variant: pikaCfg.multiPV === val ? "default" : "outline",
+                    onClick: () => updatePika({ multiPV: val }),
+                    className: "h-6 flex-1 text-[11px] font-semibold",
+                    children: [
+                      val,
+                      " bi\u1EBFn"
+                    ]
+                  },
+                  val
+                )) })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "border-border/60 bg-muted/20 flex flex-col gap-1.5 rounded-lg border p-2.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "flex items-center justify-between", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("span", { className: "text-foreground text-xs font-semibold", children: "Th\u1EDDi gian suy ngh\u0129 m\u1ED7i n\u01B0\u1EDBc" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("span", { className: "font-mono text-[11px] font-bold text-amber-400", children: [
+                    (pikaCfg.thinkTimeMs / 1e3).toFixed(1),
+                    "s"
+                  ] })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("div", { className: "flex flex-wrap gap-1", children: [
+                  { ms: 1500, label: "1.5s Nhanh" },
+                  { ms: 3e3, label: "3s Chu\u1EA9n" },
+                  { ms: 5e3, label: "5s S\xE2u" },
+                  { ms: 8e3, label: "8s \u0110\u1EA1i S\u01B0" }
+                ].map((opt) => /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
+                  Button3,
+                  {
+                    type: "button",
+                    size: "xs",
+                    variant: pikaCfg.thinkTimeMs === opt.ms ? "default" : "outline",
+                    onClick: () => updatePika({ thinkTimeMs: opt.ms }),
+                    className: "h-6 flex-1 text-[10.5px] font-semibold",
+                    children: opt.label
+                  },
+                  opt.ms
+                )) })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "border-border/60 bg-muted/20 flex flex-col gap-1.5 rounded-lg border p-2.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "flex items-center justify-between", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("span", { className: "text-foreground flex items-center gap-1 text-xs font-semibold", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(Cpu, { className: "size-3.5 text-cyan-400" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("span", { children: "S\u1ED1 lu\u1ED3ng CPU (Threads)" })
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("span", { className: "font-mono text-[11px] font-bold text-emerald-400", children: pikaCfg.threads === 0 ? "T\u1EF1 \u0111\u1ED9ng" : `${pikaCfg.threads}T` })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("div", { className: "flex flex-wrap gap-1", children: [
+                  { val: 0, label: "T\u1EF1 \u0111\u1ED9ng" },
+                  { val: 4, label: "4T" },
+                  { val: 6, label: "6T" },
+                  { val: 8, label: "8T" },
+                  { val: 12, label: "12T" }
+                ].map((opt) => /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
+                  Button3,
+                  {
+                    type: "button",
+                    size: "xs",
+                    variant: pikaCfg.threads === opt.val ? "default" : "outline",
+                    onClick: () => updatePika({ threads: opt.val }),
+                    className: "h-6 flex-1 text-[10.5px] font-semibold",
+                    children: opt.label
+                  },
+                  opt.val
+                )) })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "border-border/60 bg-muted/20 flex flex-col gap-1.5 rounded-lg border p-2.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "flex items-center justify-between", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("span", { className: "text-foreground text-xs font-semibold", children: "B\u1ED9 nh\u1EDB \u0111\u1EC7m th\u1EBF c\u1EDD (Hash RAM)" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("span", { className: "font-mono text-[11px] font-bold text-emerald-400", children: pikaCfg.hashMb === 0 ? "T\u1EF1 \u0111\u1ED9ng" : `${pikaCfg.hashMb}MB` })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("div", { className: "flex flex-wrap gap-1", children: [
+                  { val: 0, label: "T\u1EF1 \u0111\u1ED9ng" },
+                  { val: 256, label: "256M" },
+                  { val: 512, label: "512M" },
+                  { val: 1024, label: "1GB" }
+                ].map((opt) => /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
+                  Button3,
+                  {
+                    type: "button",
+                    size: "xs",
+                    variant: pikaCfg.hashMb === opt.val ? "default" : "outline",
+                    onClick: () => updatePika({ hashMb: opt.val }),
+                    className: "h-6 flex-1 text-[10.5px] font-semibold",
+                    children: opt.label
+                  },
+                  opt.val
+                )) })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "border-border/60 bg-muted/20 flex flex-col gap-1.5 rounded-lg border p-2.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "flex items-center justify-between", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("span", { className: "text-foreground text-xs font-semibold", children: "Gi\u1EDBi h\u1EA1n \u0111\u1ED9 s\xE2u t\u1ED1i \u0111a (Max Depth)" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("span", { className: "font-mono text-[11px] font-bold text-cyan-400", children: [
+                    "Depth ",
+                    pikaCfg.maxDepth
+                  ] })
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("div", { className: "flex flex-wrap gap-1", children: [28, 36, 44, 54].map((d) => /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(
+                  Button3,
+                  {
+                    type: "button",
+                    size: "xs",
+                    variant: pikaCfg.maxDepth === d ? "default" : "outline",
+                    onClick: () => updatePika({ maxDepth: d }),
+                    className: "h-6 flex-1 text-[10.5px] font-semibold",
+                    children: [
+                      "D",
+                      d
+                    ]
+                  },
+                  d
+                )) })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(
+                Label,
+                {
+                  htmlFor: "ziga-opt-pika-wdl",
+                  className: cn(
+                    "flex cursor-pointer items-center justify-between gap-3 rounded-lg border p-2.5 font-normal transition-all",
+                    pikaCfg.showWdl ? "border-primary/40 bg-accent/40" : "border-border/60 bg-muted/20 hover:bg-accent/30"
+                  ),
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)("div", { className: "flex flex-col gap-0.5", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("span", { className: "text-foreground text-xs font-semibold", children: "X\xE1c su\u1EA5t Th\u1EAFng / H\xF2a / Thua (WDL)" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("span", { className: "text-muted-foreground text-[11px]", children: "Hi\u1EC3n th\u1ECB % t\u1EF7 l\u1EC7 th\u1EAFng tr\u1EF1c ti\u1EBFp t\u1EEB m\u1EA1ng th\u1EA7n kinh NNUE" })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(
+                      Switch,
+                      {
+                        id: "ziga-opt-pika-wdl",
+                        checked: !!pikaCfg.showWdl,
+                        onCheckedChange: (val) => updatePika({ showWdl: val })
+                      }
+                    )
+                  ]
+                }
+              )
+            ] })
+          ]
+        }
+      ),
       /* @__PURE__ */ (0, import_jsx_runtime39.jsx)("div", { className: "grid grid-cols-1 gap-3.5 lg:grid-cols-2", children: FEATURE_CATEGORIES.map((cat) => {
         const Icon2 = cat.icon;
         const filteredFeatures = cat.features.filter((f) => {
@@ -42282,6 +42533,10 @@ button.bg-primary,
       hudStyle: {
         ...defaultSettings.hudStyle || DEFAULT_HUD_STYLE,
         ...ZigaMod.userSettings && ZigaMod.userSettings.hudStyle || {}
+      },
+      pikafishConfig: {
+        ...defaultSettings.pikafishConfig || DEFAULT_PIKAFISH_CONFIG,
+        ...ZigaMod.userSettings && ZigaMod.userSettings.pikafishConfig || {}
       }
     }));
     const [toastMsg, setToastMsg] = (0, import_react12.useState)("");
@@ -42300,6 +42555,10 @@ button.bg-primary,
           hudStyle: {
             ...defaultSettings.hudStyle || DEFAULT_HUD_STYLE,
             ...ZigaMod.userSettings && ZigaMod.userSettings.hudStyle || {}
+          },
+          pikafishConfig: {
+            ...defaultSettings.pikafishConfig || DEFAULT_PIKAFISH_CONFIG,
+            ...ZigaMod.userSettings && ZigaMod.userSettings.pikafishConfig || {}
           }
         });
         if (initialTab) setActiveTab(normalizeTab(initialTab));
@@ -42327,10 +42586,21 @@ button.bg-primary,
           hudStyle: {
             ...mod.DEFAULT_SETTINGS?.hudStyle || DEFAULT_HUD_STYLE,
             ...nextDraft.hudStyle || {}
+          },
+          pikafishConfig: {
+            ...mod.DEFAULT_SETTINGS?.pikafishConfig || DEFAULT_PIKAFISH_CONFIG,
+            ...nextDraft.pikafishConfig || {}
           }
         };
         if (typeof mod.saveSettings === "function") {
           mod.saveSettings();
+        }
+        if (nextDraft.pikafishConfig && typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
+          window.dispatchEvent(
+            new CustomEvent("ZIGA_PIKAFISH_CONFIG_CHANGE", {
+              detail: mod.userSettings.pikafishConfig
+            })
+          );
         }
         if (typeof mod.applySettingsVisibility === "function") {
           mod.applySettingsVisibility();
@@ -42378,6 +42648,15 @@ button.bg-primary,
               hudStyle: {
                 ...prev.hudStyle,
                 ...patch.hudStyle
+              }
+            };
+          } else if (patch.pikafishConfig) {
+            next = {
+              ...prev,
+              ...patch,
+              pikafishConfig: {
+                ...prev.pikafishConfig || DEFAULT_PIKAFISH_CONFIG,
+                ...patch.pikafishConfig
               }
             };
           } else {
@@ -47671,6 +47950,42 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   }
 
   // src/features/pikafish_provider.js
+  function getPikafishConfig() {
+    const defaults = {
+      multiPV: 5,
+      thinkTimeMs: 3e3,
+      maxDepth: 36,
+      threads: 0,
+      // 0 = auto-tuned by native bridge
+      hashMb: 0,
+      // 0 = auto-tuned by native bridge
+      showWdl: true
+    };
+    try {
+      const cfg = typeof window !== "undefined" && window.ZigaMod && window.ZigaMod.userSettings && window.ZigaMod.userSettings.pikafishConfig;
+      if (cfg && typeof cfg === "object") {
+        return {
+          multiPV: Math.max(
+            1,
+            Math.min(8, parseInt(cfg.multiPV, 10) || defaults.multiPV)
+          ),
+          thinkTimeMs: Math.max(
+            800,
+            Math.min(15e3, parseInt(cfg.thinkTimeMs, 10) || defaults.thinkTimeMs)
+          ),
+          maxDepth: Math.max(
+            12,
+            Math.min(60, parseInt(cfg.maxDepth, 10) || defaults.maxDepth)
+          ),
+          threads: Math.max(0, Math.min(32, parseInt(cfg.threads, 10) || 0)),
+          hashMb: Math.max(0, Math.min(4096, parseInt(cfg.hashMb, 10) || 0)),
+          showWdl: cfg.showWdl !== false
+        };
+      }
+    } catch (e) {
+    }
+    return defaults;
+  }
   function isCoUpPosition(pieces, isCoUpFlag = false) {
     if (isCoUpFlag) return true;
     if (typeof window !== "undefined" && window.ZigaMod && typeof window.ZigaMod.getActiveGameData === "function") {
@@ -47701,6 +48016,22 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     }
     return false;
   }
+  function buildRepliesFromPvMoves(pvCoords, score) {
+    if (!Array.isArray(pvCoords) || pvCoords.length < 2 || !pvCoords[1]) {
+      return [];
+    }
+    const rep = {
+      ...pvCoords[1],
+      score: -score,
+      answer: pvCoords[2] ? { ...pvCoords[2], score } : null,
+      step4: pvCoords[3] ? { ...pvCoords[3], score: -score } : null,
+      step5: pvCoords[4] ? { ...pvCoords[4], score } : null,
+      step6: pvCoords[5] ? { ...pvCoords[5], score: -score } : null,
+      step7: pvCoords[6] ? { ...pvCoords[6], score } : null,
+      step8: pvCoords[7] ? { ...pvCoords[7], score: -score } : null
+    };
+    return [rep];
+  }
   function createPikafishProvider(options = {}) {
     const {
       wsUrl = "ws://127.0.0.1:8765",
@@ -47708,7 +48039,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       allowFallback = true
     } = options;
     const id = "pikafish";
-    const name = "Pikafish NNUE (Grandmaster Reference Engine)";
+    const name = "Pikafish NNUE Pro (Grandmaster Reference Engine)";
     let fallbackWorker = null;
     function getFallback() {
       if (!fallbackWorker) {
@@ -47737,6 +48068,16 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     let activeCallback = null;
     let reconnectTimer = null;
     let heartbeatTimer = null;
+    let lastSentMultiPV = 0;
+    let bridgeMeta = {
+      engineName: "Pikafish NNUE",
+      threads: 0,
+      hashMb: 0,
+      multiPV: 5,
+      showWdl: true,
+      cpuCount: 0,
+      ramGb: 0
+    };
     function safeSend(cmd) {
       if (socket && socket.readyState === WebSocket.OPEN) {
         try {
@@ -47748,6 +48089,48 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         }
       }
       return false;
+    }
+    function getTransportStatus() {
+      if (socketReady && socket && socket.readyState === WebSocket.OPEN) {
+        const hwSuffix = bridgeMeta.threads > 0 && bridgeMeta.hashMb > 0 ? `${bridgeMeta.threads}T/${bridgeMeta.hashMb}M` : "8765";
+        return {
+          type: "native-ws",
+          label: `WS Pro (${hwSuffix})`,
+          statusText: `${bridgeMeta.engineName || "Pikafish"} (${hwSuffix})`,
+          color: "emerald",
+          meta: { ...bridgeMeta }
+        };
+      }
+      return {
+        type: "cloud-nnue",
+        label: "Cloud D30+",
+        statusText: "Cloud NNUE (D30+)",
+        color: "cyan",
+        meta: null
+      };
+    }
+    function notifyStatusChange() {
+      if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
+        window.dispatchEvent(
+          new CustomEvent("ZIGA_PIKAFISH_STATUS_CHANGE", {
+            detail: getTransportStatus()
+          })
+        );
+      }
+    }
+    function applyConfig(overrideCfg) {
+      const cfg = overrideCfg ? { ...getPikafishConfig(), ...overrideCfg } : getPikafishConfig();
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        const cmds = [
+          `setoption name Threads value ${cfg.threads > 0 ? cfg.threads : "auto"}`,
+          `setoption name Hash value ${cfg.hashMb > 0 ? cfg.hashMb : "auto"}`,
+          `setoption name MultiPV value ${cfg.multiPV}`,
+          `setoption name UCI_ShowWDL value ${cfg.showWdl ? "true" : "false"}`,
+          "isready"
+        ];
+        lastSentMultiPV = cfg.multiPV;
+        safeSend(cmds.join("\n") + "\n");
+      }
     }
     function scheduleAutoReconnect(delayMs = 1200) {
       if (reconnectTimer) clearTimeout(reconnectTimer);
@@ -47772,8 +48155,32 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         heartbeatTimer = null;
       }
     }
+    function handleGlobalSocketMessage(event) {
+      const text = typeof event.data === "string" ? event.data : "";
+      if (!text) return;
+      const lines = text.split(/\r?\n/);
+      let metaUpdated = false;
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith("id name ")) {
+          bridgeMeta.engineName = trimmed.slice(8).trim();
+          metaUpdated = true;
+        } else if (trimmed.startsWith("info string bridge_meta ")) {
+          try {
+            const parsed = JSON.parse(trimmed.slice(24));
+            bridgeMeta = { ...bridgeMeta, ...parsed };
+            metaUpdated = true;
+          } catch (e) {
+          }
+        }
+      }
+      if (metaUpdated) {
+        notifyStatusChange();
+      }
+    }
     function ensureSocket(force = false) {
-      if (typeof window === "undefined" || typeof WebSocket === "undefined") return;
+      if (typeof window === "undefined" || typeof WebSocket === "undefined")
+        return;
       if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
         return;
       }
@@ -47782,18 +48189,6 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         return;
       }
       lastSocketAttempt = now;
-      function notifyStatusChange() {
-        if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
-          window.dispatchEvent(
-            new CustomEvent("ZIGA_PIKAFISH_STATUS_CHANGE", {
-              detail: {
-                type: socketReady && socket && socket.readyState === WebSocket.OPEN ? "native-ws" : "cloud-nnue",
-                label: socketReady && socket && socket.readyState === WebSocket.OPEN ? "WS: 8765" : "Cloud D30+"
-              }
-            })
-          );
-        }
-      }
       try {
         if (socket) {
           try {
@@ -47802,11 +48197,13 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           }
         }
         socket = new WebSocket(wsUrl);
+        socket.addEventListener("message", handleGlobalSocketMessage);
         socket.onopen = () => {
+          const cfg = getPikafishConfig();
           console.log(
-            "[Pikafish Provider] Connected to native UCI bridge at",
+            "[Pikafish Provider] Connected to native UCI Pro bridge at",
             wsUrl,
-            "(Hardcore Grandmaster Mode)"
+            `(MultiPV=${cfg.multiPV}, Think=${cfg.thinkTimeMs}ms, Depth=${cfg.maxDepth})`
           );
           socketReady = true;
           socketFailedOnce = false;
@@ -47815,10 +48212,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             reconnectTimer = null;
           }
           safeSend("uci\n");
-          safeSend("setoption name Threads value 4\n");
-          safeSend("setoption name Hash value 128\n");
-          safeSend("setoption name MultiPV value 3\n");
-          safeSend("isready\n");
+          applyConfig(cfg);
+          safeSend("bridge_info\n");
           notifyStatusChange();
           startHeartbeat();
         };
@@ -47852,26 +48247,36 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           ensureSocket(false);
         }
       }, 2500);
+      window.addEventListener("ZIGA_PIKAFISH_CONFIG_CHANGE", (e) => {
+        applyConfig(e?.detail);
+      });
     }
     if (typeof window !== "undefined") {
       ensureSocket();
       if (!socketReady && wasmWorkerUrl && typeof Worker !== "undefined") {
         try {
+          const cfg = getPikafishConfig();
           wasmWorker = new Worker(wasmWorkerUrl);
           wasmWorker.postMessage({ type: "uci" });
-          wasmWorker.postMessage({ type: "setoption", name: "MultiPV", value: 3 });
+          wasmWorker.postMessage({
+            type: "setoption",
+            name: "MultiPV",
+            value: cfg.multiPV
+          });
           wasmWorker.postMessage({ type: "isready" });
         } catch (err) {
           console.warn("[Pikafish Provider] Failed to initialize WASM worker:", err);
         }
       }
     }
-    function queryChessDbCloud(fen, side2, pieces, cb) {
+    function queryChessDbCloud(fen, side2, pieces, cb, multiPV = 5) {
       let active = true;
       const reqId = "cdb_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
+      const maxCandidates = Math.max(3, Math.min(8, multiPV || 5));
       const onMessage = (event) => {
         if (!active) return;
-        if (!event.data || event.data.type !== "ZIGA_CHESSDB_RESPONSE" || event.data.id !== reqId) return;
+        if (!event.data || event.data.type !== "ZIGA_CHESSDB_RESPONSE" || event.data.id !== reqId)
+          return;
         if (typeof window !== "undefined") {
           window.removeEventListener("message", onMessage);
         }
@@ -47889,7 +48294,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           window.removeEventListener("message", onMessage);
         }
         cb(new Error("ChessDB request timed out"));
-      }, 2200);
+      }, 2500);
       function processChessDbResponse(allText) {
         if (!active) return;
         if (!allText || allText.startsWith("unknown") || allText.startsWith("invalid")) {
@@ -47920,9 +48325,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           return cb(new Error("No valid candidates from ChessDB"));
         }
         const isFlipped = isBoardFlipped(pieces);
-        const top3 = candidates.slice(0, 3);
-        const formattedLines = top3.map((cand) => {
+        const topN = candidates.slice(0, maxCandidates);
+        const formattedLines = topN.map((cand) => {
           const moveCoord = uciToMove(cand.move, isFlipped);
+          const isMate = Math.abs(cand.score) > 9e3;
           return {
             fromCol: moveCoord ? moveCoord.fromCol : 0,
             fromRow: moveCoord ? moveCoord.fromRow : 0,
@@ -47930,16 +48336,24 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             toRow: moveCoord ? moveCoord.toRow : 0,
             score: cand.score,
             winrate: cand.winrate,
+            isMate,
+            delivermate: isMate && cand.score > 0,
             exact: true,
             pv: moveCoord ? [moveCoord] : [],
-            tags: detectUciTacticalTags({ pv: [cand.move], isMate: Math.abs(cand.score) > 9e3 }, side2, pieces),
+            tags: detectUciTacticalTags(
+              { pv: [cand.move], isMate },
+              side2,
+              pieces,
+              isFlipped
+            ),
             replies: []
           };
         });
         const pvReqId = "cdbpv_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
         let pvResolved = false;
         const onPvMessage = (e) => {
-          if (!e.data || e.data.type !== "ZIGA_CHESSDB_RESPONSE" || e.data.id !== pvReqId) return;
+          if (!e.data || e.data.type !== "ZIGA_CHESSDB_RESPONSE" || e.data.id !== pvReqId)
+            return;
           if (pvResolved) return;
           pvResolved = true;
           if (typeof window !== "undefined") {
@@ -47955,24 +48369,12 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               if (k === "pv") pvMoves = v.trim().split(/[|\s]+/);
             }
             if (pvMoves.length > 0 && formattedLines[0]) {
-              formattedLines[0].pv = pvMoves.map((mv) => uciToMove(mv, isFlipped)).filter(Boolean);
-              if (pvMoves[1]) {
-                const oppMv = uciToMove(pvMoves[1], isFlipped);
-                const ansMv = pvMoves[2] ? uciToMove(pvMoves[2], isFlipped) : null;
-                const step4Mv = pvMoves[3] ? uciToMove(pvMoves[3], isFlipped) : null;
-                const step5Mv = pvMoves[4] ? uciToMove(pvMoves[4], isFlipped) : null;
-                if (oppMv) {
-                  formattedLines[0].replies = [
-                    {
-                      ...oppMv,
-                      score: -formattedLines[0].score,
-                      answer: ansMv ? { ...ansMv, score: formattedLines[0].score } : null,
-                      step4: step4Mv ? { ...step4Mv, score: -formattedLines[0].score } : null,
-                      step5: step5Mv ? { ...step5Mv, score: formattedLines[0].score } : null
-                    }
-                  ];
-                }
-              }
+              const pvCoords = pvMoves.slice(0, 10).map((mv) => uciToMove(mv, isFlipped)).filter(Boolean);
+              formattedLines[0].pv = pvCoords;
+              formattedLines[0].replies = buildRepliesFromPvMoves(
+                pvCoords,
+                formattedLines[0].score
+              );
             }
           }
           finalizeCloudResult(depth);
@@ -47995,7 +48397,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               }
               finalizeCloudResult(30);
             }
-          }, 800);
+          }, 900);
         } else {
           finalizeCloudResult(30);
         }
@@ -48010,9 +48412,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             inCheck: isSideInCheck,
             depth,
             nodes: 5e7,
-            engineName: `Pikafish 17 NNUE (Cloud Depth ${depth})`,
+            engineName: `Pikafish NNUE (Cloud D${depth} \u2022 ${formattedLines.length} bi\u1EBFn)`,
             pikafishStatus: "cloud-nnue",
             score: topScore,
+            winrate: formattedLines[0]?.winrate ?? null,
             lines: formattedLines,
             threat: null,
             legalCount: formattedLines.length,
@@ -48031,7 +48434,9 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           "*"
         );
       } else if (typeof fetch === "function") {
-        fetch(`https://www.chessdb.cn/chessdb.php?action=queryall&board=${encodeURIComponent(fen)}`).then((r2) => r2.text()).then((txt) => {
+        fetch(
+          `https://www.chessdb.cn/chessdb.php?action=queryall&board=${encodeURIComponent(fen)}`
+        ).then((r2) => r2.text()).then((txt) => {
           clearTimeout(timer);
           processChessDbResponse(txt);
         }).catch((err) => {
@@ -48056,27 +48461,43 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
     function analyzeAsync(input, callback) {
       const currentId = ++activeRequestId;
       activeCallback = callback;
-      const timeMs = input.timeMs || 1500;
-      const maxDepth = input.maxDepth || 28;
+      const cfg = getPikafishConfig();
+      const requestedMultiPV = Math.max(
+        1,
+        Math.min(8, input.multiPV || cfg.multiPV || 5)
+      );
+      const timeMs = Math.max(
+        800,
+        Math.min(15e3, input.timeMs || cfg.thinkTimeMs || 3e3)
+      );
+      const maxDepth = Math.max(
+        12,
+        Math.min(60, input.maxDepth || cfg.maxDepth || 36)
+      );
+      const onProgress = typeof input.onProgress === "function" ? input.onProgress : null;
+      const isDeepThink = Boolean(input.isDeepThink);
       const side2 = input.side === 1 ? 1 : 0;
       const isFlipped = isBoardFlipped(input.pieces);
       if (input.isCoUp || isCoUpPosition(input.pieces, input.isCoUp)) {
         if (allowFallback) {
-          return getFallback().analyzeAsync(input, (err, res) => {
-            if (activeRequestId === currentId && typeof activeCallback === "function") {
-              const cb = activeCallback;
-              activeCallback = null;
-              if (err) {
-                cb(err);
-              } else {
-                cb(null, {
-                  ...res,
-                  engineName: "AN Grandmaster JS (C\u1EDD \xDAp Chuy\xEAn D\u1EE5ng)",
-                  pikafishStatus: "co-up-js"
-                });
+          return getFallback().analyzeAsync(
+            { ...input, multiPV: requestedMultiPV },
+            (err, res) => {
+              if (activeRequestId === currentId && typeof activeCallback === "function") {
+                const cb = activeCallback;
+                activeCallback = null;
+                if (err) {
+                  cb(err);
+                } else {
+                  cb(null, {
+                    ...res,
+                    engineName: "AN Grandmaster JS (C\u1EDD \xDAp Chuy\xEAn D\u1EE5ng)",
+                    pikafishStatus: "co-up-js"
+                  });
+                }
               }
             }
-          });
+          );
         }
       }
       let fen = input.fen;
@@ -48085,7 +48506,9 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       }
       if (!fen) {
         if (typeof callback === "function") {
-          callback(new Error("Pikafish analyze: Missing position (pieces or fen required)"));
+          callback(
+            new Error("Pikafish analyze: Missing position (pieces or fen required)")
+          );
         }
         return () => {
         };
@@ -48095,125 +48518,75 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         const isPikafishActive = socketReady && socket && socket.readyState === WebSocket.OPEN;
         if (!isPikafishActive) {
           let isCancelled = false;
-          const cancelChessDb = queryChessDbCloud(fen, side2, input.pieces, (cErr, cResult) => {
-            if (isCancelled) return;
-            if (!cErr && cResult && cResult.lines && cResult.lines.length > 0) {
-              if (activeRequestId === currentId && typeof activeCallback === "function") {
-                const cb = activeCallback;
-                activeCallback = null;
-                cb(null, cResult);
-              }
-              return;
-            }
-            if (allowFallback) {
-              const cancelFallback = getFallback().analyzeAsync(input, (err, res) => {
+          const cancelChessDb = queryChessDbCloud(
+            fen,
+            side2,
+            input.pieces,
+            (cErr, cResult) => {
+              if (isCancelled) return;
+              if (!cErr && cResult && cResult.lines && cResult.lines.length > 0) {
                 if (activeRequestId === currentId && typeof activeCallback === "function") {
                   const cb = activeCallback;
                   activeCallback = null;
-                  if (err) {
-                    cb(err);
-                  } else {
-                    const enriched = {
-                      ...res,
-                      engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
-                      pikafishStatus: "offline-fallback"
-                    };
-                    cb(null, enriched);
-                  }
+                  cb(null, cResult);
                 }
-              });
-              return cancelFallback;
-            } else if (typeof callback === "function") {
-              callback(new Error("Pikafish native bridge and ChessDB Cloud are offline"));
-            }
-          });
+                return;
+              }
+              if (allowFallback) {
+                const cancelFallback = getFallback().analyzeAsync(
+                  { ...input, multiPV: requestedMultiPV },
+                  (err, res) => {
+                    if (activeRequestId === currentId && typeof activeCallback === "function") {
+                      const cb = activeCallback;
+                      activeCallback = null;
+                      if (err) {
+                        cb(err);
+                      } else {
+                        cb(null, {
+                          ...res,
+                          engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
+                          pikafishStatus: "offline-fallback"
+                        });
+                      }
+                    }
+                  }
+                );
+                return cancelFallback;
+              } else if (typeof callback === "function") {
+                callback(
+                  new Error(
+                    "Pikafish native bridge and ChessDB Cloud are offline"
+                  )
+                );
+              }
+            },
+            requestedMultiPV
+          );
           return () => {
             isCancelled = true;
             if (typeof cancelChessDb === "function") cancelChessDb();
           };
         }
         let collectedLines = [];
-        let bestMove = null;
         let uciListener = null;
+        let lastProgressEmitTime = 0;
+        let lastProgressDepth = 0;
+        const searchStartTime = Date.now();
         const cleanup = () => {
           if (socket && uciListener) {
             socket.removeEventListener("message", uciListener);
             uciListener = null;
           }
         };
-        const hardTimeoutMs = Math.min(timeMs + 350, 2500);
-        let hardTimeout = setTimeout(() => {
-          if (activeRequestId === currentId && typeof activeCallback === "function") {
-            console.warn("[Pikafish Provider] Engine response timed out, switching to JS fallback");
-            cleanup();
-            if (allowFallback) {
-              getFallback().analyzeAsync(input, (err, res) => {
-                if (activeRequestId === currentId && typeof activeCallback === "function") {
-                  const cb = activeCallback;
-                  activeCallback = null;
-                  if (err) cb(err);
-                  else {
-                    cb(null, {
-                      ...res,
-                      engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
-                      pikafishStatus: "offline-fallback"
-                    });
-                  }
-                }
-              });
-            } else {
-              finalizePikafishResult();
-            }
-          }
-        }, hardTimeoutMs);
-        const searchStartTime = Date.now();
-        uciListener = (event) => {
-          if (activeRequestId !== currentId) return;
-          const text = typeof event.data === "string" ? event.data : "";
-          const lines = text.split("\n");
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (trimmed.startsWith("info ") && trimmed.includes("multipv ")) {
-              const parsed = parseUciInfo(trimmed);
-              if (parsed && parsed.multipv > 0) {
-                collectedLines[parsed.multipv - 1] = parsed;
-              }
-            } else if (trimmed.startsWith("bestmove ")) {
-              if (collectedLines.length === 0 && Date.now() - searchStartTime < 150) {
-                console.log("[Pikafish Provider] Ignored trailing bestmove from previous search");
-                continue;
-              }
-              const parts = trimmed.split(/\s+/);
-              bestMove = parts[1];
-              finalizePikafishResult();
-            }
-          }
-        };
-        socket.addEventListener("message", uciListener);
-        const goCommand = `position fen ${fen}
-go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
-`;
-        safeSend(goCommand);
-        const timer = setTimeout(() => {
-          if (activeRequestId === currentId) {
-            safeSend("stop\n");
-          }
-        }, timeMs + 100);
-        function finalizePikafishResult() {
-          clearTimeout(timer);
-          if (hardTimeout) {
-            clearTimeout(hardTimeout);
-            hardTimeout = null;
-          }
-          cleanup();
-          if (activeRequestId !== currentId || typeof activeCallback !== "function") return;
-          const cb = activeCallback;
-          activeCallback = null;
+        function buildFormattedResult(isProgressive = false) {
           const formattedLines = [];
-          for (const cl of collectedLines) {
+          for (let idx = 0; idx < requestedMultiPV; idx++) {
+            const cl = collectedLines[idx];
             if (!cl || !cl.pv || !cl.pv[0]) continue;
             const moveCoord = uciToMove(cl.pv[0], isFlipped);
             if (!moveCoord) continue;
+            const pvCoords = cl.pv.slice(0, 10).map((mv) => uciToMove(mv, isFlipped)).filter(Boolean);
+            const winrate = cl.wdl ? Math.round((cl.wdl.win + cl.wdl.draw * 0.5) / 10) : null;
             formattedLines.push({
               fromCol: moveCoord.fromCol,
               fromRow: moveCoord.fromRow,
@@ -48221,52 +48594,174 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
               toRow: moveCoord.toRow,
               score: cl.score,
               isMate: Boolean(cl.isMate || Math.abs(cl.score) >= 9500),
-              delivermate: Boolean(cl.isMate || Math.abs(cl.score) >= 9500),
-              exact: true,
-              pv: cl.pv.map((mv) => uciToMove(mv, isFlipped)).filter(Boolean),
-              tags: detectUciTacticalTags(cl, side2, input.pieces),
-              replies: cl.pv[1] ? [
-                {
-                  ...uciToMove(cl.pv[1], isFlipped),
-                  score: -cl.score,
-                  answer: cl.pv[2] ? { ...uciToMove(cl.pv[2], isFlipped), score: cl.score } : null,
-                  step4: cl.pv[3] ? { ...uciToMove(cl.pv[3], isFlipped), score: -cl.score } : null,
-                  step5: cl.pv[4] ? { ...uciToMove(cl.pv[4], isFlipped), score: cl.score } : null
-                }
-              ] : []
+              mateIn: cl.mateIn || null,
+              delivermate: Boolean(
+                cl.isMate && cl.score > 0 || cl.score >= 9500
+              ),
+              depth: cl.depth || 0,
+              wdl: cl.wdl || null,
+              winrate,
+              exact: !cl.isBound,
+              pv: pvCoords,
+              tags: detectUciTacticalTags(cl, side2, input.pieces, isFlipped),
+              replies: buildRepliesFromPvMoves(pvCoords, cl.score)
             });
           }
+          const primary = collectedLines[0] || formattedLines[0];
           const topScore = formattedLines[0] ? formattedLines[0].score : 0;
           const isSideInCheck = checkSideInCheck(input.pieces, side2);
-          const result = {
+          const hwLabel = bridgeMeta.threads > 0 && bridgeMeta.hashMb > 0 ? `${bridgeMeta.threads}T/${bridgeMeta.hashMb}M` : "WS: 8765";
+          return {
             side: side2,
             mated: Math.abs(topScore) > 9500,
             inCheck: isSideInCheck,
-            depth: collectedLines[0]?.depth || maxDepth,
-            nodes: collectedLines[0]?.nodes || 0,
-            engineName: "Pikafish NNUE (Native WS: 8765)",
+            depth: primary?.depth || 0,
+            seldepth: primary?.seldepth || 0,
+            nodes: primary?.nodes || 0,
+            nps: primary?.nps || 0,
+            hashfull: primary?.hashfull || 0,
+            wdl: formattedLines[0]?.wdl || null,
+            winrate: formattedLines[0]?.winrate ?? null,
+            engineName: `${bridgeMeta.engineName || "Pikafish NNUE"} (${hwLabel})`,
             pikafishStatus: "native-ws",
+            hardwareMeta: { ...bridgeMeta },
             score: topScore,
             lines: formattedLines,
             threat: null,
             legalCount: formattedLines.length,
-            ms: timeMs
+            ms: Date.now() - searchStartTime,
+            isProgressive,
+            isDeepThink
           };
-          if (formattedLines.length === 0 && allowFallback) {
-            console.warn("[Pikafish Provider] Pikafish returned 0 lines, seamlessly routing to JS Grandmaster engine");
-            getFallback().analyzeAsync(input, (fErr, fRes) => {
-              if (typeof cb === "function") {
-                if (fErr || !fRes) {
-                  cb(null, result);
-                } else {
-                  cb(null, {
-                    ...fRes,
-                    engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
-                    pikafishStatus: "offline-fallback"
-                  });
+        }
+        const hardTimeoutMs = timeMs + 1800;
+        let hardTimeout = setTimeout(() => {
+          if (activeRequestId === currentId && typeof activeCallback === "function") {
+            const hasAnyLines = collectedLines.some((l) => l && l.pv && l.pv[0]);
+            if (hasAnyLines) {
+              console.log(
+                "[Pikafish Provider] Hard timeout reached with valid lines, finalizing best collected result"
+              );
+              safeSend("stop\n");
+              finalizePikafishResult();
+            } else {
+              console.warn(
+                "[Pikafish Provider] Engine response timed out with 0 lines, switching to JS fallback"
+              );
+              cleanup();
+              if (allowFallback) {
+                getFallback().analyzeAsync(
+                  { ...input, multiPV: requestedMultiPV },
+                  (err, res) => {
+                    if (activeRequestId === currentId && typeof activeCallback === "function") {
+                      const cb = activeCallback;
+                      activeCallback = null;
+                      if (err) cb(err);
+                      else {
+                        cb(null, {
+                          ...res,
+                          engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
+                          pikafishStatus: "offline-fallback"
+                        });
+                      }
+                    }
+                  }
+                );
+              } else {
+                finalizePikafishResult();
+              }
+            }
+          }
+        }, hardTimeoutMs);
+        uciListener = (event) => {
+          if (activeRequestId !== currentId) return;
+          const text = typeof event.data === "string" ? event.data : "";
+          const lines = text.split(/\r?\n/);
+          let receivedValidInfo = false;
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith("info ") && trimmed.includes(" pv ")) {
+              const parsed = parseUciInfo(trimmed);
+              if (parsed && parsed.multipv > 0 && parsed.multipv <= requestedMultiPV) {
+                const slot = parsed.multipv - 1;
+                const prev = collectedLines[slot];
+                if (!prev || parsed.depth > prev.depth || !parsed.isBound || prev.isBound) {
+                  collectedLines[slot] = parsed;
+                  receivedValidInfo = true;
                 }
               }
-            });
+            } else if (trimmed.startsWith("bestmove ")) {
+              if (collectedLines.length === 0 && Date.now() - searchStartTime < 150) {
+                continue;
+              }
+              finalizePikafishResult();
+              return;
+            }
+          }
+          if (receivedValidInfo && onProgress && activeRequestId === currentId) {
+            const now = Date.now();
+            const topLine = collectedLines[0];
+            const topDepth = topLine?.depth || 0;
+            const elapsedSinceEmit = now - lastProgressEmitTime;
+            if (topLine && topDepth >= 8 && (elapsedSinceEmit >= 420 || topDepth >= lastProgressDepth + 3 && elapsedSinceEmit >= 200)) {
+              lastProgressEmitTime = now;
+              lastProgressDepth = topDepth;
+              try {
+                const partial = buildFormattedResult(true);
+                if (partial.lines.length > 0) {
+                  onProgress(partial);
+                }
+              } catch (e) {
+              }
+            }
+          }
+        };
+        socket.addEventListener("message", uciListener);
+        const preCmds = [];
+        if (lastSentMultiPV !== requestedMultiPV) {
+          preCmds.push(`setoption name MultiPV value ${requestedMultiPV}`);
+          lastSentMultiPV = requestedMultiPV;
+        }
+        preCmds.push(`position fen ${fen}`);
+        preCmds.push(`go movetime ${Math.min(timeMs, 15e3)} depth ${maxDepth}`);
+        safeSend(preCmds.join("\n") + "\n");
+        const timer = setTimeout(() => {
+          if (activeRequestId === currentId) {
+            safeSend("stop\n");
+          }
+        }, timeMs + 150);
+        function finalizePikafishResult() {
+          clearTimeout(timer);
+          if (hardTimeout) {
+            clearTimeout(hardTimeout);
+            hardTimeout = null;
+          }
+          cleanup();
+          if (activeRequestId !== currentId || typeof activeCallback !== "function")
+            return;
+          const cb = activeCallback;
+          activeCallback = null;
+          const result = buildFormattedResult(false);
+          if (result.lines.length === 0 && allowFallback) {
+            console.warn(
+              "[Pikafish Provider] Pikafish returned 0 lines, seamlessly routing to JS Grandmaster engine"
+            );
+            getFallback().analyzeAsync(
+              { ...input, multiPV: requestedMultiPV },
+              (fErr, fRes) => {
+                if (typeof cb === "function") {
+                  if (fErr || !fRes) {
+                    cb(null, result);
+                  } else {
+                    cb(null, {
+                      ...fRes,
+                      engineName: "AN Grandmaster JS (Engine D\u1EF1 Ph\xF2ng)",
+                      pikafishStatus: "offline-fallback"
+                    });
+                  }
+                }
+              }
+            );
             return;
           }
           cb(null, result);
@@ -48337,55 +48832,63 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       name,
       analyzeAsync,
       quickEvaluate,
+      applyConfig,
+      getConfig: getPikafishConfig,
       dispose,
       ensureSocket,
       reconnect: () => ensureSocket(true),
-      getTransportStatus: () => {
-        if (socketReady && socket && socket.readyState === WebSocket.OPEN) {
-          return {
-            type: "native-ws",
-            label: "WS: 8765",
-            statusText: "WS Native (8765)",
-            color: "emerald"
-          };
-        }
-        return {
-          type: "cloud-nnue",
-          label: "Cloud D30+",
-          statusText: "Cloud NNUE (D30+)",
-          color: "cyan"
-        };
-      },
+      getTransportStatus,
       isAvailable: () => true
-      // Available via Cloud Pikafish NNUE or Native UCI Bridge
     };
   }
   function parseUciInfo(line) {
     const parts = line.trim().split(/\s+/);
     const data = {
       depth: 0,
+      seldepth: 0,
       multipv: 1,
       score: 0,
       isMate: false,
+      mateIn: null,
+      isBound: false,
+      wdl: null,
       nodes: 0,
       nps: 0,
+      hashfull: 0,
       pv: []
     };
     for (let i = 0; i < parts.length; i++) {
       const token = parts[i];
-      if (token === "depth") data.depth = parseInt(parts[++i], 10);
-      else if (token === "multipv") data.multipv = parseInt(parts[++i], 10);
+      if (token === "depth") data.depth = parseInt(parts[++i], 10) || 0;
+      else if (token === "seldepth")
+        data.seldepth = parseInt(parts[++i], 10) || 0;
+      else if (token === "multipv")
+        data.multipv = parseInt(parts[++i], 10) || 1;
       else if (token === "score") {
         const type = parts[++i];
-        const val = parseInt(parts[++i], 10);
+        const val = parseInt(parts[++i], 10) || 0;
         if (type === "cp") {
           data.score = val;
         } else if (type === "mate") {
           data.isMate = true;
+          data.mateIn = val;
           data.score = val > 0 ? 1e4 - val * 2 : -1e4 - val * 2;
         }
-      } else if (token === "nodes") data.nodes = parseInt(parts[++i], 10);
-      else if (token === "nps") data.nps = parseInt(parts[++i], 10);
+        if (parts[i + 1] === "lowerbound" || parts[i + 1] === "upperbound") {
+          data.isBound = true;
+          i++;
+        }
+      } else if (token === "wdl") {
+        const w = parseInt(parts[++i], 10);
+        const d = parseInt(parts[++i], 10);
+        const l = parseInt(parts[++i], 10);
+        if (!isNaN(w) && !isNaN(d) && !isNaN(l)) {
+          data.wdl = { win: w, draw: d, loss: l };
+        }
+      } else if (token === "nodes") data.nodes = parseInt(parts[++i], 10) || 0;
+      else if (token === "nps") data.nps = parseInt(parts[++i], 10) || 0;
+      else if (token === "hashfull")
+        data.hashfull = parseInt(parts[++i], 10) || 0;
       else if (token === "pv") {
         data.pv = parts.slice(i + 1);
         break;
@@ -48393,14 +48896,16 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
     }
     return data;
   }
-  function detectUciTacticalTags(uciData, side2, pieces) {
+  function detectUciTacticalTags(uciData, side2, pieces, isFlipped = false) {
     const tags = [];
     if (uciData.isMate) tags.push("checks");
     const firstMove = uciData.pv[0];
     if (!firstMove) return tags;
-    const mv = uciToMove(firstMove);
+    const mv = uciToMove(firstMove, isFlipped);
     if (!mv || !pieces) return tags;
-    const targetPiece = pieces.find((p) => p.col === mv.toCol && p.row === mv.toRow);
+    const targetPiece = pieces.find(
+      (p) => p.col === mv.toCol && p.row === mv.toRow
+    );
     if (targetPiece) {
       tags.push("capture");
       if (targetPiece.type === 1 || targetPiece.type === 2) {
@@ -48408,7 +48913,9 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       }
     }
     if (mv.toCol === 4) {
-      const movingPiece = pieces.find((p) => p.col === mv.fromCol && p.row === mv.fromRow);
+      const movingPiece = pieces.find(
+        (p) => p.col === mv.fromCol && p.row === mv.fromRow
+      );
       if (movingPiece && movingPiece.type === 4) {
         tags.push("central-cannon");
       }
@@ -49703,6 +50210,27 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           }
         }
         const plans = [];
+        const applySimMove = (boardArr, fromCol, fromRow, toCol, toRow, sideCol) => {
+          if (!Array.isArray(boardArr) || fromCol == null || fromRow == null || toCol == null || toRow == null) {
+            return boardArr;
+          }
+          return boardArr.filter(
+            (p) => !(p.col === toCol && p.row === toRow && p.color !== sideCol)
+          ).map(
+            (p) => p.col === fromCol && p.row === fromRow && p.color === sideCol ? { ...p, col: toCol, row: toRow } : { ...p }
+          );
+        };
+        const formatPlanScoreText = (sc, isMateFlag, mateInVal) => {
+          if (isMateFlag || Math.abs(sc) >= 9e3) {
+            const steps = mateInVal && Math.abs(mateInVal) > 0 ? Math.abs(mateInVal) : Math.max(
+              1,
+              Math.ceil((1e4 - Math.min(Math.abs(sc), 9999)) / 2)
+            );
+            return sc >= 0 ? `S\xE1t ${steps}` : `B\u1ECB s\xE1t ${steps}`;
+          }
+          const pts = (sc / 100).toFixed(1);
+          return sc > 0 ? `+${pts}` : `${pts}`;
+        };
         (searchRes.lines || []).forEach((line, idx) => {
           const movingPiece = pieces.find(
             (p) => p.col === line.fromCol && p.row === line.fromRow && p.color === movingColor
@@ -49770,8 +50298,16 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
               );
             }
           }
+          const boardAfterStep1 = applySimMove(
+            pieces,
+            line.fromCol,
+            line.fromRow,
+            line.toCol,
+            line.toRow,
+            movingColor
+          );
           const variations = rawReplies.map((rep, rIdx) => {
-            const oppPiece = pieces.find(
+            const oppPiece = boardAfterStep1.find(
               (p) => p.col === rep.fromCol && p.row === rep.fromRow && p.color === oppColor
             ) || {
               col: rep.fromCol,
@@ -49781,11 +50317,19 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
               name: "Qu\xE2n \u0111\u1ECBch",
               short: "Q"
             };
-            const oppTarget = rep.toCol === line.toCol && rep.toRow === line.toRow ? movingPiece : pieces.find(
+            const oppTarget = boardAfterStep1.find(
               (p) => p.col === rep.toCol && p.row === rep.toRow && p.color === myColor
             );
             const oppNot = getXiangqiNotation(
               oppPiece,
+              rep.fromCol,
+              rep.fromRow,
+              rep.toCol,
+              rep.toRow,
+              oppColor
+            );
+            const boardAfterStep2 = applySimMove(
+              boardAfterStep1,
               rep.fromCol,
               rep.fromRow,
               rep.toCol,
@@ -49814,7 +50358,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             let ansNot = null;
             let ansWhy = "";
             if (rep.answer) {
-              const ansPiece = pieces.find(
+              const ansPiece = boardAfterStep2.find(
                 (p) => p.col === rep.answer.fromCol && p.row === rep.answer.fromRow && p.color === myColor
               );
               if (ansPiece) {
@@ -49826,7 +50370,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                   rep.answer.toRow,
                   myColor
                 );
-                const ansTarget = pieces.find(
+                const ansTarget = boardAfterStep2.find(
                   (p) => p.col === rep.answer.toCol && p.row === rep.answer.toRow && p.color === oppColor
                 );
                 const ansTCol = myColor === 0 ? 9 - rep.answer.toCol : rep.answer.toCol + 1;
@@ -49902,101 +50446,114 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             line.score
           ) : null;
           const roadmap = [];
-          roadmap.push({
-            step: 1,
-            side: movingColor,
-            label: "1. Ta \u0111i",
-            piece: movingPiece,
-            fromCol: line.fromCol,
-            fromRow: line.fromRow,
-            toCol: line.toCol,
-            toRow: line.toRow,
-            notation,
-            why: desc.why
-          });
           const rep0 = variations[0];
-          if (rep0 && rep0.fromCol != null && rep0.toCol != null) {
-            roadmap.push({
-              step: 2,
-              side: oppColor,
-              label: "2. \u0110\u1ECBch \u0111\xE1p",
-              piece: rep0.oppPiece,
-              fromCol: rep0.fromCol,
-              fromRow: rep0.fromRow,
-              toCol: rep0.toCol,
-              toRow: rep0.toRow,
-              notation: rep0.oppNotation,
-              why: rep0.oppWhy
+          const pvSequence = [];
+          if (Array.isArray(line.pv) && line.pv.length >= 2) {
+            for (let s = 0; s < Math.min(8, line.pv.length); s++) {
+              const mv = line.pv[s];
+              if (mv && mv.fromCol != null && mv.toCol != null) {
+                pvSequence.push(mv);
+              }
+            }
+          } else {
+            pvSequence.push({
+              fromCol: line.fromCol,
+              fromRow: line.fromRow,
+              toCol: line.toCol,
+              toRow: line.toRow
             });
-            if (rep0.answer && rep0.answer.fromCol != null && rep0.answer.toCol != null) {
-              const ansPiece = pieces.find(
-                (p) => p.col === rep0.answer.fromCol && p.row === rep0.answer.fromRow && p.color === myColor
-              );
-              roadmap.push({
-                step: 3,
-                side: myColor,
-                label: "3. Ta b\u1ED3i",
-                piece: ansPiece,
-                fromCol: rep0.answer.fromCol,
-                fromRow: rep0.answer.fromRow,
-                toCol: rep0.answer.toCol,
-                toRow: rep0.answer.toRow,
-                notation: rep0.answer.notation,
-                why: rep0.answer.why
+            if (rep0 && rep0.fromCol != null && rep0.toCol != null) {
+              pvSequence.push({
+                fromCol: rep0.fromCol,
+                fromRow: rep0.fromRow,
+                toCol: rep0.toCol,
+                toRow: rep0.toRow
               });
-              const st4 = rep0.step4;
-              if (st4 && st4.fromCol != null && st4.toCol != null) {
-                const p4 = pieces.find(
-                  (p) => p.col === st4.fromCol && p.row === st4.fromRow && p.color === oppColor
-                );
-                const not4 = p4 ? getXiangqiNotation(
-                  p4,
-                  st4.fromCol,
-                  st4.fromRow,
-                  st4.toCol,
-                  st4.toRow,
-                  oppColor
-                ) : { short: "\u0110\u1ECBch \u0111i", full: "N\u01B0\u1EDBc ph\xF2ng th\u1EE7 c\u1EE7a \u0111\u1ECBch" };
-                roadmap.push({
-                  step: 4,
-                  side: oppColor,
-                  label: "4. \u0110\u1ECBch \u0111\u1EE1",
-                  piece: p4,
-                  fromCol: st4.fromCol,
-                  fromRow: st4.fromRow,
-                  toCol: st4.toCol,
-                  toRow: st4.toRow,
-                  notation: not4,
-                  why: "\u0110\u1ECBch g\u1EAFng g\u01B0\u1EE3ng xoay s\u1EDF ch\u1ED1ng \u0111\u1EE1 tr\u01B0\u1EDBc v\xF2ng v\xE2y."
-                });
-                const st5 = rep0.step5;
-                if (st5 && st5.fromCol != null && st5.toCol != null) {
-                  const p5 = pieces.find(
-                    (p) => p.col === st5.fromCol && p.row === st5.fromRow && p.color === myColor
-                  );
-                  const not5 = p5 ? getXiangqiNotation(
-                    p5,
-                    st5.fromCol,
-                    st5.fromRow,
-                    st5.toCol,
-                    st5.toRow,
-                    myColor
-                  ) : { short: "D\u1EE9t \u0111i\u1EC3m", full: "N\u01B0\u1EDBc \u0111o\u1EA1t th\u1EBF quy\u1EBFt \u0111\u1ECBnh" };
-                  roadmap.push({
-                    step: 5,
-                    side: myColor,
-                    label: "5. D\u1EE9t \u0111i\u1EC3m",
-                    piece: p5,
-                    fromCol: st5.fromCol,
-                    fromRow: st5.fromRow,
-                    toCol: st5.toCol,
-                    toRow: st5.toRow,
-                    notation: not5,
-                    why: "Gi\xE1ng \u0111\xF2n d\u1EE9t \u0111i\u1EC3m \u0111o\u1EA1t th\u1EAFng l\u1EE3i quy\u1EBFt \u0111\u1ECBnh tr\u1EADn \u0111\u1EA5u!"
-                  });
+              if (rep0.answer && rep0.answer.fromCol != null) {
+                pvSequence.push(rep0.answer);
+                if (rep0.step4 && rep0.step4.fromCol != null) {
+                  pvSequence.push(rep0.step4);
+                  if (rep0.step5 && rep0.step5.fromCol != null) {
+                    pvSequence.push(rep0.step5);
+                  }
                 }
               }
             }
+          }
+          const STEP_LABELS = [
+            "1. Ta \u0111i",
+            "2. \u0110\u1ECBch \u0111\xE1p",
+            "3. Ta b\u1ED3i",
+            "4. \u0110\u1ECBch \u0111\u1EE1",
+            "5. D\u1EE9t \u0111i\u1EC3m",
+            "6. \u0110\u1ECBch ch\u1ED1ng",
+            "7. \xC1p s\xE1t",
+            "8. \u0110\u1ECBch th\u1EE7"
+          ];
+          let simBoard = pieces.map((p) => ({ ...p }));
+          for (let sIdx = 0; sIdx < pvSequence.length; sIdx++) {
+            const mv = pvSequence[sIdx];
+            const stepNum = sIdx + 1;
+            const stepSide = sIdx % 2 === 0 ? movingColor : oppColor;
+            const stepPiece = simBoard.find(
+              (p) => p.col === mv.fromCol && p.row === mv.fromRow && p.color === stepSide
+            );
+            const stepTarget = simBoard.find(
+              (p) => p.col === mv.toCol && p.row === mv.toRow && p.color !== stepSide
+            );
+            let stepNot = null;
+            let stepWhy = "";
+            if (sIdx === 0) {
+              stepNot = notation;
+              stepWhy = desc.why;
+            } else if (sIdx === 1 && rep0 && rep0.oppNotation) {
+              stepNot = rep0.oppNotation;
+              stepWhy = rep0.oppWhy;
+            } else if (sIdx === 2 && rep0 && rep0.answer && rep0.answer.notation) {
+              stepNot = rep0.answer.notation;
+              stepWhy = rep0.answer.why;
+            } else if (stepPiece) {
+              stepNot = getXiangqiNotation(
+                stepPiece,
+                mv.fromCol,
+                mv.fromRow,
+                mv.toCol,
+                mv.toRow,
+                stepSide
+              );
+              const tCol = stepSide === 0 ? 9 - mv.toCol : mv.toCol + 1;
+              if (stepSide === movingColor) {
+                stepWhy = stepTarget ? `Ta ti\u1EBFp t\u1EE5c ch\xE9m ${stepTarget.name} L\u1ED9 ${tCol}, kho\xE9t s\xE2u \u01B0u th\u1EBF!` : stepNum >= 5 ? `\u0110\u1EA9y m\u1EA1nh m\u0169i ti\u1EBFn c\xF4ng ${stepNot.short}, si\u1EBFt ch\u1EB7t th\u1EBF th\u1EAFng quy\u1EBFt \u0111\u1ECBnh!` : `\u0110i\u1EC1u ${stepPiece.name} t\u1EDBi L\u1ED9 ${tCol} duy tr\xEC s\u1EE9c \xE9p li\xEAn ho\xE0n.`;
+              } else {
+                stepWhy = stepTarget ? `\u0110\u1ECBch ph\u1EA3n c\xF4ng \u0103n ${stepTarget.name} L\u1ED9 ${tCol} \u0111\u1EC3 gi\u1EA3m t\u1EA3i \xE1p l\u1EF1c.` : `\u0110\u1ECBch xoay s\u1EDF \u0111i\u1EC1u ${stepPiece.name} ch\u1ED1ng \u0111\u1EE1 tr\u01B0\u1EDBc v\xF2ng v\xE2y.`;
+              }
+            } else {
+              stepNot = {
+                short: stepSide === movingColor ? `Ta \u0111i #${stepNum}` : `\u0110\u1ECBch \u0111i #${stepNum}`,
+                full: stepSide === movingColor ? "N\u01B0\u1EDBc c\u1EDD li\xEAn ho\xE0n c\u1EE7a ta" : "N\u01B0\u1EDBc ph\xF2ng th\u1EE7 c\u1EE7a \u0111\u1ECBch"
+              };
+              stepWhy = stepSide === movingColor ? "Duy tr\xEC nh\u1ECBp ti\u1EBFn c\xF4ng theo bi\u1EBFn ch\xEDnh Pikafish." : "\u0110\u1ECBch ch\u1ED1ng \u0111\u1EE1 theo bi\u1EBFn ch\xEDnh Pikafish.";
+            }
+            roadmap.push({
+              step: stepNum,
+              side: stepSide,
+              label: STEP_LABELS[sIdx] || `${stepNum}. ${stepSide === movingColor ? "Ta" : "\u0110\u1ECBch"}`,
+              piece: stepPiece || null,
+              fromCol: mv.fromCol,
+              fromRow: mv.fromRow,
+              toCol: mv.toCol,
+              toRow: mv.toRow,
+              notation: stepNot,
+              why: stepWhy
+            });
+            simBoard = applySimMove(
+              simBoard,
+              mv.fromCol,
+              mv.fromRow,
+              mv.toCol,
+              mv.toRow,
+              stepSide
+            );
           }
           let prepText = "";
           const firstRep = rep0 || variations[0];
@@ -50008,8 +50565,18 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             }
           }
           const planWhy = prepText ? `${desc.why} (${prepText})` : desc.why;
-          const planType = idx === 0 ? "attack" : idx === 1 ? "defend" : "maneuver";
-          const planBadge = mateMotif ? "Tuy\u1EC7t S\xE1t" : idx === 0 ? "T\u1ED1i \u01AFu" : idx === 1 ? "Ch\u1EAFc Ch\u1EAFn" : "\u0110\u1ED9t Ph\xE1";
+          const PLAN_BADGES = [
+            "T\u1ED1i \u01AFu",
+            "Ch\u1EAFc Ch\u1EAFn",
+            "\u0110\u1ED9t Ph\xE1",
+            "Bi\u1EBFn H\xF3a",
+            "D\u1EF1 Ph\xF2ng",
+            "Khai Ph\xE1",
+            "S\xE1ng T\u1EA1o",
+            "Ki\u1EC1m Ch\u1EBF"
+          ];
+          const planType = idx === 0 ? "attack" : idx === 1 ? "defend" : idx % 2 === 0 ? "attack" : "maneuver";
+          const planBadge = mateMotif ? "Tuy\u1EC7t S\xE1t" : PLAN_BADGES[idx] || `Bi\u1EBFn #${idx + 1}`;
           const planTags = line.tags && line.tags.length > 0 ? [...line.tags] : desc.tag ? [desc.tag] : [];
           if (mateMotif && !planTags.includes(mateMotif.tag)) {
             planTags.unshift(mateMotif.tag);
@@ -50026,6 +50593,14 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             tags: planTags,
             why: planWhy,
             score: line.score,
+            scoreText: formatPlanScoreText(
+              line.score || 0,
+              Boolean(line.isMate || isForcedMate),
+              line.mateIn
+            ),
+            wdl: line.wdl || null,
+            winrate: line.winrate ?? null,
+            depth: line.depth || searchRes.depth || 0,
             piece: movingPiece,
             fromCol: line.fromCol,
             fromRow: line.fromRow,
@@ -50261,8 +50836,15 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           mateThreat,
           plans,
           inCheck,
-          depth: searchRes.depth,
-          nodes: searchRes.nodes,
+          depth: searchRes.depth || 0,
+          seldepth: searchRes.seldepth || 0,
+          nodes: searchRes.nodes || 0,
+          nps: searchRes.nps || 0,
+          wdl: searchRes.wdl || plans[0]?.wdl || null,
+          winrate: searchRes.winrate ?? plans[0]?.winrate ?? null,
+          hardwareMeta: searchRes.hardwareMeta || null,
+          isProgressive: Boolean(searchRes.isProgressive),
+          isDeepThink: Boolean(searchRes.isDeepThink),
           openingName: openingInfo ? openingInfo.name : searchRes.openingName || null,
           openingInfo,
           evalBreakdown: searchRes.evalBreakdown || null,
@@ -50278,12 +50860,13 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         return null;
       }
     }
-    function triggerDeepAnalysis(gameData, pieces) {
+    function triggerDeepAnalysis(gameData, pieces, extraOptions = {}) {
       if (!gameData || !pieces || pieces.length === 0) return;
       const myColor = gameData.myColor;
       const activeColor = gameData.gameLayer && gameData.gameLayer.Yc !== void 0 ? gameData.gameLayer.Yc : myColor;
       const isMyTurn = activeColor === myColor;
-      if (!isMyTurn) {
+      const isDeepThink = Boolean(extraOptions.isDeepThink);
+      if (!isMyTurn && !isDeepThink) {
         if (cancelWorkerSearch) {
           cancelWorkerSearch();
           cancelWorkerSearch = null;
@@ -50297,21 +50880,68 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
       }
       if (cachedAnalysis && mentorSetter) {
         cachedAnalysis.searchStartTime = Date.now();
-        mentorSetter({ ...cachedAnalysis, isSearching: true });
+        mentorSetter(
+          { ...cachedAnalysis, isSearching: true, isDeepThink },
+          { preserveSelection: true }
+        );
       }
       const isCoUp = Boolean(
         window.ZigaMod && window.ZigaMod.isCoUpGame && gameData && gameData.gameLayer && window.ZigaMod.isCoUpGame(gameData.gameLayer)
       );
+      const pikaCfg = window.ZigaMod && window.ZigaMod.userSettings && window.ZigaMod.userSettings.pikafishConfig || {};
+      const configuredMultiPV = Math.max(
+        3,
+        Math.min(8, parseInt(pikaCfg.multiPV, 10) || 5)
+      );
+      const configuredTimeMs = Math.max(
+        1200,
+        Math.min(12e3, parseInt(pikaCfg.thinkTimeMs, 10) || 3e3)
+      );
+      const configuredMaxDepth = Math.max(
+        20,
+        Math.min(54, parseInt(pikaCfg.maxDepth, 10) || 36)
+      );
+      const effectiveTimeMs = activeProviderId2 === "pikafish" ? isDeepThink ? Math.max(8e3, configuredTimeMs) : configuredTimeMs : isDeepThink ? 2e3 : 800;
+      const effectiveMaxDepth = activeProviderId2 === "pikafish" ? isDeepThink ? Math.max(44, configuredMaxDepth) : configuredMaxDepth : isDeepThink ? 14 : 12;
       const sideToAnalyze = myColor;
       const provider = getEngineProvider(activeProviderId2);
+      let hasStreamedAtLeastOnce = false;
       cancelWorkerSearch = provider.analyzeAsync(
         {
           pieces,
           side: sideToAnalyze,
-          maxDepth: activeProviderId2 === "pikafish" ? 28 : 12,
-          timeMs: activeProviderId2 === "pikafish" ? 1500 : 800,
-          multiPV: 3,
-          isCoUp
+          maxDepth: effectiveMaxDepth,
+          timeMs: effectiveTimeMs,
+          multiPV: configuredMultiPV,
+          isCoUp,
+          isDeepThink,
+          onProgress: (partialRes) => {
+            try {
+              if (lastAnalysisHash !== currentHash) return;
+              if (!partialRes || !partialRes.lines || partialRes.lines.length === 0)
+                return;
+              const progAnalysis = buildTacticalAnalysis(
+                partialRes,
+                gameData,
+                pieces
+              );
+              if (!progAnalysis || !progAnalysis.plans || progAnalysis.plans.length === 0)
+                return;
+              progAnalysis.isSearching = true;
+              progAnalysis.isProgressive = true;
+              progAnalysis.isDeepThink = isDeepThink;
+              progAnalysis.isQuickOnly = false;
+              const preserve = hasStreamedAtLeastOnce || isDeepThink;
+              hasStreamedAtLeastOnce = true;
+              cachedAnalysis = progAnalysis;
+              ZigaMod.lastEngineAnalysis = progAnalysis;
+              updateMentorHudCardText(progAnalysis);
+              if (mentorSetter) {
+                mentorSetter(progAnalysis, { preserveSelection: preserve });
+              }
+            } catch (e) {
+            }
+          }
         },
         (err, searchRes) => {
           cancelWorkerSearch = null;
@@ -50327,7 +50957,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                   side: sideToAnalyze,
                   maxDepth: 5,
                   timeMs: 250,
-                  multiPV: 3
+                  multiPV: configuredMultiPV
                 });
                 if (fbRes && !fbRes.error) {
                   const fbDeep = buildTacticalAnalysis(fbRes, gameData, pieces);
@@ -50357,7 +50987,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                   side: sideToAnalyze,
                   maxDepth: 5,
                   timeMs: 250,
-                  multiPV: 3
+                  multiPV: configuredMultiPV
                 });
                 if (fbRes && !fbRes.error) {
                   deepAnalysis = buildTacticalAnalysis(fbRes, gameData, pieces);
@@ -50369,12 +50999,16 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
               return;
             }
             deepAnalysis.isSearching = false;
+            deepAnalysis.isProgressive = false;
+            deepAnalysis.isDeepThink = isDeepThink;
             deepAnalysis.isQuickOnly = false;
             cachedAnalysis = deepAnalysis;
             ZigaMod.lastEngineAnalysis = deepAnalysis;
             updateMentorHudCardText(deepAnalysis);
             if (mentorSetter) {
-              mentorSetter(deepAnalysis);
+              mentorSetter(deepAnalysis, {
+                preserveSelection: hasStreamedAtLeastOnce || isDeepThink
+              });
             }
             if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
               renderMentorFloatingContent(deepAnalysis);
@@ -50388,7 +51022,10 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             if (cachedAnalysis && cachedAnalysis.isSearching) {
               cachedAnalysis.isSearching = false;
               if (mentorSetter) {
-                mentorSetter({ ...cachedAnalysis });
+                mentorSetter(
+                  { ...cachedAnalysis },
+                  { preserveSelection: true }
+                );
               }
             }
           }
@@ -50489,6 +51126,21 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             "isClimaxMove"
           );
         }
+        if (activeStep >= 6 && Array.isArray(activePlan?.roadmap)) {
+          for (let s = 6; s <= Math.min(activeStep, activePlan.roadmap.length); s++) {
+            const rm = activePlan.roadmap[s - 1];
+            if (rm) {
+              applyMove(
+                rm.fromCol,
+                rm.fromRow,
+                rm.toCol,
+                rm.toRow,
+                s % 2 === 1 ? myColor : oppColor,
+                s % 2 === 1 ? "isClimaxMove" : "isOppStep4"
+              );
+            }
+          }
+        }
         return current;
       }, [pieces, activePlan, activeVariation, activeStep, myColor]);
       const getSquarePos = (col, row) => {
@@ -50564,6 +51216,20 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             marker = "url(#clean-arrow-emerald)";
             dashed = false;
           }
+        } else if (activeStep >= 6) {
+          const rm = activePlan?.roadmap?.[activeStep - 1];
+          if (rm) {
+            move = {
+              fromCol: rm.fromCol,
+              fromRow: rm.fromRow,
+              toCol: rm.toCol,
+              toRow: rm.toRow
+            };
+            const isMyStep = activeStep % 2 === 1;
+            color = isMyStep ? "#10b981" : "#fb923c";
+            marker = isMyStep ? "url(#clean-arrow-emerald)" : "url(#clean-arrow-orange)";
+            dashed = !isMyStep;
+          }
         }
         if (!move || move.fromCol == null || move.toCol == null || move.fromRow == null || move.toRow == null) {
           return null;
@@ -50600,6 +51266,10 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           const st5 = activeVariation?.step5 || activePlan?.roadmap?.[4];
           return st5 ? getSquarePos(st5.toCol, st5.toRow) : null;
         }
+        if (activeStep >= 6) {
+          const rm = activePlan?.roadmap?.[activeStep - 1];
+          return rm ? getSquarePos(rm.toCol, rm.toRow) : null;
+        }
         return null;
       }, [activePlan, activeVariation, activeStep, myColor]);
       const originRingPos = (0, import_react15.useMemo)(() => {
@@ -50620,6 +51290,10 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         if (activeStep === 5) {
           const st5 = activeVariation?.step5 || activePlan?.roadmap?.[4];
           return st5 ? getSquarePos(st5.fromCol, st5.fromRow) : null;
+        }
+        if (activeStep >= 6) {
+          const rm = activePlan?.roadmap?.[activeStep - 1];
+          return rm ? getSquarePos(rm.fromCol, rm.fromRow) : null;
         }
         return null;
       }, [activePlan, activeVariation, activeStep, myColor]);
@@ -51056,6 +51730,28 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             }
           )
         ] }),
+        activePlan?.roadmap && activePlan.roadmap.length > 5 && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "grid grid-cols-3 gap-1", children: activePlan.roadmap.slice(5, 8).map((rm) => {
+          const isMyStep = rm.step % 2 === 1;
+          return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+            Button3,
+            {
+              variant: "ghost",
+              size: "xs",
+              className: cn(
+                "flex h-5.5 items-center justify-center gap-0.5 rounded-md border px-1 text-[8.5px] font-medium transition-all",
+                activeStep === rm.step ? isMyStep ? "border-emerald-400/60 bg-emerald-500/20 font-bold text-emerald-300 shadow-xs" : "border-orange-400/60 bg-orange-500/20 font-bold text-orange-300 shadow-xs" : "border-white/10 bg-white/4 text-zinc-300 hover:bg-white/10 hover:text-white"
+              ),
+              onClick: () => setActiveStep(rm.step),
+              title: `${rm.label}: ${rm.notation?.full || rm.notation?.short || ""}`,
+              children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { children: [
+                rm.step,
+                ". ",
+                rm.notation?.short || (isMyStep ? "Ta" : "\u0110\u1ECBch")
+              ] })
+            },
+            rm.step
+          );
+        }) }),
         /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-h-4.75 items-center rounded border border-white/6 bg-white/3 px-1.5 py-0.5 text-[9.5px] leading-tight", children: [
           (activeStep === 0 || !activePlan) && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground font-medium", children: "B\xE0n c\u1EDD th\u1EF1c t\u1EBF hi\u1EC7n t\u1EA1i" }),
           activeStep === 1 && activePlan && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "truncate font-semibold text-cyan-400", children: [
@@ -51098,7 +51794,22 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
             "\u2014",
             " ",
             activePlan?.roadmap?.[4]?.why || "Gi\xE1ng \u0111\xF2n \u0111o\u1EA1t th\u1EAFng l\u1EE3i quy\u1EBFt \u0111\u1ECBnh!"
-          ] })
+          ] }),
+          activeStep >= 6 && activePlan?.roadmap?.[activeStep - 1] && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+            "span",
+            {
+              className: `truncate font-semibold ${activeStep % 2 === 1 ? "text-emerald-400" : "text-orange-400"}`,
+              children: [
+                activePlan.roadmap[activeStep - 1].label,
+                ":",
+                " ",
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: activePlan.roadmap[activeStep - 1].notation?.short || "" }),
+                " ",
+                "\u2014 ",
+                activePlan.roadmap[activeStep - 1].why
+              ]
+            }
+          )
         ] })
       ] });
     }
@@ -51372,9 +52083,19 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         const handleStatusChange = (e) => {
           setLiveTransport(e.detail || getEngineTransportStatus());
         };
+        const handleConfigChange = () => {
+          if (lastKnownGameData) {
+            const pcs = getBoardState(lastKnownGameData.gameLayer);
+            if (pcs) triggerDeepAnalysis(lastKnownGameData, pcs);
+          }
+        };
         window.addEventListener(
           "ZIGA_PIKAFISH_STATUS_CHANGE",
           handleStatusChange
+        );
+        window.addEventListener(
+          "ZIGA_PIKAFISH_CONFIG_CHANGE",
+          handleConfigChange
         );
         const pollTimer = setInterval(() => {
           setLiveTransport(getEngineTransportStatus());
@@ -51383,6 +52104,10 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
           window.removeEventListener(
             "ZIGA_PIKAFISH_STATUS_CHANGE",
             handleStatusChange
+          );
+          window.removeEventListener(
+            "ZIGA_PIKAFISH_CONFIG_CHANGE",
+            handleConfigChange
           );
           clearInterval(pollTimer);
         };
@@ -51395,6 +52120,14 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         if (lastKnownGameData) {
           const pcs = getBoardState(lastKnownGameData.gameLayer);
           if (pcs) triggerDeepAnalysis(lastKnownGameData, pcs);
+        }
+      };
+      const handleDeepThink = () => {
+        if (lastKnownGameData) {
+          const pcs = getBoardState(lastKnownGameData.gameLayer);
+          if (pcs) {
+            triggerDeepAnalysis(lastKnownGameData, pcs, { isDeepThink: true });
+          }
         }
       };
       const [isCompact, setIsCompact] = (0, import_react15.useState)(() => {
@@ -51413,12 +52146,14 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
         }
         return true;
       });
-      mentorSetter = (nextAnalysis) => {
+      mentorSetter = (nextAnalysis, opts = {}) => {
         if (nextAnalysis) {
           setAnalysis(nextAnalysis);
-          setSelectedPlanIdx(0);
-          setActiveVariationIdx(0);
-          setActiveStep(1);
+          if (!opts || !opts.preserveSelection) {
+            setSelectedPlanIdx(0);
+            setActiveVariationIdx(0);
+            setActiveStep(1);
+          }
         }
       };
       const activePlan = analysis?.plans?.[selectedPlanIdx] || analysis?.plans?.[0] || null;
@@ -51543,10 +52278,10 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                                     setLiveTransport(getEngineTransportStatus());
                                   }, 150);
                                 },
-                                title: "\u{1F7E2} WS Native: 8765 \u0111ang k\u1EBFt n\u1ED1i tr\u1EF1c ti\u1EBFp (Hardcore Mode). B\u1EA5m \u0111\u1EC3 ping/k\u1EBFt n\u1ED1i l\u1EA1i.",
+                                title: `\u{1F7E2} ${liveTransport.statusText || "Pikafish WS Native Pro"} \u0111ang k\u1EBFt n\u1ED1i tr\u1EF1c ti\u1EBFp. B\u1EA5m \u0111\u1EC3 ping/k\u1EBFt n\u1ED1i l\u1EA1i.`,
                                 children: [
                                   /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 animate-pulse rounded-full bg-emerald-400 text-nowrap shadow-[0_0_6px_rgba(52,211,153,0.9)]" }),
-                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: "WS: 8765" })
+                                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: liveTransport.label || "WS Pro" })
                                 ]
                               }
                             );
@@ -51599,12 +52334,38 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                             ]
                           }
                         );
-                      })()
+                      })(),
+                      (analysis.depth > 0 || analysis.isSearching) && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                        "span",
+                        {
+                          className: `inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[8.5px] font-semibold whitespace-nowrap ${analysis.isSearching ? "border-amber-400/40 bg-amber-500/15 text-amber-300" : "border-white/10 bg-white/5 text-slate-300"}`,
+                          title: `\u0110\u1ED9 s\xE2u: Depth ${analysis.depth || "?"}${analysis.nps ? ` \u2022 T\u1ED1c \u0111\u1ED9: ${(analysis.nps / 1e6).toFixed(2)}M nodes/s` : ""}${analysis.wdl ? ` \u2022 WDL: ${(analysis.wdl.win / 10).toFixed(0)}% Th\u1EAFng / ${(analysis.wdl.draw / 10).toFixed(0)}% H\xF2a / ${(analysis.wdl.loss / 10).toFixed(0)}% Thua` : ""}`,
+                          children: [
+                            analysis.isSearching && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 animate-ping rounded-full bg-amber-400" }),
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { children: [
+                              "D",
+                              analysis.depth || "...",
+                              analysis.winrate != null && (!window.ZigaMod?.userSettings?.pikafishConfig || window.ZigaMod.userSettings.pikafishConfig.showWdl !== false) ? ` \u2022 ${Math.round(analysis.winrate)}%` : ""
+                            ] })
+                          ]
+                        }
+                      )
                     ] })
                   ] })
                 ] })
               ] }),
               /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex shrink-0 items-center gap-1.5 pl-1.5", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                  Button3,
+                  {
+                    variant: "ghost",
+                    size: "icon-xs",
+                    onClick: handleDeepThink,
+                    title: "\u{1F525} T\xEDnh S\xE2u (Deep Think 8s / Depth 44): D\u1ED3n to\xE0n l\u1EF1c Pikafish t\xECm s\xE1t c\u1EE5c & bi\u1EBFn s\xE2u nh\u1EA5t cho th\u1EBF c\u1EDD hi\u1EC7n t\u1EA1i!",
+                    className: `size-6.5 rounded-lg border transition-all ${analysis.isSearching && analysis.isDeepThink ? "animate-pulse border-orange-400/70 bg-orange-500/25 text-orange-300 shadow-[0_0_10px_rgba(249,115,22,0.45)]" : "border-orange-500/35 bg-orange-500/10 text-orange-400 hover:border-orange-400/60 hover:bg-orange-500/20"}`,
+                    children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Flame, { className: "size-3.5" })
+                  }
+                ),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                   Button3,
                   {
@@ -51913,9 +52674,20 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                                   ]
                                 }
                               ),
-                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-primary font-mono text-[11.5px] font-bold", children: p.shortNotation })
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-primary font-mono text-[11.5px] font-bold", children: p.shortNotation }),
+                              p.scoreText && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                                "span",
+                                {
+                                  className: `rounded border px-1 py-0 font-mono text-[9px] font-bold ${(p.score || 0) >= 50 ? "border-emerald-500/35 bg-emerald-500/15 text-emerald-300" : (p.score || 0) <= -50 ? "border-rose-500/35 bg-rose-500/15 text-rose-300" : "border-white/10 bg-white/5 text-slate-300"}`,
+                                  title: p.wdl ? `Th\u1EAFng ${(p.wdl.win / 10).toFixed(0)}% \u2022 H\xF2a ${(p.wdl.draw / 10).toFixed(0)}% \u2022 Thua ${(p.wdl.loss / 10).toFixed(0)}%` : `\u0110i\u1EC3m \u0111\xE1nh gi\xE1: ${p.scoreText}`,
+                                  children: [
+                                    p.scoreText,
+                                    p.winrate != null && (!window.ZigaMod?.userSettings?.pikafishConfig || window.ZigaMod.userSettings.pikafishConfig.showWdl !== false) ? ` \xB7 ${Math.round(p.winrate)}%` : ""
+                                  ]
+                                }
+                              )
                             ] }),
-                            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground text-[11px] font-bold", children: p.name.split("\xB7")[1] || p.name })
+                            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-foreground truncate text-[11px] font-bold", children: p.name.split("\xB7")[1] || p.name })
                           ] }),
                           p.tags && p.tags.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex flex-wrap items-center gap-1", children: p.tags.map((t, tIdx) => {
                             const badgeProps = getTacticalBadgeProps(t);
@@ -51996,9 +52768,13 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                               /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "shrink-0 font-bold", children: "3. K\u1EBFt c\u1EE5c:" }),
                               /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "leading-tight", children: "\u0110\u1ED1i th\u1EE7 l\xE2m v\xE0o th\u1EBF c\xF9ng l\u1EF1c ki\u1EC7t." })
                             ] }),
-                            p.roadmap && p.roadmap.length >= 4 && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "mt-0.5 flex flex-col gap-1 border-t border-white/5 pt-1.5", children: [
-                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "text-muted-foreground text-[9px] font-semibold", children: "L\u1ED9 tr\xECnh t\xE1c chi\u1EBFn 5 b\u01B0\u1EDBc:" }),
-                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex items-center gap-1 overflow-x-auto pb-0.5", children: p.roadmap.map((rm, rmIdx) => /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                            p.roadmap && p.roadmap.length >= 3 && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "mt-0.5 flex flex-col gap-1 border-t border-white/5 pt-1.5", children: [
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "text-muted-foreground text-[9px] font-semibold", children: [
+                                "L\u1ED9 tr\xECnh t\xE1c chi\u1EBFn ",
+                                p.roadmap.length,
+                                " b\u01B0\u1EDBc:"
+                              ] }),
+                              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex flex-wrap items-center gap-1 pb-0.5", children: p.roadmap.map((rm, rmIdx) => /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                                 "button",
                                 {
                                   type: "button",
@@ -52008,13 +52784,7 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
                                     setActiveStep(rm.step);
                                   },
                                   className: `shrink-0 rounded border px-1.5 py-0.5 text-[8.5px] font-semibold transition-all ${activeStep === rm.step ? "border-cyan-400 bg-cyan-500/20 text-cyan-300 shadow-sm" : "text-muted-foreground hover:text-foreground border-white/10 bg-white/3 hover:border-white/20"}`,
-                                  children: [
-                                    rm.step === 1 && `1. Ta: ${rm.notation?.short || "\u0110i"}`,
-                                    rm.step === 2 && `2. \u0110\u1ECBch: ${rm.notation?.short || "\u0110\xE1p"}`,
-                                    rm.step === 3 && `3. B\u1ED3i: ${rm.notation?.short || "B\u1ED3i"}`,
-                                    rm.step === 4 && `4. \u0110\u1EE1: ${rm.notation?.short || "\u0110\u1EE1"}`,
-                                    rm.step === 5 && `5. S\xE1t: ${rm.notation?.short || "S\xE1t"}`
-                                  ]
+                                  children: `${rm.step}. ${rm.step % 2 === 1 ? "Ta" : "\u0110\u1ECBch"}: ${rm.notation?.short || "\u0110i"}`
                                 },
                                 rmIdx
                               )) })
@@ -52628,8 +53398,8 @@ go movetime ${Math.min(timeMs, 2e3)} depth ${maxDepth}
   var manifest_default = {
     manifest_version: 3,
     name: "C\xF4ng c\u1EE5 C\u1EDD T\u01B0\u1EDBng",
-    version: "0.0.3.556",
-    version_name: "0.0.3.202611250916",
+    version: "0.0.3.913",
+    version_name: "0.0.3.202611251513",
     description: "Hi\u1EC3n th\u1ECB qu\xE2n \u0111\xE3 b\u1ECB \u0103n & highlight t\u1EA7m \u0111\xE1nh",
     icons: {
       "16": "icons/icon16.png",
@@ -56063,6 +56833,7 @@ lucide-react/dist/esm/icons/equal.mjs:
 lucide-react/dist/esm/icons/external-link.mjs:
 lucide-react/dist/esm/icons/eye.mjs:
 lucide-react/dist/esm/icons/fish.mjs:
+lucide-react/dist/esm/icons/flame.mjs:
 lucide-react/dist/esm/icons/graduation-cap.mjs:
 lucide-react/dist/esm/icons/image.mjs:
 lucide-react/dist/esm/icons/layers.mjs:

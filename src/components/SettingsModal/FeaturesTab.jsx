@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Swords, BarChart3, Wrench, Sparkles, Search } from "lucide-react";
+import {
+  Swords,
+  BarChart3,
+  Wrench,
+  Sparkles,
+  Search,
+  Cpu,
+  Flame,
+} from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -240,7 +248,30 @@ export function FeaturesTab({ draft, updateDraft }) {
     updateDraft(RECOMMENDED_SETTINGS);
   };
 
+  const pikaCfg = {
+    multiPV: 5,
+    thinkTimeMs: 3000,
+    maxDepth: 36,
+    threads: 0,
+    hashMb: 0,
+    showWdl: true,
+    ...(draft.pikafishConfig || {}),
+  };
+
+  const updatePika = (patch) => {
+    updateDraft({ pikafishConfig: { ...pikaCfg, ...patch } });
+  };
+
   const q = searchQuery.toLowerCase().trim();
+  const showPikaCard =
+    !q ||
+    "pikafish nnue ai multi pv depth hash threads wdl lời giải động cơ".includes(
+      q,
+    ) ||
+    q.includes("pika") ||
+    q.includes("ai") ||
+    q.includes("cpu") ||
+    q.includes("ram");
 
   return (
     <div className="flex flex-col gap-3.5">
@@ -250,7 +281,7 @@ export function FeaturesTab({ draft, updateDraft }) {
           <Search className="text-muted-foreground absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Tìm kiếm tính năng (tầm đánh, aura, cờ úp, giọng nói...)..."
+            placeholder="Tìm kiếm tính năng (tầm đánh, aura, pikafish, cờ úp, giọng nói...)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="border-input/60 bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary w-full rounded-md border py-1.5 pr-3 pl-8 text-xs focus:ring-1 focus:outline-none"
@@ -267,6 +298,208 @@ export function FeaturesTab({ draft, updateDraft }) {
           <span>Bật Bộ Khuyên Dùng</span>
         </Button>
       </div>
+
+      {/* Pikafish NNUE Pro Engine Tuning Card */}
+      {showPikaCard && (
+        <Card
+          size="sm"
+          className="border-amber-500/35 bg-gradient-to-br from-amber-500/8 via-transparent to-cyan-500/5"
+        >
+          <CardHeader className="pb-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Flame className="size-4 text-amber-400" />
+                <span>Động Cơ Pikafish NNUE Pro (Đa Lời Giải & Độ Sâu)</span>
+              </CardTitle>
+              <Badge
+                variant="secondary"
+                className="border border-amber-400/30 bg-amber-500/15 text-[10.5px] font-semibold text-amber-300"
+              >
+                {pikaCfg.multiPV} Lời Giải • {(pikaCfg.thinkTimeMs / 1000).toFixed(1)}s • D{pikaCfg.maxDepth}
+              </Badge>
+            </div>
+            <CardDescription className="text-xs">
+              Tinh chỉnh số phương án (MultiPV), thời gian tính, số luồng CPU và bộ nhớ Hash để Pikafish giải nhiều nước biến và sâu hơn.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {/* MultiPV Selector */}
+            <div className="border-border/60 bg-muted/20 flex flex-col gap-1.5 rounded-lg border p-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-xs font-semibold">
+                  Số lời giải song song (MultiPV)
+                </span>
+                <span className="font-mono text-[11px] font-bold text-cyan-400">
+                  {pikaCfg.multiPV} phương án
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {[3, 4, 5, 6, 8].map((val) => (
+                  <Button
+                    key={val}
+                    type="button"
+                    size="xs"
+                    variant={pikaCfg.multiPV === val ? "default" : "outline"}
+                    onClick={() => updatePika({ multiPV: val })}
+                    className="h-6 flex-1 text-[11px] font-semibold"
+                  >
+                    {val} biến
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Think Time Selector */}
+            <div className="border-border/60 bg-muted/20 flex flex-col gap-1.5 rounded-lg border p-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-xs font-semibold">
+                  Thời gian suy nghĩ mỗi nước
+                </span>
+                <span className="font-mono text-[11px] font-bold text-amber-400">
+                  {(pikaCfg.thinkTimeMs / 1000).toFixed(1)}s
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {[
+                  { ms: 1500, label: "1.5s Nhanh" },
+                  { ms: 3000, label: "3s Chuẩn" },
+                  { ms: 5000, label: "5s Sâu" },
+                  { ms: 8000, label: "8s Đại Sư" },
+                ].map((opt) => (
+                  <Button
+                    key={opt.ms}
+                    type="button"
+                    size="xs"
+                    variant={
+                      pikaCfg.thinkTimeMs === opt.ms ? "default" : "outline"
+                    }
+                    onClick={() => updatePika({ thinkTimeMs: opt.ms })}
+                    className="h-6 flex-1 text-[10.5px] font-semibold"
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* CPU Threads Selector */}
+            <div className="border-border/60 bg-muted/20 flex flex-col gap-1.5 rounded-lg border p-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground flex items-center gap-1 text-xs font-semibold">
+                  <Cpu className="size-3.5 text-cyan-400" />
+                  <span>Số luồng CPU (Threads)</span>
+                </span>
+                <span className="font-mono text-[11px] font-bold text-emerald-400">
+                  {pikaCfg.threads === 0 ? "Tự động" : `${pikaCfg.threads}T`}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {[
+                  { val: 0, label: "Tự động" },
+                  { val: 4, label: "4T" },
+                  { val: 6, label: "6T" },
+                  { val: 8, label: "8T" },
+                  { val: 12, label: "12T" },
+                ].map((opt) => (
+                  <Button
+                    key={opt.val}
+                    type="button"
+                    size="xs"
+                    variant={
+                      pikaCfg.threads === opt.val ? "default" : "outline"
+                    }
+                    onClick={() => updatePika({ threads: opt.val })}
+                    className="h-6 flex-1 text-[10.5px] font-semibold"
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Hash Memory Selector */}
+            <div className="border-border/60 bg-muted/20 flex flex-col gap-1.5 rounded-lg border p-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-xs font-semibold">
+                  Bộ nhớ đệm thế cờ (Hash RAM)
+                </span>
+                <span className="font-mono text-[11px] font-bold text-emerald-400">
+                  {pikaCfg.hashMb === 0 ? "Tự động" : `${pikaCfg.hashMb}MB`}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {[
+                  { val: 0, label: "Tự động" },
+                  { val: 256, label: "256M" },
+                  { val: 512, label: "512M" },
+                  { val: 1024, label: "1GB" },
+                ].map((opt) => (
+                  <Button
+                    key={opt.val}
+                    type="button"
+                    size="xs"
+                    variant={pikaCfg.hashMb === opt.val ? "default" : "outline"}
+                    onClick={() => updatePika({ hashMb: opt.val })}
+                    className="h-6 flex-1 text-[10.5px] font-semibold"
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Max Depth + WDL Row */}
+            <div className="border-border/60 bg-muted/20 flex flex-col gap-1.5 rounded-lg border p-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-xs font-semibold">
+                  Giới hạn độ sâu tối đa (Max Depth)
+                </span>
+                <span className="font-mono text-[11px] font-bold text-cyan-400">
+                  Depth {pikaCfg.maxDepth}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {[28, 36, 44, 54].map((d) => (
+                  <Button
+                    key={d}
+                    type="button"
+                    size="xs"
+                    variant={pikaCfg.maxDepth === d ? "default" : "outline"}
+                    onClick={() => updatePika({ maxDepth: d })}
+                    className="h-6 flex-1 text-[10.5px] font-semibold"
+                  >
+                    D{d}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <Label
+              htmlFor="ziga-opt-pika-wdl"
+              className={cn(
+                "flex cursor-pointer items-center justify-between gap-3 rounded-lg border p-2.5 font-normal transition-all",
+                pikaCfg.showWdl
+                  ? "border-primary/40 bg-accent/40"
+                  : "border-border/60 bg-muted/20 hover:bg-accent/30",
+              )}
+            >
+              <div className="flex flex-col gap-0.5">
+                <span className="text-foreground text-xs font-semibold">
+                  Xác suất Thắng / Hòa / Thua (WDL)
+                </span>
+                <span className="text-muted-foreground text-[11px]">
+                  Hiển thị % tỷ lệ thắng trực tiếp từ mạng thần kinh NNUE
+                </span>
+              </div>
+              <Switch
+                id="ziga-opt-pika-wdl"
+                checked={!!pikaCfg.showWdl}
+                onCheckedChange={(val) => updatePika({ showWdl: val })}
+              />
+            </Label>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Categories Grid */}
       <div className="grid grid-cols-1 gap-3.5 lg:grid-cols-2">

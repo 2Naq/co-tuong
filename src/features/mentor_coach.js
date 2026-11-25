@@ -42,6 +42,7 @@ import {
   Equal,
   Cpu,
   Fish,
+  Flame,
 } from "lucide-react";
 import {
   PIECE_DEFS,
@@ -1634,6 +1635,43 @@ import {
 
       const plans = [];
 
+      // Helper to clone and apply one move on a piece array so deep PV steps (3..8) find moved pieces accurately
+      const applySimMove = (boardArr, fromCol, fromRow, toCol, toRow, sideCol) => {
+        if (
+          !Array.isArray(boardArr) ||
+          fromCol == null ||
+          fromRow == null ||
+          toCol == null ||
+          toRow == null
+        ) {
+          return boardArr;
+        }
+        return boardArr
+          .filter(
+            (p) => !(p.col === toCol && p.row === toRow && p.color !== sideCol),
+          )
+          .map((p) =>
+            p.col === fromCol && p.row === fromRow && p.color === sideCol
+              ? { ...p, col: toCol, row: toRow }
+              : { ...p },
+          );
+      };
+
+      const formatPlanScoreText = (sc, isMateFlag, mateInVal) => {
+        if (isMateFlag || Math.abs(sc) >= 9000) {
+          const steps =
+            mateInVal && Math.abs(mateInVal) > 0
+              ? Math.abs(mateInVal)
+              : Math.max(
+                  1,
+                  Math.ceil((10000 - Math.min(Math.abs(sc), 9999)) / 2),
+                );
+          return sc >= 0 ? `Sát ${steps}` : `Bị sát ${steps}`;
+        }
+        const pts = (sc / 100).toFixed(1);
+        return sc > 0 ? `+${pts}` : `${pts}`;
+      };
+
       (searchRes.lines || []).forEach((line, idx) => {
         const movingPiece = pieces.find(
           (p) =>
@@ -1732,8 +1770,17 @@ import {
           }
         }
 
+        const boardAfterStep1 = applySimMove(
+          pieces,
+          line.fromCol,
+          line.fromRow,
+          line.toCol,
+          line.toRow,
+          movingColor,
+        );
+
         const variations = rawReplies.map((rep, rIdx) => {
-          const oppPiece = pieces.find(
+          const oppPiece = boardAfterStep1.find(
             (p) =>
               p.col === rep.fromCol &&
               p.row === rep.fromRow &&
@@ -1747,18 +1794,24 @@ import {
             short: "Q",
           };
 
-          const oppTarget =
-            rep.toCol === line.toCol && rep.toRow === line.toRow
-              ? movingPiece
-              : pieces.find(
-                  (p) =>
-                    p.col === rep.toCol &&
-                    p.row === rep.toRow &&
-                    p.color === myColor,
-                );
+          const oppTarget = boardAfterStep1.find(
+            (p) =>
+              p.col === rep.toCol &&
+              p.row === rep.toRow &&
+              p.color === myColor,
+          );
 
           const oppNot = getXiangqiNotation(
             oppPiece,
+            rep.fromCol,
+            rep.fromRow,
+            rep.toCol,
+            rep.toRow,
+            oppColor,
+          );
+
+          const boardAfterStep2 = applySimMove(
+            boardAfterStep1,
             rep.fromCol,
             rep.fromRow,
             rep.toCol,
@@ -1786,11 +1839,11 @@ import {
             oppWhy = `Điều quân phản ứng củng cố trận địa.`;
           }
 
-          // Follow-up answer from friendly side
+          // Follow-up answer from friendly side (simulated on boardAfterStep2!)
           let ansNot = null;
           let ansWhy = "";
           if (rep.answer) {
-            const ansPiece = pieces.find(
+            const ansPiece = boardAfterStep2.find(
               (p) =>
                 p.col === rep.answer.fromCol &&
                 p.row === rep.answer.fromRow &&
@@ -1805,7 +1858,7 @@ import {
                 rep.answer.toRow,
                 myColor,
               );
-              const ansTarget = pieces.find(
+              const ansTarget = boardAfterStep2.find(
                 (p) =>
                   p.col === rep.answer.toCol &&
                   p.row === rep.answer.toRow &&
@@ -1900,129 +1953,141 @@ import {
             )
           : null;
 
-        // Build 5-step interactive tactical roadmap from PV / responses
+        // Build up to 8-step interactive tactical roadmap by accurately simulating the board at each ply!
         const roadmap = [];
-        // 1. Ta đi
-        roadmap.push({
-          step: 1,
-          side: movingColor,
-          label: "1. Ta đi",
-          piece: movingPiece,
-          fromCol: line.fromCol,
-          fromRow: line.fromRow,
-          toCol: line.toCol,
-          toRow: line.toRow,
-          notation: notation,
-          why: desc.why,
-        });
-
-        // 2. Địch đáp
         const rep0 = variations[0];
-        if (rep0 && rep0.fromCol != null && rep0.toCol != null) {
-          roadmap.push({
-            step: 2,
-            side: oppColor,
-            label: "2. Địch đáp",
-            piece: rep0.oppPiece,
-            fromCol: rep0.fromCol,
-            fromRow: rep0.fromRow,
-            toCol: rep0.toCol,
-            toRow: rep0.toRow,
-            notation: rep0.oppNotation,
-            why: rep0.oppWhy,
+        const pvSequence = [];
+
+        if (Array.isArray(line.pv) && line.pv.length >= 2) {
+          for (let s = 0; s < Math.min(8, line.pv.length); s++) {
+            const mv = line.pv[s];
+            if (mv && mv.fromCol != null && mv.toCol != null) {
+              pvSequence.push(mv);
+            }
+          }
+        } else {
+          pvSequence.push({
+            fromCol: line.fromCol,
+            fromRow: line.fromRow,
+            toCol: line.toCol,
+            toRow: line.toRow,
           });
-
-          // 3. Ta bồi
-          if (
-            rep0.answer &&
-            rep0.answer.fromCol != null &&
-            rep0.answer.toCol != null
-          ) {
-            const ansPiece = pieces.find(
-              (p) =>
-                p.col === rep0.answer.fromCol &&
-                p.row === rep0.answer.fromRow &&
-                p.color === myColor,
-            );
-            roadmap.push({
-              step: 3,
-              side: myColor,
-              label: "3. Ta bồi",
-              piece: ansPiece,
-              fromCol: rep0.answer.fromCol,
-              fromRow: rep0.answer.fromRow,
-              toCol: rep0.answer.toCol,
-              toRow: rep0.answer.toRow,
-              notation: rep0.answer.notation,
-              why: rep0.answer.why,
+          if (rep0 && rep0.fromCol != null && rep0.toCol != null) {
+            pvSequence.push({
+              fromCol: rep0.fromCol,
+              fromRow: rep0.fromRow,
+              toCol: rep0.toCol,
+              toRow: rep0.toRow,
             });
-
-            // 4. Địch đỡ
-            const st4 = rep0.step4;
-            if (st4 && st4.fromCol != null && st4.toCol != null) {
-              const p4 = pieces.find(
-                (p) =>
-                  p.col === st4.fromCol &&
-                  p.row === st4.fromRow &&
-                  p.color === oppColor,
-              );
-              const not4 = p4
-                ? getXiangqiNotation(
-                    p4,
-                    st4.fromCol,
-                    st4.fromRow,
-                    st4.toCol,
-                    st4.toRow,
-                    oppColor,
-                  )
-                : { short: "Địch đi", full: "Nước phòng thủ của địch" };
-              roadmap.push({
-                step: 4,
-                side: oppColor,
-                label: "4. Địch đỡ",
-                piece: p4,
-                fromCol: st4.fromCol,
-                fromRow: st4.fromRow,
-                toCol: st4.toCol,
-                toRow: st4.toRow,
-                notation: not4,
-                why: "Địch gắng gượng xoay sở chống đỡ trước vòng vây.",
-              });
-
-              // 5. Ta dứt điểm / đoạt thế
-              const st5 = rep0.step5;
-              if (st5 && st5.fromCol != null && st5.toCol != null) {
-                const p5 = pieces.find(
-                  (p) =>
-                    p.col === st5.fromCol &&
-                    p.row === st5.fromRow &&
-                    p.color === myColor,
-                );
-                const not5 = p5
-                  ? getXiangqiNotation(
-                      p5,
-                      st5.fromCol,
-                      st5.fromRow,
-                      st5.toCol,
-                      st5.toRow,
-                      myColor,
-                    )
-                  : { short: "Dứt điểm", full: "Nước đoạt thế quyết định" };
-                roadmap.push({
-                  step: 5,
-                  side: myColor,
-                  label: "5. Dứt điểm",
-                  piece: p5,
-                  fromCol: st5.fromCol,
-                  fromRow: st5.fromRow,
-                  toCol: st5.toCol,
-                  toRow: st5.toRow,
-                  notation: not5,
-                  why: "Giáng đòn dứt điểm đoạt thắng lợi quyết định trận đấu!",
-                });
+            if (rep0.answer && rep0.answer.fromCol != null) {
+              pvSequence.push(rep0.answer);
+              if (rep0.step4 && rep0.step4.fromCol != null) {
+                pvSequence.push(rep0.step4);
+                if (rep0.step5 && rep0.step5.fromCol != null) {
+                  pvSequence.push(rep0.step5);
+                }
               }
             }
           }
+        }
+
+        const STEP_LABELS = [
+          "1. Ta đi",
+          "2. Địch đáp",
+          "3. Ta bồi",
+          "4. Địch đỡ",
+          "5. Dứt điểm",
+          "6. Địch chống",
+          "7. Áp sát",
+          "8. Địch thủ",
+        ];
+
+        let simBoard = pieces.map((p) => ({ ...p }));
+        for (let sIdx = 0; sIdx < pvSequence.length; sIdx++) {
+          const mv = pvSequence[sIdx];
+          const stepNum = sIdx + 1;
+          const stepSide = sIdx % 2 === 0 ? movingColor : oppColor;
+          const stepPiece = simBoard.find(
+            (p) =>
+              p.col === mv.fromCol &&
+              p.row === mv.fromRow &&
+              p.color === stepSide,
+          );
+          const stepTarget = simBoard.find(
+            (p) =>
+              p.col === mv.toCol &&
+              p.row === mv.toRow &&
+              p.color !== stepSide,
+          );
+
+          let stepNot = null;
+          let stepWhy = "";
+
+          if (sIdx === 0) {
+            stepNot = notation;
+            stepWhy = desc.why;
+          } else if (sIdx === 1 && rep0 && rep0.oppNotation) {
+            stepNot = rep0.oppNotation;
+            stepWhy = rep0.oppWhy;
+          } else if (sIdx === 2 && rep0 && rep0.answer && rep0.answer.notation) {
+            stepNot = rep0.answer.notation;
+            stepWhy = rep0.answer.why;
+          } else if (stepPiece) {
+            stepNot = getXiangqiNotation(
+              stepPiece,
+              mv.fromCol,
+              mv.fromRow,
+              mv.toCol,
+              mv.toRow,
+              stepSide,
+            );
+            const tCol = stepSide === 0 ? 9 - mv.toCol : mv.toCol + 1;
+            if (stepSide === movingColor) {
+              stepWhy = stepTarget
+                ? `Ta tiếp tục chém ${stepTarget.name} Lộ ${tCol}, khoét sâu ưu thế!`
+                : stepNum >= 5
+                  ? `Đẩy mạnh mũi tiến công ${stepNot.short}, siết chặt thế thắng quyết định!`
+                  : `Điều ${stepPiece.name} tới Lộ ${tCol} duy trì sức ép liên hoàn.`;
+            } else {
+              stepWhy = stepTarget
+                ? `Địch phản công ăn ${stepTarget.name} Lộ ${tCol} để giảm tải áp lực.`
+                : `Địch xoay sở điều ${stepPiece.name} chống đỡ trước vòng vây.`;
+            }
+          } else {
+            stepNot = {
+              short: stepSide === movingColor ? `Ta đi #${stepNum}` : `Địch đi #${stepNum}`,
+              full:
+                stepSide === movingColor
+                  ? "Nước cờ liên hoàn của ta"
+                  : "Nước phòng thủ của địch",
+            };
+            stepWhy =
+              stepSide === movingColor
+                ? "Duy trì nhịp tiến công theo biến chính Pikafish."
+                : "Địch chống đỡ theo biến chính Pikafish.";
+          }
+
+          roadmap.push({
+            step: stepNum,
+            side: stepSide,
+            label: STEP_LABELS[sIdx] || `${stepNum}. ${stepSide === movingColor ? "Ta" : "Địch"}`,
+            piece: stepPiece || null,
+            fromCol: mv.fromCol,
+            fromRow: mv.fromRow,
+            toCol: mv.toCol,
+            toRow: mv.toRow,
+            notation: stepNot,
+            why: stepWhy,
+          });
+
+          simBoard = applySimMove(
+            simBoard,
+            mv.fromCol,
+            mv.fromRow,
+            mv.toCol,
+            mv.toRow,
+            stepSide,
+          );
         }
 
         // Dynamic strategic preparation linking Step 1 to Step 2 and Step 3
@@ -2042,15 +2107,27 @@ import {
 
         const planWhy = prepText ? `${desc.why} (${prepText})` : desc.why;
 
+        const PLAN_BADGES = [
+          "Tối Ưu",
+          "Chắc Chắn",
+          "Đột Phá",
+          "Biến Hóa",
+          "Dự Phòng",
+          "Khai Phá",
+          "Sáng Tạo",
+          "Kiềm Chế",
+        ];
         const planType =
-          idx === 0 ? "attack" : idx === 1 ? "defend" : "maneuver";
+          idx === 0
+            ? "attack"
+            : idx === 1
+              ? "defend"
+              : idx % 2 === 0
+                ? "attack"
+                : "maneuver";
         const planBadge = mateMotif
           ? "Tuyệt Sát"
-          : idx === 0
-            ? "Tối Ưu"
-            : idx === 1
-              ? "Chắc Chắn"
-              : "Đột Phá";
+          : PLAN_BADGES[idx] || `Biến #${idx + 1}`;
 
         const planTags =
           line.tags && line.tags.length > 0
@@ -2076,6 +2153,14 @@ import {
           tags: planTags,
           why: planWhy,
           score: line.score,
+          scoreText: formatPlanScoreText(
+            line.score || 0,
+            Boolean(line.isMate || isForcedMate),
+            line.mateIn,
+          ),
+          wdl: line.wdl || null,
+          winrate: line.winrate ?? null,
+          depth: line.depth || searchRes.depth || 0,
           piece: movingPiece,
           fromCol: line.fromCol,
           fromRow: line.fromRow,
@@ -2368,8 +2453,15 @@ import {
         mateThreat,
         plans,
         inCheck: inCheck,
-        depth: searchRes.depth,
-        nodes: searchRes.nodes,
+        depth: searchRes.depth || 0,
+        seldepth: searchRes.seldepth || 0,
+        nodes: searchRes.nodes || 0,
+        nps: searchRes.nps || 0,
+        wdl: searchRes.wdl || plans[0]?.wdl || null,
+        winrate: searchRes.winrate ?? plans[0]?.winrate ?? null,
+        hardwareMeta: searchRes.hardwareMeta || null,
+        isProgressive: Boolean(searchRes.isProgressive),
+        isDeepThink: Boolean(searchRes.isDeepThink),
         openingName: openingInfo
           ? openingInfo.name
           : searchRes.openingName || null,
@@ -2398,8 +2490,8 @@ import {
     }
   }
 
-  // Asynchronous Deep Engine Search via Dedicated Background Web Worker (Zero UI Lag)
-  function triggerDeepAnalysis(gameData, pieces) {
+  // Asynchronous Deep Engine Search via Dedicated Background Web Worker / Pikafish Pro Streaming
+  function triggerDeepAnalysis(gameData, pieces, extraOptions = {}) {
     if (!gameData || !pieces || pieces.length === 0) return;
     const myColor = gameData.myColor;
     const activeColor =
@@ -2407,12 +2499,12 @@ import {
         ? gameData.gameLayer.Yc
         : myColor;
     const isMyTurn = activeColor === myColor;
+    const isDeepThink = Boolean(extraOptions.isDeepThink);
 
     // QUY TẮC BẮT BUỘC: Kỳ Đạo Sư là Cố Vấn Tối Cao cho Người Chơi (Ta)!
     // Khi đang trong lượt của đối thủ (địch đang suy nghĩ trên bàn thật),
-    // TUYỆT ĐỐI KHÔNG search biến cờ của địch để đè vào danh sách kế sách của người chơi!
-    // Tránh tình trạng hiển thị "1. Ta đi" bằng quân địch khiến bàn cờ nhỏ và tính toán bị loạn.
-    if (!isMyTurn) {
+    // TUYỆT ĐỐI KHÔNG search biến cờ của địch (trừ khi user chủ động bấm Deep Think).
+    if (!isMyTurn && !isDeepThink) {
       if (cancelWorkerSearch) {
         cancelWorkerSearch();
         cancelWorkerSearch = null;
@@ -2429,7 +2521,10 @@ import {
 
     if (cachedAnalysis && mentorSetter) {
       cachedAnalysis.searchStartTime = Date.now();
-      mentorSetter({ ...cachedAnalysis, isSearching: true });
+      mentorSetter(
+        { ...cachedAnalysis, isSearching: true, isDeepThink },
+        { preserveSelection: true },
+      );
     }
 
     const isCoUp = Boolean(
@@ -2440,17 +2535,82 @@ import {
       window.ZigaMod.isCoUpGame(gameData.gameLayer),
     );
 
+    const pikaCfg =
+      (window.ZigaMod &&
+        window.ZigaMod.userSettings &&
+        window.ZigaMod.userSettings.pikafishConfig) ||
+      {};
+    const configuredMultiPV = Math.max(
+      3,
+      Math.min(8, parseInt(pikaCfg.multiPV, 10) || 5),
+    );
+    const configuredTimeMs = Math.max(
+      1200,
+      Math.min(12000, parseInt(pikaCfg.thinkTimeMs, 10) || 3000),
+    );
+    const configuredMaxDepth = Math.max(
+      20,
+      Math.min(54, parseInt(pikaCfg.maxDepth, 10) || 36),
+    );
+
+    const effectiveTimeMs =
+      activeProviderId === "pikafish"
+        ? isDeepThink
+          ? Math.max(8000, configuredTimeMs)
+          : configuredTimeMs
+        : isDeepThink
+          ? 2000
+          : 800;
+
+    const effectiveMaxDepth =
+      activeProviderId === "pikafish"
+        ? isDeepThink
+          ? Math.max(44, configuredMaxDepth)
+          : configuredMaxDepth
+        : isDeepThink
+          ? 14
+          : 12;
+
     // Luôn tính toán biến cờ cho Người Chơi (myColor)
     const sideToAnalyze = myColor;
     const provider = getEngineProvider(activeProviderId);
+    let hasStreamedAtLeastOnce = false;
+
     cancelWorkerSearch = provider.analyzeAsync(
       {
         pieces,
         side: sideToAnalyze,
-        maxDepth: activeProviderId === "pikafish" ? 28 : 12,
-        timeMs: activeProviderId === "pikafish" ? 1500 : 800,
-        multiPV: 3,
+        maxDepth: effectiveMaxDepth,
+        timeMs: effectiveTimeMs,
+        multiPV: configuredMultiPV,
         isCoUp,
+        isDeepThink,
+        onProgress: (partialRes) => {
+          try {
+            if (lastAnalysisHash !== currentHash) return;
+            if (!partialRes || !partialRes.lines || partialRes.lines.length === 0)
+              return;
+            const progAnalysis = buildTacticalAnalysis(
+              partialRes,
+              gameData,
+              pieces,
+            );
+            if (!progAnalysis || !progAnalysis.plans || progAnalysis.plans.length === 0)
+              return;
+            progAnalysis.isSearching = true;
+            progAnalysis.isProgressive = true;
+            progAnalysis.isDeepThink = isDeepThink;
+            progAnalysis.isQuickOnly = false;
+            const preserve = hasStreamedAtLeastOnce || isDeepThink;
+            hasStreamedAtLeastOnce = true;
+            cachedAnalysis = progAnalysis;
+            ZigaMod.lastEngineAnalysis = progAnalysis;
+            updateMentorHudCardText(progAnalysis);
+            if (mentorSetter) {
+              mentorSetter(progAnalysis, { preserveSelection: preserve });
+            }
+          } catch (e) {}
+        },
       },
       (err, searchRes) => {
         cancelWorkerSearch = null;
@@ -2460,14 +2620,13 @@ import {
               "[AN Mod] Background engine search error, retrying with emergency fallback:",
               err,
             );
-            // KHÔNG reset lastAnalysisHash = "" để tránh vòng lặp re-render 300ms!
             try {
               const fbRes = engine.analyze({
                 pieces,
                 side: sideToAnalyze,
                 maxDepth: 5,
                 timeMs: 250,
-                multiPV: 3,
+                multiPV: configuredMultiPV,
               });
               if (fbRes && !fbRes.error) {
                 const fbDeep = buildTacticalAnalysis(fbRes, gameData, pieces);
@@ -2503,7 +2662,7 @@ import {
                 side: sideToAnalyze,
                 maxDepth: 5,
                 timeMs: 250,
-                multiPV: 3,
+                multiPV: configuredMultiPV,
               });
               if (fbRes && !fbRes.error) {
                 deepAnalysis = buildTacticalAnalysis(fbRes, gameData, pieces);
@@ -2516,13 +2675,17 @@ import {
           }
 
           deepAnalysis.isSearching = false;
+          deepAnalysis.isProgressive = false;
+          deepAnalysis.isDeepThink = isDeepThink;
           deepAnalysis.isQuickOnly = false;
           cachedAnalysis = deepAnalysis;
           ZigaMod.lastEngineAnalysis = deepAnalysis;
           updateMentorHudCardText(deepAnalysis);
 
           if (mentorSetter) {
-            mentorSetter(deepAnalysis);
+            mentorSetter(deepAnalysis, {
+              preserveSelection: hasStreamedAtLeastOnce || isDeepThink,
+            });
           }
           if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
             renderMentorFloatingContent(deepAnalysis);
@@ -2536,7 +2699,10 @@ import {
           if (cachedAnalysis && cachedAnalysis.isSearching) {
             cachedAnalysis.isSearching = false;
             if (mentorSetter) {
-              mentorSetter({ ...cachedAnalysis });
+              mentorSetter(
+                { ...cachedAnalysis },
+                { preserveSelection: true },
+              );
             }
           }
         }
@@ -2672,6 +2838,23 @@ import {
         );
       }
 
+      // Steps 6..8+: Extended deep PV moves from Pikafish roadmap
+      if (activeStep >= 6 && Array.isArray(activePlan?.roadmap)) {
+        for (let s = 6; s <= Math.min(activeStep, activePlan.roadmap.length); s++) {
+          const rm = activePlan.roadmap[s - 1];
+          if (rm) {
+            applyMove(
+              rm.fromCol,
+              rm.fromRow,
+              rm.toCol,
+              rm.toRow,
+              s % 2 === 1 ? myColor : oppColor,
+              s % 2 === 1 ? "isClimaxMove" : "isOppStep4",
+            );
+          }
+        }
+      }
+
       return current;
     }, [pieces, activePlan, activeVariation, activeStep, myColor]);
 
@@ -2757,6 +2940,22 @@ import {
           marker = "url(#clean-arrow-emerald)";
           dashed = false;
         }
+      } else if (activeStep >= 6) {
+        const rm = activePlan?.roadmap?.[activeStep - 1];
+        if (rm) {
+          move = {
+            fromCol: rm.fromCol,
+            fromRow: rm.fromRow,
+            toCol: rm.toCol,
+            toRow: rm.toRow,
+          };
+          const isMyStep = activeStep % 2 === 1;
+          color = isMyStep ? "#10b981" : "#fb923c";
+          marker = isMyStep
+            ? "url(#clean-arrow-emerald)"
+            : "url(#clean-arrow-orange)";
+          dashed = !isMyStep;
+        }
       }
 
       if (
@@ -2804,6 +3003,10 @@ import {
         const st5 = activeVariation?.step5 || activePlan?.roadmap?.[4];
         return st5 ? getSquarePos(st5.toCol, st5.toRow) : null;
       }
+      if (activeStep >= 6) {
+        const rm = activePlan?.roadmap?.[activeStep - 1];
+        return rm ? getSquarePos(rm.toCol, rm.toRow) : null;
+      }
       return null;
     }, [activePlan, activeVariation, activeStep, myColor]);
 
@@ -2825,6 +3028,10 @@ import {
       if (activeStep === 5) {
         const st5 = activeVariation?.step5 || activePlan?.roadmap?.[4];
         return st5 ? getSquarePos(st5.fromCol, st5.fromRow) : null;
+      }
+      if (activeStep >= 6) {
+        const rm = activePlan?.roadmap?.[activeStep - 1];
+        return rm ? getSquarePos(rm.fromCol, rm.fromRow) : null;
       }
       return null;
     }, [activePlan, activeVariation, activeStep, myColor]);
@@ -3232,6 +3439,36 @@ import {
           </Button>
         </div>
 
+        {/* Extended Deep Steps 6..8 (when Pikafish PV has >= 6 plies) */}
+        {activePlan?.roadmap && activePlan.roadmap.length > 5 && (
+          <div className="grid grid-cols-3 gap-1">
+            {activePlan.roadmap.slice(5, 8).map((rm) => {
+              const isMyStep = rm.step % 2 === 1;
+              return (
+                <Button
+                  key={rm.step}
+                  variant="ghost"
+                  size="xs"
+                  className={cn(
+                    "flex h-5.5 items-center justify-center gap-0.5 rounded-md border px-1 text-[8.5px] font-medium transition-all",
+                    activeStep === rm.step
+                      ? isMyStep
+                        ? "border-emerald-400/60 bg-emerald-500/20 font-bold text-emerald-300 shadow-xs"
+                        : "border-orange-400/60 bg-orange-500/20 font-bold text-orange-300 shadow-xs"
+                      : "border-white/10 bg-white/4 text-zinc-300 hover:bg-white/10 hover:text-white",
+                  )}
+                  onClick={() => setActiveStep(rm.step)}
+                  title={`${rm.label}: ${rm.notation?.full || rm.notation?.short || ""}`}
+                >
+                  <span>
+                    {rm.step}. {rm.notation?.short || (isMyStep ? "Ta" : "Địch")}
+                  </span>
+                </Button>
+              );
+            })}
+          </div>
+        )}
+
         {/* Step context subtitle below stepper buttons */}
         <div className="flex min-h-4.75 items-center rounded border border-white/6 bg-white/3 px-1.5 py-0.5 text-[9.5px] leading-tight">
           {(activeStep === 0 || !activePlan) && (
@@ -3281,6 +3518,19 @@ import {
               —{" "}
               {activePlan?.roadmap?.[4]?.why ||
                 "Giáng đòn đoạt thắng lợi quyết định!"}
+            </span>
+          )}
+          {activeStep >= 6 && activePlan?.roadmap?.[activeStep - 1] && (
+            <span
+              className={`truncate font-semibold ${
+                activeStep % 2 === 1 ? "text-emerald-400" : "text-orange-400"
+              }`}
+            >
+              {activePlan.roadmap[activeStep - 1].label}:{" "}
+              <strong>
+                {activePlan.roadmap[activeStep - 1].notation?.short || ""}
+              </strong>{" "}
+              — {activePlan.roadmap[activeStep - 1].why}
             </span>
           )}
         </div>
@@ -3611,9 +3861,20 @@ import {
         setLiveTransport(e.detail || getEngineTransportStatus());
       };
 
+      const handleConfigChange = () => {
+        if (lastKnownGameData) {
+          const pcs = getBoardState(lastKnownGameData.gameLayer);
+          if (pcs) triggerDeepAnalysis(lastKnownGameData, pcs);
+        }
+      };
+
       window.addEventListener(
         "ZIGA_PIKAFISH_STATUS_CHANGE",
         handleStatusChange,
+      );
+      window.addEventListener(
+        "ZIGA_PIKAFISH_CONFIG_CHANGE",
+        handleConfigChange,
       );
       const pollTimer = setInterval(() => {
         setLiveTransport(getEngineTransportStatus());
@@ -3623,6 +3884,10 @@ import {
         window.removeEventListener(
           "ZIGA_PIKAFISH_STATUS_CHANGE",
           handleStatusChange,
+        );
+        window.removeEventListener(
+          "ZIGA_PIKAFISH_CONFIG_CHANGE",
+          handleConfigChange,
         );
         clearInterval(pollTimer);
       };
@@ -3636,6 +3901,15 @@ import {
       if (lastKnownGameData) {
         const pcs = getBoardState(lastKnownGameData.gameLayer);
         if (pcs) triggerDeepAnalysis(lastKnownGameData, pcs);
+      }
+    };
+
+    const handleDeepThink = () => {
+      if (lastKnownGameData) {
+        const pcs = getBoardState(lastKnownGameData.gameLayer);
+        if (pcs) {
+          triggerDeepAnalysis(lastKnownGameData, pcs, { isDeepThink: true });
+        }
       }
     };
 
@@ -3656,12 +3930,14 @@ import {
       return true; // Mặc định luôn bật bàn cờ nhỏ khi mở Kỳ Đạo Sư
     });
 
-    mentorSetter = (nextAnalysis) => {
+    mentorSetter = (nextAnalysis, opts = {}) => {
       if (nextAnalysis) {
         setAnalysis(nextAnalysis);
-        setSelectedPlanIdx(0);
-        setActiveVariationIdx(0);
-        setActiveStep(1);
+        if (!opts || !opts.preserveSelection) {
+          setSelectedPlanIdx(0);
+          setActiveVariationIdx(0);
+          setActiveStep(1);
+        }
       }
     };
 
@@ -3822,10 +4098,10 @@ import {
                                 setLiveTransport(getEngineTransportStatus());
                               }, 150);
                             }}
-                            title="🟢 WS Native: 8765 đang kết nối trực tiếp (Hardcore Mode). Bấm để ping/kết nối lại."
+                            title={`🟢 ${liveTransport.statusText || "Pikafish WS Native Pro"} đang kết nối trực tiếp. Bấm để ping/kết nối lại.`}
                           >
                             <span className="size-1.5 animate-pulse rounded-full bg-emerald-400 text-nowrap shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
-                            <span>WS: 8765</span>
+                            <span>{liveTransport.label || "WS Pro"}</span>
                           </span>
                         );
                       } else if (status === "cloud-nnue") {
@@ -3872,6 +4148,30 @@ import {
                       </span>
                     );
                   })()}
+                  {/* Live Depth & WDL Pill */}
+                  {(analysis.depth > 0 || analysis.isSearching) && (
+                    <span
+                      className={`inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[8.5px] font-semibold whitespace-nowrap ${
+                        analysis.isSearching
+                          ? "border-amber-400/40 bg-amber-500/15 text-amber-300"
+                          : "border-white/10 bg-white/5 text-slate-300"
+                      }`}
+                      title={`Độ sâu: Depth ${analysis.depth || "?"}${analysis.nps ? ` • Tốc độ: ${(analysis.nps / 1000000).toFixed(2)}M nodes/s` : ""}${analysis.wdl ? ` • WDL: ${(analysis.wdl.win / 10).toFixed(0)}% Thắng / ${(analysis.wdl.draw / 10).toFixed(0)}% Hòa / ${(analysis.wdl.loss / 10).toFixed(0)}% Thua` : ""}`}
+                    >
+                      {analysis.isSearching && (
+                        <span className="size-1.5 animate-ping rounded-full bg-amber-400" />
+                      )}
+                      <span>
+                        D{analysis.depth || "..."}
+                        {analysis.winrate != null &&
+                        (!window.ZigaMod?.userSettings?.pikafishConfig ||
+                          window.ZigaMod.userSettings.pikafishConfig.showWdl !==
+                            false)
+                          ? ` • ${Math.round(analysis.winrate)}%`
+                          : ""}
+                      </span>
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -3879,6 +4179,21 @@ import {
 
           {/* Action Buttons: Compact & Cleanly Spaced */}
           <div className="flex shrink-0 items-center gap-1.5 pl-1.5">
+            {/* Deep Think (8s / D44) Boost Button */}
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={handleDeepThink}
+              title="🔥 Tính Sâu (Deep Think 8s / Depth 44): Dồn toàn lực Pikafish tìm sát cục & biến sâu nhất cho thế cờ hiện tại!"
+              className={`size-6.5 rounded-lg border transition-all ${
+                analysis.isSearching && analysis.isDeepThink
+                  ? "animate-pulse border-orange-400/70 bg-orange-500/25 text-orange-300 shadow-[0_0_10px_rgba(249,115,22,0.45)]"
+                  : "border-orange-500/35 bg-orange-500/10 text-orange-400 hover:border-orange-400/60 hover:bg-orange-500/20"
+              }`}
+            >
+              <Flame className="size-3.5" />
+            </Button>
+
             {/* Engine Switcher Toggle Button */}
             <Button
               variant="ghost"
@@ -4287,8 +4602,32 @@ import {
                         <span className="text-primary font-mono text-[11.5px] font-bold">
                           {p.shortNotation}
                         </span>
+                        {p.scoreText && (
+                          <span
+                            className={`rounded border px-1 py-0 font-mono text-[9px] font-bold ${
+                              (p.score || 0) >= 50
+                                ? "border-emerald-500/35 bg-emerald-500/15 text-emerald-300"
+                                : (p.score || 0) <= -50
+                                  ? "border-rose-500/35 bg-rose-500/15 text-rose-300"
+                                  : "border-white/10 bg-white/5 text-slate-300"
+                            }`}
+                            title={
+                              p.wdl
+                                ? `Thắng ${(p.wdl.win / 10).toFixed(0)}% • Hòa ${(p.wdl.draw / 10).toFixed(0)}% • Thua ${(p.wdl.loss / 10).toFixed(0)}%`
+                                : `Điểm đánh giá: ${p.scoreText}`
+                            }
+                          >
+                            {p.scoreText}
+                            {p.winrate != null &&
+                            (!window.ZigaMod?.userSettings?.pikafishConfig ||
+                              window.ZigaMod.userSettings.pikafishConfig
+                                .showWdl !== false)
+                              ? ` · ${Math.round(p.winrate)}%`
+                              : ""}
+                          </span>
+                        )}
                       </div>
-                      <span className="text-foreground text-[11px] font-bold">
+                      <span className="text-foreground truncate text-[11px] font-bold">
                         {p.name.split("·")[1] || p.name}
                       </span>
                     </div>
@@ -4406,13 +4745,13 @@ import {
                               </span>
                             </div>
                           )}
-                          {/* 5-Step Tactical Roadmap Pills */}
-                          {p.roadmap && p.roadmap.length >= 4 && (
+                          {/* Multi-Step Tactical Roadmap Pills (up to 8 steps from Pikafish PV) */}
+                          {p.roadmap && p.roadmap.length >= 3 && (
                             <div className="mt-0.5 flex flex-col gap-1 border-t border-white/5 pt-1.5">
                               <span className="text-muted-foreground text-[9px] font-semibold">
-                                Lộ trình tác chiến 5 bước:
+                                Lộ trình tác chiến {p.roadmap.length} bước:
                               </span>
-                              <div className="flex items-center gap-1 overflow-x-auto pb-0.5">
+                              <div className="flex flex-wrap items-center gap-1 pb-0.5">
                                 {p.roadmap.map((rm, rmIdx) => (
                                   <button
                                     key={rmIdx}
@@ -4428,16 +4767,7 @@ import {
                                         : "text-muted-foreground hover:text-foreground border-white/10 bg-white/3 hover:border-white/20"
                                     }`}
                                   >
-                                    {rm.step === 1 &&
-                                      `1. Ta: ${rm.notation?.short || "Đi"}`}
-                                    {rm.step === 2 &&
-                                      `2. Địch: ${rm.notation?.short || "Đáp"}`}
-                                    {rm.step === 3 &&
-                                      `3. Bồi: ${rm.notation?.short || "Bồi"}`}
-                                    {rm.step === 4 &&
-                                      `4. Đỡ: ${rm.notation?.short || "Đỡ"}`}
-                                    {rm.step === 5 &&
-                                      `5. Sát: ${rm.notation?.short || "Sát"}`}
+                                    {`${rm.step}. ${rm.step % 2 === 1 ? "Ta" : "Địch"}: ${rm.notation?.short || "Đi"}`}
                                   </button>
                                 ))}
                               </div>

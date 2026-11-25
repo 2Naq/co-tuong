@@ -28,7 +28,10 @@ import { HudStyleTab } from "./HudStyleTab";
 import { ThemesTab } from "./ThemesTab";
 import { AuraGalleryTab } from "./AuraGalleryTab";
 import { PRESET_AURAS } from "../../aura/aura_presets";
-import { DEFAULT_HUD_STYLE } from "../../core/constants";
+import {
+  DEFAULT_HUD_STYLE,
+  DEFAULT_PIKAFISH_CONFIG,
+} from "../../core/constants";
 import {
   applyHudStyle,
   saveHudStyleToStorage,
@@ -94,6 +97,10 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
       ...(defaultSettings.hudStyle || DEFAULT_HUD_STYLE),
       ...((ZigaMod.userSettings && ZigaMod.userSettings.hudStyle) || {}),
     },
+    pikafishConfig: {
+      ...(defaultSettings.pikafishConfig || DEFAULT_PIKAFISH_CONFIG),
+      ...((ZigaMod.userSettings && ZigaMod.userSettings.pikafishConfig) || {}),
+    },
   }));
   const [toastMsg, setToastMsg] = useState("");
 
@@ -112,6 +119,11 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
         hudStyle: {
           ...(defaultSettings.hudStyle || DEFAULT_HUD_STYLE),
           ...((ZigaMod.userSettings && ZigaMod.userSettings.hudStyle) || {}),
+        },
+        pikafishConfig: {
+          ...(defaultSettings.pikafishConfig || DEFAULT_PIKAFISH_CONFIG),
+          ...((ZigaMod.userSettings && ZigaMod.userSettings.pikafishConfig) ||
+            {}),
         },
       });
       if (initialTab) setActiveTab(normalizeTab(initialTab));
@@ -142,9 +154,24 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
           ...(mod.DEFAULT_SETTINGS?.hudStyle || DEFAULT_HUD_STYLE),
           ...(nextDraft.hudStyle || {}),
         },
+        pikafishConfig: {
+          ...(mod.DEFAULT_SETTINGS?.pikafishConfig || DEFAULT_PIKAFISH_CONFIG),
+          ...(nextDraft.pikafishConfig || {}),
+        },
       };
       if (typeof mod.saveSettings === "function") {
         mod.saveSettings();
+      }
+      if (
+        nextDraft.pikafishConfig &&
+        typeof window !== "undefined" &&
+        typeof window.dispatchEvent === "function"
+      ) {
+        window.dispatchEvent(
+          new CustomEvent("ZIGA_PIKAFISH_CONFIG_CHANGE", {
+            detail: mod.userSettings.pikafishConfig,
+          }),
+        );
       }
       if (typeof mod.applySettingsVisibility === "function") {
         mod.applySettingsVisibility();
@@ -196,6 +223,15 @@ export function SettingsModal({ isOpen, onClose, initialTab = "features" }) {
             hudStyle: {
               ...prev.hudStyle,
               ...patch.hudStyle,
+            },
+          };
+        } else if (patch.pikafishConfig) {
+          next = {
+            ...prev,
+            ...patch,
+            pikafishConfig: {
+              ...(prev.pikafishConfig || DEFAULT_PIKAFISH_CONFIG),
+              ...patch.pikafishConfig,
             },
           };
         } else {
