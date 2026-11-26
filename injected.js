@@ -49828,154 +49828,154 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       const isPastRiver = myColor === 0 ? toRow >= 5 : toRow <= 4;
       if (isMate) {
         return {
-          tacticName: "Tuy\u1EC7t K\u1EF9 S\xE1t C\u1EE5c",
-          why: `N\u01B0\u1EDBc c\u1EDD ${notation.short} t\u1EA1o l\u1EADp tr\u1EADn th\u1EBF s\xE1t c\u1EE5c ho\xE0n h\u1EA3o! Kh\xF3a ch\u1EB7t m\u1ECDi ng\u1EA3 \u0111\u01B0\u1EDDng tho\xE1i lui c\u1EE7a T\u01B0\u1EDBng \u0111\u1ECBch.`,
+          tacticName: "S\xE1t C\u1EE5c H\u1EBFt C\u1EDD",
+          why: `\u0110i ${notation.short} l\xE0 h\u1EBFt c\u1EDD! T\u01B0\u1EDBng \u0111\u1ECBch kh\xF4ng c\xF2n \u0111\u01B0\u1EDDng ch\u1EA1y.`,
           tag: "S\xE1t C\u1EE5c"
         };
       }
       if (isCheck) {
         return {
-          tacticName: "Chi\u1EBFu T\u01B0\u1EDBng \xC9p Co C\u1EE5m",
-          why: `Chi\u1EBFu T\u01B0\u1EDBng \u0111anh th\xE9p t\u01B0\u1EDBc \u0111o\u1EA1t quy\u1EC1n ch\u1EE7 \u0111\u1ED9ng c\u1EE7a \u0111\u1ECBch, bu\u1ED9c T\u01B0\u1EDBng ho\u1EB7c S\u0129 T\u01B0\u1EE3ng \u0111\u1ED1i ph\u01B0\u01A1ng ph\u1EA3i v\xE1 v\xEDu b\u1ED9c l\u1ED9 s\u01A1 h\u1EDF l\u1EDBn.`,
+          tacticName: "Chi\u1EBFu T\u01B0\u1EDBng Gi\xE0nh Nh\u1ECBp",
+          why: `Chi\u1EBFu th\u1EB3ng tay \xE9p \u0111\u1ECBch ph\u1EA3i \u0111\u1EE1, m\xECnh gi\u1EEF quy\u1EC1n \u0111\xE1nh ti\u1EBFp.`,
           tag: "Chi\u1EBFu T\u01B0\u1EDBng"
         };
       }
       if (target) {
         return {
-          tacticName: `Ch\xE9m ${target.name} L\u1ED9 ${tCol}`,
-          why: `Tri\u1EC7t h\u1EA1 ${target.name} then ch\u1ED1t t\u1EA1i l\u1ED9 ${tCol}, x\xF3a b\u1ECF qu\xE2n ch\u1ED1t ch\u1EB7n chi\u1EBFn l\u01B0\u1EE3c v\xE0 gia t\u0103ng c\xE1ch bi\u1EC7t \u01B0u th\u1EBF l\u1EF1c l\u01B0\u1EE3ng (+${evalPoints}\u0111).`,
+          tacticName: `\u0102n ${target.name} L\u1ED9 ${tCol}`,
+          why: `\u0102n g\u1ECDn ${target.name} \u1EDF l\u1ED9 ${tCol}, l\u1EDDi qu\xE2n ngay.`,
           tag: "\u0110o\u1EA1t Qu\xE2n"
         };
       }
       if (piece.type === 3) {
         if (toRow === riverRank) {
           return {
-            tacticName: "Xe Tu\u1EA7n H\xE0 (Kh\u1ED1ng Ch\u1EBF Tuy\u1EBFn S\xF4ng)",
-            why: `Xe chi\u1EBFm c\u1EE9 b\u1EDD s\xF4ng l\u1ED9 ${tCol} - tuy\u1EBFn huy\u1EBFt m\u1EA1ch chi\u1EBFn tr\u01B0\u1EDDng; v\u1EEBa ng\u0103n ch\u1EB7n M\xE3 v\xE0 Binh \u0111\u1ECBch v\u01B0\u1EE3t s\xF4ng, v\u1EEBa s\u1EB5n s\xE0ng ho\xE0nh xa chuy\u1EC3n c\xE1nh chi vi\u1EC7n c\xF4ng k\xEDch th\u1EA7n t\u1ED1c.`,
+            tacticName: "Xe Gi\u1EEF B\u1EDD S\xF4ng",
+            why: `\u0110\u01B0a Xe l\xEAn gi\u1EEF b\u1EDD s\xF4ng l\u1ED9 ${tCol}, ch\u1EB7n \u0111\u1ECBch qua s\xF4ng v\xE0 ti\u1EC7n \u0111i\u1EC1u sang c\xE1nh kh\xE1c.`,
             tag: "Tu\u1EA7n H\xE0"
           };
         }
         if (toRow === enemyPawnRank) {
           return {
-            tacticName: "Xe Qu\xE1 H\xE0 \xC1p S\xE1t (\u0110\xE8 M\xE3 Di\u1EC7t T\u1ED1t)",
-            why: `Xe l\u1ECDt s\xE2u v\xE0o tr\u1EADn \u0111\u1ECBa \u0111\u1ECBch t\u1EA1i l\u1ED9 ${tCol}, ch\u1ECDc th\u1EB3ng v\xE0o h\xE0ng T\u1ED1t y\u1EBFu h\u1EA1i, \u0111\xE8 \u0111\u1EA7u M\xE3 \u0111\u1ED1i ph\u01B0\u01A1ng v\xE0 m\u1EDF toang h\xE0nh lang s\u01B0\u1EDDn cho c\xE1c \u0111\u1EE3t c\xF4ng k\xEDch ti\u1EBFp theo.`,
+            tacticName: "Xe \u0110\xE8 H\xE0ng T\u1ED1t",
+            why: `Cho Xe sang s\xF4ng \u0111\xE8 h\xE0ng T\u1ED1t l\u1ED9 ${tCol}, gh\xECm ch\xE2n M\xE3 \u0111\u1ECBch kh\xF4ng cho nh\u1EA3y l\xEAn.`,
             tag: "Gh\xECm M\xE3"
           };
         }
         if (toRow === enemyBaseline || Math.abs(toRow - enemyBaseline) === 1) {
           return {
-            tacticName: "Xe \xC1p \u0110\xE1y Cung (K\u1EB9p C\u1ED5 Kh\xF3a T\u01B0\u1EDBng)",
-            why: `Xe th\u1ECDc s\xE2u xu\u1ED1ng tuy\u1EBFn \u0111\xE1y l\u1ED9 ${tCol}, phong t\u1ECFa to\xE0n b\u1ED9 \u0111\u01B0\u1EDDng di chuy\u1EC3n c\u1EE7a T\u01B0\u1EDBng v\xE0 S\u0129 \u0111\u1ECBch, t\u1EA1o th\u1EBF k\u1EB9p c\u1ED5 ph\u1ED1i h\u1EE3p c\xF9ng Ph\xE1o/M\xE3 s\xE1t ph\u1EA1t.`,
+            tacticName: "Xe C\u1EAFm \u0110\xE1y Cung",
+            why: `C\u1EAFm Xe xu\u1ED1ng \u0111\xE1y l\u1ED9 ${tCol} kh\xF3a T\u01B0\u1EDBng \u0111\u1ECBch, chu\u1EA9n b\u1ECB ph\u1ED1i h\u1EE3p \u0111\xE1nh b\xED.`,
             tag: "K\u1EB9p C\u1ED5"
           };
         }
         return {
-          tacticName: `Xe Chi\u1EBFm L\u1ED9 ${tCol} Th\xF4ng Tho\xE1ng`,
-          why: `Xu\u1EA5t Xe ki\u1EC3m so\xE1t l\u1ED9 ${tCol} th\xF4ng tho\xE1ng, l\xE0m ch\u1EE7 tr\u1EE5c giao chi\u1EBFn ch\xEDnh, \u0111o\u1EA1t quy\u1EC1n ti\xEAn c\u01A1 v\xE0 li\xEAn k\u1EBFt ch\u1EB7t ch\u1EBD to\xE0n b\u1ED9 tuy\u1EBFn c\xF4ng th\u1EE7.`,
+          tacticName: `Ra Xe L\u1ED9 ${tCol}`,
+          why: `\u0110\u01B0a Xe ra l\u1ED9 ${tCol} cho tho\xE1ng \u0111\u01B0\u1EDDng, v\u1EEBa c\xF4ng v\u1EEBa th\u1EE7 \u0111\u1EC1u ti\u1EC7n.`,
           tag: "L\u1ED9 Th\xF4ng"
         };
       }
       if (piece.type === 4) {
         if (toCol === 4) {
           return {
-            tacticName: "Ph\xE1o \u0110\u1EA7u Uy Ch\u1EA5n (Trung Ph\xE1o C\xF4ng T\xE2m)",
-            why: `B\xECnh Ph\xE1o v\xE0o trung l\u1ED9 kh\u1ED1ng ch\u1EBF tr\u1EF1c di\u1EC7n tim T\u01B0\u1EDBng \u0111\u1ECBch, ghim ch\u1EB7t T\u1ED1t \u0111\u1EA7u v\xE0 T\u01B0\u1EDBng \u0111\u1ED1i ph\u01B0\u01A1ng v\xE0o tr\u1EE5c d\u1ECDc, t\u1EA1o th\u1EBF c\xF4ng d\u1ED3n d\u1EADp v\xE0 gi\u1EA3i ph\xF3ng \u0111\u01B0\u1EDDng cho Song M\xE3 xu\u1EA5t tr\u1EADn.`,
+            tacticName: "V\xE0o Ph\xE1o \u0110\u1EA7u",
+            why: `\u0110\xF3ng Ph\xE1o gi\u1EEFa nh\u1EAFm th\u1EB3ng T\u01B0\u1EDBng \u0111\u1ECBch, ghim T\u1ED1t \u0111\u1EA7u v\xE0 m\u1EDF \u0111\u01B0\u1EDDng cho M\xE3 l\xEAn.`,
             tag: "Ph\xE1o \u0110\u1EA7u"
           };
         }
         if (toCol === 1 || toCol === 7) {
           return {
-            tacticName: `Ph\xE1o Gi\xE1p S\u01B0\u1EDDn (L\u1ED9 ${tCol})`,
-            why: `Chuy\u1EC3n Ph\xE1o sang l\u1ED9 ${tCol} t\u1EA1o g\u1ECDng k\xECm ph\u1ED1i h\u1EE3p c\xF9ng Xe, nh\u1EAFm th\u1EB3ng v\xE0o c\xE1nh y\u1EBFu c\u1EE7a \u0111\u1ED1i ph\u01B0\u01A1ng v\xE0 phong t\u1ECFa \xFD \u0111\u1ED3 xu\u1EA5t Xe ph\u1EA3n k\xEDch c\u1EE7a \u0111\u1ECBch.`,
+            tacticName: `Ph\xE1o S\u01B0\u1EDDn L\u1ED9 ${tCol}`,
+            why: `K\xE9o Ph\xE1o sang l\u1ED9 ${tCol} \u0111\xE1nh c\u1EB7p c\xF9ng Xe, ch\u1EB7n lu\xF4n Xe c\xE1nh kia c\u1EE7a \u0111\u1ECBch.`,
             tag: "Ph\xE1o S\u01B0\u1EDDn"
           };
         }
         if (toRow === riverRank || toRow === enemyPawnRank) {
           return {
-            tacticName: `Ph\xE1o Tu\u1EA7n H\xE0 / Qu\xE1 H\xE0 L\u1ED9 ${tCol}`,
-            why: `Ti\u1EBFn Ph\xE1o l\xEAn ki\u1EC3m so\xE1t tuy\u1EBFn giao th\xF4ng l\u1ED9 ${tCol}, t\u1EA1o ng\xF2i n\u1ED5 t\u1EA7m xa gh\xECm ch\u1EB7t Xe M\xE3 \u0111\u1ED1i ph\u01B0\u01A1ng kh\xF4ng cho t\u1EF1 do tri\u1EC3n khai qu\xE2n l\u1EF1c.`,
+            tacticName: `Ph\xE1o Gi\u1EEF S\xF4ng L\u1ED9 ${tCol}`,
+            why: `\u0110\u1EA9y Ph\xE1o l\xEAn l\u1ED9 ${tCol} l\xE0m ng\xF2i s\u1EB5n, k\xECm Xe M\xE3 \u0111\u1ECBch kh\xF3 l\xEAn qu\xE2n.`,
             tag: "Phong T\u1ECFa"
           };
         }
         return {
-          tacticName: `Ph\xE1o L\u1EADp Tr\u1EADn L\u1ED9 ${tCol}`,
-          why: `\u0110i\u1EC1u Ph\xE1o t\u1EDBi v\u1ECB tr\xED \u0111\u1EAFc \u0111\u1ECBa l\u1ED9 ${tCol}, thi\u1EBFt l\u1EADp ng\xF2i n\u1ED5 chi\u1EBFn thu\u1EADt \u0111a h\u01B0\u1EDBng v\xE0 b\u1EA3o v\u1EC7 c\xE1c \u0111i\u1EC3m then ch\u1ED1t c\u1EE7a tr\u1EADn \u0111\u1ECBa.`,
+          tacticName: `\u0110\u1EB7t Ph\xE1o L\u1ED9 ${tCol}`,
+          why: `\u0110i\u1EC1u Ph\xE1o sang l\u1ED9 ${tCol} \u0111\u1EC3 c\xF3 ng\xF2i \u0111\xE1nh, v\u1EEBa gi\u1EEF \u0111\u01B0\u1EE3c qu\xE2n nh\xE0.`,
           tag: "Ph\xE1o Tr\u1EADn"
         };
       }
       if (piece.type === 5) {
         if ((toCol === 2 || toCol === 6) && Math.abs(toRow - enemyBaseline) <= 2) {
           return {
-            tacticName: "M\xE3 Ng\u1ECDa T\xE0o (Kh\xF3a Cung T\u01B0\u1EDBng \u0110\u1ECBch)",
-            why: `Phi M\xE3 c\u1EAFm th\u1EB3ng v\xE0o huy\u1EC7t \u0111\u1EA1o ng\u1ECDa t\xE0o l\u1ED9 ${tCol}, kh\xF3a ch\u1EB7t g\xF3c cung T\u01B0\u1EDBng \u0111\u1ECBch, \u0111e d\u1ECDa tr\u1EF1c ti\u1EBFp m\u1EA1ng s\u1ED1ng c\u1EE7a T\u01B0\u1EDBng v\xE0 m\u1EDF \u0111\u01B0\u1EDDng cho Xe Ph\xE1o gi\xE1ng \u0111\xF2n k\u1EBFt li\u1EC5u.`,
+            tacticName: "M\xE3 Ng\u1ECDa T\xE0o",
+            why: `Nh\u1EA3y M\xE3 ng\u1ECDa t\xE0o l\u1ED9 ${tCol} \xE1p s\xE1t cung, d\u1ECDa chi\u1EBFu r\xFAt \u0103n qu\xE2n ho\u1EB7c b\xED lu\xF4n.`,
             tag: "Ng\u1ECDa T\xE0o"
           };
         }
         if ((toCol === 3 || toCol === 5) && Math.abs(toRow - enemyBaseline) <= 2) {
           return {
-            tacticName: "M\xE3 \u0110i\u1EBFu Ng\u01B0 (M\xE3 C\xE2u C\xE1 \u0110\u1ED9c Chi\xEAu)",
-            why: `M\xE3 chi\u1EBFm v\u1ECB tr\xED \u0110i\u1EBFu Ng\u01B0 hi\u1EC3m h\xF3c, k\u1EBFt h\u1EE3p v\u1EDBi Xe ho\u1EB7c Ph\xE1o t\u1EA1o th\xE0nh th\u1EBF th\u1EAFt c\u1ED5 kh\xF4ng th\u1EC3 ch\u1ED1ng \u0111\u1EE1 \u0111\u1ED1i v\u1EDBi T\u01B0\u1EDBng \u0111\u1ECBch.`,
+            tacticName: "M\xE3 \u0110i\u1EBFu Ng\u01B0",
+            why: `Nh\u1EA3y M\xE3 c\xE2u c\xE1 \u1EDF l\u1ED9 ${tCol}, k\u1EB9p v\u1EDBi Xe Ph\xE1o kh\xF3a ch\u1EB7t T\u01B0\u1EDBng \u0111\u1ECBch.`,
             tag: "\u0110i\u1EBFu Ng\u01B0"
           };
         }
         if (toCol === 3 || toCol === 5) {
           return {
-            tacticName: `Song M\xE3 Kh\u1EDFi Nh\u1ECBp L\u1ED9 ${tCol}`,
-            why: `M\xE3 ti\u1EBFn l\xEAn v\u1ECB tr\xED trung t\xE2m l\u1ED9 ${tCol}, li\xEAn ho\xE0n b\u1EA3o v\u1EC7 T\u1ED1t \u0111\u1EA7u, m\u1EDF r\u1ED9ng t\u1EA7m ki\u1EC3m so\xE1t b\xE0n c\u1EDD v\xE0 s\u1EB5n s\xE0ng phi qua s\xF4ng c\xF4ng k\xEDch khi c\xF3 c\u01A1 h\u1ED9i.`,
+            tacticName: `L\xEAn M\xE3 L\u1ED9 ${tCol}`,
+            why: `L\xEAn M\xE3 l\u1ED9 ${tCol} gi\u1EEF ch\u1EAFc T\u1ED1t \u0111\u1EA7u, s\u1EB5n s\xE0ng nh\u1EA3y qua s\xF4ng \u0111\xE1nh l\xEAn.`,
             tag: "Song M\xE3"
           };
         }
         if (isPastRiver) {
           return {
-            tacticName: "M\xE3 V\u01B0\u1EE3t S\xF4ng B\xE0n H\xE0",
-            why: `M\xE3 phi qua s\xF4ng \u0111o\u1EA1t \u0111i\u1EC3m t\u1EF1a chi\u1EBFn thu\u1EADt, \u0111\u1EA1p v\u1EE1 th\u1EBF ph\xF2ng ng\u1EF1 ph\xEDa tr\u01B0\u1EDBc v\xE0 m\u1EDF r\u1ED9ng kh\xF4ng gian t\u1EA5n c\xF4ng \u0111a g\xF3c hi\u1EC3m h\xF3c.`,
+            tacticName: "M\xE3 Qua S\xF4ng",
+            why: `Cho M\xE3 nh\u1EA3y qua s\xF4ng l\u1ED9 ${tCol}, \u0111\xE1nh th\u1EB3ng v\xE0o s\u01B0\u1EDDn l\xE0m \u0111\u1ECBch kh\xF3 \u0111\u1EE1.`,
             tag: "B\xE0n H\xE0"
           };
         }
         return {
-          tacticName: `M\xE3 Nh\u1EA3y Khai Th\xF4ng L\u1ED9 ${tCol}`,
-          why: `V\u1EADn \u0111\u1ED9ng M\xE3 \u0111\u1EBFn l\u1ED9 ${tCol} tho\xE1ng \u0111\xE3ng, tho\xE1t kh\u1ECFi s\u1EF1 c\u1EA3n tr\u1EDF c\u1EE7a ch\xE2n M\xE3, t\u1EA1o \u0111i\u1EC3m t\u1EF1a c\u01A1 \u0111\u1ED9ng cho c\u1EA3 c\xF4ng th\u1EE7 to\xE0n di\u1EC7n.`,
+          tacticName: `Nh\u1EA3y M\xE3 L\u1ED9 ${tCol}`,
+          why: `\u0110\u01B0a M\xE3 ra l\u1ED9 ${tCol} cho tho\xE1t ch\xE2n, kh\xF4ng b\u1ECB c\u1EA3n v\xE0 d\u1EC5 xoay tr\u1EDF.`,
           tag: "Khai Th\xF4ng"
         };
       }
       if (piece.type === 6) {
         if (isPastRiver) {
           return {
-            tacticName: "Ti\u1EC3u T\u1ED1t Qu\xE1 H\xE0 (\xC1p \u0110\u1EA3o Uy L\u1EF1c)",
-            why: `T\u1ED1t v\u01B0\u1EE3t s\xF4ng \xE1p s\xE1t ph\xF2ng tuy\u1EBFn \u0111\u1ECBch t\u1EA1i l\u1ED9 ${tCol}, t\u1EEBng b\u01B0\u1EDBc g\u1EB7m nh\u1EA5m kh\xF4ng gian ph\xF2ng ng\u1EF1, s\u1EB5n s\xE0ng ph\u1ED1i h\u1EE3p th\u1ECDc s\xE2u v\xE0o cung T\u01B0\u1EDBng \u0111\u1ED1i ph\u01B0\u01A1ng.`,
+            tacticName: "T\u1ED1t Qua S\xF4ng",
+            why: `\u0110\u1EA9y T\u1ED1t qua s\xF4ng l\u1ED9 ${tCol} \xE1p s\xE1t cung, \xE9p qu\xE2n \u0111\u1ECBch ph\u1EA3i l\xF9i v\u1EC1 \u0111\u1EE1.`,
             tag: "T\u1ED1t Qua S\xF4ng"
           };
         }
         return {
-          tacticName: `Ti\u1EBFn Binh Khai Nh\xE3n L\u1ED9 ${tCol}`,
-          why: `\u0110\u1EA9y Binh l\u1ED9 ${tCol} l\xEAn m\u1ED9t n\u01B0\u1EDBc nh\u1EB1m th\xF4ng \u0111\u01B0\u1EDDng cho M\xE3 xu\u1EA5t k\xEDch, ki\u1EC1m t\u1ECFa \u0111\xE0 ph\xE1t tri\u1EC3n c\u1EE7a qu\xE2n \u0111\u1ECBch tr\xEAn c\xF9ng tr\u1EE5c l\u1ED9.`,
+          tacticName: `Nh\xEDch T\u1ED1t L\u1ED9 ${tCol}`,
+          why: `\u0110\u1EA9y T\u1ED1t l\u1ED9 ${tCol} l\xEAn 1 b\u01B0\u1EDBc m\u1EDF \u0111\u01B0\u1EDDng cho M\xE3 nh\u1EA3y, \u0111\u1ED3ng th\u1EDDi ch\u1EB7n T\u1ED1t \u0111\u1ECBch.`,
           tag: "Khai Nh\xE3n"
         };
       }
       if (piece.type === 1) {
         return {
-          tacticName: "B\u1ED5 S\u0129 Gia C\u1ED1 Cung T\u01B0\u1EDBng",
-          why: `D\u1EF1ng S\u0129 che ch\u1EAFn trung l\u1ED9 v\xE0 g\xF3c cung, b\u1EA3o v\u1EC7 an to\xE0n tuy\u1EC7t \u0111\u1ED1i cho T\u01B0\u1EDBng tr\u01B0\u1EDBc c\xE1c h\u1ECDng ph\xE1o t\u1EA7m xa v\xE0 \u0111\xF2n xuy\xEAn t\xE2m c\u1EE7a \u0111\u1ECBch.`,
+          tacticName: "L\xEAn S\u0129 Gi\u1EEF T\u01B0\u1EDBng",
+          why: `L\xEAn S\u0129 che m\u1EB7t T\u01B0\u1EDBng cho ch\u1EAFc, tr\xE1nh b\u1ECB Ph\xE1o chi\u1EBFu th\u1EB3ng ho\u1EB7c Xe c\u1EAFm \u0111\xE1y.`,
           tag: "Gia C\u1ED1"
         };
       }
       if (piece.type === 2) {
         return {
-          tacticName: "V\xE9n T\u01B0\u1EE3ng Li\xEAn Ho\xE0n Ph\xF2ng Th\u1EE7",
-          why: `Li\xEAn k\u1EBFt \u0111\xF4i T\u01B0\u1EE3ng v\u1EEFng ch\u1EAFc, b\u1EA3o v\u1EC7 T\u1ED1t \u0111\u1EA7u v\xE0 ng\u0103n ch\u1EB7n Xe/Ph\xE1o \u0111\u1ED1i ph\u01B0\u01A1ng nh\xF2m ng\xF3 \u0111\xE1y cung tr\u1EADn \u0111\u1ECBa.`,
+          tacticName: "L\xEAn T\u01B0\u1EE3ng Gi\u1EEF Nh\xE0",
+          why: `L\xEAn T\u01B0\u1EE3ng gi\u1EEF T\u1ED1t gi\u1EEFa, b\u1ECBt lu\xF4n \u0111\u01B0\u1EDDng Xe Ph\xE1o \u0111\u1ECBch ch\u1ECDc xu\u1ED1ng \u0111\xE1y.`,
           tag: "V\xE9n T\u01B0\u1EE3ng"
         };
       }
       if (piece.type === 0) {
         return {
-          tacticName: "T\u01B0\u1EDBng Xu\u1EA5t Cung Tr\u1EE3 Chi\u1EBFn",
-          why: `V\u1EADn \u0111\u1ED9ng T\u01B0\u1EDBng chi\u1EBFm l\u1ED9 kh\u1ED1ng ch\u1EBF, d\xF9ng m\u1EB7t T\u01B0\u1EDBng l\xE0m ng\xF2i n\u1ED5 h\u1ED7 tr\u1EE3 Xe Ph\xE1o kh\xF3a ch\u1EB7t \u0111\u01B0\u1EDDng di chuy\u1EC3n c\u1EE7a \u0111\u1ECBch.`,
+          tacticName: "D\u1ECBch T\u01B0\u1EDBng Tr\u1EE3 C\xF4ng",
+          why: `D\u1ECBch T\u01B0\u1EDBng sang l\u1ED9 ${tCol} d\xF9ng m\u1EB7t T\u01B0\u1EDBng h\u1ED7 tr\u1EE3 Xe Ph\xE1o kh\xF3a \u0111\u1ECBch.`,
           tag: "M\u1EB7t T\u01B0\u1EDBng"
         };
       }
       return {
-        tacticName: `\u0110i\u1EC1u \u0110\u1ED9ng Qu\xE2n L\u1EF1c L\u1ED9 ${tCol}`,
-        why: `Di chuy\u1EC3n ${piece.name} \u0111\u1EBFn L\u1ED9 ${tCol} t\u1EA1o li\xEAn k\u1EBFt th\u1EBF tr\u1EADn, s\u1EB5n s\xE0ng \u1EE9ng bi\u1EBFn theo m\u1ECDi di\u1EC5n bi\u1EBFn ti\u1EBFp theo.`,
+        tacticName: `\u0110i\u1EC1u ${piece.name} L\u1ED9 ${tCol}`,
+        why: `Chuy\u1EC3n ${piece.name} sang l\u1ED9 ${tCol} cho tho\xE1ng qu\xE2n v\xE0 d\u1EC5 ph\u1ED1i h\u1EE3p.`,
         tag: "\u0110i\u1EC1u Qu\xE2n"
       };
     }
@@ -50418,21 +50418,21 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             let oppWhy = "";
             const oppTCol = oppColor === 0 ? 9 - rep.toCol : rep.toCol + 1;
             if (oppTarget) {
-              oppWhy = `Ph\u1EA3n ph\xE1o ch\xE9m ${oppTarget.name} t\u1EA1i L\u1ED9 ${oppTCol} nh\u1EB1m gi\u1EA3i t\u1ECFa s\u1EE9c \xE9p.`;
+              oppWhy = `\u0102n l\u1EA1i ${oppTarget.name} \u1EDF l\u1ED9 ${oppTCol}.`;
             } else if (oppPiece && oppPiece.type === 0) {
-              oppWhy = `T\u01B0\u1EDBng \u0111\u1ECBch d\u1EDDi sang L\u1ED9 ${oppTCol} tho\xE1t kh\u1ECFi t\u1EA7m ng\u1EAFm nguy hi\u1EC3m c\u1EE7a ta.`;
+              oppWhy = `N\xE9 T\u01B0\u1EDBng sang l\u1ED9 ${oppTCol} cho an to\xE0n.`;
             } else if (oppPiece && (oppPiece.type === 1 || oppPiece.type === 2)) {
-              oppWhy = `B\u1ED5 ${oppPiece.name} c\u1EE7ng c\u1ED1 ph\xF2ng tuy\u1EBFn tr\u01B0\u1EDBc th\u1EBF c\xF4ng d\u1ED3n d\u1EADp c\u1EE7a ta.`;
+              oppWhy = `L\xEAn ${oppPiece.name} th\u1EE7 nh\xE0, che m\u1EB7t T\u01B0\u1EDBng.`;
             } else if (oppPiece && oppPiece.type === 3) {
-              oppWhy = `Xu\u1EA5t Xe ki\u1EC3m so\xE1t L\u1ED9 ${oppTCol} h\xF2ng ng\u0103n ch\u1EB7n m\u0169i \u0111\u1ED9t ph\xE1 c\u1EE7a ta.`;
+              oppWhy = `Ra Xe gi\u1EEF l\u1ED9 ${oppTCol} \u0111\u1EC3 ch\u1EB7n \u0111\u01B0\u1EDDng m\xECnh.`;
             } else if (oppPiece && oppPiece.type === 4) {
-              oppWhy = `\u0110i\u1EC1u Ph\xE1o t\u1EDBi L\u1ED9 ${oppTCol} t\xECm ki\u1EBFm ng\xF2i n\u1ED5 ph\u1EA3n k\xEDch.`;
+              oppWhy = `Chuy\u1EC3n Ph\xE1o sang l\u1ED9 ${oppTCol} t\xECm ng\xF2i \u0111\xE1nh l\u1EA1i.`;
             } else if (oppPiece && oppPiece.type === 5) {
-              oppWhy = `Nh\u1EA3y M\xE3 l\xEAn L\u1ED9 ${oppTCol} h\xF2ng khai th\xF4ng th\u1EBF tr\u1EADn v\xE0 ph\u1EA3n k\xEDch.`;
+              oppWhy = `Nh\u1EA3y M\xE3 l\xEAn l\u1ED9 ${oppTCol} cho tho\xE1ng qu\xE2n.`;
             } else if (oppPiece && oppPiece.type === 6) {
-              oppWhy = `Ti\u1EBFn Binh L\u1ED9 ${oppTCol} m\u1EDF \u0111\u01B0\u1EDDng cho M\xE3 ho\u1EB7c tranh \u0111o\u1EA1t quy\u1EC1n ki\u1EC3m so\xE1t h\xE0.`;
+              oppWhy = `Nh\xEDch T\u1ED1t l\u1ED9 ${oppTCol} m\u1EDF \u0111\u01B0\u1EDDng cho M\xE3.`;
             } else {
-              oppWhy = `\u0110i\u1EC1u qu\xE2n ph\u1EA3n \u1EE9ng c\u1EE7ng c\u1ED1 tr\u1EADn \u0111\u1ECBa.`;
+              oppWhy = `\u0110i\u1EC1u qu\xE2n v\u1EC1 \u0111\u1EE1.`;
             }
             let ansNot = null;
             let ansWhy = "";
@@ -50454,21 +50454,21 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                 );
                 const ansTCol = myColor === 0 ? 9 - rep.answer.toCol : rep.answer.toCol + 1;
                 if (ansTarget) {
-                  ansWhy = `L\u1EADp t\u1EE9c ch\xE9m ${ansTarget.name} L\u1ED9 ${ansTCol}, \u0111o\u1EA1t \u01B0u th\u1EBF quy\u1EBFt \u0111\u1ECBnh.`;
+                  ansWhy = `\u0102n ngay ${ansTarget.name} l\u1ED9 ${ansTCol}, l\u1EDDi qu\xE2n r\xF5 r\u1EC7t.`;
                 } else if (rep.answer.score && rep.answer.score > 9e3) {
-                  ansWhy = `Gi\xE1ng \u0111\xF2n s\xE1t c\u1EE5c k\u1EBFt li\u1EC5u tr\u1EADn \u0111\u1EA5u!`;
+                  ansWhy = `\u0110\xE1nh b\xED lu\xF4n, \u0111\u1ECBch h\u1EBFt \u0111\u01B0\u1EDDng \u0111\u1EE1!`;
                 } else if (ansPiece.type === 0) {
-                  ansWhy = `V\u1EADn \u0111\u1ED9ng T\u01B0\u1EDBng chi\u1EBFm l\u1ED9 kh\u1ED1ng ch\u1EBF tr\u1EE3 chi\u1EBFn kh\xF3a ch\u1EB7t \u0111\u1ED1i ph\u01B0\u01A1ng.`;
+                  ansWhy = `D\u1ECBch T\u01B0\u1EDBng tr\u1EE3 c\xF4ng kh\xF3a ch\u1EB7t \u0111\u1ECBch.`;
                 } else if (ansPiece.type === 3) {
-                  ansWhy = `Xe b\u1ED3i \u0111\xF2n kh\u1ED1ng ch\u1EBF L\u1ED9 ${ansTCol}, si\u1EBFt ch\u1EB7t v\xF2ng v\xE2y \xE9p \u0111\u1ECBch v\xE0o th\u1EBF b\xED.`;
+                  ansWhy = `Cho Xe \u0111\xE8 ti\u1EBFp l\u1ED9 ${ansTCol}, kh\xF4ng cho \u0111\u1ECBch th\u1EDF.`;
                 } else if (ansPiece.type === 4) {
-                  ansWhy = `Ph\xE1o b\u1ED3i th\xEAm \u0111\xF2n c\xF4ng k\xEDch s\u01B0\u1EDDn/trung l\u1ED9, kh\xF3a ch\u1EB7t \u0111\u01B0\u1EDDng t\u1EA9u tho\xE1t.`;
+                  ansWhy = `K\xE9o Ph\xE1o b\u1ED3i th\xEAm, \xE9p th\u1EB3ng v\xE0o cung \u0111\u1ECBch.`;
                 } else if (ansPiece.type === 5) {
-                  ansWhy = `M\xE3 phi l\xEAn L\u1ED9 ${ansTCol} t\u1EA1o g\u1ECDng k\xECm ph\u1ED1i h\u1EE3p c\xF9ng Xe Ph\xE1o d\u1ED3n \xE9p T\u01B0\u1EDBng \u0111\u1ECBch.`;
+                  ansWhy = `Nh\u1EA3y M\xE3 l\u1ED9 ${ansTCol} ph\u1ED1i h\u1EE3p Xe Ph\xE1o \xE9p s\xE1t.`;
                 } else if (ansPiece.type === 6) {
-                  ansWhy = `Ti\u1EC3u T\u1ED1t x\xF4ng l\xEAn \xE1p s\xE1t n\xE1ch cung, gia t\u0103ng \xE1p l\u1EF1c s\xE1t v\xE1n.`;
+                  ansWhy = `\u0110\u1EA9y T\u1ED1t \xE1p s\xE1t cung g\xE2y \xE1p l\u1EF1c ti\u1EBFp.`;
                 } else {
-                  ansWhy = `B\u1ED3i th\xEAm \u0111\xF2n ${ansNot.short} gi\u1EEF v\u1EEFng \u01B0u th\u1EBF \xE1p \u0111\u1EA3o.`;
+                  ansWhy = `\u0110i ti\u1EBFp ${ansNot.short} gi\u1EEF nh\u1ECBp \u0111\xE1nh.`;
                 }
               }
             }
@@ -50602,16 +50602,16 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               );
               const tCol = stepSide === 0 ? 9 - mv.toCol : mv.toCol + 1;
               if (stepSide === movingColor) {
-                stepWhy = stepTarget ? `Ta ti\u1EBFp t\u1EE5c ch\xE9m ${stepTarget.name} L\u1ED9 ${tCol}, kho\xE9t s\xE2u \u01B0u th\u1EBF!` : stepNum >= 5 ? `\u0110\u1EA9y m\u1EA1nh m\u0169i ti\u1EBFn c\xF4ng ${stepNot.short}, si\u1EBFt ch\u1EB7t th\u1EBF th\u1EAFng quy\u1EBFt \u0111\u1ECBnh!` : `\u0110i\u1EC1u ${stepPiece.name} t\u1EDBi L\u1ED9 ${tCol} duy tr\xEC s\u1EE9c \xE9p li\xEAn ho\xE0n.`;
+                stepWhy = stepTarget ? `\u0102n ti\u1EBFp ${stepTarget.name} \u1EDF l\u1ED9 ${tCol}.` : stepNum >= 5 ? `\u0110i ti\u1EBFp ${stepNot.short} \xE9p s\xE1t d\u1EE9t \u0111i\u1EC3m.` : `\u0110\u01B0a ${stepPiece.name} t\u1EDBi l\u1ED9 ${tCol} gi\u1EEF nh\u1ECBp \u0111\xE1nh.`;
               } else {
-                stepWhy = stepTarget ? `\u0110\u1ECBch ph\u1EA3n c\xF4ng \u0103n ${stepTarget.name} L\u1ED9 ${tCol} \u0111\u1EC3 gi\u1EA3m t\u1EA3i \xE1p l\u1EF1c.` : `\u0110\u1ECBch xoay s\u1EDF \u0111i\u1EC1u ${stepPiece.name} ch\u1ED1ng \u0111\u1EE1 tr\u01B0\u1EDBc v\xF2ng v\xE2y.`;
+                stepWhy = stepTarget ? `\u0110\u1ECBch \u0103n l\u1EA1i ${stepTarget.name} \u1EDF l\u1ED9 ${tCol}.` : `\u0110\u1ECBch \u0111i\u1EC1u ${stepPiece.name} v\u1EC1 \u0111\u1EE1.`;
               }
             } else {
               stepNot = {
                 short: stepSide === movingColor ? `Ta \u0111i #${stepNum}` : `\u0110\u1ECBch \u0111i #${stepNum}`,
-                full: stepSide === movingColor ? "N\u01B0\u1EDBc c\u1EDD li\xEAn ho\xE0n c\u1EE7a ta" : "N\u01B0\u1EDBc ph\xF2ng th\u1EE7 c\u1EE7a \u0111\u1ECBch"
+                full: stepSide === movingColor ? "N\u01B0\u1EDBc \u0111\xE1nh ti\u1EBFp c\u1EE7a m\xECnh" : "N\u01B0\u1EDBc \u0111\u1EE1 c\u1EE7a \u0111\u1ECBch"
               };
-              stepWhy = stepSide === movingColor ? "Duy tr\xEC nh\u1ECBp ti\u1EBFn c\xF4ng theo bi\u1EBFn ch\xEDnh Pikafish." : "\u0110\u1ECBch ch\u1ED1ng \u0111\u1EE1 theo bi\u1EBFn ch\xEDnh Pikafish.";
+              stepWhy = stepSide === movingColor ? "\u0110i ti\u1EBFp theo nh\xE1nh t\u1ED1i \u01B0u." : "\u0110\u1ECBch ch\u1ED1ng \u0111\u1EE1 theo nh\xE1nh ch\xEDnh.";
             }
             roadmap.push({
               step: stepNum,
@@ -50636,14 +50636,10 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           }
           let prepText = "";
           const firstRep = rep0 || variations[0];
-          if (firstRep && firstRep.oppNotation?.short && firstRep.oppNotation?.short !== "\u0110\u1ECBch \u0111i") {
-            if (firstRep.answer && firstRep.answer.notation?.short) {
-              prepText = `K\u1EBF s\xE1ch: \u0110\xF3n \u0111\u1EA7u n\u01B0\u1EDBc ${firstRep.oppNotation.short} c\u1EE7a \u0111\u1ECBch \u0111\u1EC3 l\u1EADp t\u1EE9c b\u1ED3i \u0111\xF2n ${firstRep.answer.notation.short}, l\xE0m ch\u1EE7 th\u1EBF tr\u1EADn.`;
-            } else {
-              prepText = `K\u1EBF s\xE1ch: Kh\u1ED1ng ch\u1EBF bi\u1EBFn ph\u1EA3n \u1EE9ng ${firstRep.oppNotation.short} c\u1EE7a \u0111\u1ED1i ph\u01B0\u01A1ng, \u0111o\u1EA1t ti\xEAn c\u01A1 \xE1p \u0111\u1EA3o.`;
-            }
+          if (firstRep && firstRep.oppNotation?.short && firstRep.oppNotation?.short !== "\u0110\u1ECBch \u0111i" && firstRep.oppNotation?.short !== "H\u1EBFt n\u01B0\u1EDBc" && firstRep.answer && firstRep.answer.notation?.short) {
+            prepText = `\u0110\u1ECBch \u0111\xE1p ${firstRep.oppNotation.short} th\xEC m\xECnh \u0111i ti\u1EBFp ${firstRep.answer.notation.short}.`;
           }
-          const planWhy = prepText ? `${desc.why} (${prepText})` : desc.why;
+          const planWhy = prepText ? `${desc.why} ${prepText}` : desc.why;
           const PLAN_BADGES = [
             "T\u1ED1i \u01AFu",
             "Ch\u1EAFc Ch\u1EAFn",
@@ -50984,7 +50980,6 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       const effectiveMaxDepth = activeProviderId2 === "pikafish" ? isDeepThink ? Math.max(44, configuredMaxDepth) : configuredMaxDepth : isDeepThink ? 14 : 12;
       const sideToAnalyze = myColor;
       const provider = getEngineProvider(activeProviderId2);
-      let hasStreamedAtLeastOnce = false;
       cancelWorkerSearch = provider.analyzeAsync(
         {
           pieces,
@@ -50994,29 +50989,20 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
           multiPV: configuredMultiPV,
           isCoUp,
           isDeepThink,
+          // Chỉ cập nhật tiến độ Depth/NPS lên thanh trạng thái, KHÔNG thay đổi kế sách hay làm nhảy bàn cờ nhỏ lúc AI chưa tính xong!
           onProgress: (partialRes) => {
             try {
               if (lastAnalysisHash !== currentHash) return;
-              if (!partialRes || !partialRes.lines || partialRes.lines.length === 0)
-                return;
-              const progAnalysis = buildTacticalAnalysis(
-                partialRes,
-                gameData,
-                pieces
-              );
-              if (!progAnalysis || !progAnalysis.plans || progAnalysis.plans.length === 0)
-                return;
-              progAnalysis.isSearching = true;
-              progAnalysis.isProgressive = true;
-              progAnalysis.isDeepThink = isDeepThink;
-              progAnalysis.isQuickOnly = false;
-              const preserve = hasStreamedAtLeastOnce || isDeepThink;
-              hasStreamedAtLeastOnce = true;
-              cachedAnalysis = progAnalysis;
-              ZigaMod.lastEngineAnalysis = progAnalysis;
-              updateMentorHudCardText(progAnalysis);
+              if (!partialRes || !cachedAnalysis) return;
+              cachedAnalysis = {
+                ...cachedAnalysis,
+                isSearching: true,
+                isDeepThink,
+                searchingDepth: partialRes.depth || cachedAnalysis.searchingDepth || 0,
+                nps: partialRes.nps || cachedAnalysis.nps || 0
+              };
               if (mentorSetter) {
-                mentorSetter(progAnalysis, { preserveSelection: preserve });
+                mentorSetter(cachedAnalysis, { preserveSelection: true });
               }
             } catch (e) {
             }
@@ -51079,6 +51065,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             }
             deepAnalysis.isSearching = false;
             deepAnalysis.isProgressive = false;
+            deepAnalysis.searchingDepth = 0;
             deepAnalysis.isDeepThink = isDeepThink;
             deepAnalysis.isQuickOnly = false;
             cachedAnalysis = deepAnalysis;
@@ -51086,7 +51073,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
             updateMentorHudCardText(deepAnalysis);
             if (mentorSetter) {
               mentorSetter(deepAnalysis, {
-                preserveSelection: hasStreamedAtLeastOnce || isDeepThink
+                preserveSelection: false
               });
             }
             if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
@@ -51377,7 +51364,7 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
           "div",
           {
-            className: "relative mx-auto aspect-400/450 w-full max-w-62.5 overflow-hidden rounded-xl border shadow-md select-none",
+            className: "relative mx-auto aspect-400/450 w-full max-w-57.5 overflow-hidden rounded-xl border shadow-md select-none",
             style: {
               background: "#1c1814",
               borderColor: "rgba(100, 75, 45, 0.4)"
@@ -52391,20 +52378,20 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                 ] })
               ] }),
               /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-wrap items-center justify-between gap-1.5 border-t border-white/6 bg-black/20 px-3 py-1.5", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
-                  "span",
-                  {
-                    className: `inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-[9.5px] font-semibold whitespace-nowrap ${analysis.evalScore >= 50 ? "border-emerald-500/35 text-emerald-400" : analysis.evalScore <= -50 ? "border-rose-500/35 text-rose-400" : "border-white/10 text-slate-300"}`,
-                    style: {
-                      background: analysis.evalScore >= 50 ? "rgba(16, 185, 129, 0.1)" : analysis.evalScore <= -50 ? "rgba(244, 63, 94, 0.1)" : "rgba(255, 255, 255, 0.05)"
-                    },
-                    children: [
-                      analysis.evalScore >= 50 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TrendingUp, { className: "size-3 shrink-0" }) : analysis.evalScore <= -50 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TrendingDown, { className: "size-3 shrink-0" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Equal, { className: "size-3 shrink-0" }),
-                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: analysis.evalText })
-                    ]
-                  }
-                ),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-wrap items-center gap-1.5", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                    "span",
+                    {
+                      className: `inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-[9.5px] font-semibold whitespace-nowrap ${analysis.evalScore >= 50 ? "border-emerald-500/35 text-emerald-400" : analysis.evalScore <= -50 ? "border-rose-500/35 text-rose-400" : "border-white/10 text-slate-300"}`,
+                      style: {
+                        background: analysis.evalScore >= 50 ? "rgba(16, 185, 129, 0.1)" : analysis.evalScore <= -50 ? "rgba(244, 63, 94, 0.1)" : "rgba(255, 255, 255, 0.05)"
+                      },
+                      children: [
+                        analysis.evalScore >= 50 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TrendingUp, { className: "size-3 shrink-0" }) : analysis.evalScore <= -50 ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(TrendingDown, { className: "size-3 shrink-0" }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Equal, { className: "size-3 shrink-0" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: analysis.evalText })
+                      ]
+                    }
+                  ),
                   (() => {
                     const status = engineId === "pikafish" ? liveTransport.type : "js-engine";
                     if (engineId === "pikafish") {
@@ -52475,8 +52462,11 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                         ]
                       }
                     );
-                  })(),
-                  (analysis.depth > 0 || analysis.isSearching) && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                  })()
+                ] }),
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex flex-wrap items-center gap-1.5", children: (analysis.depth > 0 || analysis.isSearching) && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_jsx_runtime56.Fragment, { children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { children: `${analysis.wdl ? `WDL: ${(analysis.wdl.win / 10).toFixed(0)}% Th\u1EAFng / ${(analysis.wdl.draw / 10).toFixed(0)}% H\xF2a / ${(analysis.wdl.loss / 10).toFixed(0)}% Thua` : ""}` }),
+                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
                     "span",
                     {
                       className: `inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[9.5px] font-semibold whitespace-nowrap ${analysis.isSearching ? "border-amber-400/40 bg-amber-500/15 text-amber-300" : "border-white/10 bg-white/5 text-slate-300"}`,
@@ -52484,87 +52474,29 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                       children: [
                         analysis.isSearching && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 shrink-0 animate-ping rounded-full bg-amber-400" }),
                         /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { children: [
-                          "D",
-                          analysis.depth || "...",
-                          analysis.winrate != null && (!window.ZigaMod?.userSettings?.pikafishConfig || window.ZigaMod.userSettings.pikafishConfig.showWdl !== false) ? ` \u2022 ${Math.round(analysis.winrate)}%` : ""
+                          analysis.isSearching ? `\u0110ang t\xEDnh D${analysis.searchingDepth || "..."}` : `D${analysis.depth || "..."}`,
+                          !analysis.isSearching && analysis.winrate != null && (!window.ZigaMod?.userSettings?.pikafishConfig || window.ZigaMod.userSettings.pikafishConfig.showWdl !== false) ? ` \u2022 ${Math.round(analysis.winrate)}%` : ""
                         ] })
                       ]
                     }
                   )
-                ] })
+                ] }) })
               ] })
             ] }),
-            analysis.openingName && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "px-3 pt-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-col gap-1 rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent px-3 py-2 text-[10.5px] text-amber-300 shadow-xs", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex flex-wrap items-center justify-between gap-1.5", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-w-0 items-center gap-1.5", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Sparkles, { className: "size-3.5 shrink-0 text-amber-400" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { className: "leading-snug", children: [
-                    "Th\u1EBF Tr\u1EADn: ",
-                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("strong", { children: analysis.openingName })
-                  ] })
-                ] }),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                  Badge,
-                  {
-                    variant: "outline",
-                    className: "shrink-0 border-amber-400/40 bg-amber-500/20 px-1.5 py-0 text-[9px] font-semibold text-amber-300",
-                    children: analysis.openingInfo?.category || "Khai Cu\u1ED9c Chu\u1EA9n"
-                  }
-                )
-              ] }),
-              analysis.openingInfo?.battleplan && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("p", { className: "text-[9.5px] leading-snug text-amber-200/85", children: [
-                "\u{1F4A1} ",
-                analysis.openingInfo.battleplan
-              ] })
-            ] }) }),
-            /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex min-h-0 flex-1 flex-col overflow-hidden p-3 pt-2", children: !isCompact ? (
-              /* Studio Mode (Dual Pane) */
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "grid min-h-0 flex-1 grid-cols-12 gap-3 overflow-hidden", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "col-span-5 flex min-h-0 flex-col gap-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                  MentorMiniBoard,
-                  {
-                    pieces: analysis.pieces,
-                    myColor: analysis.myColor,
-                    activePlan,
-                    activeVariation,
-                    activeStep,
-                    setActiveStep
-                  }
-                ) }),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "col-span-7 flex min-h-0 flex-1 flex-col gap-2 overflow-hidden", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(InsightBanner, { analysis }),
-                  /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex min-h-0 flex-1 flex-col overflow-hidden", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                    PlansTabsSection,
-                    {
-                      tab,
-                      setTab,
-                      analysis,
-                      selectedPlanIdx,
-                      setSelectedPlanIdx,
-                      activeVariationIdx,
-                      setActiveVariationIdx,
-                      activeStep,
-                      setActiveStep,
-                      onDrawPlan: (p, varIdx) => drawPlanArrowOnBoard(p, varIdx)
-                    }
-                  ) })
-                ] })
-              ] })
-            ) : (
-              /* Compact Mode (Single Column - Bàn cờ nhỏ trên cùng, Gợi ý tối ưu nằm ngay dưới) */
-              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "flex min-h-0 flex-1 flex-col gap-2 overflow-hidden", children: [
-                showMiniBoardInCompact && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "border-border/30 shrink-0 rounded-xl border bg-black/30 p-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
-                  MentorMiniBoard,
-                  {
-                    pieces: analysis.pieces,
-                    myColor: analysis.myColor,
-                    activePlan,
-                    activeVariation,
-                    activeStep,
-                    setActiveStep
-                  }
-                ) }),
-                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "shrink-0", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(InsightBanner, { analysis }) }),
+            !isCompact ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex min-h-0 flex-1 flex-col overflow-hidden", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "grid min-h-0 flex-1 grid-cols-12 gap-3 overflow-hidden p-3 pt-2", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "col-span-5 flex min-h-0 flex-col gap-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                MentorMiniBoard,
+                {
+                  pieces: analysis.pieces,
+                  myColor: analysis.myColor,
+                  activePlan,
+                  activeVariation,
+                  activeStep,
+                  setActiveStep
+                }
+              ) }),
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "col-span-7 flex min-h-0 flex-1 flex-col gap-2 overflow-hidden", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(InsightBanner, { analysis }),
                 /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "flex min-h-0 flex-1 flex-col overflow-hidden", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                   PlansTabsSection,
                   {
@@ -52577,11 +52509,60 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
                     setActiveVariationIdx,
                     activeStep,
                     setActiveStep,
-                    onDrawPlan: (p, varIdx) => drawPlanArrowOnBoard(p, varIdx)
+                    onDrawPlan: (p, varIdx) => drawPlanArrowOnBoard(p, varIdx),
+                    isCompact: false
                   }
                 ) })
               ] })
-            ) })
+            ] }) }) : (
+              /* Compact Mode: Toàn bộ phần dưới Header cuộn mượt 1 khối -> không bao giờ bị cắt Kế Sách ở màn hình nhỏ! */
+              /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
+                "div",
+                {
+                  className: "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3 pt-2",
+                  "data-scrollable": "true",
+                  children: [
+                    showMiniBoardInCompact && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "border-border/30 relative shrink-0 rounded-xl border bg-black/30 p-2", children: [
+                      analysis.isSearching && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "pointer-events-none absolute top-2.5 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-amber-400/50 bg-zinc-950/90 px-2.5 py-0.5 text-[9.5px] font-semibold whitespace-nowrap text-amber-300 shadow-lg backdrop-blur-md", children: [
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("span", { className: "size-1.5 animate-ping rounded-full bg-amber-400" }),
+                        /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("span", { children: [
+                          "\u0110ang ch\u1ECDn n\u01B0\u1EDBc t\u1ED1i \u01B0u",
+                          analysis.searchingDepth ? ` (D${analysis.searchingDepth})` : "..."
+                        ] })
+                      ] }),
+                      /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                        MentorMiniBoard,
+                        {
+                          pieces: analysis.pieces,
+                          myColor: analysis.myColor,
+                          activePlan,
+                          activeVariation,
+                          activeStep,
+                          setActiveStep
+                        }
+                      )
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "shrink-0", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(InsightBanner, { analysis }) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", { className: "shrink-0 pb-2", children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
+                      PlansTabsSection,
+                      {
+                        tab,
+                        setTab,
+                        analysis,
+                        selectedPlanIdx,
+                        setSelectedPlanIdx,
+                        activeVariationIdx,
+                        setActiveVariationIdx,
+                        activeStep,
+                        setActiveStep,
+                        onDrawPlan: (p, varIdx) => drawPlanArrowOnBoard(p, varIdx),
+                        isCompact: true
+                      }
+                    ) })
+                  ]
+                }
+              )
+            )
           ]
         }
       );
@@ -52678,7 +52659,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
       setActiveVariationIdx,
       activeStep,
       setActiveStep,
-      onDrawPlan
+      onDrawPlan,
+      isCompact = false
     }) {
       const plans = analysis?.plans || [];
       const [theoryCategory, setTheoryCategory] = (0, import_react15.useState)("T\u1EA5t C\u1EA3");
@@ -52686,12 +52668,13 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
         if (theoryCategory === "T\u1EA5t C\u1EA3") return XIANGQI_MAXIMS;
         return XIANGQI_MAXIMS.filter((m) => m.category === theoryCategory);
       }, [theoryCategory]);
+      const tabContentClass = isCompact ? "flex flex-col gap-2 pt-1.5" : "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1";
       return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(
         Tabs,
         {
           value: tab,
           onValueChange: setTab,
-          className: "flex min-h-0 flex-1 flex-col",
+          className: isCompact ? "flex flex-col" : "flex min-h-0 flex-1 flex-col",
           children: [
             /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(TabsList3, { className: "grid h-6.5 w-full shrink-0 grid-cols-3", children: [
               /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(TabsTrigger, { value: "plans", className: "gap-1 text-[9.5px]", children: [
@@ -52715,8 +52698,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               TabsContent,
               {
                 value: "plans",
-                className: "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1",
-                "data-scrollable": "true",
+                className: tabContentClass,
+                "data-scrollable": isCompact ? void 0 : "true",
                 children: plans.length > 0 ? plans.map((p, idx) => {
                   const isSelected = selectedPlanIdx === idx;
                   const currentVarIdx = isSelected ? activeVariationIdx : 0;
@@ -52928,8 +52911,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               TabsContent,
               {
                 value: "breakdown",
-                className: "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1",
-                "data-scrollable": "true",
+                className: tabContentClass,
+                "data-scrollable": isCompact ? void 0 : "true",
                 children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(
                   EvaluationBreakdownTab,
                   {
@@ -52944,8 +52927,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
               TabsContent,
               {
                 value: "theory",
-                className: "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1",
-                "data-scrollable": "true",
+                className: tabContentClass,
+                "data-scrollable": isCompact ? void 0 : "true",
                 children: [
                   analysis?.maxim && /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "relative overflow-hidden rounded-xl border border-amber-500/35 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent p-2.5 shadow-xs", children: [
                     /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)("div", { className: "mb-1 flex items-center justify-between gap-1", children: [
@@ -53478,8 +53461,8 @@ B\u1EA5m \u0111\u1EC3 xem ph\xE2n t\xEDch chi ti\u1EBFt!`;
   var manifest_default = {
     manifest_version: 3,
     name: "C\xF4ng c\u1EE5 C\u1EDD T\u01B0\u1EDBng",
-    version: "0.0.3.1087",
-    version_name: "0.0.3.202611251807",
+    version: "0.0.3.1026",
+    version_name: "0.0.3.202611261706",
     description: "Hi\u1EC3n th\u1ECB qu\xE2n \u0111\xE3 b\u1ECB \u0103n & highlight t\u1EA7m \u0111\xE1nh",
     icons: {
       "16": "icons/icon16.png",

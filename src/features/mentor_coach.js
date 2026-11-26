@@ -1007,7 +1007,7 @@ import {
     }
   }
 
-  // Grandmaster tactical description and strategic rationale generator
+  // Practical, natural Vietnamese Xiangqi tactical rationale generator
   function getTacticalDescription(
     piece,
     target,
@@ -1029,24 +1029,24 @@ import {
 
     if (isMate) {
       return {
-        tacticName: "Tuyệt Kỹ Sát Cục",
-        why: `Nước cờ ${notation.short} tạo lập trận thế sát cục hoàn hảo! Khóa chặt mọi ngả đường thoái lui của Tướng địch.`,
+        tacticName: "Sát Cục Hết Cờ",
+        why: `Đi ${notation.short} là hết cờ! Tướng địch không còn đường chạy.`,
         tag: "Sát Cục",
       };
     }
 
     if (isCheck) {
       return {
-        tacticName: "Chiếu Tướng Ép Co Cụm",
-        why: `Chiếu Tướng đanh thép tước đoạt quyền chủ động của địch, buộc Tướng hoặc Sĩ Tượng đối phương phải vá víu bộc lộ sơ hở lớn.`,
+        tacticName: "Chiếu Tướng Giành Nhịp",
+        why: `Chiếu thẳng tay ép địch phải đỡ, mình giữ quyền đánh tiếp.`,
         tag: "Chiếu Tướng",
       };
     }
 
     if (target) {
       return {
-        tacticName: `Chém ${target.name} Lộ ${tCol}`,
-        why: `Triệt hạ ${target.name} then chốt tại lộ ${tCol}, xóa bỏ quân chốt chặn chiến lược và gia tăng cách biệt ưu thế lực lượng (+${evalPoints}đ).`,
+        tacticName: `Ăn ${target.name} Lộ ${tCol}`,
+        why: `Ăn gọn ${target.name} ở lộ ${tCol}, lời quân ngay.`,
         tag: "Đoạt Quân",
       };
     }
@@ -1055,28 +1055,28 @@ import {
     if (piece.type === 3) {
       if (toRow === riverRank) {
         return {
-          tacticName: "Xe Tuần Hà (Khống Chế Tuyến Sông)",
-          why: `Xe chiếm cứ bờ sông lộ ${tCol} - tuyến huyết mạch chiến trường; vừa ngăn chặn Mã và Binh địch vượt sông, vừa sẵn sàng hoành xa chuyển cánh chi viện công kích thần tốc.`,
+          tacticName: "Xe Giữ Bờ Sông",
+          why: `Đưa Xe lên giữ bờ sông lộ ${tCol}, chặn địch qua sông và tiện điều sang cánh khác.`,
           tag: "Tuần Hà",
         };
       }
       if (toRow === enemyPawnRank) {
         return {
-          tacticName: "Xe Quá Hà Áp Sát (Đè Mã Diệt Tốt)",
-          why: `Xe lọt sâu vào trận địa địch tại lộ ${tCol}, chọc thẳng vào hàng Tốt yếu hại, đè đầu Mã đối phương và mở toang hành lang sườn cho các đợt công kích tiếp theo.`,
+          tacticName: "Xe Đè Hàng Tốt",
+          why: `Cho Xe sang sông đè hàng Tốt lộ ${tCol}, ghìm chân Mã địch không cho nhảy lên.`,
           tag: "Ghìm Mã",
         };
       }
       if (toRow === enemyBaseline || Math.abs(toRow - enemyBaseline) === 1) {
         return {
-          tacticName: "Xe Áp Đáy Cung (Kẹp Cổ Khóa Tướng)",
-          why: `Xe thọc sâu xuống tuyến đáy lộ ${tCol}, phong tỏa toàn bộ đường di chuyển của Tướng và Sĩ địch, tạo thế kẹp cổ phối hợp cùng Pháo/Mã sát phạt.`,
+          tacticName: "Xe Cắm Đáy Cung",
+          why: `Cắm Xe xuống đáy lộ ${tCol} khóa Tướng địch, chuẩn bị phối hợp đánh bí.`,
           tag: "Kẹp Cổ",
         };
       }
       return {
-        tacticName: `Xe Chiếm Lộ ${tCol} Thông Thoáng`,
-        why: `Xuất Xe kiểm soát lộ ${tCol} thông thoáng, làm chủ trục giao chiến chính, đoạt quyền tiên cơ và liên kết chặt chẽ toàn bộ tuyến công thủ.`,
+        tacticName: `Ra Xe Lộ ${tCol}`,
+        why: `Đưa Xe ra lộ ${tCol} cho thoáng đường, vừa công vừa thủ đều tiện.`,
         tag: "Lộ Thông",
       };
     }
@@ -1085,28 +1085,28 @@ import {
     if (piece.type === 4) {
       if (toCol === 4) {
         return {
-          tacticName: "Pháo Đầu Uy Chấn (Trung Pháo Công Tâm)",
-          why: `Bình Pháo vào trung lộ khống chế trực diện tim Tướng địch, ghim chặt Tốt đầu và Tướng đối phương vào trục dọc, tạo thế công dồn dập và giải phóng đường cho Song Mã xuất trận.`,
+          tacticName: "Vào Pháo Đầu",
+          why: `Đóng Pháo giữa nhắm thẳng Tướng địch, ghim Tốt đầu và mở đường cho Mã lên.`,
           tag: "Pháo Đầu",
         };
       }
       if (toCol === 1 || toCol === 7) {
         return {
-          tacticName: `Pháo Giáp Sườn (Lộ ${tCol})`,
-          why: `Chuyển Pháo sang lộ ${tCol} tạo gọng kìm phối hợp cùng Xe, nhắm thẳng vào cánh yếu của đối phương và phong tỏa ý đồ xuất Xe phản kích của địch.`,
+          tacticName: `Pháo Sườn Lộ ${tCol}`,
+          why: `Kéo Pháo sang lộ ${tCol} đánh cặp cùng Xe, chặn luôn Xe cánh kia của địch.`,
           tag: "Pháo Sườn",
         };
       }
       if (toRow === riverRank || toRow === enemyPawnRank) {
         return {
-          tacticName: `Pháo Tuần Hà / Quá Hà Lộ ${tCol}`,
-          why: `Tiến Pháo lên kiểm soát tuyến giao thông lộ ${tCol}, tạo ngòi nổ tầm xa ghìm chặt Xe Mã đối phương không cho tự do triển khai quân lực.`,
+          tacticName: `Pháo Giữ Sông Lộ ${tCol}`,
+          why: `Đẩy Pháo lên lộ ${tCol} làm ngòi sẵn, kìm Xe Mã địch khó lên quân.`,
           tag: "Phong Tỏa",
         };
       }
       return {
-        tacticName: `Pháo Lập Trận Lộ ${tCol}`,
-        why: `Điều Pháo tới vị trí đắc địa lộ ${tCol}, thiết lập ngòi nổ chiến thuật đa hướng và bảo vệ các điểm then chốt của trận địa.`,
+        tacticName: `Đặt Pháo Lộ ${tCol}`,
+        why: `Điều Pháo sang lộ ${tCol} để có ngòi đánh, vừa giữ được quân nhà.`,
         tag: "Pháo Trận",
       };
     }
@@ -1118,8 +1118,8 @@ import {
         Math.abs(toRow - enemyBaseline) <= 2
       ) {
         return {
-          tacticName: "Mã Ngọa Tào (Khóa Cung Tướng Địch)",
-          why: `Phi Mã cắm thẳng vào huyệt đạo ngọa tào lộ ${tCol}, khóa chặt góc cung Tướng địch, đe dọa trực tiếp mạng sống của Tướng và mở đường cho Xe Pháo giáng đòn kết liễu.`,
+          tacticName: "Mã Ngọa Tào",
+          why: `Nhảy Mã ngọa tào lộ ${tCol} áp sát cung, dọa chiếu rút ăn quân hoặc bí luôn.`,
           tag: "Ngọa Tào",
         };
       }
@@ -1128,28 +1128,28 @@ import {
         Math.abs(toRow - enemyBaseline) <= 2
       ) {
         return {
-          tacticName: "Mã Điếu Ngư (Mã Câu Cá Độc Chiêu)",
-          why: `Mã chiếm vị trí Điếu Ngư hiểm hóc, kết hợp với Xe hoặc Pháo tạo thành thế thắt cổ không thể chống đỡ đối với Tướng địch.`,
+          tacticName: "Mã Điếu Ngư",
+          why: `Nhảy Mã câu cá ở lộ ${tCol}, kẹp với Xe Pháo khóa chặt Tướng địch.`,
           tag: "Điếu Ngư",
         };
       }
       if (toCol === 3 || toCol === 5) {
         return {
-          tacticName: `Song Mã Khởi Nhịp Lộ ${tCol}`,
-          why: `Mã tiến lên vị trí trung tâm lộ ${tCol}, liên hoàn bảo vệ Tốt đầu, mở rộng tầm kiểm soát bàn cờ và sẵn sàng phi qua sông công kích khi có cơ hội.`,
+          tacticName: `Lên Mã Lộ ${tCol}`,
+          why: `Lên Mã lộ ${tCol} giữ chắc Tốt đầu, sẵn sàng nhảy qua sông đánh lên.`,
           tag: "Song Mã",
         };
       }
       if (isPastRiver) {
         return {
-          tacticName: "Mã Vượt Sông Bàn Hà",
-          why: `Mã phi qua sông đoạt điểm tựa chiến thuật, đạp vỡ thế phòng ngự phía trước và mở rộng không gian tấn công đa góc hiểm hóc.`,
+          tacticName: "Mã Qua Sông",
+          why: `Cho Mã nhảy qua sông lộ ${tCol}, đánh thẳng vào sườn làm địch khó đỡ.`,
           tag: "Bàn Hà",
         };
       }
       return {
-        tacticName: `Mã Nhảy Khai Thông Lộ ${tCol}`,
-        why: `Vận động Mã đến lộ ${tCol} thoáng đãng, thoát khỏi sự cản trở của chân Mã, tạo điểm tựa cơ động cho cả công thủ toàn diện.`,
+        tacticName: `Nhảy Mã Lộ ${tCol}`,
+        why: `Đưa Mã ra lộ ${tCol} cho thoát chân, không bị cản và dễ xoay trở.`,
         tag: "Khai Thông",
       };
     }
@@ -1158,14 +1158,14 @@ import {
     if (piece.type === 6) {
       if (isPastRiver) {
         return {
-          tacticName: "Tiểu Tốt Quá Hà (Áp Đảo Uy Lực)",
-          why: `Tốt vượt sông áp sát phòng tuyến địch tại lộ ${tCol}, từng bước gặm nhấm không gian phòng ngự, sẵn sàng phối hợp thọc sâu vào cung Tướng đối phương.`,
+          tacticName: "Tốt Qua Sông",
+          why: `Đẩy Tốt qua sông lộ ${tCol} áp sát cung, ép quân địch phải lùi về đỡ.`,
           tag: "Tốt Qua Sông",
         };
       }
       return {
-        tacticName: `Tiến Binh Khai Nhãn Lộ ${tCol}`,
-        why: `Đẩy Binh lộ ${tCol} lên một nước nhằm thông đường cho Mã xuất kích, kiềm tỏa đà phát triển của quân địch trên cùng trục lộ.`,
+        tacticName: `Nhích Tốt Lộ ${tCol}`,
+        why: `Đẩy Tốt lộ ${tCol} lên 1 bước mở đường cho Mã nhảy, đồng thời chặn Tốt địch.`,
         tag: "Khai Nhãn",
       };
     }
@@ -1173,15 +1173,15 @@ import {
     // 5. Sĩ / Tượng (Guard / Bishop)
     if (piece.type === 1) {
       return {
-        tacticName: "Bổ Sĩ Gia Cố Cung Tướng",
-        why: `Dựng Sĩ che chắn trung lộ và góc cung, bảo vệ an toàn tuyệt đối cho Tướng trước các họng pháo tầm xa và đòn xuyên tâm của địch.`,
+        tacticName: "Lên Sĩ Giữ Tướng",
+        why: `Lên Sĩ che mặt Tướng cho chắc, tránh bị Pháo chiếu thẳng hoặc Xe cắm đáy.`,
         tag: "Gia Cố",
       };
     }
     if (piece.type === 2) {
       return {
-        tacticName: "Vén Tượng Liên Hoàn Phòng Thủ",
-        why: `Liên kết đôi Tượng vững chắc, bảo vệ Tốt đầu và ngăn chặn Xe/Pháo đối phương nhòm ngó đáy cung trận địa.`,
+        tacticName: "Lên Tượng Giữ Nhà",
+        why: `Lên Tượng giữ Tốt giữa, bịt luôn đường Xe Pháo địch chọc xuống đáy.`,
         tag: "Vén Tượng",
       };
     }
@@ -1189,15 +1189,15 @@ import {
     // 6. Tướng (King)
     if (piece.type === 0) {
       return {
-        tacticName: "Tướng Xuất Cung Trợ Chiến",
-        why: `Vận động Tướng chiếm lộ khống chế, dùng mặt Tướng làm ngòi nổ hỗ trợ Xe Pháo khóa chặt đường di chuyển của địch.`,
+        tacticName: "Dịch Tướng Trợ Công",
+        why: `Dịch Tướng sang lộ ${tCol} dùng mặt Tướng hỗ trợ Xe Pháo khóa địch.`,
         tag: "Mặt Tướng",
       };
     }
 
     return {
-      tacticName: `Điều Động Quân Lực Lộ ${tCol}`,
-      why: `Di chuyển ${piece.name} đến Lộ ${tCol} tạo liên kết thế trận, sẵn sàng ứng biến theo mọi diễn biến tiếp theo.`,
+      tacticName: `Điều ${piece.name} Lộ ${tCol}`,
+      why: `Chuyển ${piece.name} sang lộ ${tCol} cho thoáng quân và dễ phối hợp.`,
       tag: "Điều Quân",
     };
   }
@@ -1823,21 +1823,21 @@ import {
           let oppWhy = "";
           const oppTCol = oppColor === 0 ? 9 - rep.toCol : rep.toCol + 1;
           if (oppTarget) {
-            oppWhy = `Phản pháo chém ${oppTarget.name} tại Lộ ${oppTCol} nhằm giải tỏa sức ép.`;
+            oppWhy = `Ăn lại ${oppTarget.name} ở lộ ${oppTCol}.`;
           } else if (oppPiece && oppPiece.type === 0) {
-            oppWhy = `Tướng địch dời sang Lộ ${oppTCol} thoát khỏi tầm ngắm nguy hiểm của ta.`;
+            oppWhy = `Né Tướng sang lộ ${oppTCol} cho an toàn.`;
           } else if (oppPiece && (oppPiece.type === 1 || oppPiece.type === 2)) {
-            oppWhy = `Bổ ${oppPiece.name} củng cố phòng tuyến trước thế công dồn dập của ta.`;
+            oppWhy = `Lên ${oppPiece.name} thủ nhà, che mặt Tướng.`;
           } else if (oppPiece && oppPiece.type === 3) {
-            oppWhy = `Xuất Xe kiểm soát Lộ ${oppTCol} hòng ngăn chặn mũi đột phá của ta.`;
+            oppWhy = `Ra Xe giữ lộ ${oppTCol} để chặn đường mình.`;
           } else if (oppPiece && oppPiece.type === 4) {
-            oppWhy = `Điều Pháo tới Lộ ${oppTCol} tìm kiếm ngòi nổ phản kích.`;
+            oppWhy = `Chuyển Pháo sang lộ ${oppTCol} tìm ngòi đánh lại.`;
           } else if (oppPiece && oppPiece.type === 5) {
-            oppWhy = `Nhảy Mã lên Lộ ${oppTCol} hòng khai thông thế trận và phản kích.`;
+            oppWhy = `Nhảy Mã lên lộ ${oppTCol} cho thoáng quân.`;
           } else if (oppPiece && oppPiece.type === 6) {
-            oppWhy = `Tiến Binh Lộ ${oppTCol} mở đường cho Mã hoặc tranh đoạt quyền kiểm soát hà.`;
+            oppWhy = `Nhích Tốt lộ ${oppTCol} mở đường cho Mã.`;
           } else {
-            oppWhy = `Điều quân phản ứng củng cố trận địa.`;
+            oppWhy = `Điều quân về đỡ.`;
           }
 
           // Follow-up answer from friendly side (simulated on boardAfterStep2!)
@@ -1868,21 +1868,21 @@ import {
               const ansTCol =
                 myColor === 0 ? 9 - rep.answer.toCol : rep.answer.toCol + 1;
               if (ansTarget) {
-                ansWhy = `Lập tức chém ${ansTarget.name} Lộ ${ansTCol}, đoạt ưu thế quyết định.`;
+                ansWhy = `Ăn ngay ${ansTarget.name} lộ ${ansTCol}, lời quân rõ rệt.`;
               } else if (rep.answer.score && rep.answer.score > 9000) {
-                ansWhy = `Giáng đòn sát cục kết liễu trận đấu!`;
+                ansWhy = `Đánh bí luôn, địch hết đường đỡ!`;
               } else if (ansPiece.type === 0) {
-                ansWhy = `Vận động Tướng chiếm lộ khống chế trợ chiến khóa chặt đối phương.`;
+                ansWhy = `Dịch Tướng trợ công khóa chặt địch.`;
               } else if (ansPiece.type === 3) {
-                ansWhy = `Xe bồi đòn khống chế Lộ ${ansTCol}, siết chặt vòng vây ép địch vào thế bí.`;
+                ansWhy = `Cho Xe đè tiếp lộ ${ansTCol}, không cho địch thở.`;
               } else if (ansPiece.type === 4) {
-                ansWhy = `Pháo bồi thêm đòn công kích sườn/trung lộ, khóa chặt đường tẩu thoát.`;
+                ansWhy = `Kéo Pháo bồi thêm, ép thẳng vào cung địch.`;
               } else if (ansPiece.type === 5) {
-                ansWhy = `Mã phi lên Lộ ${ansTCol} tạo gọng kìm phối hợp cùng Xe Pháo dồn ép Tướng địch.`;
+                ansWhy = `Nhảy Mã lộ ${ansTCol} phối hợp Xe Pháo ép sát.`;
               } else if (ansPiece.type === 6) {
-                ansWhy = `Tiểu Tốt xông lên áp sát nách cung, gia tăng áp lực sát ván.`;
+                ansWhy = `Đẩy Tốt áp sát cung gây áp lực tiếp.`;
               } else {
-                ansWhy = `Bồi thêm đòn ${ansNot.short} giữ vững ưu thế áp đảo.`;
+                ansWhy = `Đi tiếp ${ansNot.short} giữ nhịp đánh.`;
               }
             }
           }
@@ -2048,14 +2048,14 @@ import {
             const tCol = stepSide === 0 ? 9 - mv.toCol : mv.toCol + 1;
             if (stepSide === movingColor) {
               stepWhy = stepTarget
-                ? `Ta tiếp tục chém ${stepTarget.name} Lộ ${tCol}, khoét sâu ưu thế!`
+                ? `Ăn tiếp ${stepTarget.name} ở lộ ${tCol}.`
                 : stepNum >= 5
-                  ? `Đẩy mạnh mũi tiến công ${stepNot.short}, siết chặt thế thắng quyết định!`
-                  : `Điều ${stepPiece.name} tới Lộ ${tCol} duy trì sức ép liên hoàn.`;
+                  ? `Đi tiếp ${stepNot.short} ép sát dứt điểm.`
+                  : `Đưa ${stepPiece.name} tới lộ ${tCol} giữ nhịp đánh.`;
             } else {
               stepWhy = stepTarget
-                ? `Địch phản công ăn ${stepTarget.name} Lộ ${tCol} để giảm tải áp lực.`
-                : `Địch xoay sở điều ${stepPiece.name} chống đỡ trước vòng vây.`;
+                ? `Địch ăn lại ${stepTarget.name} ở lộ ${tCol}.`
+                : `Địch điều ${stepPiece.name} về đỡ.`;
             }
           } else {
             stepNot = {
@@ -2065,13 +2065,13 @@ import {
                   : `Địch đi #${stepNum}`,
               full:
                 stepSide === movingColor
-                  ? "Nước cờ liên hoàn của ta"
-                  : "Nước phòng thủ của địch",
+                  ? "Nước đánh tiếp của mình"
+                  : "Nước đỡ của địch",
             };
             stepWhy =
               stepSide === movingColor
-                ? "Duy trì nhịp tiến công theo biến chính Pikafish."
-                : "Địch chống đỡ theo biến chính Pikafish.";
+                ? "Đi tiếp theo nhánh tối ưu."
+                : "Địch chống đỡ theo nhánh chính.";
           }
 
           roadmap.push({
@@ -2099,22 +2099,21 @@ import {
           );
         }
 
-        // Dynamic strategic preparation linking Step 1 to Step 2 and Step 3
+        // Concise, natural follow-up hint (only when there's a concrete reply -> counter pair)
         let prepText = "";
         const firstRep = rep0 || variations[0];
         if (
           firstRep &&
           firstRep.oppNotation?.short &&
-          firstRep.oppNotation?.short !== "Địch đi"
+          firstRep.oppNotation?.short !== "Địch đi" &&
+          firstRep.oppNotation?.short !== "Hết nước" &&
+          firstRep.answer &&
+          firstRep.answer.notation?.short
         ) {
-          if (firstRep.answer && firstRep.answer.notation?.short) {
-            prepText = `Kế sách: Đón đầu nước ${firstRep.oppNotation.short} của địch để lập tức bồi đòn ${firstRep.answer.notation.short}, làm chủ thế trận.`;
-          } else {
-            prepText = `Kế sách: Khống chế biến phản ứng ${firstRep.oppNotation.short} của đối phương, đoạt tiên cơ áp đảo.`;
-          }
+          prepText = `Địch đáp ${firstRep.oppNotation.short} thì mình đi tiếp ${firstRep.answer.notation.short}.`;
         }
 
-        const planWhy = prepText ? `${desc.why} (${prepText})` : desc.why;
+        const planWhy = prepText ? `${desc.why} ${prepText}` : desc.why;
 
         const PLAN_BADGES = [
           "Tối Ưu",
@@ -2583,7 +2582,6 @@ import {
     // Luôn tính toán biến cờ cho Người Chơi (myColor)
     const sideToAnalyze = myColor;
     const provider = getEngineProvider(activeProviderId);
-    let hasStreamedAtLeastOnce = false;
 
     cancelWorkerSearch = provider.analyzeAsync(
       {
@@ -2594,37 +2592,21 @@ import {
         multiPV: configuredMultiPV,
         isCoUp,
         isDeepThink,
+        // Chỉ cập nhật tiến độ Depth/NPS lên thanh trạng thái, KHÔNG thay đổi kế sách hay làm nhảy bàn cờ nhỏ lúc AI chưa tính xong!
         onProgress: (partialRes) => {
           try {
             if (lastAnalysisHash !== currentHash) return;
-            if (
-              !partialRes ||
-              !partialRes.lines ||
-              partialRes.lines.length === 0
-            )
-              return;
-            const progAnalysis = buildTacticalAnalysis(
-              partialRes,
-              gameData,
-              pieces,
-            );
-            if (
-              !progAnalysis ||
-              !progAnalysis.plans ||
-              progAnalysis.plans.length === 0
-            )
-              return;
-            progAnalysis.isSearching = true;
-            progAnalysis.isProgressive = true;
-            progAnalysis.isDeepThink = isDeepThink;
-            progAnalysis.isQuickOnly = false;
-            const preserve = hasStreamedAtLeastOnce || isDeepThink;
-            hasStreamedAtLeastOnce = true;
-            cachedAnalysis = progAnalysis;
-            ZigaMod.lastEngineAnalysis = progAnalysis;
-            updateMentorHudCardText(progAnalysis);
+            if (!partialRes || !cachedAnalysis) return;
+            cachedAnalysis = {
+              ...cachedAnalysis,
+              isSearching: true,
+              isDeepThink,
+              searchingDepth:
+                partialRes.depth || cachedAnalysis.searchingDepth || 0,
+              nps: partialRes.nps || cachedAnalysis.nps || 0,
+            };
             if (mentorSetter) {
-              mentorSetter(progAnalysis, { preserveSelection: preserve });
+              mentorSetter(cachedAnalysis, { preserveSelection: true });
             }
           } catch (e) {}
         },
@@ -2693,6 +2675,7 @@ import {
 
           deepAnalysis.isSearching = false;
           deepAnalysis.isProgressive = false;
+          deepAnalysis.searchingDepth = 0;
           deepAnalysis.isDeepThink = isDeepThink;
           deepAnalysis.isQuickOnly = false;
           cachedAnalysis = deepAnalysis;
@@ -2701,7 +2684,7 @@ import {
 
           if (mentorSetter) {
             mentorSetter(deepAnalysis, {
-              preserveSelection: hasStreamedAtLeastOnce || isDeepThink,
+              preserveSelection: false,
             });
           }
           if (mentorPanelEl && mentorPanelEl.style.display !== "none") {
@@ -3058,7 +3041,7 @@ import {
       <div className="flex flex-col gap-1.5">
         {/* SVG Board */}
         <div
-          className="relative mx-auto aspect-400/450 w-full max-w-62.5 overflow-hidden rounded-xl border shadow-md select-none"
+          className="relative mx-auto aspect-400/450 w-full max-w-57.5 overflow-hidden rounded-xl border shadow-md select-none"
           style={{
             background: "#1c1814",
             borderColor: "rgba(100, 75, 45, 0.4)",
@@ -4099,7 +4082,9 @@ import {
                 size="icon-xs"
                 onClick={handleToggleEngine}
                 title={`Đang dùng: ${analysis.engineName || "AN Grandmaster JS"}. Bấm để chuyển sang ${
-                  engineId === "js-engine" ? "Pikafish NNUE" : "AN Grandmaster JS"
+                  engineId === "js-engine"
+                    ? "Pikafish NNUE"
+                    : "AN Grandmaster JS"
                 }`}
                 className={`size-6 rounded-lg border transition-all ${
                   engineId === "pikafish"
@@ -4166,35 +4151,34 @@ import {
           {/* HÀNG 2: Thanh thông số Engine & Thế trận toàn chiều rộng (Full-Width Telemetry Bar) */}
           <div className="flex flex-wrap items-center justify-between gap-1.5 border-t border-white/6 bg-black/20 px-3 py-1.5">
             {/* Điểm đánh giá thế trận */}
-            <span
-              className={`inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-[9.5px] font-semibold whitespace-nowrap ${
-                analysis.evalScore >= 50
-                  ? "border-emerald-500/35 text-emerald-400"
-                  : analysis.evalScore <= -50
-                    ? "border-rose-500/35 text-rose-400"
-                    : "border-white/10 text-slate-300"
-              }`}
-              style={{
-                background:
-                  analysis.evalScore >= 50
-                    ? "rgba(16, 185, 129, 0.1)"
-                    : analysis.evalScore <= -50
-                      ? "rgba(244, 63, 94, 0.1)"
-                      : "rgba(255, 255, 255, 0.05)",
-              }}
-            >
-              {analysis.evalScore >= 50 ? (
-                <TrendingUp className="size-3 shrink-0" />
-              ) : analysis.evalScore <= -50 ? (
-                <TrendingDown className="size-3 shrink-0" />
-              ) : (
-                <Equal className="size-3 shrink-0" />
-              )}
-              <span>{analysis.evalText}</span>
-            </span>
-
-            {/* Trạng thái Engine + Depth / WDL */}
             <div className="flex flex-wrap items-center gap-1.5">
+              <span
+                className={`inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-[9.5px] font-semibold whitespace-nowrap ${
+                  analysis.evalScore >= 50
+                    ? "border-emerald-500/35 text-emerald-400"
+                    : analysis.evalScore <= -50
+                      ? "border-rose-500/35 text-rose-400"
+                      : "border-white/10 text-slate-300"
+                }`}
+                style={{
+                  background:
+                    analysis.evalScore >= 50
+                      ? "rgba(16, 185, 129, 0.1)"
+                      : analysis.evalScore <= -50
+                        ? "rgba(244, 63, 94, 0.1)"
+                        : "rgba(255, 255, 255, 0.05)",
+                }}
+              >
+                {analysis.evalScore >= 50 ? (
+                  <TrendingUp className="size-3 shrink-0" />
+                ) : analysis.evalScore <= -50 ? (
+                  <TrendingDown className="size-3 shrink-0" />
+                ) : (
+                  <Equal className="size-3 shrink-0" />
+                )}
+                <span>{analysis.evalText}</span>
+              </span>
+              {/* Trạng thái Engine + Depth / WDL */}
               {(() => {
                 const status =
                   engineId === "pikafish" ? liveTransport.type : "js-engine";
@@ -4259,67 +4243,74 @@ import {
                   </span>
                 );
               })()}
+            </div>
 
+            <div className="flex flex-wrap items-center gap-1.5">
               {/* Live Depth & WDL Pill */}
               {(analysis.depth > 0 || analysis.isSearching) && (
-                <span
-                  className={`inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[9.5px] font-semibold whitespace-nowrap ${
-                    analysis.isSearching
-                      ? "border-amber-400/40 bg-amber-500/15 text-amber-300"
-                      : "border-white/10 bg-white/5 text-slate-300"
-                  }`}
-                  title={`Độ sâu: Depth ${analysis.depth || "?"}${analysis.nps ? ` • Tốc độ: ${(analysis.nps / 1000000).toFixed(2)}M nodes/s` : ""}${analysis.wdl ? ` • WDL: ${(analysis.wdl.win / 10).toFixed(0)}% Thắng / ${(analysis.wdl.draw / 10).toFixed(0)}% Hòa / ${(analysis.wdl.loss / 10).toFixed(0)}% Thua` : ""}`}
-                >
-                  {analysis.isSearching && (
-                    <span className="size-1.5 shrink-0 animate-ping rounded-full bg-amber-400" />
-                  )}
-                  <span>
-                    D{analysis.depth || "..."}
-                    {analysis.winrate != null &&
-                    (!window.ZigaMod?.userSettings?.pikafishConfig ||
-                      window.ZigaMod.userSettings.pikafishConfig.showWdl !==
-                        false)
-                      ? ` • ${Math.round(analysis.winrate)}%`
-                      : ""}
+                <>
+                  <span>{`${analysis.wdl ? `WDL: ${(analysis.wdl.win / 10).toFixed(0)}% Thắng / ${(analysis.wdl.draw / 10).toFixed(0)}% Hòa / ${(analysis.wdl.loss / 10).toFixed(0)}% Thua` : ""}`}</span>
+
+                  <span
+                    className={`inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[9.5px] font-semibold whitespace-nowrap ${
+                      analysis.isSearching
+                        ? "border-amber-400/40 bg-amber-500/15 text-amber-300"
+                        : "border-white/10 bg-white/5 text-slate-300"
+                    }`}
+                    title={`Độ sâu: Depth ${analysis.depth || "?"}${analysis.nps ? ` • Tốc độ: ${(analysis.nps / 1000000).toFixed(2)}M nodes/s` : ""}${analysis.wdl ? ` • WDL: ${(analysis.wdl.win / 10).toFixed(0)}% Thắng / ${(analysis.wdl.draw / 10).toFixed(0)}% Hòa / ${(analysis.wdl.loss / 10).toFixed(0)}% Thua` : ""}`}
+                  >
+                    {analysis.isSearching && (
+                      <span className="size-1.5 shrink-0 animate-ping rounded-full bg-amber-400" />
+                    )}
+                    <span>
+                      {analysis.isSearching
+                        ? `Đang tính D${analysis.searchingDepth || "..."}`
+                        : `D${analysis.depth || "..."}`}
+                      {!analysis.isSearching &&
+                      analysis.winrate != null &&
+                      (!window.ZigaMod?.userSettings?.pikafishConfig ||
+                        window.ZigaMod.userSettings.pikafishConfig.showWdl !==
+                          false)
+                        ? ` • ${Math.round(analysis.winrate)}%`
+                        : ""}
+                    </span>
                   </span>
-                </span>
+                </>
               )}
             </div>
           </div>
         </div>
 
-        {/* TẦNG KHAI CUỘC NẾU CÓ */}
-        {analysis.openingName && (
-          <div className="px-3 pt-2">
-            <div className="flex flex-col gap-1 rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent px-3 py-2 text-[10.5px] text-amber-300 shadow-xs">
-              <div className="flex flex-wrap items-center justify-between gap-1.5">
-                <div className="flex min-w-0 items-center gap-1.5">
-                  <Sparkles className="size-3.5 shrink-0 text-amber-400" />
-                  <span className="leading-snug">
-                    Thế Trận: <strong>{analysis.openingName}</strong>
-                  </span>
+        {/* TẦNG NỘI DUNG CHÍNH: Compact cuộn mượt toàn bộ thân bảng | Studio 2 cột độc lập */}
+        {!isCompact ? (
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            {/* {analysis.openingName && (
+              <div className="shrink-0 px-3 pt-2">
+                <div className="flex flex-col gap-1 rounded-xl border border-amber-500/35 bg-linear-to-r from-amber-500/15 via-amber-500/5 to-transparent px-3 py-2 text-[10.5px] text-amber-300 shadow-xs">
+                  <div className="flex flex-wrap items-center justify-between gap-1.5">
+                    <div className="flex min-w-0 items-center gap-1.5">
+                      <Sparkles className="size-3.5 shrink-0 text-amber-400" />
+                      <span className="leading-snug">
+                        Thế Trận: <strong>{analysis.openingName}</strong>
+                      </span>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className="shrink-0 border-amber-400/40 bg-amber-500/20 px-1.5 py-0 text-[9px] font-semibold text-amber-300"
+                    >
+                      {analysis.openingInfo?.category || "Khai Cuộc Chuẩn"}
+                    </Badge>
+                  </div>
+                  {analysis.openingInfo?.battleplan && (
+                    <p className="text-[9.5px] leading-snug text-amber-200/85">
+                      💡 {analysis.openingInfo.battleplan}
+                    </p>
+                  )}
                 </div>
-                <Badge
-                  variant="outline"
-                  className="shrink-0 border-amber-400/40 bg-amber-500/20 px-1.5 py-0 text-[9px] font-semibold text-amber-300"
-                >
-                  {analysis.openingInfo?.category || "Khai Cuộc Chuẩn"}
-                </Badge>
               </div>
-              {analysis.openingInfo?.battleplan && (
-                <p className="text-[9.5px] leading-snug text-amber-200/85">
-                  💡 {analysis.openingInfo.battleplan}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
+            )} */}
 
-        {/* TẦNG NỘI DUNG CHÍNH (COMPACT vs DUAL PANE) */}
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3 pt-2">
-          {!isCompact ? (
-            /* Studio Mode (Dual Pane) */
-            <div className="grid min-h-0 flex-1 grid-cols-12 gap-3 overflow-hidden">
+            <div className="grid min-h-0 flex-1 grid-cols-12 gap-3 overflow-hidden p-3 pt-2">
               <div className="col-span-5 flex min-h-0 flex-col gap-2">
                 <MentorMiniBoard
                   pieces={analysis.pieces}
@@ -4345,50 +4336,90 @@ import {
                     activeStep={activeStep}
                     setActiveStep={setActiveStep}
                     onDrawPlan={(p, varIdx) => drawPlanArrowOnBoard(p, varIdx)}
+                    isCompact={false}
                   />
                 </div>
               </div>
             </div>
-          ) : (
-            /* Compact Mode (Single Column - Bàn cờ nhỏ trên cùng, Gợi ý tối ưu nằm ngay dưới) */
-            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
-              {/* 1. Bàn Cờ Nhỏ Hiện Ngay Phía Trên (Mặc định luôn bật khi mở Kỳ Đạo Sư) */}
-              {showMiniBoardInCompact && (
-                <div className="border-border/30 shrink-0 rounded-xl border bg-black/30 p-2">
-                  <MentorMiniBoard
-                    pieces={analysis.pieces}
-                    myColor={analysis.myColor}
-                    activePlan={activePlan}
-                    activeVariation={activeVariation}
-                    activeStep={activeStep}
-                    setActiveStep={setActiveStep}
-                  />
+          </div>
+        ) : (
+          /* Compact Mode: Toàn bộ phần dưới Header cuộn mượt 1 khối -> không bao giờ bị cắt Kế Sách ở màn hình nhỏ! */
+          <div
+            className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3 pt-2"
+            data-scrollable="true"
+          >
+            {/* {analysis.openingName && (
+              <div className="flex shrink-0 flex-col gap-1 rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent px-2.5 py-1.5 text-[10px] text-amber-300 shadow-xs">
+                <div className="flex flex-wrap items-center justify-between gap-1">
+                  <div className="flex min-w-0 items-center gap-1.5">
+                    <Sparkles className="size-3 shrink-0 text-amber-400" />
+                    <span className="leading-snug">
+                      Thế Trận: <strong>{analysis.openingName}</strong>
+                    </span>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className="shrink-0 border-amber-400/40 bg-amber-500/20 px-1.5 py-0 text-[8.5px] font-semibold text-amber-300"
+                  >
+                    {analysis.openingInfo?.category || "Khai Cuộc"}
+                  </Badge>
                 </div>
-              )}
-
-              {/* 2. Dời Thẻ Gợi Ý Tối Ưu / Nhận Định Chiến Thuật Xuống Phía Dưới Bàn Cờ Nhỏ */}
-              <div className="shrink-0">
-                <InsightBanner analysis={analysis} />
+                {analysis.openingInfo?.battleplan && (
+                  <p className="text-[9.5px] leading-snug text-amber-200/85">
+                    💡 {analysis.openingInfo.battleplan}
+                  </p>
+                )}
               </div>
+            )} */}
 
-              {/* 3. Danh Sách Kế Sách, 5 Trụ Cột, Tâm Pháp */}
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-                <PlansTabsSection
-                  tab={tab}
-                  setTab={setTab}
-                  analysis={analysis}
-                  selectedPlanIdx={selectedPlanIdx}
-                  setSelectedPlanIdx={setSelectedPlanIdx}
-                  activeVariationIdx={activeVariationIdx}
-                  setActiveVariationIdx={setActiveVariationIdx}
+            {/* 1. Bàn Cờ Nhỏ (Đứng yên khi đang tính, chỉ cập nhật khi có nước tối ưu cuối cùng) */}
+            {showMiniBoardInCompact && (
+              <div className="border-border/30 relative shrink-0 rounded-xl border bg-black/30 p-2">
+                {analysis.isSearching && (
+                  <div className="pointer-events-none absolute top-2.5 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-amber-400/50 bg-zinc-950/90 px-2.5 py-0.5 text-[9.5px] font-semibold whitespace-nowrap text-amber-300 shadow-lg backdrop-blur-md">
+                    <span className="size-1.5 animate-ping rounded-full bg-amber-400" />
+                    <span>
+                      Đang chọn nước tối ưu
+                      {analysis.searchingDepth
+                        ? ` (D${analysis.searchingDepth})`
+                        : "..."}
+                    </span>
+                  </div>
+                )}
+                <MentorMiniBoard
+                  pieces={analysis.pieces}
+                  myColor={analysis.myColor}
+                  activePlan={activePlan}
+                  activeVariation={activeVariation}
                   activeStep={activeStep}
                   setActiveStep={setActiveStep}
-                  onDrawPlan={(p, varIdx) => drawPlanArrowOnBoard(p, varIdx)}
                 />
               </div>
+            )}
+
+            {/* 2. Gợi Ý Tối Ưu */}
+            <div className="shrink-0">
+              <InsightBanner analysis={analysis} />
             </div>
-          )}
-        </div>
+
+            {/* 3. Danh Sách Kế Sách, 5 Trụ Cột, Tâm Pháp (chảy tự nhiên trong khung cuộn tổng) */}
+            <div className="shrink-0 pb-2">
+              <PlansTabsSection
+                tab={tab}
+                setTab={setTab}
+                analysis={analysis}
+                selectedPlanIdx={selectedPlanIdx}
+                setSelectedPlanIdx={setSelectedPlanIdx}
+                activeVariationIdx={activeVariationIdx}
+                setActiveVariationIdx={setActiveVariationIdx}
+                activeStep={activeStep}
+                setActiveStep={setActiveStep}
+                onDrawPlan={(p, varIdx) => drawPlanArrowOnBoard(p, varIdx)}
+                isCompact={true}
+              />
+            </div>
+          </div>
+        )}
       </Card>
     );
   }
@@ -4537,6 +4568,7 @@ import {
     activeStep,
     setActiveStep,
     onDrawPlan,
+    isCompact = false,
   }) {
     const plans = analysis?.plans || [];
     const [theoryCategory, setTheoryCategory] = useState("Tất Cả");
@@ -4546,11 +4578,15 @@ import {
       return XIANGQI_MAXIMS.filter((m) => m.category === theoryCategory);
     }, [theoryCategory]);
 
+    const tabContentClass = isCompact
+      ? "flex flex-col gap-2 pt-1.5"
+      : "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1";
+
     return (
       <Tabs
         value={tab}
         onValueChange={setTab}
-        className="flex min-h-0 flex-1 flex-col"
+        className={isCompact ? "flex flex-col" : "flex min-h-0 flex-1 flex-col"}
       >
         <TabsList className="grid h-6.5 w-full shrink-0 grid-cols-3">
           <TabsTrigger value="plans" className="gap-1 text-[9.5px]">
@@ -4570,8 +4606,8 @@ import {
         {/* TAB 1: KẾ SÁCH THỰC CHIẾN (WITH OPPONENT VARIATIONS) */}
         <TabsContent
           value="plans"
-          className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1"
-          data-scrollable="true"
+          className={tabContentClass}
+          data-scrollable={isCompact ? undefined : "true"}
         >
           {plans.length > 0 ? (
             plans.map((p, idx) => {
@@ -4864,8 +4900,8 @@ import {
         {/* TAB 2: HÌNH THẾ 5 TRỤ CỘT (GRANDMASTER EVALUATION) */}
         <TabsContent
           value="breakdown"
-          className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1"
-          data-scrollable="true"
+          className={tabContentClass}
+          data-scrollable={isCompact ? undefined : "true"}
         >
           <EvaluationBreakdownTab
             breakdown={analysis.evalBreakdown}
@@ -4877,8 +4913,8 @@ import {
         {/* TAB 3: TÂM PHÁP & LÝ LUẬN */}
         <TabsContent
           value="theory"
-          className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pt-1 pr-1"
-          data-scrollable="true"
+          className={tabContentClass}
+          data-scrollable={isCompact ? undefined : "true"}
         >
           {/* 1. KHẨU QUYẾT ỨNG DỤNG THẾ TRẬN HIỆN TẠI (DYNAMIC CONTEXTUAL MAXIM) */}
           {analysis?.maxim && (
